@@ -18,6 +18,7 @@ ENV PYTHONDONTWRITEBYTECODE=TRUE
 
 # copy the training script inside the container
 COPY train.py /opt/ml/code/train.py
+COPY .env /opt/ml/code/.env
 
 # define train.py as the script entry point
 ENV SAGEMAKER_PROGRAM train.py
