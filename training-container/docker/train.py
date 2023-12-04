@@ -44,5 +44,11 @@ subprocess.run(
   ["python", "yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
   "--data", "dataset/data.yaml", "--weights", "yolov5s.pt",
   "--project", "dataset/results", "--cache"
-  ]
+  ], check=True
 )
+
+# Save the weights path to S3
+s3.meta.client.upload_file(weights_path, os.getenv('S3_BUCKET_NAME'), 'weights/best.pt')
+
+# Exit the program
+exit(0)
