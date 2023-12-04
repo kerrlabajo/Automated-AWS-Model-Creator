@@ -40,6 +40,7 @@ data['test'] = HOME + '/dataset/test/images'
 with open(data_path, 'w') as file:
     yaml.safe_dump(data, file)
 
+# TODO: Set the arguments for the training script from user input/parameters passed
 subprocess.run(
   ["python", HOME + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
   "--data", "dataset/data.yaml", "--weights", "yolov5s.pt",
