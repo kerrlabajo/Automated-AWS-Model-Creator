@@ -48,7 +48,8 @@ subprocess.run(
 )
 
 # Save the weights path to S3
-s3.meta.client.upload_file(weights_path, os.getenv('S3_BUCKET_NAME'), 'weights/best.pt')
+updated_weights_name = os.urandom(4).hex() + 'best.pt'
+s3.meta.client.upload_file(weights_path, os.getenv('S3_BUCKET_NAME'), 'weights/' + updated_weights_name)
 
 # Exit the program
 exit(0)
