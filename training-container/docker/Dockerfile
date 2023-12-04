@@ -30,3 +30,7 @@ COPY .env .env
 
 # define train.py as the script entry point
 ENV SAGEMAKER_PROGRAM train.py
+
+# entrypoint is required in a docker desktop, still not sure if this will be required upon pusing this in ECR
+# and running it in SageMaker Training Job
+ENTRYPOINT ["python", "train.py"]
