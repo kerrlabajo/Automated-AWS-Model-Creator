@@ -40,22 +40,13 @@ data['test'] = HOME + r'\lsc-inspector\test\images'
 with open(data_path, 'w') as file:
     yaml.safe_dump(data, file)
 
-# Try to retrieve the model at "lsc-inspector/results/exp/weights/best.pt"
-# Train and export the model as ONNX
 def train():
-  res = subprocess.run(
-    ["python", "yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "2",
+  subprocess.run(
+    ["python", "yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
     "--data", "lsc-inspector/data.yaml", "--weights", "yolov5s.pt",
     "--project", "lsc-inspector/results", "--cache"
     ]
   )
 
-# Upload the model to S3
-def upload_to_supabase():
-  custom_file_name = os.urandom(4).hex() + "best.pt"
-  with open(weights_path , 'rb') as f:
-    supabase.storage.from_('lsc_weights').upload(file=f, path=custom_file_name)
-
 if __name__ == '__main__':
   train()
-  upload_to_supabase()
