@@ -1,6 +1,8 @@
 import os
 import subprocess
-from supabase import create_client, Client
+import boto3
+import yaml
+from dotenv import load_dotenv
 
 # Set the environment variable to avoid multithreading conflicts
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
