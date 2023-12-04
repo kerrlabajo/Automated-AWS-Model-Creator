@@ -13,7 +13,7 @@ RUN apt-get install -y git
 RUN apt-get install unzip
 RUN pip install --upgrade pip
 
-RUN pip install subprocess boto3 python-dotenv 'boto3>1.0<2.0' 'sagemaker>2.0<3.0' --quiet --no-cache-dir
+RUN pip install boto3 python-dotenv sagemaker-training 'boto3>1.0<2.0' 'sagemaker>2.0<3.0' --no-cache-dir
 
 RUN git clone https://github.com/ultralytics/yolov5 /opt/ml/code/yolov5
 RUN pip install -r /opt/ml/code/yolov5/requirements.txt --no-cache-dir
