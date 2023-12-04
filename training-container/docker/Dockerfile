@@ -3,7 +3,12 @@ FROM python:3.10-bookworm
 
 LABEL maintainer="Amazon AI"
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN apt-get clean && \
+    apt-get update && \
+    apt-get install -f && \
+    apt-get upgrade -y && \
+    apt-get install ffmpeg libsm6 libxext6 -y
+
 RUN apt-get install -y git
 RUN apt-get install unzip
 RUN pip install --upgrade pip
