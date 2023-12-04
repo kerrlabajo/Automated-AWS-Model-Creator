@@ -18,12 +18,14 @@ RUN pip install boto3 python-dotenv sagemaker-training 'boto3>1.0<2.0' 'sagemake
 RUN git clone https://github.com/ultralytics/yolov5 /opt/ml/code/yolov5
 RUN pip install -r /opt/ml/code/yolov5/requirements.txt --no-cache-dir
 
+WORKDIR /opt/ml/code/
+
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
 
 # copy the training script inside the container
-COPY train.py /opt/ml/code/train.py
-COPY .env /opt/ml/code/.env
+COPY train.py train.py
+COPY .env .env
 
 # define train.py as the script entry point
 ENV SAGEMAKER_PROGRAM train.py
