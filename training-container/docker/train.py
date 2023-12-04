@@ -32,9 +32,9 @@ with open(data_path, 'r') as file:
 
 # Update the train, valid, and test paths
 HOME = os.getcwd()
-data['train'] = HOME + r'\dataset\train\images'
-data['val'] = HOME + r'\dataset\valid\images'
-data['test'] = HOME + r'\dataset\test\images'
+data['train'] = HOME + '/dataset/train/images'
+data['val'] = HOME + '/dataset/valid/images'
+data['test'] = HOME + '/dataset/test/images'
 
 # Write the data back to the YAML file
 with open(data_path, 'w') as file:
