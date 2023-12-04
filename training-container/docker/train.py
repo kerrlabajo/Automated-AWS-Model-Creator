@@ -41,7 +41,7 @@ with open(data_path, 'w') as file:
     yaml.safe_dump(data, file)
 
 subprocess.run(
-  ["python", "yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
+  ["python", HOME + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
   "--data", "dataset/data.yaml", "--weights", "yolov5s.pt",
   "--project", "dataset/results", "--cache"
   ], check=True
