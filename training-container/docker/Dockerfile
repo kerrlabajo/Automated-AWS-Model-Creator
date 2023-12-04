@@ -22,6 +22,7 @@ WORKDIR /opt/ml/code/
 
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
+ENV PATH="/opt/program:${PATH}"
 
 # copy the training script inside the container
 COPY train.py train.py
