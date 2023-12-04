@@ -32,9 +32,9 @@ with open(data_path, 'r') as file:
 
 # Update the train, valid, and test paths
 HOME = os.getcwd()
-data['train'] = HOME + r'\lsc-inspector\train\images'
-data['val'] = HOME + r'\lsc-inspector\valid\images'
-data['test'] = HOME + r'\lsc-inspector\test\images'
+data['train'] = HOME + r'\dataset\train\images'
+data['val'] = HOME + r'\dataset\valid\images'
+data['test'] = HOME + r'\dataset\test\images'
 
 # Write the data back to the YAML file
 with open(data_path, 'w') as file:
@@ -43,8 +43,8 @@ with open(data_path, 'w') as file:
 def train():
   subprocess.run(
     ["python", "yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
-    "--data", "lsc-inspector/data.yaml", "--weights", "yolov5s.pt",
-    "--project", "lsc-inspector/results", "--cache"
+    "--data", "dataset/data.yaml", "--weights", "yolov5s.pt",
+    "--project", "dataset/results", "--cache"
     ]
   )
 
