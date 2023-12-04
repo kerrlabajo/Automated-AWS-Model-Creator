@@ -26,20 +26,19 @@ data_path = "dataset/data.yaml"
 results_path = "dataset/results"
 weights_path = "dataset/results/exp/weights/best.pt"
 
+# Load the data from the YAML file
+with open(data_path, 'r') as file:
+    data = yaml.safe_load(file)
 
-# Extract the lsc-inspector zip file as a folder called lsc-inspector the same directory as this current train.py file and the yolov5 folder
-# The tree structure should look like this:
-# .
-# |── train.py
-# |── yolov5/
-# ├── lsc-inspector/
-# │   ├── data.yaml
-# │   ├── train
-# │   ├── valid
-# │   ├── test
-# │   ├── README.dataset.txt
-# │   ├── README.roboflow.txt
+# Update the train, valid, and test paths
+HOME = os.getcwd()
+data['train'] = HOME + r'\lsc-inspector\train\images'
+data['val'] = HOME + r'\lsc-inspector\valid\images'
+data['test'] = HOME + r'\lsc-inspector\test\images'
 
+# Write the data back to the YAML file
+with open(data_path, 'w') as file:
+    yaml.safe_dump(data, file)
 
 # Try to retrieve the model at "lsc-inspector/results/exp/weights/best.pt"
 # Train and export the model as ONNX
