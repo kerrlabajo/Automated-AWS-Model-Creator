@@ -22,12 +22,9 @@ s3.Bucket(os.getenv('S3_BUCKET_NAME')).download_file(os.getenv('S3_FILE_KEY'), '
 subprocess.run(['unzip', 'dataset.zip', '-d', 'dataset'])
 
 # Define relative paths
-data_path = "lsc-inspector/data.yaml"
-results_path = "lsc-inspector/results"
-weights_path = "lsc-inspector/results/exp/weights/best.pt"
-supabase_url = 'https://tgbqbnhnyjakucemhefo.supabase.co/'
-key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnYnFibmhueWpha3VjZW1oZWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTQ3NTg1NjQsImV4cCI6MjAxMDMzNDU2NH0.wxVjFK5HBbOwTpe7fbd7Sl6pqAzZnkPloTqxkFPb9RI'
-supabase: Client = create_client(supabase_url, key)
+data_path = "dataset/data.yaml"
+results_path = "dataset/results"
+weights_path = "dataset/results/exp/weights/best.pt"
 
 
 # Extract the lsc-inspector zip file as a folder called lsc-inspector the same directory as this current train.py file and the yolov5 folder
