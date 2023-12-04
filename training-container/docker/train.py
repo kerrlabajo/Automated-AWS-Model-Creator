@@ -7,8 +7,19 @@ from dotenv import load_dotenv
 # Set the environment variable to avoid multithreading conflicts
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
-# TODO: Retrieve the dataset.zip from S3 and extract it to the lsc-inspector folder
+# Load environment variables from .env file
+load_dotenv()
 
+# Create an s3 resource object
+s3 = boto3.resource('s3', 
+     aws_access_key_id=os.getenv('ACCESS_KEY_ID'), 
+     aws_secret_access_key=os.getenv('SECRET_ACCESS_KEY'))
+
+# Download the file
+s3.Bucket(os.getenv('S3_BUCKET_NAME')).download_file(os.getenv('S3_FILE_KEY'), 'dataset.zip')
+
+# Extract the zip file
+subprocess.run(['unzip', 'dataset.zip', '-d', 'dataset'])
 
 # Define relative paths
 data_path = "lsc-inspector/data.yaml"
