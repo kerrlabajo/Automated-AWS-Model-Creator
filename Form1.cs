@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Amazon;
 using Amazon.SageMaker;
 
 namespace LSC_Trainer
@@ -17,13 +18,14 @@ namespace LSC_Trainer
         {
             InitializeComponent();
             ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
-            ///
             DotNetEnv.Env.Load();
 
             string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
             string region = Environment.GetEnvironmentVariable("AWS_REGION");
-            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient();
+
+            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
+
 
         }
 
@@ -60,6 +62,16 @@ namespace LSC_Trainer
         }
 
         private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblZipFile_Click(object sender, EventArgs e)
         {
 
         }
