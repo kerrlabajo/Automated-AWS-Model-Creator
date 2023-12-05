@@ -5,11 +5,13 @@ import yaml
 import time
 from dotenv import load_dotenv
 
-# Set the environment variable to avoid multithreading conflicts
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
-# Load environment variables from .env file
-load_dotenv()
+CODE_PATH= "/opt/ml/code/"
+DATA_PATH = "/opt/ml/input/data/"
+RESULTS_PATH = "/opt/ml/output/"
+WEIGHTS_PATH = "/opt/ml/output/exp/weights/best.pt"
+ONNX_PATH = "/opt/ml/output/exp/weights/best.onnx"
+os.makedirs(DATA_PATH, exist_ok=True)
+os.makedirs(RESULTS_PATH, exist_ok=True)
 
 # Define a method that times the execution of a function
 def time_action(method):
@@ -55,9 +57,17 @@ subprocess.run(
   ], check=True
 )
 
-# Save the weights path to S3
-updated_weights_name = os.urandom(4).hex() + 'best.pt'
-s3.meta.client.upload_file(weights_path, os.getenv('S3_BUCKET_NAME'), 'weights/' + updated_weights_name)
+if __name__ == "__main__":
+  # Set the environment variable to avoid multithreading conflicts
+  os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
+  # Load environment variables from .env file
+  load_dotenv()
+
+  # Create an s3 resource object
+  s3 = boto3.resource('s3', 
+      aws_access_key_id=os.getenv('ACCESS_KEY_ID'), 
+      aws_secret_access_key=os.getenv('SECRET_ACCESS_KEY'))
+    
 # Exit the program
 exit(0)
