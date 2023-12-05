@@ -36,8 +36,8 @@ namespace LSC_Trainer
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Zip Files (*.zip)|*.zip";
-                openFileDialog.Title = "Select a Zip File";
+                openFileDialog.Filter = "ZIP Files (*.zip)|*.zip|RAR Files (*.rar)|*.rar";
+                openFileDialog.Title = "Select a Zip or Rar File";
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
