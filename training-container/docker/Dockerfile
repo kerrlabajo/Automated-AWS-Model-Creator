@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-FROM python:3.10-bookworm
+FROM python:3.10-slim
 
 LABEL maintainer="Amazon AI"
 
@@ -13,7 +13,7 @@ RUN apt-get install -y git
 RUN apt-get install unzip
 RUN pip install --upgrade pip
 
-RUN pip install boto3 python-dotenv sagemaker-training 'onnx>=1.12.0' 'boto3>1.0<2.0' 'sagemaker>2.0<3.0' --no-cache-dir
+RUN pip install boto3 python-dotenv 'onnx>=1.12.0' 'boto3>1.0<2.0' 'sagemaker>2.0<3.0' --no-cache-dir
 
 WORKDIR /opt/ml/code/
 
