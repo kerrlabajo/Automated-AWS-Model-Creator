@@ -13,24 +13,26 @@ RUN apt-get install -y git
 RUN apt-get install unzip
 RUN pip install --upgrade pip
 
-RUN pip install boto3 python-dotenv sagemaker-training 'boto3>1.0<2.0' 'sagemaker>2.0<3.0' --no-cache-dir
-
-RUN git clone https://github.com/ultralytics/yolov5 /opt/ml/code/yolov5
-RUN pip install -r /opt/ml/code/yolov5/requirements.txt --no-cache-dir
+RUN pip install boto3 python-dotenv sagemaker-training 'onnx>=1.12.0' 'boto3>1.0<2.0' 'sagemaker>2.0<3.0' --no-cache-dir
 
 WORKDIR /opt/ml/code/
 
-ENV PYTHONUNBUFFERED=TRUE
-ENV PYTHONDONTWRITEBYTECODE=TRUE
-ENV PATH="/opt/program:${PATH}"
+RUN git clone https://github.com/ultralytics/yolov5
+RUN pip install -r yolov5/requirements.txt --no-cache-dir
 
-# copy the training script inside the container
 COPY train.py train.py
 COPY .env .env
 
+WORKDIR /
+
+ENV PYTHONUNBUFFERED=TRUE
+ENV PYTHONDONTWRITEBYTECODE=TRUE
+ENV PATH="/opt/ml/code/yolov5:${PATH}"
+ENV PATH="/opt/program:${PATH}"
+
 # define train.py as the script entry point
-ENV SAGEMAKER_PROGRAM train.py
+ENV SAGEMAKER_PROGRAM /opt/ml/code/train.py
 
 # entrypoint is required in a docker desktop, still not sure if this will be required upon pusing this in ECR
 # and running it in SageMaker Training Job
-ENTRYPOINT ["python", "train.py"]
+ENTRYPOINT ["python", "/opt/ml/code/train.py"]
