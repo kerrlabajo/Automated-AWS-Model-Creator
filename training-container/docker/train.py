@@ -34,11 +34,13 @@ def split_s3_path(s3_path):
 def download_dataset(s3, bucket, file_path):
   s3.Bucket(bucket).download_file(file_key, file_path)
   
-# Define relative paths
-data_path = "dataset/data.yaml"
-results_path = "dataset/results"
-weights_path = "dataset/results/exp/weights/best.pt"
-
+@time_action
+def extract_dataset(file_path):
+  result = subprocess.run(['unzip', file_path, '-d', file_path.split('.')[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+  print('\033[90m' + result.stdout + '\033[0m')
+  if result.stderr: print('\033[91m' + result.stderr + '\033[0m')
+  os.remove(file_path)
+  
 # Load the data from the YAML file
 with open(data_path, 'r') as file:
     data = yaml.safe_load(file)
