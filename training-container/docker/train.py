@@ -71,7 +71,7 @@ def train_model():
     "--project", RESULTS_PATH, "--cache"
     ], check=True
   )
-
+  
 @time_action
 def export_onnx():
   subprocess.run(
@@ -98,5 +98,13 @@ if __name__ == "__main__":
       aws_access_key_id=os.getenv('ACCESS_KEY_ID'), 
       aws_secret_access_key=os.getenv('SECRET_ACCESS_KEY'))
     
-# Exit the program
-exit(0)
+  bucket, file_key = split_s3_path(os.getenv('S3_URI'))
+  file_path = DATA_PATH + file_key
+  download_dataset(s3, bucket, file_path)
+  extract_dataset(file_path)
+  dataset_path = file_path.split('.')[0]
+  modify_yaml(dataset_path)
+  train_model()
+  export_onnx()
+  save_onnx()
+  exit(0)
