@@ -7,7 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Amazon.S3;
 using Amazon.SageMaker;
+using Amazon.SageMaker.Model;
+using Amazon.SageMakerRuntime;
 
 namespace LSC_Trainer
 {
@@ -18,7 +21,9 @@ namespace LSC_Trainer
             InitializeComponent();
             ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
             ///
-            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient(RegionEndpoint.YourRegion);
+            AmazonS3Client s3Client = new AmazonS3Client();
+            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient();
+            AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
 
         }
 
@@ -116,6 +121,60 @@ namespace LSC_Trainer
             {
                 optimiser = txtOptimiser.Text;
             }
+
+            string jobName = String.Format("Training-YOLOv5-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+
+            CreateTrainingJobRequest ctrRequest = new CreateTrainingJobRequest()
+            {
+                AlgorithmSpecification = new AlgorithmSpecification()
+                {
+                    TrainingImage = "433757028032.dkr.ecr.us-west-2.amazonaws.com/image-classification:1",
+                    TrainingInputMode = "File"
+                },
+                RoleArn = "INSERT TOLE",
+                OutputDataConfig = new OutputDataConfig()
+                {
+                    S3OutputPath = String.Format(@"Amazon S3s3://{0}/{1}/output", "INSERT BUCKET NAME HERE", jobName)
+                },
+                ResourceConfig = new ResourceConfig()
+                {
+                    InstanceCount = 1,
+                    InstanceType = TrainingInstanceType.MlM4Xlarge,
+                    VolumeSizeInGB = 50 //size of ml storage
+                },
+                TrainingJobName = jobName,
+                HyperParameters = new Dictionary<string, string>() //temporary TODO: CODE THAT WILL DESERIALIZE YAML FILE
+                {
+                    {"image_shape", "3,224,224"},          // Input image shape (channels, height, width)
+                    {"num_layers", "18"},                   // Number of layers in the neural network
+                    {"num_training_samples", "15420"},     // Number of training samples in your dataset
+                    {"num_classes", "257"},                 // Number of output classes
+                    {"mini_batch_size", "64"},              // Size of mini-batches used in training
+                    {"Epochsepochs", "10"},                 // Number of training epochs
+                    {"learning_rate", "0.01"}               // Learning rate for the optimizer
+                },
+                StoppingCondition = new StoppingCondition()
+                {
+                    MaxRuntimeInSeconds = 360000        
+                },
+                InputDataConfig = new List<Channel>(){
+                    new Channel()
+                    {
+                        ChannelName = "train",
+                        ContentType = "application/x-recordio",
+                        CompressionType = Amazon.SageMaker.CompressionType.None,
+                        DataSource = new DataSource()
+                        {
+                            S3DataSource = new Amazon.SageMaker.Model.S3DataSource()
+                            {
+                                S3DataType = Amazon.SageMaker.S3DataType.S3Prefix,
+                                S3Uri = "INSERT URI",
+                                S3DataDistributionType = Amazon.SageMaker.S3DataDistribution.FullyReplicated
+                            }
+                        }
+                    }
+                }             
+            };
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
