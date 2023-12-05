@@ -8,7 +8,7 @@ IMAGE_TAG=${IMAGE_TAG}
 
 # Increment the image tag
 IMAGE_TAG=$((IMAGE_TAG + 1))
-echo "IMAGE_TAG=$IMAGE_TAG" >> .env
+echo "export IMAGE_TAG=$IMAGE_TAG" >> .env
 IMAGE_TAG=${IMAGE_TAG}
 
 docker build -f ../docker/Dockerfile -t $REPO_NAME ../docker
