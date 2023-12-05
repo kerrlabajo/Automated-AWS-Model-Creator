@@ -41,20 +41,29 @@ def extract_dataset(file_path):
   if result.stderr: print('\033[91m' + result.stderr + '\033[0m')
   os.remove(file_path)
   
-# Load the data from the YAML file
-with open(data_path, 'r') as file:
-    data = yaml.safe_load(file)
+@time_action
+def modify_yaml(dataset_path):
+  # Load the data from the YAML file
+  with open(dataset_path + '/data.yaml', 'r') as file:
+      data = yaml.safe_load(file)
 
-# Update the train, valid, and test paths
-HOME = os.getcwd()
-data['train'] = HOME + '/dataset/train/images'
-data['val'] = HOME + '/dataset/valid/images'
-data['test'] = HOME + '/dataset/test/images'
+  # Update the train, valid, and test paths
+  data['train'] = dataset_path + '/train/images'
+  data['val'] = dataset_path + '/valid/images'
+  data['test'] = dataset_path + '/test/images'
 
-# Write the data back to the YAML file
-with open(data_path, 'w') as file:
-    yaml.safe_dump(data, file)
-
+  # Write the data back to the YAML file
+  with open(dataset_path + '/data.yaml', 'w') as file:
+      yaml.safe_dump(data, file)
+  
+  # Print the contents of the YAML file
+  with open(dataset_path + '/data.yaml') as file:
+    lines = file.readlines()
+    for line in lines:
+        print('\033[90m' + line + '\033[0m')
+        
+@time_action
+def train_model():
 # TODO: Set the arguments for the training script from user input/parameters passed
 subprocess.run(
   ["python", HOME + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
