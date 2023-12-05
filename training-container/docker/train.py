@@ -64,13 +64,13 @@ def modify_yaml(dataset_path):
         
 @time_action
 def train_model():
-# TODO: Set the arguments for the training script from user input/parameters passed
-subprocess.run(
-  ["python", HOME + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
-  "--data", "dataset/data.yaml", "--weights", "yolov5s.pt",
-  "--project", "dataset/results", "--cache"
-  ], check=True
-)
+  # TODO: Set the arguments for the training script from user input/parameters passed
+  subprocess.run(
+    ["python", CODE_PATH + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
+    "--data", dataset_path + "/data.yaml", "--weights", "yolov5s.pt",
+    "--project", RESULTS_PATH, "--cache"
+    ], check=True
+  )
 
 if __name__ == "__main__":
   # Set the environment variable to avoid multithreading conflicts
