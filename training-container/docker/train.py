@@ -30,9 +30,10 @@ def split_s3_path(s3_path):
   file_key="/".join(path_parts)
   return bucket, file_key
 
-# Extract the zip file
-subprocess.run(['unzip', 'dataset.zip', '-d', 'dataset'])
-
+@time_action
+def download_dataset(s3, bucket, file_path):
+  s3.Bucket(bucket).download_file(file_key, file_path)
+  
 # Define relative paths
 data_path = "dataset/data.yaml"
 results_path = "dataset/results"
