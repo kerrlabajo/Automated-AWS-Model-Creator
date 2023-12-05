@@ -21,6 +21,11 @@ namespace LSC_Trainer
             InitializeComponent();
             ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
             ///
+            DotNetEnv.Env.Load();
+
+            string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            string region = Environment.GetEnvironmentVariable("AWS_REGION");
             AmazonS3Client s3Client = new AmazonS3Client();
             AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient();
             AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
@@ -180,6 +185,11 @@ namespace LSC_Trainer
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
                 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
