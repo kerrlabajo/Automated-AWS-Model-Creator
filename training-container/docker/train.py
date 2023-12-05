@@ -24,8 +24,11 @@ def time_action(method):
       return result
   return logger
 
-# Download the file
-s3.Bucket(os.getenv('S3_BUCKET_NAME')).download_file(os.getenv('S3_FILE_KEY'), 'dataset.zip')
+def split_s3_path(s3_path):
+  path_parts=s3_path.replace("s3://","").split("/")
+  bucket=path_parts.pop(0)
+  file_key="/".join(path_parts)
+  return bucket, file_key
 
 # Extract the zip file
 subprocess.run(['unzip', 'dataset.zip', '-d', 'dataset'])
