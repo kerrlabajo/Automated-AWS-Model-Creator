@@ -18,7 +18,7 @@ namespace LSC_Trainer
             InitializeComponent();
             ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
             ///
-            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient();
+            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient(RegionEndpoint.YourRegion);
 
         }
 
@@ -32,7 +32,7 @@ namespace LSC_Trainer
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnUpload_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -45,13 +45,82 @@ namespace LSC_Trainer
 
                     // Display the selected file path (optional)
                     lblZipFile.Text = selectedFilePath;
-                 
+
                     // Handle the zip file as needed
                     // For example, you can extract its contents or upload it to a server
                     // For simplicity, we'll just show a message box with the file path
                     MessageBox.Show($"Selected file: {selectedFilePath}");
                 }
             }
+        }
+
+        private void btnTraining_Click(object sender, EventArgs e)
+        {
+            string img_num = "";
+            string img_size = "1280";
+            string weights = "yolov5n6.pt";
+            string patience = "100";
+            string hyperparameters = "hyp.scratch-low.yaml";
+            string epochs = "";
+            string batch_size = "";
+            string project = "";
+            string workers = "8";
+            string optimiser = "SGD";
+
+            if(txtImgNum.Text != null || txtImgNum.Text != "")
+            {
+                img_num = txtImgNum.Text;
+            }
+
+            if (txtImgSize.Text != null || txtImgSize.Text != "")
+            {
+                img_size = txtImgSize.Text;
+            }
+
+            if (txtWeights.Text != null || txtWeights.Text != "")
+            {
+                weights = txtWeights.Text;
+            }
+
+            if (txtPatience.Text != null || txtPatience.Text != "")
+            {
+                patience = txtPatience.Text;
+            }
+
+            if (txtHyperparameters.Text != null || txtHyperparameters.Text != "")
+            {
+                hyperparameters = txtHyperparameters.Text;
+            }
+
+            if (txtEpochs.Text != null || txtEpochs.Text != "")
+            {
+                epochs = txtEpochs.Text;
+            }
+
+            if (txtBatchSize.Text != null || txtBatchSize.Text != "")
+            {
+                batch_size = txtBatchSize.Text;
+            }
+
+            if (txtProject.Text != null || txtProject.Text != "")
+            {
+                project = txtProject.Text;
+            }
+
+            if (txtWorkers.Text != null || txtWorkers.Text != "")
+            {
+                workers = txtWorkers.Text;
+            }
+
+            if (txtOptimiser.Text != null || txtOptimiser.Text != "")
+            {
+                optimiser = txtOptimiser.Text;
+            }
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+                
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
