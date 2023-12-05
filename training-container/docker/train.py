@@ -72,6 +72,20 @@ def train_model():
     ], check=True
   )
 
+@time_action
+def export_onnx():
+  subprocess.run(
+    ["python", CODE_PATH + "/yolov5/export.py", "--img", "640", "--batch", "1", 
+     "--weights", WEIGHTS_PATH, "--include", "onnx"
+    ], check=True
+  )
+  
+@time_action
+def save_onnx():
+  # Save the ONNX weights to S3
+  updated_weights_name = os.urandom(4).hex() + 'best.onnx'
+  s3.meta.client.upload_file(ONNX_PATH, os.getenv('S3_BUCKET_NAME'), 'weights/' + updated_weights_name)
+
 if __name__ == "__main__":
   # Set the environment variable to avoid multithreading conflicts
   os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
