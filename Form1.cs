@@ -17,11 +17,41 @@ namespace LSC_Trainer
         {
             InitializeComponent();
             ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
+            ///
+            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient();
+
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ///TODO: To test if your AWS credentials is accessible and able to connect, execute this event with the AmazonSageMakerClient.
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Zip Files (*.zip)|*.zip";
+                openFileDialog.Title = "Select a Zip File";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFilePath = openFileDialog.FileName;
+
+                    // Display the selected file path (optional)
+                    lblZipFile.Text = selectedFilePath;
+                 
+                    // Handle the zip file as needed
+                    // For example, you can extract its contents or upload it to a server
+                    // For simplicity, we'll just show a message box with the file path
+                    MessageBox.Show($"Selected file: {selectedFilePath}");
+                }
+            }
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
@@ -39,7 +69,7 @@ namespace LSC_Trainer
         ///TODO: 3. Virtual machine specs used for training (the instance we selected to create the training job).
         ///TODO: 4. Duration of the training in AWS SageMaker Training Job creation and training.
         ///TODO: 5. Model url that was saved in AWS S3.
-        
+
         ///TODO: Create a proceed training button to create a training job in AWS.
         ///TODO: Implement the create training job using SageMaker with the .env variable that contains the AWS ECR location 
         ///TODO: of the team's training algorithm, specific EC2 Instance (Virtual Machine) that is free version, and other
