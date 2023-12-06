@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Amazon;
 using Amazon.S3;
@@ -17,19 +11,21 @@ namespace LSC_Trainer
 {
     public partial class Form1 : Form
     {
-        private AmazonSageMakerClient amazonSageMakerClient;
+        private readonly AmazonSageMakerClient amazonSageMakerClient;
+        private readonly AmazonS3Client s3Client;
+        private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
         public Form1()
         {
             InitializeComponent();
-            ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
-            DotNetEnv.Env.Load();
+            DotNetEnv.Env.Load("C:/Users/raul jay/Desktop/BSCS/4th/Thesis/LSC-Trainer/.env"); //change the path with your .env path
 
             string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
             string region = Environment.GetEnvironmentVariable("AWS_REGION");
+
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
-            AmazonS3Client s3Client = new AmazonS3Client();
-            AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
+            s3Client = new AmazonS3Client();
+            amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
 
         }
 
