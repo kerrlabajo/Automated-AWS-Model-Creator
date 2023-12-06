@@ -7,6 +7,7 @@ using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using Amazon.SageMakerRuntime;
+using System.Linq;
 
 namespace LSC_Trainer
 {
@@ -192,10 +193,38 @@ namespace LSC_Trainer
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-
+                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 // Process the response if needed
 
                 Console.WriteLine("Training job executed successfully.");
+
+                Timer timer = new Timer();
+                timer.Interval = 15000; // Check every 50 seconds
+                timer.Tick += async (sender1, e1) => {
+                    try
+                    {
+                        // Get the training job status
+                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                        {
+                            TrainingJobName = trainingJobName
+                        });
+                        Console.WriteLine(tracker.TrainingJobStatus);
+                        // Update the UI with the latest status
+                        // UpdateUi(response.TrainingJobStatus); to be implemented
+
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
+                        {
+                            timer.Stop(); // Stop timer when training is complete
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any errors
+                        MessageBox.Show($"Error in training model: {ex.Message}");
+                    }
+                };
+
+                timer.Start(); // Start the timer
             }
             catch (Exception ex)
             {
