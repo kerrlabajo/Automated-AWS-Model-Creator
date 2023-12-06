@@ -254,5 +254,10 @@
     <Analyzer Include="packages\AWSSDK.SageMaker.3.7.305\analyzers\dotnet\cs\SharedAnalysisCode.dll" />
     <Analyzer Include="packages\AWSSDK.SageMakerRuntime.3.7.301.2\analyzers\dotnet\cs\AWSSDK.SageMakerRuntime.CodeAnalysis.dll" />
   </ItemGroup>
+  <ItemGroup>
+  <None Update=".env">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

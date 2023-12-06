@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 using Amazon;
 using Amazon.S3;
@@ -17,7 +18,11 @@ namespace LSC_Trainer
         public Form1()
         {
             InitializeComponent();
-            DotNetEnv.Env.Load("C:/Users/raul jay/Desktop/BSCS/4th/Thesis/LSC-Trainer/.env"); //change the path with your .env path
+
+
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
+            
+            DotNetEnv.Env.Load(fullPath); //change the path with your .env path
 
             string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
@@ -26,7 +31,6 @@ namespace LSC_Trainer
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
             s3Client = new AmazonS3Client();
             amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
-
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
