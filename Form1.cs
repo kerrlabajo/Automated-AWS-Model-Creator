@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 using Amazon;
 using Amazon.S3;
@@ -14,19 +15,29 @@ namespace LSC_Trainer
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
         private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
+        private readonly string s3URI;
+        private readonly string ecrURI;
+        private readonly string roleARN;
         public Form1()
         {
             InitializeComponent();
-            DotNetEnv.Env.Load("C:/Users/raul jay/Desktop/BSCS/4th/Thesis/LSC-Trainer/.env"); //change the path with your .env path
 
-            string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-            string region = Environment.GetEnvironmentVariable("AWS_REGION");
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
+            
+            DotNetEnv.Env.Load(fullPath);
+
+            string accessKey = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
+            string secretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
+            string region = Environment.GetEnvironmentVariable("REGION");
+            s3URI = Environment.GetEnvironmentVariable("S3_URI");
+            ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
+            roleARN = Environment.GetEnvironmentVariable("ARN");
 
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
-            s3Client = new AmazonS3Client();
-            amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
+            s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
+            //amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient(); used for inferences
 
+            
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -135,26 +146,26 @@ namespace LSC_Trainer
 
             string jobName = String.Format("Training-YOLOv5-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
-            CreateTrainingJobRequest ctrRequest = new CreateTrainingJobRequest()
+            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
                 {
-                    TrainingImage = "433757028032.dkr.ecr.us-west-2.amazonaws.com/image-classification:1",
+                    TrainingImage = ecrURI,
                     TrainingInputMode = "File"
                 },
-                RoleArn = "INSERT TOLE",
+                RoleArn = roleARN,
                 OutputDataConfig = new OutputDataConfig()
                 {
-                    S3OutputPath = String.Format(@"Amazon S3s3://{0}/{1}/output", "INSERT BUCKET NAME HERE", jobName)
+                    S3OutputPath = s3URI
                 },
                 ResourceConfig = new ResourceConfig()
                 {
                     InstanceCount = 1,
                     InstanceType = TrainingInstanceType.MlM4Xlarge,
-                    VolumeSizeInGB = 50 //size of ml storage
+                    VolumeSizeInGB = 12
                 },
                 TrainingJobName = jobName,
-                HyperParameters = FileHandler.ReadYamlFile(hyperparameters),
+                //HyperParameters = FileHandler.ReadYamlFile(hyperparameters),
                 StoppingCondition = new StoppingCondition()
                 {
                     MaxRuntimeInSeconds = 360000        
@@ -163,20 +174,33 @@ namespace LSC_Trainer
                     new Channel()
                     {
                         ChannelName = "train",
-                        ContentType = "application/x-recordio",
+                        //ContentType = "application/x-recordio",
                         CompressionType = Amazon.SageMaker.CompressionType.None,
                         DataSource = new DataSource()
                         {
                             S3DataSource = new Amazon.SageMaker.Model.S3DataSource()
                             {
                                 S3DataType = Amazon.SageMaker.S3DataType.S3Prefix,
-                                S3Uri = "INSERT URI",
+                                S3Uri = s3URI,
                                 S3DataDistributionType = Amazon.SageMaker.S3DataDistribution.FullyReplicated
                             }
                         }
                     }
                 }             
             };
+
+            try
+            {
+                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+
+                // Process the response if needed
+
+                Console.WriteLine("Training job executed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating training job: {ex.Message}");
+            }
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
