@@ -38,8 +38,18 @@ namespace LSC_Trainer
             this.button1 = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.txtOptimiser = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
+            this.txtWorkers = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.txtProject = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.txtBatchSize = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.txtEpochs = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnTraining = new System.Windows.Forms.Button();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
@@ -51,11 +61,11 @@ namespace LSC_Trainer
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtHyperparameters = new System.Windows.Forms.TextBox();
+            this.txtPatience = new System.Windows.Forms.TextBox();
+            this.txtWeights = new System.Windows.Forms.TextBox();
+            this.txtImgSize = new System.Windows.Forms.TextBox();
+            this.txtImgNum = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -90,7 +100,7 @@ namespace LSC_Trainer
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(714, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(996, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -115,7 +125,7 @@ namespace LSC_Trainer
             this.button1.TabIndex = 2;
             this.button1.Text = "Upload Dataset";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.btnUpload_Click);
             // 
             // lblZipFile
             // 
@@ -131,8 +141,18 @@ namespace LSC_Trainer
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.txtOptimiser);
+            this.panel1.Controls.Add(this.label24);
+            this.panel1.Controls.Add(this.txtWorkers);
+            this.panel1.Controls.Add(this.label23);
+            this.panel1.Controls.Add(this.txtProject);
+            this.panel1.Controls.Add(this.label22);
+            this.panel1.Controls.Add(this.txtBatchSize);
+            this.panel1.Controls.Add(this.label21);
+            this.panel1.Controls.Add(this.txtEpochs);
+            this.panel1.Controls.Add(this.label20);
             this.panel1.Controls.Add(this.label19);
-            this.panel1.Controls.Add(this.button3);
+            this.panel1.Controls.Add(this.btnTraining);
             this.panel1.Controls.Add(this.label18);
             this.panel1.Controls.Add(this.label17);
             this.panel1.Controls.Add(this.label16);
@@ -144,11 +164,11 @@ namespace LSC_Trainer
             this.panel1.Controls.Add(this.label10);
             this.panel1.Controls.Add(this.label9);
             this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.textBox5);
-            this.panel1.Controls.Add(this.textBox4);
-            this.panel1.Controls.Add(this.textBox3);
-            this.panel1.Controls.Add(this.textBox2);
-            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Controls.Add(this.txtHyperparameters);
+            this.panel1.Controls.Add(this.txtPatience);
+            this.panel1.Controls.Add(this.txtWeights);
+            this.panel1.Controls.Add(this.txtImgSize);
+            this.panel1.Controls.Add(this.txtImgNum);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.label5);
@@ -160,32 +180,113 @@ namespace LSC_Trainer
             this.panel1.Controls.Add(this.button1);
             this.panel1.Location = new System.Drawing.Point(37, 63);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(632, 355);
+            this.panel1.Size = new System.Drawing.Size(925, 355);
             this.panel1.TabIndex = 4;
+            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // txtOptimiser
+            // 
+            this.txtOptimiser.Location = new System.Drawing.Point(366, 200);
+            this.txtOptimiser.Name = "txtOptimiser";
+            this.txtOptimiser.Size = new System.Drawing.Size(107, 22);
+            this.txtOptimiser.TabIndex = 39;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(281, 203);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(72, 17);
+            this.label24.TabIndex = 38;
+            this.label24.Text = "Optimiser:";
+            // 
+            // txtWorkers
+            // 
+            this.txtWorkers.Location = new System.Drawing.Point(366, 172);
+            this.txtWorkers.Name = "txtWorkers";
+            this.txtWorkers.Size = new System.Drawing.Size(107, 22);
+            this.txtWorkers.TabIndex = 37;
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(281, 175);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(65, 17);
+            this.label23.TabIndex = 36;
+            this.label23.Text = "Workers:";
+            // 
+            // txtProject
+            // 
+            this.txtProject.Location = new System.Drawing.Point(366, 144);
+            this.txtProject.Name = "txtProject";
+            this.txtProject.Size = new System.Drawing.Size(107, 22);
+            this.txtProject.TabIndex = 35;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(281, 147);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(56, 17);
+            this.label22.TabIndex = 34;
+            this.label22.Text = "Project:";
+            // 
+            // txtBatchSize
+            // 
+            this.txtBatchSize.Location = new System.Drawing.Point(366, 116);
+            this.txtBatchSize.Name = "txtBatchSize";
+            this.txtBatchSize.Size = new System.Drawing.Size(107, 22);
+            this.txtBatchSize.TabIndex = 33;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(281, 119);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(79, 17);
+            this.label21.TabIndex = 32;
+            this.label21.Text = "Batch Size:";
+            // 
+            // txtEpochs
+            // 
+            this.txtEpochs.Location = new System.Drawing.Point(366, 88);
+            this.txtEpochs.Name = "txtEpochs";
+            this.txtEpochs.Size = new System.Drawing.Size(107, 22);
+            this.txtEpochs.TabIndex = 31;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(281, 91);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(59, 17);
+            this.label20.TabIndex = 30;
+            this.label20.Text = "Epochs:";
             // 
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(379, 58);
+            this.label19.Location = new System.Drawing.Point(651, 58);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(155, 17);
             this.label19.TabIndex = 29;
             this.label19.Text = "TRAINING PROGRESS";
             // 
-            // button3
+            // btnTraining
             // 
-            this.button3.Location = new System.Drawing.Point(373, 308);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(170, 30);
-            this.button3.TabIndex = 28;
-            this.button3.Text = "Train";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            this.btnTraining.Location = new System.Drawing.Point(645, 308);
+            this.btnTraining.Name = "btnTraining";
+            this.btnTraining.Size = new System.Drawing.Size(170, 30);
+            this.btnTraining.TabIndex = 28;
+            this.btnTraining.Text = "Train";
+            this.btnTraining.UseVisualStyleBackColor = true;
+            this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(512, 196);
+            this.label18.Location = new System.Drawing.Point(784, 196);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(31, 17);
             this.label18.TabIndex = 27;
@@ -194,7 +295,7 @@ namespace LSC_Trainer
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(512, 169);
+            this.label17.Location = new System.Drawing.Point(784, 169);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(31, 17);
             this.label17.TabIndex = 26;
@@ -203,7 +304,7 @@ namespace LSC_Trainer
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(512, 142);
+            this.label16.Location = new System.Drawing.Point(784, 142);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(31, 17);
             this.label16.TabIndex = 25;
@@ -212,7 +313,7 @@ namespace LSC_Trainer
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(512, 115);
+            this.label15.Location = new System.Drawing.Point(784, 115);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(31, 17);
             this.label15.TabIndex = 24;
@@ -221,7 +322,7 @@ namespace LSC_Trainer
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(512, 88);
+            this.label14.Location = new System.Drawing.Point(784, 88);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(31, 17);
             this.label14.TabIndex = 23;
@@ -230,7 +331,7 @@ namespace LSC_Trainer
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(354, 196);
+            this.label13.Location = new System.Drawing.Point(626, 196);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(119, 17);
             this.label13.TabIndex = 22;
@@ -239,7 +340,7 @@ namespace LSC_Trainer
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(354, 169);
+            this.label12.Location = new System.Drawing.Point(626, 169);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(122, 17);
             this.label12.TabIndex = 21;
@@ -248,7 +349,7 @@ namespace LSC_Trainer
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(354, 142);
+            this.label11.Location = new System.Drawing.Point(626, 142);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(152, 17);
             this.label11.TabIndex = 20;
@@ -257,7 +358,7 @@ namespace LSC_Trainer
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(354, 115);
+            this.label10.Location = new System.Drawing.Point(626, 115);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(102, 17);
             this.label10.TabIndex = 19;
@@ -267,7 +368,7 @@ namespace LSC_Trainer
             // 
             this.label9.AutoSize = true;
             this.label9.Cursor = System.Windows.Forms.Cursors.Default;
-            this.label9.Location = new System.Drawing.Point(354, 88);
+            this.label9.Location = new System.Drawing.Point(626, 88);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(139, 17);
             this.label9.TabIndex = 18;
@@ -282,40 +383,40 @@ namespace LSC_Trainer
             this.label8.TabIndex = 17;
             this.label8.Text = "TRAINING PARAMETERS";
             // 
-            // textBox5
+            // txtHyperparameters
             // 
-            this.textBox5.Location = new System.Drawing.Point(157, 200);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(107, 22);
-            this.textBox5.TabIndex = 16;
+            this.txtHyperparameters.Location = new System.Drawing.Point(157, 200);
+            this.txtHyperparameters.Name = "txtHyperparameters";
+            this.txtHyperparameters.Size = new System.Drawing.Size(107, 22);
+            this.txtHyperparameters.TabIndex = 16;
             // 
-            // textBox4
+            // txtPatience
             // 
-            this.textBox4.Location = new System.Drawing.Point(157, 172);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(107, 22);
-            this.textBox4.TabIndex = 15;
+            this.txtPatience.Location = new System.Drawing.Point(157, 172);
+            this.txtPatience.Name = "txtPatience";
+            this.txtPatience.Size = new System.Drawing.Size(107, 22);
+            this.txtPatience.TabIndex = 15;
             // 
-            // textBox3
+            // txtWeights
             // 
-            this.textBox3.Location = new System.Drawing.Point(157, 144);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(107, 22);
-            this.textBox3.TabIndex = 14;
+            this.txtWeights.Location = new System.Drawing.Point(157, 144);
+            this.txtWeights.Name = "txtWeights";
+            this.txtWeights.Size = new System.Drawing.Size(107, 22);
+            this.txtWeights.TabIndex = 14;
             // 
-            // textBox2
+            // txtImgSize
             // 
-            this.textBox2.Location = new System.Drawing.Point(157, 116);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(107, 22);
-            this.textBox2.TabIndex = 13;
+            this.txtImgSize.Location = new System.Drawing.Point(157, 116);
+            this.txtImgSize.Name = "txtImgSize";
+            this.txtImgSize.Size = new System.Drawing.Size(107, 22);
+            this.txtImgSize.TabIndex = 13;
             // 
-            // textBox1
+            // txtImgNum
             // 
-            this.textBox1.Location = new System.Drawing.Point(157, 88);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(107, 22);
-            this.textBox1.TabIndex = 12;
+            this.txtImgNum.Location = new System.Drawing.Point(157, 88);
+            this.txtImgNum.Name = "txtImgNum";
+            this.txtImgNum.Size = new System.Drawing.Size(107, 22);
+            this.txtImgNum.TabIndex = 12;
             // 
             // label7
             // 
@@ -383,7 +484,7 @@ namespace LSC_Trainer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(714, 446);
+            this.ClientSize = new System.Drawing.Size(996, 450);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
             this.MainMenuStrip = this.menuStrip1;
@@ -413,11 +514,11 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtHyperparameters;
+        private System.Windows.Forms.TextBox txtPatience;
+        private System.Windows.Forms.TextBox txtWeights;
+        private System.Windows.Forms.TextBox txtImgSize;
+        private System.Windows.Forms.TextBox txtImgNum;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
@@ -433,8 +534,18 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnTraining;
         private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox txtOptimiser;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.TextBox txtWorkers;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.TextBox txtProject;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.TextBox txtBatchSize;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox txtEpochs;
+        private System.Windows.Forms.Label label20;
     }
 }
 
