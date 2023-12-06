@@ -158,16 +158,7 @@ namespace LSC_Trainer
                     VolumeSizeInGB = 50 //size of ml storage
                 },
                 TrainingJobName = jobName,
-                HyperParameters = new Dictionary<string, string>() //temporary TODO: CODE THAT WILL DESERIALIZE YAML FILE
-                {
-                    {"image_shape", "3,224,224"},          // Input image shape (channels, height, width)
-                    {"num_layers", "18"},                   // Number of layers in the neural network
-                    {"num_training_samples", "15420"},     // Number of training samples in your dataset
-                    {"num_classes", "257"},                 // Number of output classes
-                    {"mini_batch_size", "64"},              // Size of mini-batches used in training
-                    {"Epochsepochs", "10"},                 // Number of training epochs
-                    {"learning_rate", "0.01"}               // Learning rate for the optimizer
-                },
+                HyperParameters = FileHandler.ReadYamlFile(hyperparameters),
                 StoppingCondition = new StoppingCondition()
                 {
                     MaxRuntimeInSeconds = 360000        
