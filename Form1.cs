@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Amazon;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
@@ -16,18 +17,18 @@ namespace LSC_Trainer
 {
     public partial class Form1 : Form
     {
+        private AmazonSageMakerClient amazonSageMakerClient;
         public Form1()
         {
             InitializeComponent();
             ///TODO: Initialize AmazonSageMakerClient by fetching from an .env variable with your AWS credentials.
-            ///
             DotNetEnv.Env.Load();
 
             string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
             string region = Environment.GetEnvironmentVariable("AWS_REGION");
+            amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
             AmazonS3Client s3Client = new AmazonS3Client();
-            AmazonSageMakerClient amazonSageMakerClient = new AmazonSageMakerClient();
             AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient();
 
         }
@@ -35,6 +36,15 @@ namespace LSC_Trainer
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ///TODO: To test if your AWS credentials is accessible and able to connect, execute this event with the AmazonSageMakerClient.
+            try
+            {
+                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -188,6 +198,16 @@ namespace LSC_Trainer
         }
 
         private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblZipFile_Click(object sender, EventArgs e)
         {
 
         }

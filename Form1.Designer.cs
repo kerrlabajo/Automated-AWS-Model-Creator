@@ -38,6 +38,16 @@ namespace LSC_Trainer
             this.button1 = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.txtOptimiser = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
+            this.txtWorkers = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.txtProject = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.txtBatchSize = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.txtEpochs = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.btnTraining = new System.Windows.Forms.Button();
             this.label18 = new System.Windows.Forms.Label();
@@ -63,16 +73,6 @@ namespace LSC_Trainer
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtEpochs = new System.Windows.Forms.TextBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.txtBatchSize = new System.Windows.Forms.TextBox();
-            this.label21 = new System.Windows.Forms.Label();
-            this.txtProject = new System.Windows.Forms.TextBox();
-            this.label22 = new System.Windows.Forms.Label();
-            this.txtWorkers = new System.Windows.Forms.TextBox();
-            this.label23 = new System.Windows.Forms.Label();
-            this.txtOptimiser = new System.Windows.Forms.TextBox();
-            this.label24 = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -123,7 +123,7 @@ namespace LSC_Trainer
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(170, 30);
             this.button1.TabIndex = 2;
-            this.button1.Text = "Upload Zip/RAR file";
+            this.button1.Text = "Upload Dataset";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.btnUpload_Click);
             // 
@@ -136,6 +136,7 @@ namespace LSC_Trainer
             this.lblZipFile.Size = new System.Drawing.Size(109, 19);
             this.lblZipFile.TabIndex = 3;
             this.lblZipFile.Text = "No file Selected";
+            this.lblZipFile.Click += new System.EventHandler(this.lblZipFile_Click);
             // 
             // panel1
             // 
@@ -183,6 +184,86 @@ namespace LSC_Trainer
             this.panel1.TabIndex = 4;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
+            // txtOptimiser
+            // 
+            this.txtOptimiser.Location = new System.Drawing.Point(366, 200);
+            this.txtOptimiser.Name = "txtOptimiser";
+            this.txtOptimiser.Size = new System.Drawing.Size(107, 22);
+            this.txtOptimiser.TabIndex = 39;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(281, 203);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(72, 17);
+            this.label24.TabIndex = 38;
+            this.label24.Text = "Optimiser:";
+            // 
+            // txtWorkers
+            // 
+            this.txtWorkers.Location = new System.Drawing.Point(366, 172);
+            this.txtWorkers.Name = "txtWorkers";
+            this.txtWorkers.Size = new System.Drawing.Size(107, 22);
+            this.txtWorkers.TabIndex = 37;
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(281, 175);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(65, 17);
+            this.label23.TabIndex = 36;
+            this.label23.Text = "Workers:";
+            // 
+            // txtProject
+            // 
+            this.txtProject.Location = new System.Drawing.Point(366, 144);
+            this.txtProject.Name = "txtProject";
+            this.txtProject.Size = new System.Drawing.Size(107, 22);
+            this.txtProject.TabIndex = 35;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(281, 147);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(56, 17);
+            this.label22.TabIndex = 34;
+            this.label22.Text = "Project:";
+            // 
+            // txtBatchSize
+            // 
+            this.txtBatchSize.Location = new System.Drawing.Point(366, 116);
+            this.txtBatchSize.Name = "txtBatchSize";
+            this.txtBatchSize.Size = new System.Drawing.Size(107, 22);
+            this.txtBatchSize.TabIndex = 33;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(281, 119);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(79, 17);
+            this.label21.TabIndex = 32;
+            this.label21.Text = "Batch Size:";
+            // 
+            // txtEpochs
+            // 
+            this.txtEpochs.Location = new System.Drawing.Point(366, 88);
+            this.txtEpochs.Name = "txtEpochs";
+            this.txtEpochs.Size = new System.Drawing.Size(107, 22);
+            this.txtEpochs.TabIndex = 31;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(281, 91);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(59, 17);
+            this.label20.TabIndex = 30;
+            this.label20.Text = "Epochs:";
+            // 
             // label19
             // 
             this.label19.AutoSize = true;
@@ -198,7 +279,7 @@ namespace LSC_Trainer
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(170, 30);
             this.btnTraining.TabIndex = 28;
-            this.btnTraining.Text = "Create Training Job";
+            this.btnTraining.Text = "Train";
             this.btnTraining.UseVisualStyleBackColor = true;
             this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
             // 
@@ -398,86 +479,6 @@ namespace LSC_Trainer
             this.label1.Size = new System.Drawing.Size(93, 17);
             this.label1.TabIndex = 4;
             this.label1.Text = "Selected File:";
-            // 
-            // txtEpochs
-            // 
-            this.txtEpochs.Location = new System.Drawing.Point(366, 88);
-            this.txtEpochs.Name = "txtEpochs";
-            this.txtEpochs.Size = new System.Drawing.Size(107, 22);
-            this.txtEpochs.TabIndex = 31;
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(281, 91);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(59, 17);
-            this.label20.TabIndex = 30;
-            this.label20.Text = "Epochs:";
-            // 
-            // txtBatchSize
-            // 
-            this.txtBatchSize.Location = new System.Drawing.Point(366, 116);
-            this.txtBatchSize.Name = "txtBatchSize";
-            this.txtBatchSize.Size = new System.Drawing.Size(107, 22);
-            this.txtBatchSize.TabIndex = 33;
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(281, 119);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(79, 17);
-            this.label21.TabIndex = 32;
-            this.label21.Text = "Batch Size:";
-            // 
-            // txtProject
-            // 
-            this.txtProject.Location = new System.Drawing.Point(366, 144);
-            this.txtProject.Name = "txtProject";
-            this.txtProject.Size = new System.Drawing.Size(107, 22);
-            this.txtProject.TabIndex = 35;
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(281, 147);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(56, 17);
-            this.label22.TabIndex = 34;
-            this.label22.Text = "Project:";
-            // 
-            // txtWorkers
-            // 
-            this.txtWorkers.Location = new System.Drawing.Point(366, 172);
-            this.txtWorkers.Name = "txtWorkers";
-            this.txtWorkers.Size = new System.Drawing.Size(107, 22);
-            this.txtWorkers.TabIndex = 37;
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(281, 175);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(65, 17);
-            this.label23.TabIndex = 36;
-            this.label23.Text = "Workers:";
-            // 
-            // txtOptimiser
-            // 
-            this.txtOptimiser.Location = new System.Drawing.Point(366, 200);
-            this.txtOptimiser.Name = "txtOptimiser";
-            this.txtOptimiser.Size = new System.Drawing.Size(107, 22);
-            this.txtOptimiser.TabIndex = 39;
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(281, 203);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(72, 17);
-            this.label24.TabIndex = 38;
-            this.label24.Text = "Optimiser:";
             // 
             // Form1
             // 
