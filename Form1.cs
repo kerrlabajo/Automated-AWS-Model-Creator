@@ -47,10 +47,12 @@ namespace LSC_Trainer
             try
             {
                 var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                Console.WriteLine("Connection successful.");
                 MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception error)
             {
+                Console.WriteLine($"Unexpected error: {error.Message}");
                 MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
