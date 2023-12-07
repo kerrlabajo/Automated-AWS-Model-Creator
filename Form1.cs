@@ -7,6 +7,7 @@ using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using Amazon.SageMakerRuntime;
+using System.Linq;
 
 namespace LSC_Trainer
 {
@@ -46,10 +47,12 @@ namespace LSC_Trainer
             try
             {
                 var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                Console.WriteLine("Connection successful.");
                 MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception error)
             {
+                Console.WriteLine($"Unexpected error: {error.Message}");
                 MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -192,10 +195,70 @@ namespace LSC_Trainer
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-
+                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 // Process the response if needed
 
                 Console.WriteLine("Training job executed successfully.");
+
+                string prevStatusMessage = "";
+                Timer timer = new Timer();
+                timer.Interval = 5000; // Check every 5 seconds
+                timer.Tick += async (sender1, e1) => {
+                    try
+                    {
+                        // Get the training job status
+                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                        {
+                            TrainingJobName = trainingJobName
+                        });
+
+                        //SecondaryStatusTransition status = tracker.SecondaryStatusTransitions.Last();
+                        //Console.WriteLine("Status: " + status.Status);
+                        //Console.WriteLine("Description: " + status.StatusMessage);
+                         
+                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+                        {
+                            Console.WriteLine($"Status: { tracker.SecondaryStatusTransitions.Last().Status}");
+                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
+                            Console.WriteLine();
+                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
+                            // Update the UI with the latest status
+                            // UpdateUi(response.TrainingJobStatus); to be implemented
+                        }
+
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
+                        {
+                            Console.WriteLine("Printing status history...");
+                            foreach(SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
+                            {
+                                Console.WriteLine("Status: " + history.Status);
+                                TimeSpan elapsed = history.EndTime - history.StartTime;
+                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)elapsed.TotalHours,
+                                              elapsed.Minutes,
+                                              elapsed.Seconds,
+                                              (int)(elapsed.Milliseconds / 100));
+                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
+                                Console.WriteLine("Description: " + history.StatusMessage);
+                                Console.WriteLine();
+                            }
+                            timer.Stop(); // Stop timer when training is complete
+                        }
+
+                        if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                        {
+                            Console.WriteLine(tracker.FailureReason);
+                            timer.Stop();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle any errors
+                        MessageBox.Show($"Error in training model: {ex.Message}");
+                    }
+                };
+
+                timer.Start(); // Start the timer
             }
             catch (Exception ex)
             {
