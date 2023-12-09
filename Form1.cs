@@ -19,6 +19,8 @@ namespace LSC_Trainer
         private readonly string s3URI;
         private readonly string ecrURI;
         private readonly string roleARN;
+
+        private string datasetPath;
         public Form1()
         {
             InitializeComponent();
@@ -61,7 +63,7 @@ namespace LSC_Trainer
 
         }
 
-        private void btnUpload_Click(object sender, EventArgs e)
+        private void btnSelectDataset_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -70,19 +72,34 @@ namespace LSC_Trainer
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string selectedFilePath = openFileDialog.FileName;
+                    datasetPath = openFileDialog.FileName;
 
                     // Display the selected file path (optional)
-                    lblZipFile.Text = selectedFilePath;
+                    lblZipFile.Text = datasetPath;
 
                     // Handle the zip file as needed
                     // For example, you can extract its contents or upload it to a server
                     // For simplicity, we'll just show a message box with the file path
-                    MessageBox.Show($"Selected file: {selectedFilePath}");
+                    MessageBox.Show($"Selected file: {datasetPath}");
+                    btnRemoveFile.Visible = true;
                 }
             }
         }
 
+        private void btnUploadToS3_Click(object sender, EventArgs e)
+        {
+            if(datasetPath != null)
+            {
+                string filename = datasetPath.Split('\\').Last();
+                DialogResult result = MessageBox.Show($"Do you want to upload {filename} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            }
+            else
+            {
+                MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
+
+        }
         private void btnTraining_Click(object sender, EventArgs e)
         {
             string img_num = "";
@@ -280,9 +297,11 @@ namespace LSC_Trainer
 
         }
 
-        private void lblZipFile_Click(object sender, EventArgs e)
+        private void btnRemoveFile_Click(object sender, EventArgs e)
         {
-
+            datasetPath = null;
+            lblZipFile.Text = "No file selected";
+            btnRemoveFile.Visible = false;
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
