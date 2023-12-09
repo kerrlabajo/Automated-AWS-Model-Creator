@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 CODE_PATH= "/opt/ml/code/"
 DATA_PATH = "/opt/ml/input/data/"
 OUTPUT_PATH = "/opt/ml/output/data/"
-BEST_MODEL_PATH = "/opt/ml/output/data/yolov5/results/weights/best.pt"
-EXPORTED_MODEL_PATH = "/opt/ml/output/data/yolov5/results/weights/best.onnx"
+TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
+BEST_MODEL_PATH = f"{OUTPUT_PATH}results/{TIMESTAMP}/weights/best.pt"
+EXPORTED_MODEL_PATH = f"{OUTPUT_PATH}results/{TIMESTAMP}/weights/best.onnx"
 os.makedirs(DATA_PATH, exist_ok=True)
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 
@@ -69,7 +70,7 @@ def train_model():
   subprocess.run(
     ["python", CODE_PATH + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
     "--data", DATA_PATH + "/data.yaml", "--weights", "yolov5s.pt",
-    "--project", OUTPUT_PATH, "--name", "yolov5/results", "--cache"
+    "--project", OUTPUT_PATH, "--name", "results/" + TIMESTAMP, "--cache"
     ], check=True
   )
   
