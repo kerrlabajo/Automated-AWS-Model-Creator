@@ -47,18 +47,18 @@ def extract_dataset(file_path):
   os.remove(file_path)
   
 @time_action
-def modify_yaml(dataset_path):
-  with open(dataset_path + '/data.yaml', 'r') as file:
+def modify_yaml(data_path):
+  with open(data_path + '/data.yaml', 'r') as file:
       data = yaml.safe_load(file)
 
-  data['train'] = dataset_path + '/train/images'
-  data['val'] = dataset_path + '/valid/images'
-  data['test'] = dataset_path + '/test/images'
+  data['train'] = data_path + '/train/images'
+  data['val'] = data_path + '/valid/images'
+  data['test'] = data_path + '/test/images'
 
-  with open(dataset_path + '/data.yaml', 'w') as file:
+  with open(data_path + '/data.yaml', 'w') as file:
       yaml.safe_dump(data, file)
   
-  with open(dataset_path + '/data.yaml') as file:
+  with open(data_path + '/data.yaml') as file:
     lines = file.readlines()
     for line in lines:
         print('\033[90m' + line + '\033[0m')
@@ -68,7 +68,7 @@ def train_model():
   # TODO: Set the arguments for the training script from user input/parameters passed
   subprocess.run(
     ["python", CODE_PATH + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
-    "--data", dataset_path + "/data.yaml", "--weights", "yolov5s.pt",
+    "--data", DATA_PATH + "/data.yaml", "--weights", "yolov5s.pt",
     "--project", RESULTS_PATH, "--cache"
     ], check=True
   )
@@ -95,8 +95,7 @@ if __name__ == "__main__":
   file_path = DATA_PATH + file_key
   download_dataset(s3, bucket, file_path)
   extract_dataset(file_path)
-  dataset_path = file_path.split('.')[0]
-  modify_yaml(dataset_path)
+  modify_yaml(DATA_PATH)
   train_model()
   export_onnx()
   save_onnx()
