@@ -13,7 +13,12 @@ ONNX_PATH = "/opt/ml/output/exp/weights/best.onnx"
 os.makedirs(DATA_PATH, exist_ok=True)
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
-# Define a method that times the execution of a function
+def initialize_s3():
+  s3 = boto3.resource('s3', 
+      aws_access_key_id=os.getenv('ACCESS_KEY_ID'), 
+      aws_secret_access_key=os.getenv('SECRET_ACCESS_KEY'))
+  return s3
+
 def time_action(method):
   def logger(*args, **kw):
       print('\033[1m' + '\nStarting %r...' % (method.__name__) + '\033[0m')
@@ -92,12 +97,8 @@ if __name__ == "__main__":
 
   # Load environment variables from .env file
   load_dotenv()
-
-  # Create an s3 resource object
-  s3 = boto3.resource('s3', 
-      aws_access_key_id=os.getenv('ACCESS_KEY_ID'), 
-      aws_secret_access_key=os.getenv('SECRET_ACCESS_KEY'))
-    
+  
+  s3 = initialize_s3()
   bucket, file_key = split_s3_path(os.getenv('S3_URI'))
   file_path = DATA_PATH + file_key
   download_dataset(s3, bucket, file_path)
