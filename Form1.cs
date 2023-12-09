@@ -36,7 +36,6 @@ namespace LSC_Trainer
 
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
             s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
-            //amazonSageMakerRuntimeClient = new AmazonSageMakerRuntimeClient(); used for inferences
 
             
         }
