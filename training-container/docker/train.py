@@ -41,7 +41,7 @@ def download_dataset(s3, bucket, file_path):
   
 @time_action
 def extract_dataset(file_path):
-  result = subprocess.run(['unzip', file_path, '-d', file_path.split('.')[0]], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+  result = subprocess.run(['unzip', file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
   print('\033[90m' + result.stdout + '\033[0m')
   if result.stderr: print('\033[91m' + result.stderr + '\033[0m')
   os.remove(file_path)
