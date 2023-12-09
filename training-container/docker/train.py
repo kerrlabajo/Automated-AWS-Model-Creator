@@ -48,20 +48,16 @@ def extract_dataset(file_path):
   
 @time_action
 def modify_yaml(dataset_path):
-  # Load the data from the YAML file
   with open(dataset_path + '/data.yaml', 'r') as file:
       data = yaml.safe_load(file)
 
-  # Update the train, valid, and test paths
   data['train'] = dataset_path + '/train/images'
   data['val'] = dataset_path + '/valid/images'
   data['test'] = dataset_path + '/test/images'
 
-  # Write the data back to the YAML file
   with open(dataset_path + '/data.yaml', 'w') as file:
       yaml.safe_dump(data, file)
   
-  # Print the contents of the YAML file
   with open(dataset_path + '/data.yaml') as file:
     lines = file.readlines()
     for line in lines:
@@ -87,15 +83,11 @@ def export_onnx():
   
 @time_action
 def save_onnx():
-  # Save the ONNX weights to S3
   updated_weights_name = os.urandom(4).hex() + 'best.onnx'
   s3.meta.client.upload_file(ONNX_PATH, os.getenv('S3_BUCKET_NAME'), 'weights/' + updated_weights_name)
 
 if __name__ == "__main__":
-  # Set the environment variable to avoid multithreading conflicts
   os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
-  # Load environment variables from .env file
   load_dotenv()
   
   s3 = initialize_s3()
