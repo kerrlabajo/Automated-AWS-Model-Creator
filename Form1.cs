@@ -297,14 +297,12 @@ namespace LSC_Trainer
 
         }
 
-        private void lblZipFile_Click(object sender, EventArgs e)
+        private void btnRemoveFile_Click(object sender, EventArgs e)
         {
-
+            datasetPath = null;
+            lblZipFile.Text = "No file selected";
+            btnRemoveFile.Visible = false;
         }
-
-        
-
-        
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
 

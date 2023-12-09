@@ -135,10 +135,9 @@ namespace LSC_Trainer
             this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.lblZipFile.Location = new System.Drawing.Point(176, 226);
             this.lblZipFile.Name = "lblZipFile";
-            this.lblZipFile.Size = new System.Drawing.Size(109, 19);
+            this.lblZipFile.Size = new System.Drawing.Size(107, 19);
             this.lblZipFile.TabIndex = 3;
-            this.lblZipFile.Text = "No file Selected";
-            this.lblZipFile.Click += new System.EventHandler(this.lblZipFile_Click);
+            this.lblZipFile.Text = "No file selected";
             // 
             // panel1
             // 
@@ -503,6 +502,7 @@ namespace LSC_Trainer
             this.btnRemoveFile.Text = "Remove";
             this.btnRemoveFile.UseVisualStyleBackColor = true;
             this.btnRemoveFile.Visible = false;
+            this.btnRemoveFile.Click += new System.EventHandler(this.btnRemoveFile_Click);
             // 
             // Form1
             // 
