@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 
 CODE_PATH= "/opt/ml/code/"
 DATA_PATH = "/opt/ml/input/data/"
-RESULTS_PATH = "/opt/ml/output/"
-WEIGHTS_PATH = "/opt/ml/output/exp/weights/best.pt"
-ONNX_PATH = "/opt/ml/output/exp/weights/best.onnx"
+OUTPUT_PATH = "/opt/ml/output/data/"
+BEST_MODEL_PATH = "/opt/ml/output/data/yolov5/results/weights/best.pt"
+EXPORTED_MODEL_PATH = "/opt/ml/output/data/yolov5/results/weights/best.onnx"
 os.makedirs(DATA_PATH, exist_ok=True)
-os.makedirs(RESULTS_PATH, exist_ok=True)
+os.makedirs(OUTPUT_PATH, exist_ok=True)
 
 def initialize_s3():
   s3 = boto3.resource('s3', 
@@ -69,7 +69,7 @@ def train_model():
   subprocess.run(
     ["python", CODE_PATH + "/yolov5/train.py",  "--img", "640", "--batch", "1", "--epochs", "1",
     "--data", DATA_PATH + "/data.yaml", "--weights", "yolov5s.pt",
-    "--project", RESULTS_PATH, "--cache"
+    "--project", OUTPUT_PATH, "--name", "yolov5/results", "--cache"
     ], check=True
   )
   
@@ -77,14 +77,14 @@ def train_model():
 def export_onnx():
   subprocess.run(
     ["python", CODE_PATH + "/yolov5/export.py", "--img", "640", "--batch", "1", 
-     "--weights", WEIGHTS_PATH, "--include", "onnx"
+     "--weights", BEST_MODEL_PATH, "--include", "onnx"
     ], check=True
   )
   
 @time_action
 def save_onnx():
-  updated_weights_name = os.urandom(4).hex() + 'best.onnx'
-  s3.meta.client.upload_file(ONNX_PATH, os.getenv('S3_BUCKET_NAME'), 'weights/' + updated_weights_name)
+  unique_model = os.urandom(4).hex() + 'best.onnx'
+  s3.meta.client.upload_file(EXPORTED_MODEL_PATH, os.getenv('S3_BUCKET_NAME'), 'models/' + unique_model)
 
 if __name__ == "__main__":
   os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
