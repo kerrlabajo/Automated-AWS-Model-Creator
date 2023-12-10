@@ -125,7 +125,8 @@ namespace LSC_Trainer.Functions
                 string directoryPath = Path.GetDirectoryName(localFilePath);
                 Directory.CreateDirectory(directoryPath);
                 Console.WriteLine(directoryPath);
-                using (var fileStream = File.OpenWrite(localFilePath))
+                string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
+                using (var fileStream = File.OpenWrite(filePath))
                 {
                     await response.ResponseStream.CopyToAsync(fileStream);
                     if (response.HttpStatusCode == HttpStatusCode.OK)
