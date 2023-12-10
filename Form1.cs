@@ -22,8 +22,10 @@ namespace LSC_Trainer
         private readonly string s3URI;
         private readonly string ecrURI;
         private readonly string roleARN;
+        private readonly string bucketName;
 
         private string datasetPath;
+        
         public Form1()
         {
             InitializeComponent();
@@ -42,7 +44,8 @@ namespace LSC_Trainer
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
             s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
 
-            
+            bucketName = s3URI.Replace("s3://", "");
+            bucketName = bucketName.Replace("/", "");
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -80,9 +83,6 @@ namespace LSC_Trainer
                     // Display the selected file path (optional)
                     lblZipFile.Text = datasetPath;
 
-                    // Handle the zip file as needed
-                    // For example, you can extract its contents or upload it to a server
-                    // For simplicity, we'll just show a message box with the file path
                     MessageBox.Show($"Selected file: {datasetPath}");
                     btnRemoveFile.Visible = true;
                 }
@@ -98,13 +98,11 @@ namespace LSC_Trainer
 
                 if (result == DialogResult.Yes) 
                 {
-                    string bucket = s3URI.Replace("s3://", "");
-                    bucket = bucket.Replace("/", "");
                     byte[] fileByteArray = File.ReadAllBytes(datasetPath);
                     
-                    string zipKey =  AWS_Helper.UploadFiletoS3fromZip(s3Client, fileByteArray, filename, bucket);
+                    string zipKey =  AWS_Helper.UploadFiletoS3fromZip(s3Client, fileByteArray, filename, bucketName);
 
-                    Task.Run(async () => await AWS_Helper.UnzipAndUploadFiles(s3Client, bucket, zipKey)).Wait();
+                    Task.Run(async () => await AWS_Helper.UnzipAndUploadFiles(s3Client, bucketName, zipKey)).Wait();
                 }
             }
             else
@@ -320,7 +318,26 @@ namespace LSC_Trainer
 
         private void btnDownloadModel_Click(object sender, EventArgs e)
         {
+            //temporary 
+            string modelKey = "weights/23070a53best.onnx";
+            //modelKey = modelKey.Replace($"s3://{bucketName}", "");
 
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+    {
+                folderBrowserDialog.Description = "Select a folder to save the file";
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string saveFolder = folderBrowserDialog.SelectedPath;
+
+                    DialogResult result = MessageBox.Show($"Do you want to save the model to {saveFolder} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        Task.Run(async() => await AWS_Helper.DownloadFile(s3Client, bucketName, modelKey, saveFolder)).Wait();
+                    }
+                }
+            }
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.

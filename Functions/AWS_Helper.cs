@@ -36,8 +36,8 @@ namespace LSC_Trainer.Functions
 
                     if(response.HttpStatusCode== HttpStatusCode.OK)
                     {
+                        Console.WriteLine($"Upload Successful!");
                         Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
-                        Console.WriteLine(response.HttpStatusCode);
                         return fileName;
                     }
                     else
@@ -101,7 +101,7 @@ namespace LSC_Trainer.Functions
                                 }
                             }
                         }
-                        string s3Uri = $"s3://{bucketName}/{folderKey}/";
+                        string s3Uri = $"s3://{bucketName}/{folderKey}";
                         Console.WriteLine($"Successfully uploaded file to : {s3Uri}");
                     }
                 }
@@ -115,5 +115,39 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
         }
+        public static async Task DownloadFile(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        {
+            try
+            {
+                GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, objectKey);
+
+                // Ensure the directory exists
+                string directoryPath = Path.GetDirectoryName(localFilePath);
+                Directory.CreateDirectory(directoryPath);
+                Console.WriteLine(directoryPath);
+                using (var fileStream = File.OpenWrite(localFilePath))
+                {
+                    await response.ResponseStream.CopyToAsync(fileStream);
+                    if (response.HttpStatusCode == HttpStatusCode.OK)
+                    {
+                        Console.WriteLine($"File has been saved to {localFilePath}");
+                    }
+                }
+            }
+            catch (AggregateException e)
+            {
+                Console.WriteLine("Error downloading file: " + e.Message);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Console.WriteLine("Error downloading file: " + e.Message);
+                Console.WriteLine($"UnauthorizedAccessException at: {e.StackTrace}");
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error downloading file: " + e.Message);
+            }
+        }
+
     }
 }
