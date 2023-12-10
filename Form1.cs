@@ -8,6 +8,9 @@ using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using Amazon.SageMakerRuntime;
 using System.Linq;
+using Amazon.S3.Model;
+using LSC_Trainer.Functions;
+using System.Threading.Tasks;
 
 namespace LSC_Trainer
 {
@@ -92,6 +95,17 @@ namespace LSC_Trainer
             {
                 string filename = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {filename} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes) 
+                {
+                    string bucket = s3URI.Replace("s3://", "");
+                    bucket = bucket.Replace("/", "");
+                    byte[] fileByteArray = File.ReadAllBytes(datasetPath);
+                    
+                    string zipKey =  AWS_Helper.UploadFiletoS3fromZip(s3Client, fileByteArray, filename, bucket);
+
+                    Task.Run(async () => await AWS_Helper.UnzipAndUploadFiles(s3Client, bucket, zipKey)).Wait();
+                }
             }
             else
             {

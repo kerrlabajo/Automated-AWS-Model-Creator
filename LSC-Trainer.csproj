@@ -212,6 +212,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Functions\AWS_Helper.cs" />
     <Compile Include="Functions\FileHandler.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -255,9 +256,9 @@
     <Analyzer Include="packages\AWSSDK.SageMakerRuntime.3.7.301.2\analyzers\dotnet\cs\AWSSDK.SageMakerRuntime.CodeAnalysis.dll" />
   </ItemGroup>
   <ItemGroup>
-  <None Update=".env">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </None>
-</ItemGroup>
+    <None Update=".env">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
