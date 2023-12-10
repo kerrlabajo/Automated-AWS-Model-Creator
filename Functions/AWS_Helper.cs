@@ -1,5 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,39 +14,49 @@ namespace LSC_Trainer.Functions
 {
     class AWS_Helper
     {
-        public static string UploadFiletoS3fromZip(AmazonS3Client s3Client, Byte[] fileByteArray,string fileName, string bucketName)
+        public static string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName)
         {
             try
             {
+                DateTime startTime = DateTime.Now;
+                string extension = Path.GetExtension(fileName);
                 fileName = Path.ChangeExtension(fileName, null); // Remove the existing extension
-                fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.zip", fileName, DateTime.Now);
-                using (MemoryStream fileToUpload = new MemoryStream(fileByteArray))
+                string content = "";
+
+                if(extension == ".rar")
                 {
-                    PutObjectRequest request = new PutObjectRequest()
+                    fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.rar", fileName, DateTime.Now);
+                    content = "rar";
+                }
+                if(extension == ".zip")
+                {
+                    fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.zip", fileName, DateTime.Now);
+                    content = "zip";
+                }
+                
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
                     {
                         BucketName = bucketName,
                         Key = fileName,
-                        InputStream = fileToUpload,
-                        ContentType = "application/zip"
+                        FilePath = filePath,
+                        ContentType = "application/" + content
                     };
-                    request.Timeout = TimeSpan.FromSeconds(60);
 
-                    PutObjectResponse response = s3Client.PutObject(request);
-
-                    string s3Uri = $"s3://{bucketName}/{fileName}";
-
-                    if(response.HttpStatusCode== HttpStatusCode.OK)
+                    uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                     {
-                        Console.WriteLine($"Upload Successful!");
-                        Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
-                        return fileName;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                    // insert error trappings
+                        Console.WriteLine($"Progress: {args.PercentDone}%");
+                    });
+
+                    transferUtility.Upload(uploadRequest);
                 }
+
+                string s3Uri = $"s3://{bucketName}/{fileName}";
+                TimeSpan totalTime = DateTime.Now - startTime;
+                Console.WriteLine($"Upload completed. Total Time Taken: {totalTime}");
+                Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
+                return fileName;
             }
             catch (AmazonS3Exception e)
             {

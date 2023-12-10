@@ -98,9 +98,9 @@ namespace LSC_Trainer
 
                 if (result == DialogResult.Yes) 
                 {
-                    byte[] fileByteArray = File.ReadAllBytes(datasetPath);
+                    //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
                     
-                    string zipKey =  AWS_Helper.UploadFiletoS3fromZip(s3Client, fileByteArray, filename, bucketName);
+                    string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, bucketName);
 
                     Task.Run(async () => await AWS_Helper.UnzipAndUploadFiles(s3Client, bucketName, zipKey)).Wait();
                 }
