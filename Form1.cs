@@ -318,6 +318,11 @@ namespace LSC_Trainer
             btnRemoveFile.Visible = false;
         }
 
+        private void btnDownloadModel_Click(object sender, EventArgs e)
+        {
+
+        }
+
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
 
         ///TODO: Create a text area to get the training parameters:

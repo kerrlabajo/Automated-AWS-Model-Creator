@@ -38,6 +38,8 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnRemoveFile = new System.Windows.Forms.Button();
+            this.btnUploadToS3 = new System.Windows.Forms.Button();
             this.txtOptimiser = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
             this.txtWorkers = new System.Windows.Forms.TextBox();
@@ -73,8 +75,7 @@ namespace LSC_Trainer
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.btnUploadToS3 = new System.Windows.Forms.Button();
-            this.btnRemoveFile = new System.Windows.Forms.Button();
+            this.btnDownloadModel = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -142,6 +143,7 @@ namespace LSC_Trainer
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.btnDownloadModel);
             this.panel1.Controls.Add(this.btnRemoveFile);
             this.panel1.Controls.Add(this.btnUploadToS3);
             this.panel1.Controls.Add(this.txtOptimiser);
@@ -186,6 +188,27 @@ namespace LSC_Trainer
             this.panel1.Size = new System.Drawing.Size(925, 355);
             this.panel1.TabIndex = 4;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // btnRemoveFile
+            // 
+            this.btnRemoveFile.Location = new System.Drawing.Point(213, 257);
+            this.btnRemoveFile.Name = "btnRemoveFile";
+            this.btnRemoveFile.Size = new System.Drawing.Size(97, 23);
+            this.btnRemoveFile.TabIndex = 41;
+            this.btnRemoveFile.Text = "Remove";
+            this.btnRemoveFile.UseVisualStyleBackColor = true;
+            this.btnRemoveFile.Visible = false;
+            this.btnRemoveFile.Click += new System.EventHandler(this.btnRemoveFile_Click);
+            // 
+            // btnUploadToS3
+            // 
+            this.btnUploadToS3.Location = new System.Drawing.Point(303, 308);
+            this.btnUploadToS3.Name = "btnUploadToS3";
+            this.btnUploadToS3.Size = new System.Drawing.Size(170, 30);
+            this.btnUploadToS3.TabIndex = 40;
+            this.btnUploadToS3.Text = "Upload Dataset";
+            this.btnUploadToS3.UseVisualStyleBackColor = true;
+            this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
             // 
             // txtOptimiser
             // 
@@ -278,9 +301,9 @@ namespace LSC_Trainer
             // 
             // btnTraining
             // 
-            this.btnTraining.Location = new System.Drawing.Point(645, 308);
+            this.btnTraining.Location = new System.Drawing.Point(625, 308);
             this.btnTraining.Name = "btnTraining";
-            this.btnTraining.Size = new System.Drawing.Size(170, 30);
+            this.btnTraining.Size = new System.Drawing.Size(120, 30);
             this.btnTraining.TabIndex = 28;
             this.btnTraining.Text = "Train";
             this.btnTraining.UseVisualStyleBackColor = true;
@@ -483,26 +506,15 @@ namespace LSC_Trainer
             this.label1.TabIndex = 4;
             this.label1.Text = "Selected File:";
             // 
-            // btnUploadToS3
+            // btnDownloadModel
             // 
-            this.btnUploadToS3.Location = new System.Drawing.Point(303, 308);
-            this.btnUploadToS3.Name = "btnUploadToS3";
-            this.btnUploadToS3.Size = new System.Drawing.Size(170, 30);
-            this.btnUploadToS3.TabIndex = 40;
-            this.btnUploadToS3.Text = "Upload Dataset";
-            this.btnUploadToS3.UseVisualStyleBackColor = true;
-            this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
-            // 
-            // btnRemoveFile
-            // 
-            this.btnRemoveFile.Location = new System.Drawing.Point(213, 257);
-            this.btnRemoveFile.Name = "btnRemoveFile";
-            this.btnRemoveFile.Size = new System.Drawing.Size(97, 23);
-            this.btnRemoveFile.TabIndex = 41;
-            this.btnRemoveFile.Text = "Remove";
-            this.btnRemoveFile.UseVisualStyleBackColor = true;
-            this.btnRemoveFile.Visible = false;
-            this.btnRemoveFile.Click += new System.EventHandler(this.btnRemoveFile_Click);
+            this.btnDownloadModel.Location = new System.Drawing.Point(787, 308);
+            this.btnDownloadModel.Name = "btnDownloadModel";
+            this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
+            this.btnDownloadModel.TabIndex = 42;
+            this.btnDownloadModel.Text = "Download Model";
+            this.btnDownloadModel.UseVisualStyleBackColor = true;
+            this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
             // 
             // Form1
             // 
@@ -572,6 +584,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Button btnUploadToS3;
         private System.Windows.Forms.Button btnRemoveFile;
+        private System.Windows.Forms.Button btnDownloadModel;
     }
 }
 

@@ -101,6 +101,8 @@ namespace LSC_Trainer.Functions
                                 }
                             }
                         }
+                        string s3Uri = $"s3://{bucketName}/{folderKey}/";
+                        Console.WriteLine($"Successfully uploaded file to : {s3Uri}");
                     }
                 }
             }
