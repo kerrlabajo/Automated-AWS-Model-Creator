@@ -106,9 +106,9 @@ namespace LSC_Trainer
                 {
                     //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
 
-                    //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
-                    string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                    Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
+                    string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
+                    //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
+                    Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, zipKey)).Wait();
                 }
             }
             else

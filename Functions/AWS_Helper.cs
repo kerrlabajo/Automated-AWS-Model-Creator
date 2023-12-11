@@ -49,7 +49,6 @@ namespace LSC_Trainer.Functions
                     {
                         Console.WriteLine($"Progress: {args.PercentDone}%");
                     });
-
                     transferUtility.Upload(uploadRequest);
                 }
 
@@ -132,7 +131,7 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
         }*/
-        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipFilePath )
+        /*public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipFilePath )
         {
             using (var fileStream = File.OpenRead(zipFilePath))
             {
@@ -149,19 +148,121 @@ namespace LSC_Trainer.Functions
                         }
 
                         using (var memoryStream = new MemoryStream())
-                        {
+                       {
                             byte[] buffer = new byte[4096];
                             int bytesRead;
                             while ((bytesRead = zipStream.Read(buffer, 0, buffer.Length)) > 0)
                             {
                                 memoryStream.Write(buffer, 0, bytesRead);
-                                Console.WriteLine("Running");
                             }
 
                             await transferUtility.UploadAsync(memoryStream, bucketName, entry.Name);
                         }
                     }
                 }
+            }
+        }*/
+
+        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipKey)
+        {
+            try
+            {
+                DateTime startTime = DateTime.Now;
+
+                // Get the Zip file stream directly from S3
+                GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, zipKey);
+
+                using (var zipStream = new ZipInputStream(response.ResponseStream))
+                {
+                    var transferUtility = new TransferUtility(s3Client);
+
+                    ZipEntry entry;
+                    while ((entry = zipStream.GetNextEntry()) != null)
+                    {
+                        if (entry.IsDirectory)
+                        {
+                            continue;
+                        }
+
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            // Decompress data into the memory stream
+                            await DecompressEntryAsync(zipStream, memoryStream);
+
+                            var uploadRequest = new TransferUtilityUploadRequest
+                            {
+                                BucketName = bucketName,
+                                Key = entry.Name,
+                                InputStream = memoryStream,
+                                ContentType = GetContentType(entry.Name) 
+                            };
+
+                            // Upload the memory stream to S3
+                            uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                            {
+                                Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes}/{args.TotalBytes}");
+                            });
+                            await transferUtility.UploadAsync(uploadRequest);
+                        }
+                    }
+
+                    Console.WriteLine("Successfully uploaded all files from the zip to S3.");
+                    TimeSpan totalTime = DateTime.Now - startTime;
+                    string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                                  (int)totalTime.TotalHours,
+                                                  totalTime.Minutes,
+                                                  totalTime.Seconds,
+                                                  (int)(totalTime.Milliseconds / 100));
+                    Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
+                }
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error retrieving or uploading file from/to S3: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error retrieving or uploading file from/to S3: " + e.Message);
+            }
+        }
+
+
+        private static async Task DecompressEntryAsync(ZipInputStream zipStream, MemoryStream memoryStream)
+        {
+            byte[] buffer = new byte[8192]; // Adjust buffer size as needed
+            int bytesRead;
+            while ((bytesRead = zipStream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                await memoryStream.WriteAsync(buffer, 0, bytesRead);
+            }
+        }
+
+        private static string GetContentType(string fileName)
+        {
+            string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
+
+            switch (extension)
+            {
+                case ".txt":
+                    return "text/plain";
+                case ".jpg":
+                    return "image/jpeg";
+                case ".png":
+                    return "image/png";
+                case ".pdf":
+                    return "application/pdf";
+                case ".yaml":
+                    return "application/x-yaml";
+                case ".xml":
+                    return "application/xml";
+                case ".xlsx":
+                    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                case ".bmp":
+                    return "image/bmp";
+                case ".csv":
+                    return "text/csv";
+                default:
+                    return "application/octet-stream"; // Default MIME type for unknown file types
             }
         }
 
