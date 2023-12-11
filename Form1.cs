@@ -20,9 +20,11 @@ namespace LSC_Trainer
         private readonly AmazonS3Client s3Client;
         private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
         private readonly string s3URI;
+        private readonly string s3UploadURI;
         private readonly string ecrURI;
         private readonly string roleARN;
         private readonly string bucketName;
+        private readonly string uploadBucketName;
 
         private string datasetPath;
         
@@ -38,11 +40,15 @@ namespace LSC_Trainer
             string secretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
             string region = Environment.GetEnvironmentVariable("REGION");
             s3URI = Environment.GetEnvironmentVariable("S3_URI");
+            s3UploadURI = Environment.GetEnvironmentVariable("S3_BUCKET_UPLOADS_URI");
             ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
             roleARN = Environment.GetEnvironmentVariable("ARN");
 
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
             s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
+
+            uploadBucketName = s3UploadURI.Replace("s3://", "");
+            uploadBucketName = uploadBucketName.Replace("/", "");
 
             bucketName = s3URI.Replace("s3://", "");
             bucketName = bucketName.Replace("/", "");
@@ -99,10 +105,10 @@ namespace LSC_Trainer
                 if (result == DialogResult.Yes) 
                 {
                     //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
-                    
-                    string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, bucketName);
 
-                    Task.Run(async () => await AWS_Helper.UnzipAndUploadFiles(s3Client, bucketName, zipKey)).Wait();
+                    //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
+                    string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
+                    Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
                 }
             }
             else

@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
+using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +55,12 @@ namespace LSC_Trainer.Functions
 
                 string s3Uri = $"s3://{bucketName}/{fileName}";
                 TimeSpan totalTime = DateTime.Now - startTime;
-                Console.WriteLine($"Upload completed. Total Time Taken: {totalTime}");
+                string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)totalTime.TotalHours,
+                                              totalTime.Minutes,
+                                              totalTime.Seconds,
+                                              (int)(totalTime.Milliseconds / 100));
+                Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
                 Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
                 return fileName;
             }
@@ -70,7 +76,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static async Task UnzipAndUploadFiles(AmazonS3Client s3Client, string bucketName, string zipKey)
+        /*public static async Task UnzipAndUploadFiles(AmazonS3Client s3Client, string bucketName, string zipKey)
         {
             try
             {
@@ -125,7 +131,41 @@ namespace LSC_Trainer.Functions
             {
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
+        }*/
+        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipFilePath )
+        {
+            using (var fileStream = File.OpenRead(zipFilePath))
+            {
+                using (var zipStream = new ZipInputStream(fileStream))
+                {
+                    var transferUtility = new TransferUtility(s3Client);
+
+                    ZipEntry entry;
+                    while ((entry = zipStream.GetNextEntry()) != null)
+                    {
+                        if (entry.IsDirectory)
+                        {
+                            continue;
+                        }
+
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            byte[] buffer = new byte[4096];
+                            int bytesRead;
+                            while ((bytesRead = zipStream.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                memoryStream.Write(buffer, 0, bytesRead);
+                                Console.WriteLine("Running");
+                            }
+
+                            await transferUtility.UploadAsync(memoryStream, bucketName, entry.Name);
+                        }
+                    }
+                }
+            }
         }
+
+
         public static async Task DownloadFile(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
         {
             try
