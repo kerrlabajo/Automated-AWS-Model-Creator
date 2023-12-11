@@ -32,7 +32,7 @@ namespace LSC_Trainer
         public Form1()
         {
             InitializeComponent();
-            ProgressUpdated += UpdateProgressBar;
+            AWS_Helper.OnProgressChanged += UpdateProgressBar;
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
             
             DotNetEnv.Env.Load(fullPath);
@@ -55,26 +55,23 @@ namespace LSC_Trainer
             bucketName = bucketName.Replace("/", "");
         }
 
-        public delegate void ProgressUpdateDelegate(double progressPercentage);
-        public event ProgressUpdateDelegate ProgressUpdated;
-
-        protected virtual void OnProgressUpdated(double progress)
+        protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            ProgressUpdated?.Invoke(progress);
-            Console.WriteLine($"Progress - {progress:F2}% completed");
+            base.OnFormClosed(e);
+
+            AWS_Helper.OnProgressChanged -= UpdateProgressBar;
         }
 
-        private void UpdateProgressBar(double progress)
+        private void UpdateProgressBar(int progress)
         {
             if (InvokeRequired)
             {
-                BeginInvoke(new MethodInvoker(() => UpdateProgressBar(progress)));
-
-                Console.WriteLine($"IIIFFFF- {(int)progress:F2}% completed");
+                BeginInvoke(new Action(() => UpdateProgressBar(progress)));
+                Console.WriteLine("Here--");
+                return;
             }
-            progressBar.Value = (int)Math.Min(progress, progressBar.Maximum); 
-            Console.WriteLine($"ELSE- {(int)progress:F2}% completed");
-            
+            Console.WriteLine("Here--");
+            progressBar.Value = (int)progress;
         }
 
 
