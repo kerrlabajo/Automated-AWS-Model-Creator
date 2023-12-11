@@ -132,10 +132,13 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
         }*/
-        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipFilePath )
+        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipFilePath, Action<double> progressCallback)
         {
             using (var fileStream = File.OpenRead(zipFilePath))
             {
+                double totalSize = fileStream.Length;
+                double totalRead = 0;
+
                 using (var zipStream = new ZipInputStream(fileStream))
                 {
                     var transferUtility = new TransferUtility(s3Client);
@@ -155,7 +158,10 @@ namespace LSC_Trainer.Functions
                             while ((bytesRead = zipStream.Read(buffer, 0, buffer.Length)) > 0)
                             {
                                 memoryStream.Write(buffer, 0, bytesRead);
-                                Console.WriteLine("Running");
+                                totalRead += bytesRead;
+                                double progressPercentage = (double)totalRead / totalSize * 100;
+                                //Console.WriteLine($"{progressPercentage:F2}% completed");
+                                progressCallback?.Invoke(progressPercentage);
                             }
 
                             await transferUtility.UploadAsync(memoryStream, bucketName, entry.Name);

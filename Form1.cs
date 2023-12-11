@@ -27,11 +27,12 @@ namespace LSC_Trainer
         private readonly string uploadBucketName;
 
         private string datasetPath;
+
         
         public Form1()
         {
             InitializeComponent();
-
+            ProgressUpdated += UpdateProgressBar;
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
             
             DotNetEnv.Env.Load(fullPath);
@@ -53,6 +54,29 @@ namespace LSC_Trainer
             bucketName = s3URI.Replace("s3://", "");
             bucketName = bucketName.Replace("/", "");
         }
+
+        public delegate void ProgressUpdateDelegate(double progressPercentage);
+        public event ProgressUpdateDelegate ProgressUpdated;
+
+        protected virtual void OnProgressUpdated(double progress)
+        {
+            ProgressUpdated?.Invoke(progress);
+            Console.WriteLine($"Progress - {progress:F2}% completed");
+        }
+
+        private void UpdateProgressBar(double progress)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new MethodInvoker(() => UpdateProgressBar(progress)));
+
+                Console.WriteLine($"IIIFFFF- {(int)progress:F2}% completed");
+            }
+            progressBar.Value = (int)Math.Min(progress, progressBar.Maximum); 
+            Console.WriteLine($"ELSE- {(int)progress:F2}% completed");
+            
+        }
+
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -108,7 +132,7 @@ namespace LSC_Trainer
 
                     //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
                     string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                    Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
+                    Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath, OnProgressUpdated)).Wait();
                 }
             }
             else
