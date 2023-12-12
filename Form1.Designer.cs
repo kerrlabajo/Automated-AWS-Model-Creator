@@ -38,6 +38,7 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnDownloadModel = new System.Windows.Forms.Button();
             this.btnRemoveFile = new System.Windows.Forms.Button();
             this.btnUploadToS3 = new System.Windows.Forms.Button();
             this.txtOptimiser = new System.Windows.Forms.TextBox();
@@ -75,7 +76,7 @@ namespace LSC_Trainer
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.btnDownloadModel = new System.Windows.Forms.Button();
+            this.btnSelectFolder = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -122,11 +123,11 @@ namespace LSC_Trainer
             // 
             // btnSelectDataset
             // 
-            this.btnSelectDataset.Location = new System.Drawing.Point(54, 308);
+            this.btnSelectDataset.Location = new System.Drawing.Point(33, 308);
             this.btnSelectDataset.Name = "btnSelectDataset";
-            this.btnSelectDataset.Size = new System.Drawing.Size(170, 30);
+            this.btnSelectDataset.Size = new System.Drawing.Size(174, 30);
             this.btnSelectDataset.TabIndex = 2;
-            this.btnSelectDataset.Text = "Select Dataset";
+            this.btnSelectDataset.Text = "Select Dataset (.zip)";
             this.btnSelectDataset.UseVisualStyleBackColor = true;
             this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectDataset_Click);
             // 
@@ -143,6 +144,7 @@ namespace LSC_Trainer
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.btnSelectFolder);
             this.panel1.Controls.Add(this.btnDownloadModel);
             this.panel1.Controls.Add(this.btnRemoveFile);
             this.panel1.Controls.Add(this.btnUploadToS3);
@@ -189,6 +191,16 @@ namespace LSC_Trainer
             this.panel1.TabIndex = 4;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
+            // btnDownloadModel
+            // 
+            this.btnDownloadModel.Location = new System.Drawing.Point(787, 308);
+            this.btnDownloadModel.Name = "btnDownloadModel";
+            this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
+            this.btnDownloadModel.TabIndex = 42;
+            this.btnDownloadModel.Text = "Download Model";
+            this.btnDownloadModel.UseVisualStyleBackColor = true;
+            this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
+            // 
             // btnRemoveFile
             // 
             this.btnRemoveFile.Location = new System.Drawing.Point(213, 257);
@@ -202,7 +214,7 @@ namespace LSC_Trainer
             // 
             // btnUploadToS3
             // 
-            this.btnUploadToS3.Location = new System.Drawing.Point(303, 308);
+            this.btnUploadToS3.Location = new System.Drawing.Point(406, 308);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(170, 30);
             this.btnUploadToS3.TabIndex = 40;
@@ -506,15 +518,14 @@ namespace LSC_Trainer
             this.label1.TabIndex = 4;
             this.label1.Text = "Selected File:";
             // 
-            // btnDownloadModel
+            // btnSelectFolder
             // 
-            this.btnDownloadModel.Location = new System.Drawing.Point(787, 308);
-            this.btnDownloadModel.Name = "btnDownloadModel";
-            this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
-            this.btnDownloadModel.TabIndex = 42;
-            this.btnDownloadModel.Text = "Download Model";
-            this.btnDownloadModel.UseVisualStyleBackColor = true;
-            this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
+            this.btnSelectFolder.Location = new System.Drawing.Point(224, 308);
+            this.btnSelectFolder.Name = "btnSelectFolder";
+            this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
+            this.btnSelectFolder.TabIndex = 43;
+            this.btnSelectFolder.Text = "Select Dataset (folder)";
+            this.btnSelectFolder.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -585,6 +596,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Button btnUploadToS3;
         private System.Windows.Forms.Button btnRemoveFile;
         private System.Windows.Forms.Button btnDownloadModel;
+        private System.Windows.Forms.Button btnSelectFolder;
     }
 }
 
