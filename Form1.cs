@@ -92,6 +92,7 @@ namespace LSC_Trainer
 
                     MessageBox.Show($"Selected file: {datasetPath}");
                     btnRemoveFile.Visible = true;
+                    isFile = true;
                 }
             }
         }
@@ -108,9 +109,9 @@ namespace LSC_Trainer
                     //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
                     if (isFile)
                     {
-                        string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
+                        //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
                         //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, zipKey)).Wait();
+                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
                     }
                     else
                     {
@@ -370,6 +371,7 @@ namespace LSC_Trainer
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     btnRemoveFile.Visible = true;
+                    isFile = false;
                 }
             }
         }

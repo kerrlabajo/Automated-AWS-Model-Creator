@@ -79,6 +79,7 @@ namespace LSC_Trainer.Functions
         {
             try
             {
+                DateTime startTime = DateTime.Now;
                 var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
 
                 foreach (var file in files)
@@ -88,6 +89,15 @@ namespace LSC_Trainer.Functions
                     key = folderName + "/" + key;
                     UploadFileToS3(s3Client, file, key, bucketName);
                 }
+
+                Console.WriteLine("Successfully uploaded all files from the zip to S3.");
+                TimeSpan totalTime = DateTime.Now - startTime;
+                string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)totalTime.TotalHours,
+                                              totalTime.Minutes,
+                                              totalTime.Seconds,
+                                              (int)(totalTime.Milliseconds / 100));
+                Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
             }
             catch (AmazonS3Exception e)
             {
@@ -99,66 +109,66 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string zipKey)
+        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string localZipFilePath)
         {
             try
             {
                 DateTime startTime = DateTime.Now;
 
-                // Get the Zip file stream directly from S3
-                GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, zipKey);
-
-                using (var zipStream = new ZipInputStream(response.ResponseStream))
+                using (var fileStream = File.OpenRead(localZipFilePath))
                 {
-                    var transferUtility = new TransferUtility(s3Client);
-
-                    ZipEntry entry;
-                    while ((entry = zipStream.GetNextEntry()) != null)
+                    using (var zipStream = new ZipInputStream(fileStream))
                     {
-                        if (entry.IsDirectory)
+                        var transferUtility = new TransferUtility(s3Client);
+
+                        ZipEntry entry;
+                        while ((entry = zipStream.GetNextEntry()) != null)
                         {
-                            continue;
+                            if (entry.IsDirectory)
+                            {
+                                continue;
+                            }
+
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                // Decompress data into the memory stream
+                                await DecompressEntryAsync(zipStream, memoryStream);
+
+                                var uploadRequest = new TransferUtilityUploadRequest
+                                {
+                                    BucketName = bucketName,
+                                    Key = entry.Name,
+                                    InputStream = memoryStream,
+                                    ContentType = GetContentType(entry.Name)
+                                };
+
+                                // Upload the memory stream to S3
+                                uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                                {
+                                    Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes} bytes /{args.TotalBytes} bytes");
+                                });
+                                await transferUtility.UploadAsync(uploadRequest);
+                            }
                         }
 
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            // Decompress data into the memory stream
-                            await DecompressEntryAsync(zipStream, memoryStream);
-
-                            var uploadRequest = new TransferUtilityUploadRequest
-                            {
-                                BucketName = bucketName,
-                                Key = entry.Name,
-                                InputStream = memoryStream,
-                                ContentType = GetContentType(entry.Name) 
-                            };
-
-                            // Upload the memory stream to S3
-                            uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
-                            {
-                                Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes} bytes /{args.TotalBytes} bytes");
-                            });
-                            await transferUtility.UploadAsync(uploadRequest);
-                        }
+                        Console.WriteLine("Successfully uploaded all files from the zip to S3.");
+                        TimeSpan totalTime = DateTime.Now - startTime;
+                        string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                            (int)totalTime.TotalHours,
+                            totalTime.Minutes,
+                            totalTime.Seconds,
+                            (int)(totalTime.Milliseconds / 100));
+                        Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
                     }
-
-                    Console.WriteLine("Successfully uploaded all files from the zip to S3.");
-                    TimeSpan totalTime = DateTime.Now - startTime;
-                    string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                                  (int)totalTime.TotalHours,
-                                                  totalTime.Minutes,
-                                                  totalTime.Seconds,
-                                                  (int)(totalTime.Milliseconds / 100));
-                    Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
                 }
             }
             catch (AmazonS3Exception e)
             {
-                Console.WriteLine("Error retrieving or uploading file from/to S3: " + e.Message);
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error retrieving or uploading file from/to S3: " + e.Message);
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
         }
 
