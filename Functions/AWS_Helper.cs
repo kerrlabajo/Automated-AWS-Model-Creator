@@ -22,7 +22,7 @@ namespace LSC_Trainer.Functions
                 DateTime startTime = DateTime.Now;
                 string extension = Path.GetExtension(fileName);
                 fileName = Path.ChangeExtension(fileName, null); // Remove the existing extension
-                string content = "";
+                /*string content = "";
 
                 if(extension == ".rar")
                 {
@@ -34,7 +34,7 @@ namespace LSC_Trainer.Functions
                     fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.zip", fileName, DateTime.Now);
                     content = "zip";
                 }
-                
+                */
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
@@ -42,7 +42,7 @@ namespace LSC_Trainer.Functions
                         BucketName = bucketName,
                         Key = fileName,
                         FilePath = filePath,
-                        ContentType = "application/" + content
+                        ContentType = GetContentType(fileName)
                     };
 
                     uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
@@ -72,6 +72,30 @@ namespace LSC_Trainer.Functions
             {
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
                 return null;
+            }
+        }
+
+        public static async Task UploadFolderToS3(AmazonS3Client s3Client, string folderPath,string folderName,string bucketName)
+        {
+            try
+            {
+                var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
+
+                foreach (var file in files)
+                {
+                    var relativePath = PathHelper.GetRelativePath(folderPath, file);
+                    var key = relativePath.Replace(Path.DirectorySeparatorChar, '/');
+                    key = folderName + "/" + key;
+                    UploadFileToS3(s3Client, file, key, bucketName);
+                }
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error uploading folder to S3: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error uploading folder to S3: " + e.Message);
             }
         }
 
@@ -112,7 +136,7 @@ namespace LSC_Trainer.Functions
                             // Upload the memory stream to S3
                             uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                             {
-                                Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes}/{args.TotalBytes}");
+                                Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes} bytes /{args.TotalBytes} bytes");
                             });
                             await transferUtility.UploadAsync(uploadRequest);
                         }
@@ -137,7 +161,6 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error retrieving or uploading file from/to S3: " + e.Message);
             }
         }
-
 
         private static async Task DecompressEntryAsync(ZipInputStream zipStream, MemoryStream memoryStream)
         {
@@ -173,6 +196,10 @@ namespace LSC_Trainer.Functions
                     return "image/bmp";
                 case ".csv":
                     return "text/csv";
+                case ".zip":
+                    return "application/zip";
+                case ".rar":
+                    return "application/x-rar-compressed";
                 default:
                     return "application/octet-stream"; // Default MIME type for unknown file types
             }
@@ -214,5 +241,16 @@ namespace LSC_Trainer.Functions
             }
         }
 
+    }
+
+    public static class PathHelper
+    {
+        public static string GetRelativePath(string basePath, string targetPath)
+        {
+            var baseUri = new Uri(basePath.EndsWith(Path.DirectorySeparatorChar.ToString()) ? basePath : basePath + Path.DirectorySeparatorChar);
+            var targetUri = new Uri(targetPath);
+
+            return Uri.UnescapeDataString(baseUri.MakeRelativeUri(targetUri).ToString().Replace('/', Path.DirectorySeparatorChar));
+        }
     }
 }

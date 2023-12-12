@@ -27,6 +27,7 @@ namespace LSC_Trainer
         private readonly string uploadBucketName;
 
         private string datasetPath;
+        private bool isFile;
         
         public Form1()
         {
@@ -105,10 +106,17 @@ namespace LSC_Trainer
                 if (result == DialogResult.Yes) 
                 {
                     //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
-
-                    string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
-                    //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                    Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, zipKey)).Wait();
+                    if (isFile)
+                    {
+                        string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
+                        //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
+                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, zipKey)).Wait();
+                    }
+                    else
+                    {
+                        Task.Run(async () => await AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName)).Wait();
+                    }
+                   
                 }
             }
             else
@@ -342,6 +350,26 @@ namespace LSC_Trainer
                     {
                         Task.Run(async() => await AWS_Helper.DownloadFile(s3Client, bucketName, modelKey, saveFolder)).Wait();
                     }
+                }
+            }
+        }
+
+        private void btnSelectFolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select a folder";
+                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    datasetPath = folderBrowserDialog.SelectedPath;
+
+                    // Display the selected folder path (optional)
+                    lblZipFile.Text = datasetPath;
+
+                    MessageBox.Show($"Selected folder: {datasetPath}");
+                    btnRemoveFile.Visible = true;
                 }
             }
         }

@@ -520,12 +520,13 @@ namespace LSC_Trainer
             // 
             // btnSelectFolder
             // 
-            this.btnSelectFolder.Location = new System.Drawing.Point(224, 308);
+            this.btnSelectFolder.Location = new System.Drawing.Point(213, 308);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
             this.btnSelectFolder.TabIndex = 43;
             this.btnSelectFolder.Text = "Select Dataset (folder)";
             this.btnSelectFolder.UseVisualStyleBackColor = true;
+            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
             // 
             // Form1
             // 
