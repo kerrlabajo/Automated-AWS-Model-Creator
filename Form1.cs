@@ -29,11 +29,16 @@ namespace LSC_Trainer
 
         private string datasetPath;
         private bool isFile;
-        
+        private string filename;
+
         public Form1()
         {
             InitializeComponent();
-            AWS_Helper.OnProgressChanged += UpdateProgressBar;
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.DoWork += backgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
+
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
             
             DotNetEnv.Env.Load(fullPath);
@@ -55,27 +60,6 @@ namespace LSC_Trainer
             bucketName = s3URI.Replace("s3://", "");
             bucketName = bucketName.Replace("/", "");
         }
-
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            AWS_Helper.OnProgressChanged -= UpdateProgressBar;
-        }
-
-        private void UpdateProgressBar(int percentDone)
-        {
-            if (this.progressBar.InvokeRequired)
-            {
-                //SetProgressCallback progress = new SetProgressCallback(UpdateProgressBar);
-                //this.BeginInvoke(progress, new object[] { percentDone });
-                this.progressBar.BeginInvoke(new Action<int>(UpdateProgressBar), new object[] { percentDone });
-                Console.WriteLine($"----------------------------{percentDone}");
-            }
-            else
-            {
-                this.progressBar.Value = percentDone;
-            }
-        }
-
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -123,23 +107,12 @@ namespace LSC_Trainer
         {
             if(datasetPath != null)
             {
-                string filename = datasetPath.Split('\\').Last();
+                filename = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {filename} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes) 
                 {
-                    //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
-                    if (isFile)
-                    {
-                        //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
-                        //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
-                    }
-                    else
-                    {
-                        Task.Run(async () => await AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName)).Wait();
-                    }
-                   
+                    backgroundWorker.RunWorkerAsync();
                 }
             }
             else
@@ -149,6 +122,7 @@ namespace LSC_Trainer
             
 
         }
+
         private void btnTraining_Click(object sender, EventArgs e)
         {
             string img_num = "";
@@ -396,6 +370,34 @@ namespace LSC_Trainer
                     isFile = false;
                 }
             }
+        }
+
+        private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (isFile)
+            {
+                AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath, new Progress<int>(percent =>
+                {
+                    backgroundWorker.ReportProgress(percent);
+                })).Wait();
+            }
+            else
+            {
+                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName, new Progress<int>(percent =>
+                {
+                    backgroundWorker.ReportProgress(percent);
+                })).Wait();
+            }
+        }
+
+        private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            progressBar.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            MessageBox.Show("Upload completed!");
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.

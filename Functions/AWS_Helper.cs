@@ -15,10 +15,10 @@ namespace LSC_Trainer.Functions
 {
     class AWS_Helper
     {
-        public delegate void ProgressChangedHandler(int percentDone);
 
-        public static event ProgressChangedHandler OnProgressChanged;
-        public static string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName)
+        private static long totalUploaded = 0;
+
+        public static string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
             {
@@ -48,12 +48,23 @@ namespace LSC_Trainer.Functions
                         ContentType = GetContentType(fileName)
                     };
 
-                        uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                    Dictionary<string, long> fileProgress = new Dictionary<string, long>();
+
+                    long currentFileUploaded = 0;
+
+                    uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                    {
+                        currentFileUploaded = args.TransferredBytes;
+                        if(args.PercentDone == 100)
                         {
-                            OnProgressChanged?.Invoke(args.PercentDone);
-                        });
-                        transferUtility.Upload(uploadRequest);
-                    }
+                            totalUploaded += currentFileUploaded;
+                            int overallPercentage = (int)(totalUploaded * 100 / totalSize);
+                            progress.Report(overallPercentage);
+                        }
+                    });
+
+                    transferUtility.Upload(uploadRequest);
+                }
 
                     string s3Uri = $"s3://{bucketName}/{fileName}";
                     TimeSpan totalTime = DateTime.Now - startTime;
@@ -78,11 +89,12 @@ namespace LSC_Trainer.Functions
                 }
             }
 
-        public static async Task UploadFolderToS3(AmazonS3Client s3Client, string folderPath,string folderName,string bucketName)
+        public static async Task UploadFolderToS3(AmazonS3Client s3Client, string folderPath,string folderName,string bucketName, IProgress<int> progress)
         {
             try
             {
                 DateTime startTime = DateTime.Now;
+                long totalSize = CalculateTotalSizeFolder(folderPath);
                 var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
 
                 foreach (var file in files)
@@ -90,7 +102,7 @@ namespace LSC_Trainer.Functions
                     var relativePath = PathHelper.GetRelativePath(folderPath, file);
                     var key = relativePath.Replace(Path.DirectorySeparatorChar, '/');
                     key = folderName + "/" + key;
-                    UploadFileToS3(s3Client, file, key, bucketName);
+                    UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize);
                 }
 
                 Console.WriteLine("Successfully uploaded all files from the zip to S3.");
@@ -112,7 +124,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string localZipFilePath)
+        public static async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string localZipFilePath, IProgress<int> progress)
         {
             try
             {
@@ -144,13 +156,24 @@ namespace LSC_Trainer.Functions
                                     InputStream = memoryStream,
                                     ContentType = GetContentType(entry.Name)
                                 };
+                                
 
-                                // Upload the memory stream to S3
+                                Dictionary<string, long> fileProgress = new Dictionary<string, long>();
+                                long totalSize = CalculateTotalSize(localZipFilePath);
+                                long currentFileUploaded = 0;
+
                                 uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                                 {
-                                    //Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes} bytes /{args.TotalBytes} bytes");
-                                    OnProgressChanged?.Invoke(args.PercentDone);
+                                    currentFileUploaded = args.TransferredBytes;
+                                    if (args.PercentDone == 100)
+                                    {
+                                        totalUploaded += currentFileUploaded;
+                                        int overallPercentage = (int)(totalUploaded * 100 / totalSize);
+                                        progress.Report(overallPercentage);
+                                    }
                                 });
+
+
                                 await transferUtility.UploadAsync(uploadRequest);
                             }
                         }
@@ -168,13 +191,40 @@ namespace LSC_Trainer.Functions
             }
             catch (AmazonS3Exception e)
             {
-                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                Console.WriteLine("Error uploading file to S3 here: " + e.Message);
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
             }
         }
+
+        public static long CalculateTotalSizeFolder(string directoryPath)
+        {
+            Console.WriteLine($"Filename - {directoryPath}");
+            DirectoryInfo dirInfo = new DirectoryInfo(directoryPath);
+            return dirInfo.GetFiles("*", SearchOption.AllDirectories).Sum(file => file.Length);
+        }
+
+        public static long CalculateTotalSize(string directoryPath)
+        {
+            long totalSize = 0;
+            if (!File.Exists(directoryPath))
+            {
+                throw new FileNotFoundException("The zip file was not found.", directoryPath);
+            }
+
+            using (ZipArchive archive = System.IO.Compression.ZipFile.OpenRead(directoryPath))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    totalSize += entry.Length;
+                }
+            }
+
+            return totalSize;
+        }
+
 
         private static async Task DecompressEntryAsync(ZipInputStream zipStream, MemoryStream memoryStream)
         {
