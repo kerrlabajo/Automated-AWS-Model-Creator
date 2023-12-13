@@ -96,9 +96,9 @@ namespace LSC_Trainer
             string img_size = "1280";
             string weights = "yolov5n6.pt";
             string patience = "100";
-            string hyperparameters = "hyp.scratch-low.yaml";
-            string epochs = "";
-            string batch_size = "";
+            string hyperparameters = "hyp.no-augmentation.yaml";
+            string epochs = "1";
+            string batch_size = "1";
             string project = "";
             string workers = "8";
             string optimiser = "SGD";
