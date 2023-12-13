@@ -180,7 +180,7 @@ namespace LSC_Trainer
                 ResourceConfig = new ResourceConfig()
                 {
                     InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM4Xlarge,
+                    InstanceType = TrainingInstanceType.MlM5Xlarge,
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = jobName,
