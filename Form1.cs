@@ -75,7 +75,8 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-        }
+                // txtDevice.Text = "0";
+            }
             else
             {
                 txtImageSize.Text = "640";
@@ -87,6 +88,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
+                // txtDevice.Text = "0";
             }
         }
 
@@ -172,6 +174,7 @@ namespace LSC_Trainer
             string patience = "";
             string workers = "";
             string optimizer = "";
+            string device = "";
 
             if (txtImageSize.Text != "")
             {
@@ -218,6 +221,11 @@ namespace LSC_Trainer
                 optimizer = txtOptimizer.Text;
             }
 
+            if (txtDevice.Text != "")
+            {
+                device = txtDevice.Text;
+            }
+
             string jobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
@@ -240,6 +248,7 @@ namespace LSC_Trainer
                         "--patience", patience,
                         "--workers", workers,
                         "--optimizer", optimizer,
+                        // "--device", device
                     }
                 },
                 RoleArn = roleARN,
