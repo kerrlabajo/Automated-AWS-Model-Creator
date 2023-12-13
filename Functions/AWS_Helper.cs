@@ -50,7 +50,6 @@ namespace LSC_Trainer.Functions
 
                         uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                         {
-                            Console.WriteLine($"Progress: {args.PercentDone}%");
                             OnProgressChanged?.Invoke(args.PercentDone);
                         });
                         transferUtility.Upload(uploadRequest);
@@ -63,8 +62,8 @@ namespace LSC_Trainer.Functions
                                                   totalTime.Minutes,
                                                   totalTime.Seconds,
                                                   (int)(totalTime.Milliseconds / 100));
-                    Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
-                    Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
+                    //Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
+                    //Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
                     return fileName;
                 }
                 catch (AmazonS3Exception e)
@@ -149,7 +148,8 @@ namespace LSC_Trainer.Functions
                                 // Upload the memory stream to S3
                                 uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                                 {
-                                    Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes} bytes /{args.TotalBytes} bytes");
+                                    //Console.WriteLine($"Progress: {args.PercentDone}%, {args.TransferredBytes} bytes /{args.TotalBytes} bytes");
+                                    OnProgressChanged?.Invoke(args.PercentDone);
                                 });
                                 await transferUtility.UploadAsync(uploadRequest);
                             }

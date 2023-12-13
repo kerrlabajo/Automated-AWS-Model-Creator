@@ -16,6 +16,7 @@ namespace LSC_Trainer
 {
     public partial class Form1 : Form
     {
+        private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
         private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
@@ -57,21 +58,22 @@ namespace LSC_Trainer
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            base.OnFormClosed(e);
-
             AWS_Helper.OnProgressChanged -= UpdateProgressBar;
         }
 
-        private void UpdateProgressBar(int progress)
+        private void UpdateProgressBar(int percentDone)
         {
-            if (InvokeRequired)
+            if (this.progressBar.InvokeRequired)
             {
-                BeginInvoke(new Action(() => UpdateProgressBar(progress)));
-                Console.WriteLine("Here--");
-                return;
+                //SetProgressCallback progress = new SetProgressCallback(UpdateProgressBar);
+                //this.BeginInvoke(progress, new object[] { percentDone });
+                this.progressBar.BeginInvoke(new Action<int>(UpdateProgressBar), new object[] { percentDone });
+                Console.WriteLine($"----------------------------{percentDone}");
             }
-            Console.WriteLine("Here--");
-            progressBar.Value = (int)progress;
+            else
+            {
+                this.progressBar.Value = percentDone;
+            }
         }
 
 
