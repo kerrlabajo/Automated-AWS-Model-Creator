@@ -163,65 +163,59 @@ namespace LSC_Trainer
         }
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            string img_num = "";
-            string img_size = "1280";
-            string weights = "yolov5n6.pt";
-            string patience = "100";
-            string hyperparameters = "hyp.no-augmentation.yaml";
-            string epochs = "1";
-            string batch_size = "1";
-            string project = "";
-            string workers = "8";
-            string optimiser = "SGD";
+            string img_size = "";
+            string batch_size = "";
+            string epochs = "";
+            string weights = "";
+            string data = "";
+            string hyperparameters = "";
+            string patience = "";
+            string workers = "";
+            string optimizer = "";
 
-            if(txtImgNum.Text != null || txtImgNum.Text != "")
+            if (txtImageSize.Text != "")
             {
-                img_num = txtImgNum.Text;
+                img_size = txtImageSize.Text;
             }
 
-            if (txtImgSize.Text != null || txtImgSize.Text != "")
-            {
-                img_size = txtImgSize.Text;
-            }
-
-            if (txtWeights.Text != null || txtWeights.Text != "")
-            {
-                weights = txtWeights.Text;
-            }
-
-            if (txtPatience.Text != null || txtPatience.Text != "")
-            {
-                patience = txtPatience.Text;
-            }
-
-            if (txtHyperparameters.Text != null || txtHyperparameters.Text != "")
-            {
-                hyperparameters = txtHyperparameters.Text;
-            }
-
-            if (txtEpochs.Text != null || txtEpochs.Text != "")
-            {
-                epochs = txtEpochs.Text;
-            }
-
-            if (txtBatchSize.Text != null || txtBatchSize.Text != "")
+            if (txtBatchSize.Text != "")
             {
                 batch_size = txtBatchSize.Text;
             }
 
-            if (txtProject.Text != null || txtProject.Text != "")
+            if (txtEpochs.Text != "")
             {
-                project = txtProject.Text;
+                epochs = txtEpochs.Text;
             }
 
-            if (txtWorkers.Text != null || txtWorkers.Text != "")
+            if (txtWeights.Text != "")
+            {
+                weights = txtWeights.Text;
+            }
+
+            if (txtData.Text != "")
+            {
+                data = txtData.Text;
+            }
+
+            if (txtHyperparameters.Text != "")
+            {
+                hyperparameters = txtHyperparameters.Text;
+            }
+
+            if (txtPatience.Text != "")
+            {
+                patience = txtPatience.Text;
+            }
+
+            if (txtWorkers.Text != "")
             {
                 workers = txtWorkers.Text;
             }
 
-            if (txtOptimiser.Text != null || txtOptimiser.Text != "")
+            if (txtOptimizer.Text != "")
             {
-                optimiser = txtOptimiser.Text;
+                optimizer = txtOptimizer.Text;
             }
 
             string jobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
@@ -239,10 +233,13 @@ namespace LSC_Trainer
                         "--batch", batch_size,
                         "--epochs", epochs,
                         "--weights", weights,
-                        "--data", sageMakerInputDataPath + "train/MMX059XA_COVERED5B.yaml",
+                        "--data", sageMakerInputDataPath + "train/" + data,
                         "--hyp", hyperparameters,
                         "--project", sageMakerOutputDataPath,
-                        "--name", name,
+                        "--name", "results",
+                        "--patience", patience,
+                        "--workers", workers,
+                        "--optimizer", optimizer,
                     }
                 },
                 RoleArn = roleARN,
