@@ -159,8 +159,18 @@ namespace LSC_Trainer
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
                 {
+                    TrainingInputMode = "File",
                     TrainingImage = ecrURI,
-                    TrainingInputMode = "File"
+                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
+                    ContainerArguments = new List<string>()
+                    {
+                        "--img-size", img_size,
+                        "--batch", batch_size,
+                        "--epochs", epochs,
+                        "--weights", weights,
+                        "--data", sagemakerInputDataPath + "train/MMX059XA_COVERED5B.yaml",
+                        "--hyp", hyperparameters,
+                    }
                 },
                 RoleArn = roleARN,
                 OutputDataConfig = new OutputDataConfig()
