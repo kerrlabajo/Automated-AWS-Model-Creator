@@ -153,7 +153,7 @@ namespace LSC_Trainer
                 optimiser = txtOptimiser.Text;
             }
 
-            string jobName = String.Format("Training-YOLOv5-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+            string jobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
