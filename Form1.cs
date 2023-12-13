@@ -175,7 +175,7 @@ namespace LSC_Trainer
                 RoleArn = roleARN,
                 OutputDataConfig = new OutputDataConfig()
                 {
-                    S3OutputPath = s3URI
+                    S3OutputPath = s3DestinationURI + "output/",
                 },
                 ResourceConfig = new ResourceConfig()
                 {
