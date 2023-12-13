@@ -25,6 +25,7 @@ namespace LSC_Trainer
         private readonly string dockerImageURI;
         private readonly string s3DatasetURI;
         private readonly string s3DestinationURI;
+        private readonly string sageMakerInputDataPath = "/opt/ml/input/data/";
         private readonly string roleARN;
         private readonly string bucketName;
         private readonly string uploadBucketName;
