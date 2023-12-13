@@ -20,6 +20,7 @@ namespace LSC_Trainer
         private readonly string ecrURI;
         private readonly string dockerImageURI;
         private readonly string s3DatasetURI;
+        private readonly string s3DestinationURI;
         private readonly string roleARN;
         public Form1()
         {
@@ -36,6 +37,7 @@ namespace LSC_Trainer
             ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
             dockerImageURI = Environment.GetEnvironmentVariable("DOCKER_IMAGE_URI");
             s3DatasetURI = Environment.GetEnvironmentVariable("S3_DATASET_URI");
+            s3DestinationURI = Environment.GetEnvironmentVariable("S3_DESTINATION_URI");
             roleARN = Environment.GetEnvironmentVariable("ARN");
 
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
