@@ -34,7 +34,7 @@ namespace LSC_Trainer
             string accessKey = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
             string secretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
             string region = Environment.GetEnvironmentVariable("REGION");
-            s3URI = Environment.GetEnvironmentVariable("S3_URI");
+            //s3URI = Environment.GetEnvironmentVariable("S3_URI");
             ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
             dockerImageURI = Environment.GetEnvironmentVariable("DOCKER_IMAGE_URI");
             s3DatasetURI = Environment.GetEnvironmentVariable("S3_DATASET_URI");
