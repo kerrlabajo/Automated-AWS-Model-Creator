@@ -34,6 +34,9 @@ namespace LSC_Trainer
 
         private string datasetPath;
         private bool isFile;
+
+        private string training_folder;
+        private string validation_folder;
         
         public Form1()
         {
@@ -76,6 +79,8 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 // txtDevice.Text = "0";
+                training_folder = "train";
+                validation_folder = "Verification Images";
             }
             else
             {
@@ -89,6 +94,8 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 // txtDevice.Text = "0";
+                training_folder = "train";
+                validation_folder = "val";
             }
         }
 
@@ -279,7 +286,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = s3DatasetURI + "train",
+                                S3Uri = s3DatasetURI + training_folder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -295,7 +302,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = s3DatasetURI + "Verification Images",
+                                S3Uri = s3DatasetURI + validation_folder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
