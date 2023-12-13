@@ -184,7 +184,6 @@ namespace LSC_Trainer
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = jobName,
-                //HyperParameters = FileHandler.ReadYamlFile(hyperparameters),
                 StoppingCondition = new StoppingCondition()
                 {
                     MaxRuntimeInSeconds = 360000        
