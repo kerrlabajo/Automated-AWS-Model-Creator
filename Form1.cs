@@ -16,22 +16,38 @@ namespace LSC_Trainer
 {
     public partial class Form1 : Form
     {
+        private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
         private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
         private readonly string s3URI;
         private readonly string s3UploadURI;
         private readonly string ecrURI;
+        private readonly string dockerImageURI;
+        private readonly string s3DatasetURI;
+        private readonly string s3DestinationURI;
+        private readonly string sageMakerInputDataPath = "/opt/ml/input/data/";
+        private readonly string sageMakerOutputDataPath = "/opt/ml/output/data/";
+        private readonly string sageMakerModelPath = "/opt/ml/model/";
         private readonly string roleARN;
         private readonly string bucketName;
         private readonly string uploadBucketName;
 
         private string datasetPath;
         private bool isFile;
+
+        private string training_folder;
+        private string validation_folder;
         
+        private string filename;
+
         public Form1()
         {
             InitializeComponent();
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.DoWork += backgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
             string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
             
@@ -43,6 +59,9 @@ namespace LSC_Trainer
             s3URI = Environment.GetEnvironmentVariable("S3_URI");
             s3UploadURI = Environment.GetEnvironmentVariable("S3_BUCKET_UPLOADS_URI");
             ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
+            dockerImageURI = Environment.GetEnvironmentVariable("DOCKER_IMAGE_URI");
+            s3DatasetURI = Environment.GetEnvironmentVariable("S3_DATASET_URI");
+            s3DestinationURI = Environment.GetEnvironmentVariable("S3_DESTINATION_URI");
             roleARN = Environment.GetEnvironmentVariable("ARN");
 
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
@@ -53,11 +72,42 @@ namespace LSC_Trainer
 
             bucketName = s3URI.Replace("s3://", "");
             bucketName = bucketName.Replace("/", "");
+
+            string datasetName = s3DatasetURI.Split('/').Reverse().Skip(1).First();
+            if (datasetName == "MMX059XA_COVERED5B")
+            {
+                txtImageSize.Text = "1280";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "1";
+                txtWeights.Text = "yolov5n6.pt";
+                txtData.Text = "MMX059XA_COVERED5B.yaml";
+                txtHyperparameters.Text = "hyp.no-augmentation.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+                // txtDevice.Text = "0";
+                training_folder = "train";
+                validation_folder = "Verification Images";
+            }
+            else
+            {
+                txtImageSize.Text = "640";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "50";
+                txtWeights.Text = "yolov5s.pt";
+                txtData.Text = "data.yaml";
+                txtHyperparameters.Text = "hyp.scratch-low.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+                // txtDevice.Text = "0";
+                training_folder = "train";
+                validation_folder = "val";
+            }
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            ///TODO: To test if your AWS credentials is accessible and able to connect, execute this event with the AmazonSageMakerClient.
             try
             {
                 var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
@@ -101,23 +151,12 @@ namespace LSC_Trainer
         {
             if(datasetPath != null)
             {
-                string filename = datasetPath.Split('\\').Last();
+                filename = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {filename} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes) 
                 {
-                    //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
-                    if (isFile)
-                    {
-                        //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
-                        //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
-                    }
-                    else
-                    {
-                        Task.Run(async () => await AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName)).Wait();
-                    }
-                   
+                    backgroundWorker.RunWorkerAsync();
                 }
             }
             else
@@ -127,91 +166,107 @@ namespace LSC_Trainer
             
 
         }
+
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            string img_num = "";
-            string img_size = "1280";
-            string weights = "yolov5n6.pt";
-            string patience = "100";
-            string hyperparameters = "hyp.scratch-low.yaml";
-            string epochs = "";
+            string img_size = "";
             string batch_size = "";
-            string project = "";
-            string workers = "8";
-            string optimiser = "SGD";
+            string epochs = "";
+            string weights = "";
+            string data = "";
+            string hyperparameters = "";
+            string patience = "";
+            string workers = "";
+            string optimizer = "";
+            string device = "";
 
-            if(txtImgNum.Text != null || txtImgNum.Text != "")
+            if (txtImageSize.Text != "")
             {
-                img_num = txtImgNum.Text;
+                img_size = txtImageSize.Text;
             }
 
-            if (txtImgSize.Text != null || txtImgSize.Text != "")
-            {
-                img_size = txtImgSize.Text;
-            }
-
-            if (txtWeights.Text != null || txtWeights.Text != "")
-            {
-                weights = txtWeights.Text;
-            }
-
-            if (txtPatience.Text != null || txtPatience.Text != "")
-            {
-                patience = txtPatience.Text;
-            }
-
-            if (txtHyperparameters.Text != null || txtHyperparameters.Text != "")
-            {
-                hyperparameters = txtHyperparameters.Text;
-            }
-
-            if (txtEpochs.Text != null || txtEpochs.Text != "")
-            {
-                epochs = txtEpochs.Text;
-            }
-
-            if (txtBatchSize.Text != null || txtBatchSize.Text != "")
+            if (txtBatchSize.Text != "")
             {
                 batch_size = txtBatchSize.Text;
             }
 
-            if (txtProject.Text != null || txtProject.Text != "")
+            if (txtEpochs.Text != "")
             {
-                project = txtProject.Text;
+                epochs = txtEpochs.Text;
             }
 
-            if (txtWorkers.Text != null || txtWorkers.Text != "")
+            if (txtWeights.Text != "")
+            {
+                weights = txtWeights.Text;
+            }
+
+            if (txtData.Text != "")
+            {
+                data = txtData.Text;
+            }
+
+            if (txtHyperparameters.Text != "")
+            {
+                hyperparameters = txtHyperparameters.Text;
+            }
+
+            if (txtPatience.Text != "")
+            {
+                patience = txtPatience.Text;
+            }
+
+            if (txtWorkers.Text != "")
             {
                 workers = txtWorkers.Text;
             }
 
-            if (txtOptimiser.Text != null || txtOptimiser.Text != "")
+            if (txtOptimizer.Text != "")
             {
-                optimiser = txtOptimiser.Text;
+                optimizer = txtOptimizer.Text;
             }
 
-            string jobName = String.Format("Training-YOLOv5-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+            if (txtDevice.Text != "")
+            {
+                device = txtDevice.Text;
+            }
+
+            string jobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
                 {
+                    TrainingInputMode = "File",
                     TrainingImage = ecrURI,
-                    TrainingInputMode = "File"
+                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
+                    ContainerArguments = new List<string>()
+                    {
+                        "--img-size", img_size,
+                        "--batch", batch_size,
+                        "--epochs", epochs,
+                        "--weights", weights,
+                        "--data", sageMakerInputDataPath + "train/" + data,
+                        "--hyp", hyperparameters,
+                        "--project", sageMakerOutputDataPath,
+                        "--name", "results",
+                        "--patience", patience,
+                        "--workers", workers,
+                        "--optimizer", optimizer,
+                        // "--device", device
+                    }
                 },
                 RoleArn = roleARN,
                 OutputDataConfig = new OutputDataConfig()
                 {
-                    S3OutputPath = s3URI
+                    S3OutputPath = s3DestinationURI
                 },
                 ResourceConfig = new ResourceConfig()
                 {
                     InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM4Xlarge,
+                    InstanceType = TrainingInstanceType.MlM5Xlarge,
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = jobName,
-                //HyperParameters = FileHandler.ReadYamlFile(hyperparameters),
                 StoppingCondition = new StoppingCondition()
                 {
                     MaxRuntimeInSeconds = 360000        
@@ -220,15 +275,32 @@ namespace LSC_Trainer
                     new Channel()
                     {
                         ChannelName = "train",
-                        //ContentType = "application/x-recordio",
+                        InputMode = TrainingInputMode.File,
                         CompressionType = Amazon.SageMaker.CompressionType.None,
+                        RecordWrapperType = RecordWrapper.None,
                         DataSource = new DataSource()
                         {
-                            S3DataSource = new Amazon.SageMaker.Model.S3DataSource()
+                            S3DataSource = new S3DataSource()
                             {
-                                S3DataType = Amazon.SageMaker.S3DataType.S3Prefix,
-                                S3Uri = s3URI,
-                                S3DataDistributionType = Amazon.SageMaker.S3DataDistribution.FullyReplicated
+                                S3DataType = S3DataType.S3Prefix,
+                                S3Uri = s3DatasetURI + training_folder,
+                                S3DataDistributionType = S3DataDistribution.FullyReplicated
+                            }
+                        }
+                    },
+                    new Channel()
+                    {
+                        ChannelName = "val",
+                        InputMode = TrainingInputMode.File,
+                        CompressionType = Amazon.SageMaker.CompressionType.None,
+                        RecordWrapperType = RecordWrapper.None,
+                        DataSource = new DataSource()
+                        {
+                            S3DataSource = new S3DataSource()
+                            {
+                                S3DataType = S3DataType.S3Prefix,
+                                S3Uri = s3DatasetURI + validation_folder,
+                                S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
                     }
@@ -376,26 +448,38 @@ namespace LSC_Trainer
             }
         }
 
-        ///TODO: Create a button to upload a dataset in .rar/.zip file.
+        private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (isFile)
+            {
+                AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath, new Progress<int>(percent =>
+                {
+                    backgroundWorker.ReportProgress(percent);
+                })).Wait();
+            }
+            else
+            {
+                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName, new Progress<int>(percent =>
+                {
+                    backgroundWorker.ReportProgress(percent);
+                })).Wait();
+            }
+        }
 
-        ///TODO: Create a text area to get the training parameters:
-        ///TODO: number of images to train [NOT YET SURE/IMPLEMENTED IN YOLOV5 REPO]
-        ///TODO: image size (default 1280), batch size, epochs, 
-        ///TODO: weights (default yolov5n6.pt), project (default S3 destination), 
-        ///TODO: patience (default 100), workers (default 8), optimizer (default SGD), 
-        ///TODO: hyperparameters (default hyp.scratch-low.yamL)
+        private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            progressBar.Value = e.ProgressPercentage;
+        }
 
-        ///TODO: Create a text area to print the ff:
-        ///TODO: 1. AmazonSageMakerClient connection duration.
-        ///TODO: 2. Dataset file size, and uploading network connectivity and duration
-        ///TODO: 3. Virtual machine specs used for training (the instance we selected to create the training job).
-        ///TODO: 4. Duration of the training in AWS SageMaker Training Job creation and training.
-        ///TODO: 5. Model url that was saved in AWS S3.
+        private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            MessageBox.Show("Upload completed!");
+        }
 
-        ///TODO: Create a proceed training button to create a training job in AWS.
-        ///TODO: Implement the create training job using SageMaker with the .env variable that contains the AWS ECR location 
-        ///TODO: of the team's training algorithm, specific EC2 Instance (Virtual Machine) that is free version, and other
-        ///TODO: specific configurations in the web interface that can be replicated here in AWSSDK.SageMaker.
+        private void SelectAllTextOnClick(object sender, EventArgs e)
+        {
+            sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
+        }
 
     }
 }
