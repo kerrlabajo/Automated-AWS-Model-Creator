@@ -22,6 +22,7 @@ namespace LSC_Trainer
         private readonly string s3DatasetURI;
         private readonly string s3DestinationURI;
         private readonly string roleARN;
+        private readonly string sagemakerInputDataPath = "/opt/ml/input/data/";
         public Form1()
         {
             InitializeComponent();
