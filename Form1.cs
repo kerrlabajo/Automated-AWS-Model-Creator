@@ -413,6 +413,11 @@ namespace LSC_Trainer
             }
         }
 
+        private void SelectAllTextOnClick(object sender, EventArgs e)
+        {
+            sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
+        }
+
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
 
         ///TODO: Create a text area to get the training parameters:
