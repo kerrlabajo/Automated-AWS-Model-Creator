@@ -192,15 +192,32 @@ namespace LSC_Trainer
                     new Channel()
                     {
                         ChannelName = "train",
-                        //ContentType = "application/x-recordio",
+                        InputMode = TrainingInputMode.File,
                         CompressionType = Amazon.SageMaker.CompressionType.None,
+                        RecordWrapperType = RecordWrapper.None,
                         DataSource = new DataSource()
                         {
-                            S3DataSource = new Amazon.SageMaker.Model.S3DataSource()
+                            S3DataSource = new S3DataSource()
                             {
-                                S3DataType = Amazon.SageMaker.S3DataType.S3Prefix,
-                                S3Uri = s3URI,
-                                S3DataDistributionType = Amazon.SageMaker.S3DataDistribution.FullyReplicated
+                                S3DataType = S3DataType.S3Prefix,
+                                S3Uri = s3DatasetURI + "train",
+                                S3DataDistributionType = S3DataDistribution.FullyReplicated
+                            }
+                        }
+                    },
+                    new Channel()
+                    {
+                        ChannelName = "val",
+                        InputMode = TrainingInputMode.File,
+                        CompressionType = Amazon.SageMaker.CompressionType.None,
+                        RecordWrapperType = RecordWrapper.None,
+                        DataSource = new DataSource()
+                        {
+                            S3DataSource = new S3DataSource()
+                            {
+                                S3DataType = S3DataType.S3Prefix,
+                                S3Uri = s3DatasetURI + "Verification Images",
+                                S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
                     }
