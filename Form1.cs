@@ -62,6 +62,32 @@ namespace LSC_Trainer
 
             bucketName = s3URI.Replace("s3://", "");
             bucketName = bucketName.Replace("/", "");
+
+            string datasetName = s3DatasetURI.Split('/').Reverse().Skip(1).First();
+            if (datasetName == "MMX059XA_COVERED5B")
+            {
+                txtImageSize.Text = "1280";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "1";
+                txtWeights.Text = "yolov5n6.pt";
+                txtData.Text = "MMX059XA_COVERED5B.yaml";
+                txtHyperparameters.Text = "hyp.no-augmentation.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+        }
+            else
+            {
+                txtImageSize.Text = "640";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "50";
+                txtWeights.Text = "yolov5s.pt";
+                txtData.Text = "data.yaml";
+                txtHyperparameters.Text = "hyp.scratch-low.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+            }
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
