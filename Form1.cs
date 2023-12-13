@@ -212,7 +212,7 @@ namespace LSC_Trainer
                         "--batch", batch_size,
                         "--epochs", epochs,
                         "--weights", weights,
-                        "--data", sagemakerInputDataPath + "train/MMX059XA_COVERED5B.yaml",
+                        "--data", sageMakerInputDataPath + "train/MMX059XA_COVERED5B.yaml",
                         "--hyp", hyperparameters,
                     }
                 },
