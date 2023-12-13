@@ -8,6 +8,9 @@ using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using Amazon.SageMakerRuntime;
 using System.Linq;
+using Amazon.S3.Model;
+using LSC_Trainer.Functions;
+using System.Threading.Tasks;
 
 namespace LSC_Trainer
 {
@@ -17,12 +20,18 @@ namespace LSC_Trainer
         private readonly AmazonS3Client s3Client;
         private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
         private readonly string s3URI;
+        private readonly string s3UploadURI;
         private readonly string ecrURI;
         private readonly string dockerImageURI;
         private readonly string s3DatasetURI;
         private readonly string s3DestinationURI;
         private readonly string roleARN;
-        private readonly string sagemakerInputDataPath = "/opt/ml/input/data/";
+        private readonly string bucketName;
+        private readonly string uploadBucketName;
+
+        private string datasetPath;
+        private bool isFile;
+        
         public Form1()
         {
             InitializeComponent();
@@ -34,7 +43,8 @@ namespace LSC_Trainer
             string accessKey = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
             string secretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
             string region = Environment.GetEnvironmentVariable("REGION");
-            //s3URI = Environment.GetEnvironmentVariable("S3_URI");
+            s3URI = Environment.GetEnvironmentVariable("S3_URI");
+            s3UploadURI = Environment.GetEnvironmentVariable("S3_BUCKET_UPLOADS_URI");
             ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
             dockerImageURI = Environment.GetEnvironmentVariable("DOCKER_IMAGE_URI");
             s3DatasetURI = Environment.GetEnvironmentVariable("S3_DATASET_URI");
@@ -44,7 +54,11 @@ namespace LSC_Trainer
             amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
             s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
 
-            
+            uploadBucketName = s3UploadURI.Replace("s3://", "");
+            uploadBucketName = uploadBucketName.Replace("/", "");
+
+            bucketName = s3URI.Replace("s3://", "");
+            bucketName = bucketName.Replace("/", "");
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -68,7 +82,7 @@ namespace LSC_Trainer
 
         }
 
-        private void btnUpload_Click(object sender, EventArgs e)
+        private void btnSelectDataset_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -77,19 +91,48 @@ namespace LSC_Trainer
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string selectedFilePath = openFileDialog.FileName;
+                    datasetPath = openFileDialog.FileName;
 
                     // Display the selected file path (optional)
-                    lblZipFile.Text = selectedFilePath;
+                    lblZipFile.Text = datasetPath;
 
-                    // Handle the zip file as needed
-                    // For example, you can extract its contents or upload it to a server
-                    // For simplicity, we'll just show a message box with the file path
-                    MessageBox.Show($"Selected file: {selectedFilePath}");
+                    MessageBox.Show($"Selected file: {datasetPath}");
+                    btnRemoveFile.Visible = true;
+                    isFile = true;
                 }
             }
         }
 
+        private void btnUploadToS3_Click(object sender, EventArgs e)
+        {
+            if(datasetPath != null)
+            {
+                string filename = datasetPath.Split('\\').Last();
+                DialogResult result = MessageBox.Show($"Do you want to upload {filename} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes) 
+                {
+                    //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
+                    if (isFile)
+                    {
+                        //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
+                        //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
+                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
+                    }
+                    else
+                    {
+                        Task.Run(async () => await AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName)).Wait();
+                    }
+                   
+                }
+            }
+            else
+            {
+                MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
+
+        }
         private void btnTraining_Click(object sender, EventArgs e)
         {
             string img_num = "";
@@ -313,9 +356,56 @@ namespace LSC_Trainer
 
         }
 
-        private void lblZipFile_Click(object sender, EventArgs e)
+        private void btnRemoveFile_Click(object sender, EventArgs e)
         {
+            datasetPath = null;
+            lblZipFile.Text = "No file selected";
+            btnRemoveFile.Visible = false;
+        }
 
+        private void btnDownloadModel_Click(object sender, EventArgs e)
+        {
+            //temporary 
+            string modelKey = "weights/23070a53best.onnx";
+            //modelKey = modelKey.Replace($"s3://{bucketName}", "");
+
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+    {
+                folderBrowserDialog.Description = "Select a folder to save the file";
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string saveFolder = folderBrowserDialog.SelectedPath;
+
+                    DialogResult result = MessageBox.Show($"Do you want to save the model to {saveFolder} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        Task.Run(async() => await AWS_Helper.DownloadFile(s3Client, bucketName, modelKey, saveFolder)).Wait();
+                    }
+                }
+            }
+        }
+
+        private void btnSelectFolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select a folder";
+                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    datasetPath = folderBrowserDialog.SelectedPath;
+
+                    // Display the selected folder path (optional)
+                    lblZipFile.Text = datasetPath;
+
+                    MessageBox.Show($"Selected folder: {datasetPath}");
+                    btnRemoveFile.Visible = true;
+                    isFile = false;
+                }
+            }
         }
 
         ///TODO: Create a button to upload a dataset in .rar/.zip file.
