@@ -26,6 +26,8 @@ namespace LSC_Trainer
         private readonly string s3DatasetURI;
         private readonly string s3DestinationURI;
         private readonly string sageMakerInputDataPath = "/opt/ml/input/data/";
+        private readonly string sageMakerOutputDataPath = "/opt/ml/output/data/";
+        private readonly string sageMakerModelPath = "/opt/ml/model/";
         private readonly string roleARN;
         private readonly string bucketName;
         private readonly string uploadBucketName;
@@ -214,6 +216,8 @@ namespace LSC_Trainer
                         "--weights", weights,
                         "--data", sageMakerInputDataPath + "train/MMX059XA_COVERED5B.yaml",
                         "--hyp", hyperparameters,
+                        "--project", sageMakerOutputDataPath,
+                        "--name", name,
                     }
                 },
                 RoleArn = roleARN,
