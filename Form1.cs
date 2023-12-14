@@ -40,6 +40,8 @@ namespace LSC_Trainer
         private string validation_folder;
         
         private string filename;
+        //temporary solution (need to figure out how to implement when there are multiple training jobs)
+        private string trainingJobName;
 
         public Form1()
         {
@@ -230,7 +232,7 @@ namespace LSC_Trainer
                 device = txtDevice.Text;
             }
 
-            string jobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+             trainingJobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
@@ -266,7 +268,7 @@ namespace LSC_Trainer
                     InstanceType = TrainingInstanceType.MlM5Xlarge,
                     VolumeSizeInGB = 12
                 },
-                TrainingJobName = jobName,
+                TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
                     MaxRuntimeInSeconds = 360000        
@@ -405,9 +407,7 @@ namespace LSC_Trainer
 
         private void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            //temporary 
-            string modelKey = "weights/23070a53best.onnx";
-            //modelKey = modelKey.Replace($"s3://{bucketName}", "");
+            string modelKey = $"{trainingJobName}/output/<output.tar.gz>";
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
     {
@@ -481,5 +481,17 @@ namespace LSC_Trainer
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
 
+        private void btnUnzipGZ_Click(object sender, EventArgs e)
+        {
+            //remove first output after update
+            //string modelKey = $"output/{trainingJobName}/output/output.tar.gz";
+            string modelKey = $"output/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
+
+
+            //DialogResult result = MessageBox.Show($"Do you want to save the model to {saveFolder} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            Task.Run(async () => await AWS_Helper.ExtractAndUploadBestPt(s3Client, bucketName, modelKey)).Wait();
+               
+            
+        }
     }
 }

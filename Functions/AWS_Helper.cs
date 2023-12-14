@@ -1,6 +1,7 @@
 ﻿    using Amazon.S3;
     using Amazon.S3.Model;
     using Amazon.S3.Transfer;
+    using ICSharpCode.SharpZipLib.Tar;
     using ICSharpCode.SharpZipLib.Zip;
     using System;
     using System.Collections.Generic;
@@ -199,6 +200,79 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        public static async Task<string> ExtractAndUploadBestPt(AmazonS3Client s3Client, string bucketName, string modelKey)
+        {
+            try
+            {
+                Console.WriteLine("Starting Extract For Best.pt");
+                // Download the tar.gz file from S3
+                GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, modelKey);
+
+                //change to [0] after update
+                string trainingJobName = modelKey.Split('/')[1];
+
+                using (var tarStream = new TarInputStream(new GZipStream(response.ResponseStream, CompressionMode.Decompress)))
+                {
+                    var transferUtility = new TransferUtility(s3Client);
+
+                    // Specify the file name you are looking for
+                    string fileName = "results/weights/best.pt";
+
+                    TarEntry entry;
+                    while ((entry = tarStream.GetNextEntry()) != null)
+                    {
+                        // Check if the entry is a directory
+                        if (entry.IsDirectory)
+                        {
+                            continue;
+                        }
+
+                        // Check if the entry name matches the desired file name
+                        if (entry.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                // Copy the content from the entry's stream to the memory stream in chunks
+                                var buffer = new byte[4096];
+                                int bytesRead;
+                                while ((bytesRead = tarStream.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    memoryStream.Write(buffer, 0, bytesRead);
+                                }
+
+                                TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
+                                {
+                                    BucketName = bucketName,
+                                    Key = $"output/{trainingJobName}/models/best.pt",
+                                    InputStream = memoryStream,
+                                };
+
+                                uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                                {
+                                    Console.WriteLine($"Progress: {args.PercentDone}%");
+                                });
+                                // Upload the content to S3
+                                await transferUtility.UploadAsync(uploadRequest);
+                            }
+
+                            Console.WriteLine("Extraction and upload completed successfully.");
+                            string s3URI = $"s3://{bucketName}/output/{trainingJobName}/models/best.pt";
+                            Console.WriteLine($"Successfully uploaded model at: {s3URI}");
+                            return s3URI;
+                        }
+                    }                   
+                }
+                // maybe improve this soon
+                Console.WriteLine("Extraction and upload failed.");
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error extracting and uploading best.pt: {e.Message}");
+                return null;
+            }
+        }
+
         public static long CalculateTotalSizeFolder(string directoryPath)
         {
             Console.WriteLine($"Filename - {directoryPath}");
@@ -276,20 +350,20 @@ namespace LSC_Trainer.Functions
                 {
                     GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, objectKey);
 
-                // Ensure the directory exists
-                string directoryPath = Path.GetDirectoryName(localFilePath);
-                Directory.CreateDirectory(directoryPath);
-                Console.WriteLine(directoryPath);
-                string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
-                using (var fileStream = File.OpenWrite(filePath))
-                {
-                    await response.ResponseStream.CopyToAsync(fileStream);
-                    if (response.HttpStatusCode == HttpStatusCode.OK)
+                    // Ensure the directory exists
+                    string directoryPath = Path.GetDirectoryName(localFilePath);
+                    Directory.CreateDirectory(directoryPath);
+                    Console.WriteLine(directoryPath);
+                    string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
+                    using (var fileStream = File.OpenWrite(filePath))
                     {
-                        Console.WriteLine($"File has been saved to {localFilePath}");
+                        await response.ResponseStream.CopyToAsync(fileStream);
+                        if (response.HttpStatusCode == HttpStatusCode.OK)
+                        {
+                            Console.WriteLine($"File has been saved to {localFilePath}");
+                        }
                     }
                 }
-            }
             catch (AggregateException e)
             {
                 Console.WriteLine("Error downloading file: " + e.Message);
