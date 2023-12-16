@@ -6,67 +6,70 @@ using Amazon;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
-using Amazon.SageMakerRuntime;
 using System.Linq;
-using Amazon.S3.Model;
 using LSC_Trainer.Functions;
-using System.Threading.Tasks;
 
 namespace LSC_Trainer
 {
     public partial class Form1 : Form
     {
+        private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
-        private readonly AmazonSageMakerRuntimeClient amazonSageMakerRuntimeClient;
-        private readonly string s3URI;
-        private readonly string s3UploadURI;
-        private readonly string ecrURI;
-        private readonly string dockerImageURI;
-        private readonly string s3DatasetURI;
-        private readonly string s3DestinationURI;
-        private readonly string sageMakerInputDataPath = "/opt/ml/input/data/";
-        private readonly string sageMakerOutputDataPath = "/opt/ml/output/data/";
-        private readonly string sageMakerModelPath = "/opt/ml/model/";
-        private readonly string roleARN;
-        private readonly string bucketName;
-        private readonly string uploadBucketName;
+
+        private readonly string ACCESS_KEY;
+        private readonly string SECRET_KEY;
+        private readonly string REGION;
+        private readonly string ROLE_ARN;
+
+        private readonly string ECR_URI;
+        private readonly string SAGEMAKER_BUCKET;
+        private readonly string DEFAULT_DATASET_URI;
+        private readonly string CUSTOM_UPLOADS_URI;
+        private readonly string DESTINATION_URI;
+
+        private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
+        private readonly string SAGEMAKER_OUTPUT_DATA_PATH = "/opt/ml/output/data/";
+        private readonly string SAGEMAKER_MODEL_PATH = "/opt/ml/model/";
 
         private string datasetPath;
         private bool isFile;
 
-        private string training_folder;
-        private string validation_folder;
+        private string trainingFolder;
+        private string validationFolder;
         
+        private string fileName;
+        private string trainingJobName;
+
+        private string outputKey;
+
         public Form1()
         {
             InitializeComponent();
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.DoWork += backgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
-            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
+            string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
+            DotNetEnv.Env.Load(ENV_PATH);
             
-            DotNetEnv.Env.Load(fullPath);
+            ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
+            SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
+            REGION = Environment.GetEnvironmentVariable("REGION");
+            ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
 
-            string accessKey = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
-            string secretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
-            string region = Environment.GetEnvironmentVariable("REGION");
-            s3URI = Environment.GetEnvironmentVariable("S3_URI");
-            s3UploadURI = Environment.GetEnvironmentVariable("S3_BUCKET_UPLOADS_URI");
-            ecrURI = Environment.GetEnvironmentVariable("ECR_URI");
-            dockerImageURI = Environment.GetEnvironmentVariable("DOCKER_IMAGE_URI");
-            s3DatasetURI = Environment.GetEnvironmentVariable("S3_DATASET_URI");
-            s3DestinationURI = Environment.GetEnvironmentVariable("S3_DESTINATION_URI");
-            roleARN = Environment.GetEnvironmentVariable("ARN");
+            ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
+            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+            DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
+            CUSTOM_UPLOADS_URI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+            DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
 
-            amazonSageMakerClient = new AmazonSageMakerClient(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
-            s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
+            RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
+            amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
+            s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
 
-            uploadBucketName = s3UploadURI.Replace("s3://", "");
-            uploadBucketName = uploadBucketName.Replace("/", "");
-
-            bucketName = s3URI.Replace("s3://", "");
-            bucketName = bucketName.Replace("/", "");
-
-            string datasetName = s3DatasetURI.Split('/').Reverse().Skip(1).First();
+            string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
             {
                 txtImageSize.Text = "1280";
@@ -79,8 +82,8 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 // txtDevice.Text = "0";
-                training_folder = "train";
-                validation_folder = "Verification Images";
+                trainingFolder = "train";
+                validationFolder = "Verification Images";
             }
             else
             {
@@ -94,8 +97,8 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 // txtDevice.Text = "0";
-                training_folder = "train";
-                validation_folder = "val";
+                trainingFolder = "train";
+                validationFolder = "val";
             }
         }
 
@@ -140,47 +143,199 @@ namespace LSC_Trainer
             }
         }
 
+        private void btnSelectFolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select a folder";
+                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    datasetPath = folderBrowserDialog.SelectedPath;
+
+                    // Display the selected folder path (optional)
+                    lblZipFile.Text = datasetPath;
+
+                    MessageBox.Show($"Selected folder: {datasetPath}");
+                    btnRemoveFile.Visible = true;
+                    isFile = false;
+                }
+            }
+        }
+        private void btnRemoveFile_Click(object sender, EventArgs e)
+        {
+            datasetPath = null;
+            lblZipFile.Text = "No file selected";
+            btnRemoveFile.Visible = false;
+        }
+
         private void btnUploadToS3_Click(object sender, EventArgs e)
         {
             if(datasetPath != null)
             {
-                string filename = datasetPath.Split('\\').Last();
-                DialogResult result = MessageBox.Show($"Do you want to upload {filename} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                fileName = datasetPath.Split('\\').Last();
+                DialogResult result = MessageBox.Show($"Do you want to upload {fileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes) 
-                {
-                    //byte[] fileByteArray = File.ReadAllBytes(datasetPath);
-                    if (isFile)
-                    {
-                        //string zipKey =  AWS_Helper.UploadFileToS3(s3Client, datasetPath, filename, uploadBucketName);
-                        //string zipKey = "CITU_Dataset-2023-12-11-00-1233.rar";
-                        Task.Run(async () => await AWS_Helper.UnzipAndUploadToS3(s3Client, uploadBucketName, datasetPath)).Wait();
-                    }
-                    else
-                    {
-                        Task.Run(async () => await AWS_Helper.UploadFolderToS3(s3Client, datasetPath, filename, uploadBucketName)).Wait();
-                    }
-                   
+                if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
                 }
-            }
             else
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
-
         }
+
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            string img_size = "";
-            string batch_size = "";
-            string epochs = "";
-            string weights = "";
-            string data = "";
-            string hyperparameters = "";
-            string patience = "";
-            string workers = "";
-            string optimizer = "";
+            SetTrainingParameters(
+                out string img_size,
+                                  out string batch_size,
+                                  out string epochs,
+                                  out string weights,
+                                  out string data,
+                                  out string hyperparameters,
+                                  out string patience,
+                                  out string workers,
+                                  out string optimizer);
+
+            trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+            CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
+
+            try
+            {
+                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+
+                Console.WriteLine("Training job executed successfully.");
+
+                string prevStatusMessage = "";
+                Timer timer = new Timer();
+                timer.Interval = 5000;
+                timer.Tick += async (sender1, e1) =>
+                {
+                    try
+                    {
+                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                        {
+                            TrainingJobName = trainingJobName
+                        });
+
+                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+                        {
+                            Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
+                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
+                            Console.WriteLine();
+                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
+                        }
+
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
+                        {
+                            Console.WriteLine("Printing status history...");
+                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
+                            {
+                                Console.WriteLine("Status: " + history.Status);
+                                TimeSpan elapsed = history.EndTime - history.StartTime;
+                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)elapsed.TotalHours,
+                                              elapsed.Minutes,
+                                              elapsed.Seconds,
+                                              (int)(elapsed.Milliseconds / 100));
+                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
+                                Console.WriteLine("Description: " + history.StatusMessage);
+                                Console.WriteLine();
+                            }
+                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            timer.Stop();
+                        }
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                        {
+                            Console.WriteLine(tracker.FailureReason);
+                            timer.Stop();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error in training model: {ex.Message}");
+                    }
+                };
+                timer.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating training job: {ex.Message}");
+            }
+        }
+
+        private async void btnDownloadModel_Click(object sender, EventArgs e)
+        {
+            ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
+            ///training job request but for exporting the model to ONNX.
+            ///To be implemented in branch `dev/aws-sagemaker-export-request`.
+            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
+
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select a folder to save the file";
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedLocalPath = folderBrowserDialog.SelectedPath;
+
+                    DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                    }
+                }
+            }
+        }
+
+        private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (isFile)
+            {
+                AWS_Helper.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
+                {
+                    backgroundWorker.ReportProgress(percent);
+                })).Wait();
+            }
+            else
+            {
+                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, fileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
+                {
+                    backgroundWorker.ReportProgress(percent);
+                })).Wait();
+            }
+        }
+
+        private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            progressBar.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            MessageBox.Show("Upload completed!");
+        }
+
+        private void SelectAllTextOnClick(object sender, EventArgs e)
+        {
+            sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
+        }
+
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer)
+        {
+            img_size = "";
+            batch_size = "";
+            epochs = "";
+            weights = "";
+            data = "";
+            hyperparameters = "";
+            patience = "";
+            workers = "";
+            optimizer = "";
             string device = "";
 
             if (txtImageSize.Text != "")
@@ -232,15 +387,16 @@ namespace LSC_Trainer
             {
                 device = txtDevice.Text;
             }
+        }
 
-            string jobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
-
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
+        {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
                 {
                     TrainingInputMode = "File",
-                    TrainingImage = ecrURI,
+                    TrainingImage = ECR_URI,
                     ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
                     ContainerArguments = new List<string>()
                     {
@@ -248,9 +404,9 @@ namespace LSC_Trainer
                         "--batch", batch_size,
                         "--epochs", epochs,
                         "--weights", weights,
-                        "--data", sageMakerInputDataPath + "train/" + data,
+                        "--data", SAGEMAKER_INPUT_DATA_PATH + "train/" + data,
                         "--hyp", hyperparameters,
-                        "--project", sageMakerOutputDataPath,
+                        "--project", SAGEMAKER_OUTPUT_DATA_PATH,
                         "--name", "results",
                         "--patience", patience,
                         "--workers", workers,
@@ -258,10 +414,10 @@ namespace LSC_Trainer
                         // "--device", device
                     }
                 },
-                RoleArn = roleARN,
+                RoleArn = ROLE_ARN,
                 OutputDataConfig = new OutputDataConfig()
                 {
-                    S3OutputPath = s3DestinationURI
+                    S3OutputPath = DESTINATION_URI
                 },
                 ResourceConfig = new ResourceConfig()
                 {
@@ -269,10 +425,10 @@ namespace LSC_Trainer
                     InstanceType = TrainingInstanceType.MlM5Xlarge,
                     VolumeSizeInGB = 12
                 },
-                TrainingJobName = jobName,
+                TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
-                    MaxRuntimeInSeconds = 360000        
+                    MaxRuntimeInSeconds = 360000
                 },
                 InputDataConfig = new List<Channel>(){
                     new Channel()
@@ -286,7 +442,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = s3DatasetURI + training_folder,
+                                S3Uri = DEFAULT_DATASET_URI + trainingFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -302,159 +458,14 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = s3DatasetURI + validation_folder,
+                                S3Uri = DEFAULT_DATASET_URI + validationFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
                     }
-                }             
+                }
             };
-
-            try
-            {
-                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-                // Process the response if needed
-
-                Console.WriteLine("Training job executed successfully.");
-
-                string prevStatusMessage = "";
-                Timer timer = new Timer();
-                timer.Interval = 5000; // Check every 5 seconds
-                timer.Tick += async (sender1, e1) => {
-                    try
-                    {
-                        // Get the training job status
-                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                        {
-                            TrainingJobName = trainingJobName
-                        });
-
-                        //SecondaryStatusTransition status = tracker.SecondaryStatusTransitions.Last();
-                        //Console.WriteLine("Status: " + status.Status);
-                        //Console.WriteLine("Description: " + status.StatusMessage);
-                         
-                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-                        {
-                            Console.WriteLine($"Status: { tracker.SecondaryStatusTransitions.Last().Status}");
-                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
-                            Console.WriteLine();
-                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-                            // Update the UI with the latest status
-                            // UpdateUi(response.TrainingJobStatus); to be implemented
-                        }
-
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
-                        {
-                            Console.WriteLine("Printing status history...");
-                            foreach(SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
-                            {
-                                Console.WriteLine("Status: " + history.Status);
-                                TimeSpan elapsed = history.EndTime - history.StartTime;
-                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                              (int)elapsed.TotalHours,
-                                              elapsed.Minutes,
-                                              elapsed.Seconds,
-                                              (int)(elapsed.Milliseconds / 100));
-                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
-                                Console.WriteLine("Description: " + history.StatusMessage);
-                                Console.WriteLine();
-                            }
-                            timer.Stop(); // Stop timer when training is complete
-                        }
-
-                        if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
-                        {
-                            Console.WriteLine(tracker.FailureReason);
-                            timer.Stop();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Handle any errors
-                        MessageBox.Show($"Error in training model: {ex.Message}");
-                    }
-                };
-
-                timer.Start(); // Start the timer
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating training job: {ex.Message}");
-            }
+            return trainingRequest;
         }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-                
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button3_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnRemoveFile_Click(object sender, EventArgs e)
-        {
-            datasetPath = null;
-            lblZipFile.Text = "No file selected";
-            btnRemoveFile.Visible = false;
-        }
-
-        private void btnDownloadModel_Click(object sender, EventArgs e)
-        {
-            //temporary 
-            string modelKey = "weights/23070a53best.onnx";
-            //modelKey = modelKey.Replace($"s3://{bucketName}", "");
-
-            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
-    {
-                folderBrowserDialog.Description = "Select a folder to save the file";
-
-                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string saveFolder = folderBrowserDialog.SelectedPath;
-
-                    DialogResult result = MessageBox.Show($"Do you want to save the model to {saveFolder} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        Task.Run(async() => await AWS_Helper.DownloadFile(s3Client, bucketName, modelKey, saveFolder)).Wait();
-                    }
-                }
-            }
-        }
-
-        private void btnSelectFolder_Click(object sender, EventArgs e)
-        {
-            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
-            {
-                folderBrowserDialog.Description = "Select a folder";
-                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
-
-                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-                {
-                    datasetPath = folderBrowserDialog.SelectedPath;
-
-                    // Display the selected folder path (optional)
-                    lblZipFile.Text = datasetPath;
-
-                    MessageBox.Show($"Selected folder: {datasetPath}");
-                    btnRemoveFile.Visible = true;
-                    isFile = false;
-                }
-            }
-        }
-
-        private void SelectAllTextOnClick(object sender, EventArgs e)
-        {
-            sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
-        }
-
     }
 }

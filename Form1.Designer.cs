@@ -38,6 +38,7 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.btnSelectFolder = new System.Windows.Forms.Button();
             this.btnDownloadModel = new System.Windows.Forms.Button();
             this.btnRemoveFile = new System.Windows.Forms.Button();
@@ -77,6 +78,7 @@ namespace LSC_Trainer
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -144,6 +146,7 @@ namespace LSC_Trainer
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.progressBar);
             this.panel1.Controls.Add(this.btnSelectFolder);
             this.panel1.Controls.Add(this.btnDownloadModel);
             this.panel1.Controls.Add(this.btnRemoveFile);
@@ -189,7 +192,13 @@ namespace LSC_Trainer
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(925, 355);
             this.panel1.TabIndex = 4;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(406, 273);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(170, 23);
+            this.progressBar.TabIndex = 44;
             // 
             // btnSelectFolder
             // 
@@ -213,7 +222,7 @@ namespace LSC_Trainer
             // 
             // btnRemoveFile
             // 
-            this.btnRemoveFile.Location = new System.Drawing.Point(213, 257);
+            this.btnRemoveFile.Location = new System.Drawing.Point(176, 248);
             this.btnRemoveFile.Name = "btnRemoveFile";
             this.btnRemoveFile.Size = new System.Drawing.Size(97, 23);
             this.btnRemoveFile.TabIndex = 41;
@@ -538,6 +547,12 @@ namespace LSC_Trainer
             this.label1.TabIndex = 4;
             this.label1.Text = "Selected File:";
             // 
+            // backgroundWorker
+            // 
+            this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
+            this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
+            this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -608,6 +623,8 @@ namespace LSC_Trainer
         private System.Windows.Forms.Button btnRemoveFile;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
+        private System.Windows.Forms.ProgressBar progressBar;
+        private System.ComponentModel.BackgroundWorker backgroundWorker;
     }
 }
 
