@@ -251,7 +251,7 @@ namespace LSC_Trainer
                 device = txtDevice.Text;
             }
 
-             trainingJobName = String.Format("Training-YOLOv5-UbuntuCUDAIMG-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+            trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
