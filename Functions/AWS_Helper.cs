@@ -243,7 +243,7 @@ namespace LSC_Trainer.Functions
                                 TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
                                 {
                                     BucketName = bucketName,
-                                    Key = $"output/{trainingJobName}/models/best.pt",
+                                    Key = $"training-jobs/{trainingJobName}/models/best.pt",
                                     InputStream = memoryStream,
                                 };
 
@@ -256,7 +256,7 @@ namespace LSC_Trainer.Functions
                             }
 
                             Console.WriteLine("Extraction and upload completed successfully.");
-                            string s3URI = $"s3://{bucketName}/output/{trainingJobName}/models/best.pt";
+                            string s3URI = $"s3://{bucketName}/training-jobs/{trainingJobName}/models/best.pt";
                             Console.WriteLine($"Successfully uploaded model at: {s3URI}");
                             return s3URI;
                         }
