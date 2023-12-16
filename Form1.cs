@@ -201,71 +201,8 @@ namespace LSC_Trainer
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
-
-            try
-            {
-                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-
-                Console.WriteLine("Training job executed successfully.");
-
-                string prevStatusMessage = "";
-                Timer timer = new Timer();
-                timer.Interval = 5000;
-                timer.Tick += async (sender1, e1) =>
-                {
-                    try
-                    {
-                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                        {
-                            TrainingJobName = trainingJobName
-                        });
-
-                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-                        {
-                            Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
-                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
-                            Console.WriteLine();
-                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-                        }
-
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
-                        {
-                            Console.WriteLine("Printing status history...");
-                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
-                            {
-                                Console.WriteLine("Status: " + history.Status);
-                                TimeSpan elapsed = history.EndTime - history.StartTime;
-                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                              (int)elapsed.TotalHours,
-                                              elapsed.Minutes,
-                                              elapsed.Seconds,
-                                              (int)(elapsed.Milliseconds / 100));
-                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
-                                Console.WriteLine("Description: " + history.StatusMessage);
-                                Console.WriteLine();
-                            }
-                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
-                            timer.Stop();
-                        }
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
-                        {
-                            Console.WriteLine(tracker.FailureReason);
-                            timer.Stop();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error in training model: {ex.Message}");
-                    }
-                };
-                timer.Start();
+            InitiateTrainingJob(trainingRequest);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating training job: {ex.Message}");
-            }
-        }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
@@ -466,6 +403,73 @@ namespace LSC_Trainer
                 }
             };
             return trainingRequest;
+        }
+
+        private void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
+        {
+            try
+            {
+                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+
+                Console.WriteLine("Training job executed successfully.");
+
+                string prevStatusMessage = "";
+                Timer timer = new Timer();
+                timer.Interval = 5000;
+                timer.Tick += async (sender1, e1) =>
+                {
+                    try
+                    {
+                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                        {
+                            TrainingJobName = trainingJobName
+                        });
+
+                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+                        {
+                            Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
+                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
+                            Console.WriteLine();
+                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
+                        }
+
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
+                        {
+                            Console.WriteLine("Printing status history...");
+                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
+                            {
+                                Console.WriteLine("Status: " + history.Status);
+                                TimeSpan elapsed = history.EndTime - history.StartTime;
+                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)elapsed.TotalHours,
+                                              elapsed.Minutes,
+                                              elapsed.Seconds,
+                                              (int)(elapsed.Milliseconds / 100));
+                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
+                                Console.WriteLine("Description: " + history.StatusMessage);
+                                Console.WriteLine();
+                            }
+                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            timer.Stop();
+                        }
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                        {
+                            Console.WriteLine(tracker.FailureReason);
+                            timer.Stop();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error in training model: {ex.Message}");
+                    }
+                };
+                timer.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating training job: {ex.Message}");
+            }
         }
     }
 }
