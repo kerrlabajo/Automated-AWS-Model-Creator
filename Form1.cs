@@ -207,40 +207,33 @@ namespace LSC_Trainer
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-                // Process the response if needed
 
                 Console.WriteLine("Training job executed successfully.");
 
                 string prevStatusMessage = "";
                 Timer timer = new Timer();
-                timer.Interval = 5000; // Check every 5 seconds
-                timer.Tick += async (sender1, e1) => {
+                timer.Interval = 5000;
+                timer.Tick += async (sender1, e1) =>
+                {
                     try
                     {
-                        // Get the training job status
                         DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
                         {
                             TrainingJobName = trainingJobName
                         });
 
-                        //SecondaryStatusTransition status = tracker.SecondaryStatusTransitions.Last();
-                        //Console.WriteLine("Status: " + status.Status);
-                        //Console.WriteLine("Description: " + status.StatusMessage);
-                         
                         if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
                         {
-                            Console.WriteLine($"Status: { tracker.SecondaryStatusTransitions.Last().Status}");
+                            Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
                             Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
                             Console.WriteLine();
                             prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-                            // Update the UI with the latest status
-                            // UpdateUi(response.TrainingJobStatus); to be implemented
                         }
 
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             Console.WriteLine("Printing status history...");
-                            foreach(SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
+                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
                             {
                                 Console.WriteLine("Status: " + history.Status);
                                 TimeSpan elapsed = history.EndTime - history.StartTime;
@@ -254,10 +247,9 @@ namespace LSC_Trainer
                                 Console.WriteLine();
                             }
                             outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
-                            timer.Stop(); // Stop timer when training is complete
+                            timer.Stop();
                         }
-
-                        if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
                         {
                             Console.WriteLine(tracker.FailureReason);
                             timer.Stop();
@@ -265,12 +257,10 @@ namespace LSC_Trainer
                     }
                     catch (Exception ex)
                     {
-                        // Handle any errors
                         MessageBox.Show($"Error in training model: {ex.Message}");
                     }
                 };
-
-                timer.Start(); // Start the timer
+                timer.Start();
             }
             catch (Exception ex)
             {
