@@ -180,11 +180,8 @@ namespace LSC_Trainer
                 fileName = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {fileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes) 
-                {
-                    backgroundWorker.RunWorkerAsync();
+                if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
                 }
-            }
             else
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
