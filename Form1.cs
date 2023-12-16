@@ -188,7 +188,8 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            SetTrainingParameters(out string img_size,
+            SetTrainingParameters(
+                out string img_size,
                                   out string batch_size,
                                   out string epochs,
                                   out string weights,
