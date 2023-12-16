@@ -269,6 +269,9 @@ namespace LSC_Trainer
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
+            ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
+            ///training job request but for exporting the model to ONNX.
+            ///To be implemented in branch `dev/aws-sagemaker-export-request`.
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
