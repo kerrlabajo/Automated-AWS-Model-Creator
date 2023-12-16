@@ -149,6 +149,27 @@ namespace LSC_Trainer
             }
         }
 
+        private void btnSelectFolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select a folder";
+                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
+
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    datasetPath = folderBrowserDialog.SelectedPath;
+
+                    // Display the selected folder path (optional)
+                    lblZipFile.Text = datasetPath;
+
+                    MessageBox.Show($"Selected folder: {datasetPath}");
+                    btnRemoveFile.Visible = true;
+                    isFile = false;
+                }
+            }
+        }
+
         private void btnUploadToS3_Click(object sender, EventArgs e)
         {
             if(datasetPath != null)
@@ -411,24 +432,6 @@ namespace LSC_Trainer
                 }
             }
         }
-
-        private void btnSelectFolder_Click(object sender, EventArgs e)
-        {
-            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
-            {
-                folderBrowserDialog.Description = "Select a folder";
-                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
-
-                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-                {
-                    datasetPath = folderBrowserDialog.SelectedPath;
-
-                    // Display the selected folder path (optional)
-                    lblZipFile.Text = datasetPath;
-
-                    MessageBox.Show($"Selected folder: {datasetPath}");
-                    btnRemoveFile.Visible = true;
-                    isFile = false;
                 }
             }
         }
