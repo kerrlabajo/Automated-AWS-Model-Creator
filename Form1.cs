@@ -378,6 +378,7 @@ namespace LSC_Trainer
                                 Console.WriteLine("Description: " + history.StatusMessage);
                                 Console.WriteLine();
                             }
+                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
                             timer.Stop(); // Stop timer when training is complete
                         }
 
