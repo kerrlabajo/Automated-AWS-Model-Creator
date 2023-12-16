@@ -194,7 +194,6 @@ namespace LSC_Trainer
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(925, 355);
             this.panel1.TabIndex = 4;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
             // progressBar
             // 
