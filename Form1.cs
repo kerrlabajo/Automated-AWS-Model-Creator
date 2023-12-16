@@ -467,18 +467,5 @@ namespace LSC_Trainer
         {
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
-
-        private void btnUnzipGZ_Click(object sender, EventArgs e)
-        {
-            //remove first output after update
-            //string modelKey = $"output/{trainingJobName}/output/output.tar.gz";
-            string modelKey = $"output/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
-
-
-            //DialogResult result = MessageBox.Show($"Do you want to save the model to {saveFolder} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            Task.Run(async () => await AWS_Helper.ExtractAndUploadBestPt(s3Client, bucketName, modelKey)).Wait();
-               
-            
-        }
     }
 }
