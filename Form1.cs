@@ -8,7 +8,6 @@ using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
-using System.Threading.Tasks;
 
 namespace LSC_Trainer
 {
