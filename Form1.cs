@@ -403,9 +403,9 @@ namespace LSC_Trainer
             }
         }
 
-        private void btnDownloadModel_Click(object sender, EventArgs e)
+        private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            string modelKey = $"{trainingJobName}/output/<output.tar.gz>";
+            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
     {
