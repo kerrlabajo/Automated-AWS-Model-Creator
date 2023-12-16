@@ -169,6 +169,12 @@ namespace LSC_Trainer
                 }
             }
         }
+        private void btnRemoveFile_Click(object sender, EventArgs e)
+        {
+            datasetPath = null;
+            lblZipFile.Text = "No file selected";
+            btnRemoveFile.Visible = false;
+        }
 
         private void btnUploadToS3_Click(object sender, EventArgs e)
         {
@@ -402,13 +408,6 @@ namespace LSC_Trainer
             {
                 Console.WriteLine($"Error creating training job: {ex.Message}");
             }
-        }
-
-        private void btnRemoveFile_Click(object sender, EventArgs e)
-        {
-            datasetPath = null;
-            lblZipFile.Text = "No file selected";
-            btnRemoveFile.Visible = false;
         }
 
         private void btnDownloadModel_Click(object sender, EventArgs e)
