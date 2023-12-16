@@ -188,66 +188,15 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            string img_size = "";
-            string batch_size = "";
-            string epochs = "";
-            string weights = "";
-            string data = "";
-            string hyperparameters = "";
-            string patience = "";
-            string workers = "";
-            string optimizer = "";
-            string device = "";
-
-            if (txtImageSize.Text != "")
-            {
-                img_size = txtImageSize.Text;
-            }
-
-            if (txtBatchSize.Text != "")
-            {
-                batch_size = txtBatchSize.Text;
-            }
-
-            if (txtEpochs.Text != "")
-            {
-                epochs = txtEpochs.Text;
-            }
-
-            if (txtWeights.Text != "")
-            {
-                weights = txtWeights.Text;
-            }
-
-            if (txtData.Text != "")
-            {
-                data = txtData.Text;
-            }
-
-            if (txtHyperparameters.Text != "")
-            {
-                hyperparameters = txtHyperparameters.Text;
-            }
-
-            if (txtPatience.Text != "")
-            {
-                patience = txtPatience.Text;
-            }
-
-            if (txtWorkers.Text != "")
-            {
-                workers = txtWorkers.Text;
-            }
-
-            if (txtOptimizer.Text != "")
-            {
-                optimizer = txtOptimizer.Text;
-            }
-
-            if (txtDevice.Text != "")
-            {
-                device = txtDevice.Text;
-            }
+            SetTrainingParameters(out string img_size,
+                                  out string batch_size,
+                                  out string epochs,
+                                  out string weights,
+                                  out string data,
+                                  out string hyperparameters,
+                                  out string patience,
+                                  out string workers,
+                                  out string optimizer);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
 
@@ -454,6 +403,70 @@ namespace LSC_Trainer
         private void SelectAllTextOnClick(object sender, EventArgs e)
         {
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
+        }
+
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer)
+        {
+            img_size = "";
+            batch_size = "";
+            epochs = "";
+            weights = "";
+            data = "";
+            hyperparameters = "";
+            patience = "";
+            workers = "";
+            optimizer = "";
+            string device = "";
+
+            if (txtImageSize.Text != "")
+            {
+                img_size = txtImageSize.Text;
+            }
+
+            if (txtBatchSize.Text != "")
+            {
+                batch_size = txtBatchSize.Text;
+            }
+
+            if (txtEpochs.Text != "")
+            {
+                epochs = txtEpochs.Text;
+            }
+
+            if (txtWeights.Text != "")
+            {
+                weights = txtWeights.Text;
+            }
+
+            if (txtData.Text != "")
+            {
+                data = txtData.Text;
+            }
+
+            if (txtHyperparameters.Text != "")
+            {
+                hyperparameters = txtHyperparameters.Text;
+            }
+
+            if (txtPatience.Text != "")
+            {
+                patience = txtPatience.Text;
+            }
+
+            if (txtWorkers.Text != "")
+            {
+                workers = txtWorkers.Text;
+            }
+
+            if (txtOptimizer.Text != "")
+            {
+                optimizer = txtOptimizer.Text;
+            }
+
+            if (txtDevice.Text != "")
+            {
+                device = txtDevice.Text;
+            }
         }
     }
 }
