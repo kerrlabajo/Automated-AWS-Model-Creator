@@ -272,7 +272,7 @@ namespace LSC_Trainer
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
-    {
+            {
                 folderBrowserDialog.Description = "Select a folder to save the file";
 
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -283,8 +283,8 @@ namespace LSC_Trainer
 
                     if (result == DialogResult.Yes)
                     {
-                        Task.Run(async() => await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath)).Wait();
-        }
+                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                    }
                 }
             }
         }
