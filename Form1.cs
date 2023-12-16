@@ -200,81 +200,8 @@ namespace LSC_Trainer
                                   out string optimizer);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
-
-            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
-            {
-                AlgorithmSpecification = new AlgorithmSpecification()
-                {
-                    TrainingInputMode = "File",
-                    TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
-                    ContainerArguments = new List<string>()
-                    {
-                        "--img-size", img_size,
-                        "--batch", batch_size,
-                        "--epochs", epochs,
-                        "--weights", weights,
-                        "--data", SAGEMAKER_INPUT_DATA_PATH + "train/" + data,
-                        "--hyp", hyperparameters,
-                        "--project", SAGEMAKER_OUTPUT_DATA_PATH,
-                        "--name", "results",
-                        "--patience", patience,
-                        "--workers", workers,
-                        "--optimizer", optimizer,
-                        // "--device", device
-                    }
-                },
-                RoleArn = ROLE_ARN,
-                OutputDataConfig = new OutputDataConfig()
-                {
-                    S3OutputPath = DESTINATION_URI
-                },
-                ResourceConfig = new ResourceConfig()
-                {
-                    InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM5Xlarge,
-                    VolumeSizeInGB = 12
-                },
-                TrainingJobName = trainingJobName,
-                StoppingCondition = new StoppingCondition()
-                {
-                    MaxRuntimeInSeconds = 360000        
-                },
-                InputDataConfig = new List<Channel>(){
-                    new Channel()
-                    {
-                        ChannelName = "train",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = DEFAULT_DATASET_URI + trainingFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    },
-                    new Channel()
-                    {
-                        ChannelName = "val",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = DEFAULT_DATASET_URI + validationFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
-                }             
-            };
+            CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
 
             try
             {
@@ -468,6 +395,85 @@ namespace LSC_Trainer
             {
                 device = txtDevice.Text;
             }
+        }
+
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
+        {
+            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
+            {
+                AlgorithmSpecification = new AlgorithmSpecification()
+                {
+                    TrainingInputMode = "File",
+                    TrainingImage = ECR_URI,
+                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
+                    ContainerArguments = new List<string>()
+                    {
+                        "--img-size", img_size,
+                        "--batch", batch_size,
+                        "--epochs", epochs,
+                        "--weights", weights,
+                        "--data", SAGEMAKER_INPUT_DATA_PATH + "train/" + data,
+                        "--hyp", hyperparameters,
+                        "--project", SAGEMAKER_OUTPUT_DATA_PATH,
+                        "--name", "results",
+                        "--patience", patience,
+                        "--workers", workers,
+                        "--optimizer", optimizer,
+                        // "--device", device
+                    }
+                },
+                RoleArn = ROLE_ARN,
+                OutputDataConfig = new OutputDataConfig()
+                {
+                    S3OutputPath = DESTINATION_URI
+                },
+                ResourceConfig = new ResourceConfig()
+                {
+                    InstanceCount = 1,
+                    InstanceType = TrainingInstanceType.MlM5Xlarge,
+                    VolumeSizeInGB = 12
+                },
+                TrainingJobName = trainingJobName,
+                StoppingCondition = new StoppingCondition()
+                {
+                    MaxRuntimeInSeconds = 360000
+                },
+                InputDataConfig = new List<Channel>(){
+                    new Channel()
+                    {
+                        ChannelName = "train",
+                        InputMode = TrainingInputMode.File,
+                        CompressionType = Amazon.SageMaker.CompressionType.None,
+                        RecordWrapperType = RecordWrapper.None,
+                        DataSource = new DataSource()
+                        {
+                            S3DataSource = new S3DataSource()
+                            {
+                                S3DataType = S3DataType.S3Prefix,
+                                S3Uri = DEFAULT_DATASET_URI + trainingFolder,
+                                S3DataDistributionType = S3DataDistribution.FullyReplicated
+                            }
+                        }
+                    },
+                    new Channel()
+                    {
+                        ChannelName = "val",
+                        InputMode = TrainingInputMode.File,
+                        CompressionType = Amazon.SageMaker.CompressionType.None,
+                        RecordWrapperType = RecordWrapper.None,
+                        DataSource = new DataSource()
+                        {
+                            S3DataSource = new S3DataSource()
+                            {
+                                S3DataType = S3DataType.S3Prefix,
+                                S3Uri = DEFAULT_DATASET_URI + validationFolder,
+                                S3DataDistributionType = S3DataDistribution.FullyReplicated
+                            }
+                        }
+                    }
+                }
+            };
+            return trainingRequest;
         }
     }
 }
