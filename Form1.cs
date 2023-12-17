@@ -275,73 +275,26 @@ namespace LSC_Trainer
             optimizer = "";
             string device = "";
 
-            if (txtImageSize.Text != "")
-            {
-                img_size = txtImageSize.Text;
+            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
+
+            if (txtBatchSize.Text != "") batch_size = txtBatchSize.Text;
+
+            if (txtEpochs.Text != "") epochs = txtEpochs.Text;
+
+            if (txtWeights.Text != "") weights = txtWeights.Text;
+
+            if (txtData.Text != "") data = txtData.Text;
+
+            if (txtHyperparameters.Text != "") hyperparameters = txtHyperparameters.Text;
+
+            if (txtPatience.Text != "") patience = txtPatience.Text;
+
+            if (txtWorkers.Text != "") workers = txtWorkers.Text;
+
+            if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
+
+            if (txtDevice.Text != "") device = txtDevice.Text;
             }
-
-            if (txtBatchSize.Text != "")
-            {
-                batch_size = txtBatchSize.Text;
-            }
-
-            if (txtEpochs.Text != "")
-            {
-                epochs = txtEpochs.Text;
-            }
-
-            if (txtWeights.Text != "")
-            {
-                weights = txtWeights.Text;
-            }
-
-            if (txtData.Text != "")
-            {
-                data = txtData.Text;
-            }
-
-            if (txtHyperparameters.Text != "")
-            {
-                hyperparameters = txtHyperparameters.Text;
-            }
-
-            if (txtPatience.Text != "")
-            {
-                patience = txtPatience.Text;
-            }
-
-            if (txtWorkers.Text != "")
-            {
-                workers = txtWorkers.Text;
-            }
-
-            if (txtOptimizer.Text != "")
-            {
-                optimizer = txtOptimizer.Text;
-            }
-
-            if (txtDevice.Text != "")
-            {
-                device = txtDevice.Text;
-            }
-        }
-
-        private void SetExportParameters(out string img_size, out string weights)
-        {
-            img_size = "";
-            weights = "";
-
-            if (txtImageSize.Text != "")
-            {
-                img_size = txtImageSize.Text;
-            }
-
-            if (txtWeights.Text != "")
-            {
-                weights = txtWeights.Text;
-            }
-
-        }
 
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
         {
