@@ -189,27 +189,27 @@ namespace LSC_Trainer
         {
             SetTrainingParameters(
                 out string img_size,
-                                  out string batch_size,
-                                  out string epochs,
-                                  out string weights,
-                                  out string data,
-                                  out string hyperparameters,
-                                  out string patience,
-                                  out string workers,
-                                  out string optimizer);
+                out string batch_size,
+                out string epochs,
+                out string weights,
+                out string data,
+                out string hyperparameters,
+                out string patience,
+                out string workers,
+                out string optimizer);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
             InitiateTrainingJob(trainingRequest);
-            }
+        }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
             ///training job request but for exporting the model to ONNX.
             ///To be implemented in branch `dev/aws-sagemaker-export-request`.
-            temporaryOutputKey = "training-jobs/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
+            string temporaryOutputKey = "training-jobs/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
 
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, temporaryOutputKey);
             string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
@@ -309,7 +309,7 @@ namespace LSC_Trainer
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
             if (txtDevice.Text != "") device = txtDevice.Text;
-            }
+        }
 
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
         {
@@ -497,7 +497,7 @@ namespace LSC_Trainer
                                 Console.WriteLine("Description: " + history.StatusMessage);
                                 Console.WriteLine();
                             }
-                            temporaryOutputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
                             timer.Stop();
                         }
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
