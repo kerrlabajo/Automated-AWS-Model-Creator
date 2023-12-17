@@ -209,24 +209,39 @@ namespace LSC_Trainer
             ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
             ///training job request but for exporting the model to ONNX.
             ///To be implemented in branch `dev/aws-sagemaker-export-request`.
-            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
+            temporaryOutputKey = "training-jobs/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
 
-            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
-            {
-                folderBrowserDialog.Description = "Select a folder to save the file";
+            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, temporaryOutputKey);
+            string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
+            Console.WriteLine($"Best model key: {bestModelKey}");
 
-                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string selectedLocalPath = folderBrowserDialog.SelectedPath;
+            string bestModelDirectoryURI = Path.GetDirectoryName(bestModelURI);
+            bestModelDirectoryURI = bestModelDirectoryURI.Insert(bestModelDirectoryURI.IndexOf('\\'), "\\").Replace("\\", "/");
+            Console.WriteLine($"Best model directory: {bestModelDirectoryURI}");
 
-                    DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            string img_size = "";
+            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
 
-                    if (result == DialogResult.Yes)
-                    {
-                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                    }
-                }
-            }
+            // Temporary comment until the export request is implemented.
+            // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
+            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
+
+            //using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            //{
+            //    folderBrowserDialog.Description = "Select a folder to save the file";
+
+            //    if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            //    {
+            //        string selectedLocalPath = folderBrowserDialog.SelectedPath;
+
+            //        DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            //        if (result == DialogResult.Yes)
+            //        {
+            //            await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+            //        }
+            //    }
+            //}
         }
 
         private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -392,6 +407,10 @@ namespace LSC_Trainer
                         "--weights" , SAGEMAKER_INPUT_DATA_PATH + "export/" + "best.pt",
                         "--format", format,
                         "--include", format,
+                        // If no manual saving, the exported ONNX will only be saved where the weights are.
+                        // Could not find a way to manually save the model to the SAGEMAKER_MODEL_PATH.
+                        //"--project", SAGEMAKER_MODEL_PATH,
+                        //"--name", "results",
                         //"--device", "0"
                     }
                 },
@@ -478,7 +497,7 @@ namespace LSC_Trainer
                                 Console.WriteLine("Description: " + history.StatusMessage);
                                 Console.WriteLine();
                             }
-                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            temporaryOutputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
                             timer.Stop();
                         }
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
