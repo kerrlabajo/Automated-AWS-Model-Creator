@@ -326,6 +326,23 @@ namespace LSC_Trainer
             }
         }
 
+        private void SetExportParameters(out string img_size, out string weights)
+        {
+            img_size = "";
+            weights = "";
+
+            if (txtImageSize.Text != "")
+            {
+                img_size = txtImageSize.Text;
+            }
+
+            if (txtWeights.Text != "")
+            {
+                weights = txtWeights.Text;
+            }
+
+        }
+
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
