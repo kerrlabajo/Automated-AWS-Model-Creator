@@ -38,7 +38,7 @@ namespace LSC_Trainer
         private string trainingFolder;
         private string validationFolder;
         
-        private string fileName;
+        private string folderOrFileName;
         private string trainingJobName;
 
         private string outputKey;
@@ -174,8 +174,8 @@ namespace LSC_Trainer
         {
             if(datasetPath != null)
             {
-                fileName = datasetPath.Split('\\').Last();
-                DialogResult result = MessageBox.Show($"Do you want to upload {fileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                folderOrFileName = datasetPath.Split('\\').Last();
+                DialogResult result = MessageBox.Show($"Do you want to upload {folderOrFileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
                 }
@@ -255,7 +255,7 @@ namespace LSC_Trainer
             }
             else
             {
-                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, fileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
+                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, "custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
