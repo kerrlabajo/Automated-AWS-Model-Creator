@@ -226,22 +226,22 @@ namespace LSC_Trainer
             // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
             // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
 
-            //using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
-            //{
-            //    folderBrowserDialog.Description = "Select a folder to save the file";
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select a folder to save the file";
 
-            //    if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
-            //    {
-            //        string selectedLocalPath = folderBrowserDialog.SelectedPath;
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedLocalPath = folderBrowserDialog.SelectedPath;
 
-            //        DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            //        if (result == DialogResult.Yes)
-            //        {
-            //            await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-            //        }
-            //    }
-            //}
+                    if (result == DialogResult.Yes)
+                    {
+                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, bestModelKey, selectedLocalPath);
+                    }
+                }
+            }
         }
 
         private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
