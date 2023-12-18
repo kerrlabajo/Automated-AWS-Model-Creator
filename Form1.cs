@@ -100,6 +100,8 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+            enableUploadToS3Button(false);
+            enableDownloadModelButton(false);
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -122,6 +124,16 @@ namespace LSC_Trainer
 
         }
 
+        private void enableUploadToS3Button(bool intent)
+        {
+            btnUploadToS3.Enabled = intent;
+        }
+
+        private void enableDownloadModelButton(bool intent)
+        {
+            btnDownloadModel.Enabled = intent;
+        }
+
         private void btnSelectDataset_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -139,6 +151,7 @@ namespace LSC_Trainer
                     MessageBox.Show($"Selected file: {datasetPath}");
                     btnRemoveFile.Visible = true;
                     isFile = true;
+                    enableUploadToS3Button(true);
                 }
             }
         }
@@ -160,6 +173,7 @@ namespace LSC_Trainer
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     btnRemoveFile.Visible = true;
                     isFile = false;
+                    enableUploadToS3Button(true);
                 }
             }
         }
@@ -168,6 +182,7 @@ namespace LSC_Trainer
             datasetPath = null;
             lblZipFile.Text = "No file selected";
             btnRemoveFile.Visible = false;
+            enableUploadToS3Button(false);
         }
 
         private void btnUploadToS3_Click(object sender, EventArgs e)
@@ -498,6 +513,7 @@ namespace LSC_Trainer
                                 Console.WriteLine();
                             }
                             outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            enableDownloadModelButton(true);
                             timer.Stop();
                         }
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
