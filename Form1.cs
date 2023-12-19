@@ -272,6 +272,7 @@ namespace LSC_Trainer
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
+                customUploadsURI = customUploadsURI + Path.GetFileNameWithoutExtension(datasetPath) + "/";
             }
             else
             {
@@ -279,6 +280,7 @@ namespace LSC_Trainer
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
+                customUploadsURI = customUploadsURI + folderOrFileName + "/";
             }
         }
 
