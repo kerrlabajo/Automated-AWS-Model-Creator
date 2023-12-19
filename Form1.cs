@@ -25,7 +25,6 @@ namespace LSC_Trainer
         private readonly string ECR_URI;
         private readonly string SAGEMAKER_BUCKET;
         private readonly string DEFAULT_DATASET_URI;
-        private readonly string CUSTOM_UPLOADS_URI;
         private readonly string DESTINATION_URI;
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
@@ -34,11 +33,12 @@ namespace LSC_Trainer
 
         private string datasetPath;
         private bool isFile;
+        private string folderOrFileName;
+        private string customUploadsURI;
 
         private string trainingFolder;
         private string validationFolder;
         
-        private string folderOrFileName;
         private string trainingJobName;
 
         private string outputKey;
@@ -62,7 +62,7 @@ namespace LSC_Trainer
             ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
             SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
             DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-            CUSTOM_UPLOADS_URI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+            customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
             DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
 
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
