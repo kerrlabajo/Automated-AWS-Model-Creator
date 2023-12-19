@@ -340,6 +340,13 @@ namespace LSC_Trainer
 
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
         {
+            if (Path.GetFileName(customUploadsURI) == "custom-uploads")
+            {
+                Console.WriteLine(customUploadsURI + "failed");
+                MessageBox.Show("Please upload a dataset first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new Exception("Please upload a dataset first.");
+            }
+
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
