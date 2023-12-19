@@ -153,11 +153,10 @@ namespace LSC_Trainer.Functions
                                 var uploadRequest = new TransferUtilityUploadRequest
                                 {
                                     BucketName = bucketName,
-                                    Key = entry.Name,
+                                    Key = "custom-uploads/" + entry.Name,
                                     InputStream = memoryStream,
                                     ContentType = GetContentType(entry.Name)
                                 };
-                                
 
                                 Dictionary<string, long> fileProgress = new Dictionary<string, long>();
                                 long totalSize = CalculateTotalSize(localZipFilePath);
