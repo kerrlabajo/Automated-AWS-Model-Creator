@@ -194,6 +194,10 @@ namespace LSC_Trainer
                 DialogResult result = MessageBox.Show($"Do you want to upload {folderOrFileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
+
+                // For testing purposes. Pre-define values.
+                trainingFolder = "train";
+                validationFolder = "val";
                 }
             else
             {
