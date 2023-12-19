@@ -338,6 +338,16 @@ namespace LSC_Trainer
             if (txtDevice.Text != "") device = txtDevice.Text;
         }
 
+        private static bool HasCustomUploads(string customUploadsURI)
+        {
+            string customUploadsDirectory = Path.GetFileName(Path.GetDirectoryName(customUploadsURI));
+            if (customUploadsDirectory == "custom-uploads")
+            {
+                return false;
+            }
+            return true;
+        }
+
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
         {
             if (Path.GetFileName(customUploadsURI) == "custom-uploads")
