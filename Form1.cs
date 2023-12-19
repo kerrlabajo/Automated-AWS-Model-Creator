@@ -294,7 +294,9 @@ namespace LSC_Trainer
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
+            btnRemoveFile_Click(sender, e);
             MessageBox.Show("Upload completed!");
+            progressBar.Value = 0;
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
