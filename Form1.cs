@@ -46,6 +46,7 @@ namespace LSC_Trainer
         public Form1()
         {
             InitializeComponent();
+            backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
