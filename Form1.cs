@@ -286,7 +286,10 @@ namespace LSC_Trainer
 
         private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
+            if (e.ProgressPercentage >= progressBar.Minimum && e.ProgressPercentage <= progressBar.Maximum)
+            {
             progressBar.Value = e.ProgressPercentage;
+        }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
