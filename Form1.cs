@@ -398,7 +398,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = DEFAULT_DATASET_URI + trainingFolder,
+                                S3Uri = customUploadsURI + trainingFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -414,7 +414,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = DEFAULT_DATASET_URI + validationFolder,
+                                S3Uri = customUploadsURI + validationFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
