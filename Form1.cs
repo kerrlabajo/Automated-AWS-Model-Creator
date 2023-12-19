@@ -541,7 +541,7 @@ namespace LSC_Trainer
                                 Console.WriteLine("Description: " + history.StatusMessage);
                                 Console.WriteLine();
                             }
-                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             enableDownloadModelButton(true);
                             timer.Stop();
                         }
