@@ -254,8 +254,6 @@ namespace LSC_Trainer.Functions
                                 // Upload the content to S3
                                 await transferUtility.UploadAsync(uploadRequest);
                             }
-
-                            Console.WriteLine("Extraction and upload completed successfully.");
                             string s3URI = $"s3://{bucketName}/training-jobs/{trainingJobName}/models/best.pt";
                             //Console.WriteLine($"Successfully uploaded model at: {s3URI}");
                             TimeSpan totalTime = DateTime.Now - startTime;
