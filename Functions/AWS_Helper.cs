@@ -204,6 +204,7 @@ namespace LSC_Trainer.Functions
             try
             {
                 Console.WriteLine("Starting Extract For Best.pt");
+                DateTime startTime = DateTime.Now;
                 // Download the tar.gz file from S3
                 GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, modelKey);
 
@@ -253,10 +254,15 @@ namespace LSC_Trainer.Functions
                                 // Upload the content to S3
                                 await transferUtility.UploadAsync(uploadRequest);
                             }
-
-                            Console.WriteLine("Extraction and upload completed successfully.");
                             string s3URI = $"s3://{bucketName}/training-jobs/{trainingJobName}/models/best.pt";
-                            Console.WriteLine($"Successfully uploaded model at: {s3URI}");
+                            //Console.WriteLine($"Successfully uploaded model at: {s3URI}");
+                            TimeSpan totalTime = DateTime.Now - startTime;
+                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                (int)totalTime.TotalHours,
+                                totalTime.Minutes,
+                                totalTime.Seconds,
+                                (int)(totalTime.Milliseconds / 100));
+                            Console.WriteLine($"Extraction Total Time Taken: {formattedTotalTime}");
                             return s3URI;
                         }
                     }                   
@@ -347,12 +353,12 @@ namespace LSC_Trainer.Functions
             {
                 try
                 {
+                    DateTime startTime = DateTime.Now;
                     GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, objectKey);
 
                     // Ensure the directory exists
                     string directoryPath = Path.GetDirectoryName(localFilePath);
                     Directory.CreateDirectory(directoryPath);
-                    Console.WriteLine(directoryPath);
                     string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
                     using (var fileStream = File.OpenWrite(filePath))
                     {
@@ -360,6 +366,13 @@ namespace LSC_Trainer.Functions
                         if (response.HttpStatusCode == HttpStatusCode.OK)
                         {
                             Console.WriteLine($"File has been saved to {localFilePath}");
+                            TimeSpan totalTime = DateTime.Now - startTime;
+                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                (int)totalTime.TotalHours,
+                                totalTime.Minutes,
+                                totalTime.Seconds,
+                                (int)(totalTime.Milliseconds / 100));
+                            Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
                         }
                     }
                 }
