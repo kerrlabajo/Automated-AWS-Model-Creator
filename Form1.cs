@@ -229,7 +229,7 @@ namespace LSC_Trainer
             ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
             ///training job request but for exporting the model to ONNX.
             ///To be implemented in branch `dev/aws-sagemaker-export-request`.
-            //string temporaryOutputKey = "training-jobs/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
+            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
 
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
             string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
@@ -338,6 +338,16 @@ namespace LSC_Trainer
             if (txtDevice.Text != "") device = txtDevice.Text;
         }
 
+        private static bool HasCustomUploads(string customUploadsURI)
+        {
+            string customUploadsDirectory = Path.GetFileName(Path.GetDirectoryName(customUploadsURI));
+            if (customUploadsDirectory == "custom-uploads")
+            {
+                return false;
+            }
+            return true;
+        }
+
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
         {
             if (Path.GetFileName(customUploadsURI) == "custom-uploads")
@@ -398,7 +408,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = customUploadsURI + trainingFolder,
+                                S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + trainingFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -414,7 +424,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = customUploadsURI + validationFolder,
+                                S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + validationFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -451,7 +461,7 @@ namespace LSC_Trainer
                 RoleArn = ROLE_ARN,
                 OutputDataConfig = new OutputDataConfig()
                 {
-                    S3OutputPath = DESTINATION_URI + "traing-jobs/" + trainingJobName + "/models/"
+                    S3OutputPath = DESTINATION_URI + trainingJobName + "/models/"
                 },
                 ResourceConfig = new ResourceConfig()
                 {
@@ -531,7 +541,7 @@ namespace LSC_Trainer
                                 Console.WriteLine("Description: " + history.StatusMessage);
                                 Console.WriteLine();
                             }
-                            outputKey = $"training-jobs/{trainingJobName}/output/<output.tar.gz>";
+                            outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             enableDownloadModelButton(true);
                             timer.Stop();
                         }
