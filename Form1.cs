@@ -461,7 +461,7 @@ namespace LSC_Trainer
                 RoleArn = ROLE_ARN,
                 OutputDataConfig = new OutputDataConfig()
                 {
-                    S3OutputPath = DESTINATION_URI + "traing-jobs/" + trainingJobName + "/models/"
+                    S3OutputPath = DESTINATION_URI + trainingJobName + "/models/"
                 },
                 ResourceConfig = new ResourceConfig()
                 {
