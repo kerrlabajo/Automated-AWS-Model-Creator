@@ -229,7 +229,7 @@ namespace LSC_Trainer
             ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
             ///training job request but for exporting the model to ONNX.
             ///To be implemented in branch `dev/aws-sagemaker-export-request`.
-            //string temporaryOutputKey = "training-jobs/Training-YOLOv5-UbuntuCUDAIMG-2023-12-13-11-0446/output/output.tar.gz";
+            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
 
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
             string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
