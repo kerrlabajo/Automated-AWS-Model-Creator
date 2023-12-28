@@ -204,6 +204,7 @@ namespace LSC_Trainer.Functions
             try
             {
                 Console.WriteLine("Starting Extract For Best.pt");
+                DateTime startTime = DateTime.Now;
                 // Download the tar.gz file from S3
                 GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, modelKey);
 
@@ -256,7 +257,14 @@ namespace LSC_Trainer.Functions
 
                             Console.WriteLine("Extraction and upload completed successfully.");
                             string s3URI = $"s3://{bucketName}/training-jobs/{trainingJobName}/models/best.pt";
-                            Console.WriteLine($"Successfully uploaded model at: {s3URI}");
+                            //Console.WriteLine($"Successfully uploaded model at: {s3URI}");
+                            TimeSpan totalTime = DateTime.Now - startTime;
+                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                (int)totalTime.TotalHours,
+                                totalTime.Minutes,
+                                totalTime.Seconds,
+                                (int)(totalTime.Milliseconds / 100));
+                            Console.WriteLine($"Extraction Total Time Taken: {formattedTotalTime}");
                             return s3URI;
                         }
                     }                   
