@@ -359,7 +359,6 @@ namespace LSC_Trainer.Functions
                     // Ensure the directory exists
                     string directoryPath = Path.GetDirectoryName(localFilePath);
                     Directory.CreateDirectory(directoryPath);
-                    Console.WriteLine(directoryPath);
                     string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
                     using (var fileStream = File.OpenWrite(filePath))
                     {
