@@ -353,6 +353,7 @@ namespace LSC_Trainer.Functions
             {
                 try
                 {
+                    DateTime startTime = DateTime.Now;
                     GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, objectKey);
 
                     // Ensure the directory exists
@@ -366,6 +367,13 @@ namespace LSC_Trainer.Functions
                         if (response.HttpStatusCode == HttpStatusCode.OK)
                         {
                             Console.WriteLine($"File has been saved to {localFilePath}");
+                            TimeSpan totalTime = DateTime.Now - startTime;
+                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                (int)totalTime.TotalHours,
+                                totalTime.Minutes,
+                                totalTime.Seconds,
+                                (int)(totalTime.Milliseconds / 100));
+                            Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
                         }
                     }
                 }
