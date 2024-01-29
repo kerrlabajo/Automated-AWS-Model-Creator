@@ -526,12 +526,12 @@ namespace LSC_Trainer
 
                 VMlbl.Text = trainingDetails.ResourceConfig.InstanceType.ToString();
 
-                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs");
-
+                string logStreamName = null;
+                int lastIndex = 0;
                 string prevLogMessage = "";
                 string prevStatusMessage = "";
                 Timer timer = new Timer();
-                timer.Interval = 1000;
+                timer.Interval = 1000; // 1ms
                 timer.Tick += async (sender1, e1) =>
                 {
                     try
@@ -546,22 +546,39 @@ namespace LSC_Trainer
                         string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
                         trainingDurationlbl.Text = formattedTime;
 
-                        // print cloudwatch logs
-                        // maybe make this dynamic soon
-                        GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                        // cloudwatch 
+                        if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
                         {
-                            LogGroupName = "/aws/sagemaker/TrainingJobs",
-                            LogStreamName = logStreamName
-                        });
+                            //get log stream
+                            
+                            if (logStreamName == null)
+                            {
+                                logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs");
+                            }
+                            else
+                            {
+                                // print cloudwatch logs
+                                // maybe make this dynamic soon
+                                GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                                {
+                                    LogGroupName = "/aws/sagemaker/TrainingJobs",
+                                    LogStreamName = logStreamName
+                                });
 
-                        if(prevLogMessage != logs.Events.Last().Message)
-                        {
-                            Console.WriteLine(logs.Events.Last().Message);
-                            prevLogMessage = logs.Events.Last().Message;
-                        }   
-
+                                if (prevLogMessage != logs.Events.Last().Message)
+                                {
+                                    for(int i = lastIndex + 1; i < logs.Events.Count; i++)
+                                    {
+                                        Console.WriteLine(logs.Events[i].Message);
+                                    }   
+                                    prevLogMessage = logs.Events.Last().Message;
+                                    lastIndex = logs.Events.IndexOf(logs.Events.Last());
+                                }
+                            }
+                        }
                         if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
                         {
+                            
                             Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
                             Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
                             Console.WriteLine();
