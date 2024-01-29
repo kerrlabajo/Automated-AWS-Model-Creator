@@ -503,7 +503,7 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
-        private void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
+        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
         {
             try
             {
@@ -512,9 +512,16 @@ namespace LSC_Trainer
 
                 Console.WriteLine("Training job executed successfully.");
 
+                DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                {
+                    TrainingJobName = trainingJobName
+                });
+
+                VMlbl.Text = trainingDetails.ResourceConfig.InstanceType.ToString();
+
                 string prevStatusMessage = "";
                 Timer timer = new Timer();
-                timer.Interval = 5000;
+                timer.Interval = 1000;
                 timer.Tick += async (sender1, e1) =>
                 {
                     try
@@ -523,6 +530,11 @@ namespace LSC_Trainer
                         {
                             TrainingJobName = trainingJobName
                         });
+
+                        //update training duration
+                        TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
+                        string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+                        trainingDurationlbl.Text = formattedTime;
 
                         if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
                         {
