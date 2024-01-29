@@ -5,12 +5,13 @@
 # Retrieve from developer/user's .env file
 ACCOUNT_ID=$1
 REGION=$2
-REPO_NAME=$3
-IMAGE_TAG=$4
+REGISTRY_ALIAS=$3
+REPO_NAME=$4
+IMAGE_TAG=$5
 
 # Check if all arguments are provided
-if [ -z "$ACCOUNT_ID" ] || [ -z "$REGION" ] || [ -z "$REPO_NAME" ] || [ -z "$IMAGE_TAG" ]; then
-    echo "Usage: $0 <account_id> <region> <repo_name> <image_tag>"
+if [ -z "$ACCOUNT_ID" ] || [ -z "$REGION" ] || [ -z "$REGISTRY_ALIAS" ] || [ -z "$REPO_NAME" ] || [ -z "$IMAGE_TAG" ]; then
+    echo "Usage: $0 <account_id> <region> <registry_alias> <repo_name> <image_tag>"
     exit 1
 fi
 
