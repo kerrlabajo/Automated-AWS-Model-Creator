@@ -367,7 +367,7 @@ namespace LSC_Trainer
                 {
                     TrainingInputMode = "File",
                     TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
+                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train_and_export.py" },
                     ContainerArguments = new List<string>()
                     {
                         "--img-size", img_size,
@@ -381,6 +381,10 @@ namespace LSC_Trainer
                         "--patience", patience,
                         "--workers", workers,
                         "--optimizer", optimizer,
+                        "--device", device,
+                        "--img-size", img_size,
+                        "--weights", SAGEMAKER_OUTPUT_DATA_PATH + "results/weights/best.pt",
+                        "--include", "onnx",
                         "--device", device
                     }
                 },
