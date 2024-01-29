@@ -6,8 +6,13 @@ using Amazon;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
+using Amazon.CloudWatchLogs;
+using Amazon.CloudWatchLogs.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
+using Amazon.Runtime;
+using System.Threading.Tasks;
+using Amazon.Runtime.Internal;
 
 namespace LSC_Trainer
 {
@@ -16,6 +21,7 @@ namespace LSC_Trainer
         private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
+        private readonly AmazonCloudWatchLogsClient cloudWatchLogsClient;
 
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
@@ -69,6 +75,7 @@ namespace LSC_Trainer
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
+            cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
 
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
@@ -221,7 +228,7 @@ namespace LSC_Trainer
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
-            InitiateTrainingJob(trainingRequest);
+            InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
@@ -503,7 +510,7 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
-        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
+        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             try
             {
@@ -519,6 +526,9 @@ namespace LSC_Trainer
 
                 VMlbl.Text = trainingDetails.ResourceConfig.InstanceType.ToString();
 
+                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs");
+
+                string prevLogMessage = "";
                 string prevStatusMessage = "";
                 Timer timer = new Timer();
                 timer.Interval = 1000;
@@ -531,10 +541,24 @@ namespace LSC_Trainer
                             TrainingJobName = trainingJobName
                         });
 
-                        //update training duration
+                        // update training duration
                         TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
                         string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
                         trainingDurationlbl.Text = formattedTime;
+
+                        // print cloudwatch logs
+                        // maybe make this dynamic soon
+                        GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                        {
+                            LogGroupName = "/aws/sagemaker/TrainingJobs",
+                            LogStreamName = logStreamName
+                        });
+
+                        if(prevLogMessage != logs.Events.Last().Message)
+                        {
+                            Console.WriteLine(logs.Events.Last().Message);
+                            prevLogMessage = logs.Events.Last().Message;
+                        }   
 
                         if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
                         {
@@ -580,6 +604,28 @@ namespace LSC_Trainer
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creating training job: {ex.Message}");
+            }
+        }
+
+        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName)
+        {
+            var request = new DescribeLogStreamsRequest
+            {
+                LogGroupName = logGroupName,
+                LogStreamNamePrefix = trainingJobName
+            };
+
+            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+
+            var latestLogStream = response.LogStreams.FirstOrDefault();
+
+            if (latestLogStream != null)
+            {
+                return latestLogStream.LogStreamName;
+            }
+            else
+            {
+                return null;
             }
         }
     }
