@@ -15,12 +15,16 @@ if [ -z "$ACCOUNT_ID" ] || [ -z "$REGION" ] || [ -z "$REGISTRY_ALIAS" ] || [ -z 
     exit 1
 fi
 
-docker build -f ../docker/Dockerfile -t $REPO_NAME ../docker
+docker build -f ../docker/ubuntu-cuda/Dockerfile -t ubuntu-cuda ../docker/ubuntu-cuda
 
-docker tag $REPO_NAME $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+docker build -f ../docker/yolov5/Dockerfile -t $REPO_NAME ../docker/yolov5
 
-aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+docker rmi ubuntu-cuda
 
-aws ecr describe-repositories --repository-names $REPO_NAME > /dev/null 2>&1 || aws ecr create-repository --repository-name $REPO_NAME > /dev/null 2>&1
+docker tag $REPO_NAME public.ecr.aws/$REGISTRY_ALIAS/$REPO_NAME:$IMAGE_TAG
 
-docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+aws ecr-public get-login-password --region $REGION | docker login --username AWS --password-stdin public.ecr.aws
+
+aws ecr-public describe-repositories --repository-names $REPO_NAME > /dev/null 2>&1 || aws ecr-public create-repository --repository-name $REPO_NAME > /dev/null 2>&1
+
+docker push public.ecr.aws/$REGISTRY_ALIAS/$REPO_NAME:$IMAGE_TAG
