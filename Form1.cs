@@ -82,6 +82,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
                 // txtDevice.Text = "0";
                 trainingFolder = "train";
                 validationFolder = "Verification Images";
@@ -97,6 +98,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
                 // txtDevice.Text = "0";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -216,11 +218,12 @@ namespace LSC_Trainer
                 out string hyperparameters,
                 out string patience,
                 out string workers,
-                out string optimizer);
+                out string optimizer,
+                out string device);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
             InitiateTrainingJob(trainingRequest);
         }
 
@@ -305,7 +308,7 @@ namespace LSC_Trainer
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
 
-        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer)
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
         {
             img_size = "";
             batch_size = "";
@@ -316,7 +319,7 @@ namespace LSC_Trainer
             patience = "";
             workers = "";
             optimizer = "";
-            string device = "";
+            device = "";
 
             if (txtImageSize.Text != "") img_size = txtImageSize.Text;
 
@@ -349,7 +352,7 @@ namespace LSC_Trainer
             return true;
         }
 
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
         {
             if (Path.GetFileName(customUploadsURI) == "custom-uploads")
             {
@@ -378,7 +381,7 @@ namespace LSC_Trainer
                         "--patience", patience,
                         "--workers", workers,
                         "--optimizer", optimizer,
-                        // "--device", device
+                        "--device", device
                     }
                 },
                 RoleArn = ROLE_ARN,
