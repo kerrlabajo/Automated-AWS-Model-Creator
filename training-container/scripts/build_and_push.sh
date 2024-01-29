@@ -1,19 +1,18 @@
-source .env
-
 # TODO: Create a script in yolov5 folder to generalize and call `train.py` or `export.py` with parameters.
 # TODO: After executing train and export, move the file according to the parameters destination.
 # TODO: Set `build_and_push.sh`` to receive parameters instead of environment variables.
 
 # Retrieve from developer/user's .env file
-ACCOUNT_ID=${ACCOUNT_ID}
-REGION=${REGION}
-REPO_NAME=${REPO_NAME}
-IMAGE_TAG=${IMAGE_TAG}
+ACCOUNT_ID=$1
+REGION=$2
+REPO_NAME=$3
+IMAGE_TAG=$4
 
-# Increment the image tag
-IMAGE_TAG=$((IMAGE_TAG + 1))
-echo "export IMAGE_TAG=$IMAGE_TAG" >> .env
-IMAGE_TAG=${IMAGE_TAG}
+# Check if all arguments are provided
+if [ -z "$ACCOUNT_ID" ] || [ -z "$REGION" ] || [ -z "$REPO_NAME" ] || [ -z "$IMAGE_TAG" ]; then
+    echo "Usage: $0 <account_id> <region> <repo_name> <image_tag>"
+    exit 1
+fi
 
 docker build -f ../docker/Dockerfile -t $REPO_NAME ../docker
 
