@@ -120,6 +120,25 @@ namespace LSC_Trainer
             }
         }
 
+        // TODO: Update training parameters:
+        // - img_size (dropdown)
+        // - weights (very dependent of img_size)(not interactable but changeable)
+        // - hyperparameters (dropdown)(has button to customize specific params)
+        // Customizing hyperparameters will open a new form that contains the configurable parameters
+        // via meter/toggle bars that shows or manually edit its fractional values.
+        // These values will then be entered in `HyperParameters` in the `CreateTrainingJobRequest`.
+        // (This is still not guaranteed but this requires writing the values the same format as the `hyp.scratch.yaml` file
+        // from the yolov5 repository in the user's directory/memory stream.)
+        // (Do not implement this feature yet. This is only for consideration. Keep it as is.)
+        // TODO: Add logout.
+        // TODO: Add help link.
+        // TODO: Download model should first retrieve list of models from S3 bucket that was fetched from 
+        // one or more training jobs. The user will then select the model to download.
+        // This features guarantees that the form can be closed and reopened without losing the model.
+        // TODO: Display the log stream of the training job request in the form when the training is in progress.
+        // TODO: Preferably create another form when performing a new training job request.
+        // The tasks should be implemented in branch `feat/ui-qol-fix`.
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -226,9 +245,6 @@ namespace LSC_Trainer
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
-            ///training job request but for exporting the model to ONNX.
-            ///To be implemented in branch `dev/aws-sagemaker-export-request`.
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
 
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
@@ -242,9 +258,13 @@ namespace LSC_Trainer
             string img_size = "";
             if (txtImageSize.Text != "") img_size = txtImageSize.Text;
 
+            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
             // Temporary comment until the export request is implemented.
             // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
-            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
+            // The manual saving of the model is not yet implemented in the `export.py` script.
+            // This feature is only for consideration.
+            // This implementation will be discontinued because a different approach
+            // in branch `dev/dockerize-scripts-caller` will be used instead.
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
