@@ -120,6 +120,36 @@ namespace LSC_Trainer
             }
         }
 
+        // TODO: Create a login form that has the following fields:
+        // - Account ID
+        // - Access Key ID (hidden when entering)
+        // - Secret Access Key (hidden when entering)
+        // - Region (dropdown menu)
+        // - Role ARN
+        // (Will consider adding `Help` button to guide how to get the credentials.)
+        // 
+        // TODO: Once getting the Role ARN, retrieve if role is admin or employee.
+        // TODO: Admins are allowed to click on a button that builds and push training image to ECR and get its URI.
+        // This button will first open another form that requires the admin to enter the following fields:
+        // - Account ID
+        // - Region (reuse the region from the login form)
+        // - Repository Name
+        // - Tag (can be string/number)
+        // (This feature requires the `training-container` folder except for its .env files. because it uses parameters.)
+        // (Specifically executing `training-container/scripts/build_and_push.sh` with parameters via .NET.
+        // Research how to execute this file via .NET. Try this with a dummy .sh file that requires arguments/parameters.)
+        // (It will also require that the admin has the AWS CLI and Docker installed on their machine.)
+        // (This feature is dependent on the `dev/dockerize-scripts-caller` branch. DO NOT TRIAL AND ERROR until it's ready.)
+        // 
+        // TODO: Once the admin has pushed the image to ECR, the ECR URI will be predefined within the app with the following format:
+        // {account_id}.dkr.ecr.{region}.amazonaws.com/{repository_name}:{tag} (PS: This will not work if the admin has not pushed the image to ECR.)
+        //
+        // TODO: As for the employees after their login, they are required to enter their admin's ECR URI before being able to proceed.
+        // Otherwise, they will not be able to use the app.
+        // (This use case might be tedious for the employees side. Will research about roles and permissions in AWS so that 
+        // the user will not have to enter the ECR URI manually.)
+        // The tasks should be implemented in branch `feat/login-credentials`.
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -226,9 +256,6 @@ namespace LSC_Trainer
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
-            ///training job request but for exporting the model to ONNX.
-            ///To be implemented in branch `dev/aws-sagemaker-export-request`.
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
 
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
@@ -242,9 +269,13 @@ namespace LSC_Trainer
             string img_size = "";
             if (txtImageSize.Text != "") img_size = txtImageSize.Text;
 
+            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
             // Temporary comment until the export request is implemented.
             // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
-            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
+            // The manual saving of the model is not yet implemented in the `export.py` script.
+            // This feature is only for consideration.
+            // This implementation will be discontinued because a different approach
+            // in branch `dev/dockerize-scripts-caller` will be used instead.
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
