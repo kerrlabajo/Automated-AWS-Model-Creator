@@ -435,68 +435,6 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
-        private CreateTrainingJobRequest CreateExportRequest(string img_size, string format, string bestModelDirectoryURI)
-        {
-            string exportRequestJob = string.Format("Export-{0}", trainingJobName);
-
-            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
-            {
-                AlgorithmSpecification = new AlgorithmSpecification()
-                {
-                    TrainingInputMode = "File",
-                    TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/export.py" },
-                    ContainerArguments = new List<string>()
-                    {
-                        "--img-size", img_size,
-                        "--weights" , SAGEMAKER_INPUT_DATA_PATH + "export/" + "best.pt",
-                        "--format", format,
-                        "--include", format,
-                        // If no manual saving, the exported ONNX will only be saved where the weights are.
-                        // Could not find a way to manually save the model to the SAGEMAKER_MODEL_PATH.
-                        //"--project", SAGEMAKER_MODEL_PATH,
-                        //"--name", "results",
-                        //"--device", "0"
-                    }
-                },
-                RoleArn = ROLE_ARN,
-                OutputDataConfig = new OutputDataConfig()
-                {
-                    S3OutputPath = DESTINATION_URI + trainingJobName + "/models/"
-                },
-                ResourceConfig = new ResourceConfig()
-                {
-                    InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM4Xlarge,
-                    VolumeSizeInGB = 8
-                },
-                TrainingJobName = exportRequestJob,
-                StoppingCondition = new StoppingCondition()
-                {
-                    MaxRuntimeInSeconds = 360000
-                },
-                InputDataConfig = new List<Channel>(){
-                    new Channel()
-                    {
-                        ChannelName = "export",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = bestModelDirectoryURI,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
-                }
-            };
-            return trainingRequest;
-        }
-
         private void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
         {
             try
