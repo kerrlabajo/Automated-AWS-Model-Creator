@@ -1,5 +1,9 @@
 source .env
 
+# TODO: Create a script in yolov5 folder to generalize and call `train.py` or `export.py` with parameters.
+# TODO: After executing train and export, move the file according to the parameters destination.
+# TODO: Set `build_and_push.sh`` to receive parameters instead of environment variables.
+
 # Retrieve from developer/user's .env file
 ACCOUNT_ID=${ACCOUNT_ID}
 REGION=${REGION}

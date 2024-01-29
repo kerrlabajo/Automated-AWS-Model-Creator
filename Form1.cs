@@ -226,9 +226,6 @@ namespace LSC_Trainer
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
-            ///training job request but for exporting the model to ONNX.
-            ///To be implemented in branch `dev/aws-sagemaker-export-request`.
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
 
             string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
@@ -242,9 +239,13 @@ namespace LSC_Trainer
             string img_size = "";
             if (txtImageSize.Text != "") img_size = txtImageSize.Text;
 
+            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
             // Temporary comment until the export request is implemented.
             // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
-            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
+            // The manual saving of the model is not yet implemented in the `export.py` script.
+            // This feature is only for consideration.
+            // This implementation will be discontinued because a different approach
+            // in branch `dev/dockerize-scripts-caller` will be used instead.
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
