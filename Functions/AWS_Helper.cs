@@ -288,6 +288,12 @@ namespace LSC_Trainer.Functions
                         FilePath = filePath
                     };
 
+                    // Add an event handler for the WriteObjectProgressEvent
+                    downloadRequest.WriteObjectProgressEvent += (sender, e) =>
+                    {
+                        Console.WriteLine($"Downloaded {e.TransferredBytes}/{e.TotalBytes} bytes. {e.PercentDone}% complete.");
+                    };
+
                     await transferUtility.DownloadAsync(downloadRequest);
 
                     Console.WriteLine($"File has been saved to {filePath}");
