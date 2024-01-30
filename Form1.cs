@@ -530,8 +530,12 @@ namespace LSC_Trainer
                 int lastIndex = 0;
                 string prevLogMessage = "";
                 string prevStatusMessage = "";
+
+                TrainingInfoForm trainingInfoForm = new TrainingInfoForm();
+                trainingInfoForm.Show(); // Show the new form
+
                 Timer timer = new Timer();
-                timer.Interval = 1000; // 1ms
+                timer.Interval = 1000;
                 timer.Tick += async (sender1, e1) =>
                 {
                     try
@@ -546,6 +550,12 @@ namespace LSC_Trainer
                         string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
                         trainingDurationlbl.Text = formattedTime;
 
+                        trainingInfoForm.UpdateTrainingStatus(tracker.ResourceConfig.InstanceType.ToString(),
+                                                                formattedTime,
+                                                                prevLogMessage,
+                                                                tracker.SecondaryStatusTransitions.Last().Status,
+                                                                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                                                             );
                         // cloudwatch 
                         if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
                         {

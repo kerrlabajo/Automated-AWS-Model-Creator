@@ -17,9 +17,18 @@ namespace LSC_Trainer
             InitializeComponent();
         }
 
-        private void TrainingInfoForm_Load(object sender, EventArgs e)
+        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string logMessage, string status, string description)
         {
+            instanceTypelbl.Text = instanceType;
+            trainingDurationlbl.Text = trainingDuration;
 
+            // Update other labels and controls as needed
+        }
+
+        public void DisplayLogMessage(string logMessage)
+        {
+            // Display log messages in your desired control (e.g., a TextBox)
+            // logTextBox.AppendText(logMessage + Environment.NewLine);
         }
     }
 }
