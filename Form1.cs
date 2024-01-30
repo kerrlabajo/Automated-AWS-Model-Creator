@@ -42,6 +42,7 @@ namespace LSC_Trainer
         private string trainingJobName;
 
         private string outputKey;
+        private string modelKey;
 
         public Form1()
         {
@@ -232,34 +233,20 @@ namespace LSC_Trainer
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
             //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
 
-            string bestModelDirectoryURI = Path.GetDirectoryName(bestModelURI);
-            bestModelDirectoryURI = bestModelDirectoryURI.Insert(bestModelDirectoryURI.IndexOf('\\'), "\\").Replace("\\", "/");
-            Console.WriteLine($"Best model directory: {bestModelDirectoryURI}");
-
-            string img_size = "";
-            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
-
-            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
-            // Temporary comment until the export request is implemented.
-            // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
-            // The manual saving of the model is not yet implemented in the `export.py` script.
-            // This feature is only for consideration.
-            // This implementation will be discontinued because a different approach
-            // in branch `dev/dockerize-scripts-caller` will be used instead.
-
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
-                folderBrowserDialog.Description = "Select a folder to save the file";
+                folderBrowserDialog.Description = "Select a folder to save the results and model";
 
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string selectedLocalPath = folderBrowserDialog.SelectedPath;
 
-                    DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (result == DialogResult.Yes)
                     {
-                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, bestModelKey, selectedLocalPath);
+                        await AWS_Helper.DownloadOutput(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                        await AWS_Helper.DownloadOutput(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                     }
                 }
             }
@@ -485,6 +472,7 @@ namespace LSC_Trainer
                                 Console.WriteLine();
                             }
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                            modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             enableDownloadModelButton(true);
                             timer.Stop();
                         }
