@@ -245,8 +245,8 @@ namespace LSC_Trainer
 
                     if (result == DialogResult.Yes)
                     {
-                        await AWS_Helper.DownloadOutput(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                        await AWS_Helper.DownloadOutput(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                     }
                 }
             }

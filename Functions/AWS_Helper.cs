@@ -349,23 +349,27 @@ namespace LSC_Trainer.Functions
         }
 
 
-            public static async Task DownloadFile(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        public static async Task DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
             {
                 try
                 {
                     DateTime startTime = DateTime.Now;
-                    GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, objectKey);
-
-                    // Ensure the directory exists
                     string directoryPath = Path.GetDirectoryName(localFilePath);
                     Directory.CreateDirectory(directoryPath);
                     string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
-                    using (var fileStream = File.OpenWrite(filePath))
+
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
-                        await response.ResponseStream.CopyToAsync(fileStream);
-                        if (response.HttpStatusCode == HttpStatusCode.OK)
+                    TransferUtilityDownloadRequest downloadRequest = new TransferUtilityDownloadRequest
                         {
-                            Console.WriteLine($"File has been saved to {localFilePath}");
+                        BucketName = bucketName,
+                        Key = objectKey,
+                        FilePath = filePath
+                    };
+
+                    await transferUtility.DownloadAsync(downloadRequest);
+
+                    Console.WriteLine($"File has been saved to {filePath}");
                             TimeSpan totalTime = DateTime.Now - startTime;
                             string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                                 (int)totalTime.TotalHours,
@@ -375,7 +379,6 @@ namespace LSC_Trainer.Functions
                             Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
                         }
                     }
-                }
             catch (AggregateException e)
             {
                 Console.WriteLine("Error downloading file: " + e.Message);
