@@ -199,85 +199,6 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static async Task<string> ExtractAndUploadBestPt(AmazonS3Client s3Client, string bucketName, string modelKey)
-        {
-            try
-            {
-                Console.WriteLine("Starting Extract For Best.pt");
-                DateTime startTime = DateTime.Now;
-                // Download the tar.gz file from S3
-                GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, modelKey);
-
-                //change to [0] after update
-                string trainingJobName = modelKey.Split('/')[1];
-
-                using (var tarStream = new TarInputStream(new GZipStream(response.ResponseStream, CompressionMode.Decompress)))
-                {
-                    var transferUtility = new TransferUtility(s3Client);
-
-                    // Specify the file name you are looking for
-                    string fileName = "results/weights/best.pt";
-
-                    TarEntry entry;
-                    while ((entry = tarStream.GetNextEntry()) != null)
-                    {
-                        // Check if the entry is a directory
-                        if (entry.IsDirectory)
-                        {
-                            continue;
-                        }
-
-                        // Check if the entry name matches the desired file name
-                        if (entry.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                // Copy the content from the entry's stream to the memory stream in chunks
-                                var buffer = new byte[4096];
-                                int bytesRead;
-                                while ((bytesRead = tarStream.Read(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    memoryStream.Write(buffer, 0, bytesRead);
-                                }
-
-                                TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
-                                {
-                                    BucketName = bucketName,
-                                    Key = $"training-jobs/{trainingJobName}/models/best.pt",
-                                    InputStream = memoryStream,
-                                };
-
-                                uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
-                                {
-                                    Console.WriteLine($"Progress: {args.PercentDone}%");
-                                });
-                                // Upload the content to S3
-                                await transferUtility.UploadAsync(uploadRequest);
-                            }
-                            string s3URI = $"s3://{bucketName}/training-jobs/{trainingJobName}/models/best.pt";
-                            //Console.WriteLine($"Successfully uploaded model at: {s3URI}");
-                            TimeSpan totalTime = DateTime.Now - startTime;
-                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                (int)totalTime.TotalHours,
-                                totalTime.Minutes,
-                                totalTime.Seconds,
-                                (int)(totalTime.Milliseconds / 100));
-                            Console.WriteLine($"Extraction Total Time Taken: {formattedTotalTime}");
-                            return s3URI;
-                        }
-                    }                   
-                }
-                // maybe improve this soon
-                Console.WriteLine("Extraction and upload failed.");
-                return null;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error extracting and uploading best.pt: {e.Message}");
-                return null;
-            }
-        }
-
         public static long CalculateTotalSizeFolder(string directoryPath)
         {
             Console.WriteLine($"Filename - {directoryPath}");
@@ -315,9 +236,9 @@ namespace LSC_Trainer.Functions
             }
         }
 
-            private static string GetContentType(string fileName)
-            {
-                string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
+        private static string GetContentType(string fileName)
+        {
+            string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
 
             switch (extension)
             {
@@ -350,18 +271,18 @@ namespace LSC_Trainer.Functions
 
 
         public static async Task DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        {
+            try
             {
-                try
-                {
-                    DateTime startTime = DateTime.Now;
-                    string directoryPath = Path.GetDirectoryName(localFilePath);
-                    Directory.CreateDirectory(directoryPath);
-                    string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
+                DateTime startTime = DateTime.Now;
+                string directoryPath = Path.GetDirectoryName(localFilePath);
+                Directory.CreateDirectory(directoryPath);
+                string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
 
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
-                    {
+                {
                     TransferUtilityDownloadRequest downloadRequest = new TransferUtilityDownloadRequest
-                        {
+                    {
                         BucketName = bucketName,
                         Key = objectKey,
                         FilePath = filePath
@@ -370,15 +291,15 @@ namespace LSC_Trainer.Functions
                     await transferUtility.DownloadAsync(downloadRequest);
 
                     Console.WriteLine($"File has been saved to {filePath}");
-                            TimeSpan totalTime = DateTime.Now - startTime;
-                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                (int)totalTime.TotalHours,
-                                totalTime.Minutes,
-                                totalTime.Seconds,
-                                (int)(totalTime.Milliseconds / 100));
-                            Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
-                        }
-                    }
+                    TimeSpan totalTime = DateTime.Now - startTime;
+                    string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                        (int)totalTime.TotalHours,
+                        totalTime.Minutes,
+                        totalTime.Seconds,
+                        (int)(totalTime.Milliseconds / 100));
+                    Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
+                }
+            }
             catch (AggregateException e)
             {
                 Console.WriteLine("Error downloading file: " + e.Message);
