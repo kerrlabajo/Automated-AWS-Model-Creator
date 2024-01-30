@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import sys
 
@@ -37,6 +38,9 @@ def main():
 
     run_script("yolov5/train.py", train_args)
     run_script("yolov5/export.py", export_args)
+
+    # Copy the best.onnx file to the /opt/ml/model/ directory
+    shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
 
 if __name__ == "__main__":
     main()
