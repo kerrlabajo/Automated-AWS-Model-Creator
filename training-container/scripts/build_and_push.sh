@@ -1,8 +1,4 @@
-# TODO: Create a script in yolov5 folder to generalize and call `train.py` or `export.py` with parameters.
-# TODO: After executing train and export, move the file according to the parameters destination.
-# TODO: Set `build_and_push.sh`` to receive parameters instead of environment variables.
 
-# Retrieve from developer/user's .env file
 ACCOUNT_ID=$1
 REGION=$2
 REPO_NAME=$3
@@ -14,16 +10,21 @@ if [ -z "$ACCOUNT_ID" ] || [ -z "$REGION" ] || [ -z "$REPO_NAME" ] || [ -z "$IMA
     exit 1
 fi
 
+# Build ubuntu-cuda and yolov5 images
 docker build -f ../docker/ubuntu-cuda/Dockerfile -t ubuntu-cuda ../docker/ubuntu-cuda
-
 docker build -f ../docker/yolov5/Dockerfile -t $REPO_NAME ../docker/yolov5
 
-docker rmi ubuntu-cuda
-
+# Tag image according to user's id and region
 docker tag $REPO_NAME $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
 
+# Login to AWS ECR and docker credentials
+# Locate existing repository or create a new one
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
-
 aws ecr describe-repositories --repository-names $REPO_NAME > /dev/null 2>&1 || aws ecr create-repository --repository-name $REPO_NAME > /dev/null 2>&1
 
+# Push image to AWS ECR
 docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+
+# Delete all Docker images and remove all Docker cache
+docker rmi $(docker images -q) -f
+docker system prune -a --volumes -f
