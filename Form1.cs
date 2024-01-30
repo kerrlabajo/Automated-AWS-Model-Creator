@@ -229,11 +229,8 @@ namespace LSC_Trainer
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
-
-            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
-            string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
-            Console.WriteLine($"Best model key: {bestModelKey}");
+            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
+            //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
 
             string bestModelDirectoryURI = Path.GetDirectoryName(bestModelURI);
             bestModelDirectoryURI = bestModelDirectoryURI.Insert(bestModelDirectoryURI.IndexOf('\\'), "\\").Replace("\\", "/");
