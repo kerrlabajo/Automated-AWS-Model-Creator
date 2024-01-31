@@ -296,7 +296,7 @@ namespace LSC_Trainer.Functions
 
                     await transferUtility.DownloadAsync(downloadRequest);
 
-                    Console.WriteLine($"File has been saved to {filePath}");
+                    Console.WriteLine($"File has been saved to {localFilePath}");
                     TimeSpan totalTime = DateTime.Now - startTime;
                     string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                         (int)totalTime.TotalHours,
