@@ -79,6 +79,9 @@ namespace LSC_Trainer
             this.imgSizeDropdown = new System.Windows.Forms.ComboBox();
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.createConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testConnnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -106,15 +109,19 @@ namespace LSC_Trainer
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(996, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(996, 30);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // connectToolStripMenuItem1
             // 
+            this.connectToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createConnectionToolStripMenuItem,
+            this.closeConnectionToolStripMenuItem,
+            this.testConnnectionToolStripMenuItem});
             this.connectToolStripMenuItem1.Name = "connectToolStripMenuItem1";
-            this.connectToolStripMenuItem1.Size = new System.Drawing.Size(77, 24);
-            this.connectToolStripMenuItem1.Text = "Connect";
+            this.connectToolStripMenuItem1.Size = new System.Drawing.Size(98, 26);
+            this.connectToolStripMenuItem1.Text = "Connection";
             this.connectToolStripMenuItem1.Click += new System.EventHandler(this.connectToolStripMenuItem1_Click);
             // 
             // helpToolStripMenuItem
@@ -563,6 +570,25 @@ namespace LSC_Trainer
             this.panel1.Size = new System.Drawing.Size(925, 355);
             this.panel1.TabIndex = 4;
             // 
+            // createConnectionToolStripMenuItem
+            // 
+            this.createConnectionToolStripMenuItem.Name = "createConnectionToolStripMenuItem";
+            this.createConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.createConnectionToolStripMenuItem.Text = "Create Connection";
+            // 
+            // closeConnectionToolStripMenuItem
+            // 
+            this.closeConnectionToolStripMenuItem.Name = "closeConnectionToolStripMenuItem";
+            this.closeConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.closeConnectionToolStripMenuItem.Text = "Close Connection";
+            // 
+            // testConnnectionToolStripMenuItem
+            // 
+            this.testConnnectionToolStripMenuItem.Name = "testConnnectionToolStripMenuItem";
+            this.testConnnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.testConnnectionToolStripMenuItem.Text = "Test Connection";
+            this.testConnnectionToolStripMenuItem.Click += new System.EventHandler(this.testConnnectionToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -635,6 +661,9 @@ namespace LSC_Trainer
         private System.Windows.Forms.ComboBox imgSizeDropdown;
         private System.Windows.Forms.ComboBox hyperparamsDropdown;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ToolStripMenuItem createConnectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem closeConnectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem testConnnectionToolStripMenuItem;
     }
 }
 
