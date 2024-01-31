@@ -30,6 +30,7 @@ namespace LSC_Trainer.Functions
             return "640";
         }
 
+        //Pwede sad ni magamit sa katong Form1 na SetTrainingParameters()
         public string GetValueFromTextBox(TextBox textBox)
         {
             return !string.IsNullOrWhiteSpace(textBox.Text) ? textBox.Text : "";

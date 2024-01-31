@@ -128,8 +128,6 @@ namespace LSC_Trainer
         // TODO: Update training parameters:
         // - img_size (dropdown)
         // - weights (very dependent of img_size)(not interactable but changeable)
-
-
         // - hyperparameters (dropdown)(has button to customize specific params)
         // Customizing hyperparameters will open a new form that contains the configurable parameters
         // via meter/toggle bars that shows or manually edit its fractional values.
@@ -139,6 +137,8 @@ namespace LSC_Trainer
         // (Do not implement this feature yet. This is only for consideration. Keep it as is.)
         // TODO: Add logout.
         // TODO: Add help link.
+
+
         // TODO: Download model should first retrieve list of models from S3 bucket that was fetched from 
         // one or more training jobs. The user will then select the model to download.
         // This features guarantees that the form can be closed and reopened without losing the model.
@@ -542,7 +542,7 @@ namespace LSC_Trainer
 
                 var customHyperparameterForm = new CustomHyperParamsForm();
 
-                customHyperparameterForm.FormClosed += CustomHyperparameterForm_FormClosed;
+                customHyperparameterForm.FormClosed += OtherForm_FormClosed;
                 customHyperparameterForm.Show();
             }
             else
@@ -551,7 +551,17 @@ namespace LSC_Trainer
             }
         }
 
-        private void CustomHyperparameterForm_FormClosed(object sender, FormClosedEventArgs e)
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+
+            var helpForm = new HelpForm();
+
+            helpForm.FormClosed += OtherForm_FormClosed;
+            helpForm.Show();
+        }
+
+        private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.Enabled = true;
         }
