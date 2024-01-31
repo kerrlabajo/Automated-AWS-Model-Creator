@@ -17,7 +17,7 @@ namespace LSC_Trainer
         private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
-        private ImageSizeWeightMapping imageSizeWeightMapping = new ImageSizeWeightMapping();
+        private Utility utility = new Utility();
 
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
@@ -81,7 +81,7 @@ namespace LSC_Trainer
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
                 txtData.Text = "MMX059XA_COVERED5B.yaml";
-                txtHyperparameters.Text = "hyp.no-augmentation.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
@@ -97,7 +97,7 @@ namespace LSC_Trainer
                 txtEpochs.Text = "50";
                 txtWeights.Text = "yolov5s.pt";
                 txtData.Text = "data.yaml";
-                txtHyperparameters.Text = "hyp.scratch-low.yaml";
+                hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
@@ -128,6 +128,8 @@ namespace LSC_Trainer
         // TODO: Update training parameters:
         // - img_size (dropdown)
         // - weights (very dependent of img_size)(not interactable but changeable)
+
+
         // - hyperparameters (dropdown)(has button to customize specific params)
         // Customizing hyperparameters will open a new form that contains the configurable parameters
         // via meter/toggle bars that shows or manually edit its fractional values.
@@ -336,7 +338,7 @@ namespace LSC_Trainer
 
             if (txtData.Text != "") data = txtData.Text;
 
-            if (txtHyperparameters.Text != "") hyperparameters = txtHyperparameters.Text;
+            if (hyperparamsDropdown.Text != "") hyperparameters = hyperparamsDropdown.Text;
 
             if (txtPatience.Text != "") patience = txtPatience.Text;
 
@@ -516,15 +518,10 @@ namespace LSC_Trainer
             }
         }
 
-        private void txtHyperparameters_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
         {
             string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
-            string weightFile = imageSizeWeightMapping.GetWeightFile(selectedSize);
+            string weightFile = utility.GetWeightFile(selectedSize);
 
             if (weightFile != null)
             {
@@ -535,6 +532,26 @@ namespace LSC_Trainer
                 // Default value in the case where the size is not found
                 txtWeights.Text = "640";
             }
+        }
+
+        private void hyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
+            {
+                var customHyperparameterForm = new CustomHyperParamsForm();
+                this.Enabled = false;
+                customHyperparameterForm.FormClosed += CustomHyperparameterForm_FormClosed;
+                customHyperparameterForm.Show();
+            }
+            else
+            {
+                hyperparamsDropdown.Text = hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem);
+            }
+        }
+
+        private void CustomHyperparameterForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Enabled = true;
         }
     }
 }
