@@ -13,9 +13,11 @@ namespace LSC_Trainer
 {
     public partial class Form1 : Form
     {
+
         private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
+        private ImageSizeWeightMapping imageSizeWeightMapping = new ImageSizeWeightMapping();
 
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
@@ -74,7 +76,7 @@ namespace LSC_Trainer
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
             {
-                txtImageSize.Text = "1280";
+                imgSizeDropdown.Text = "1280";
                 txtBatchSize.Text = "1";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
@@ -90,7 +92,7 @@ namespace LSC_Trainer
             }
             else
             {
-                txtImageSize.Text = "640";
+                imgSizeDropdown.Text = "640";
                 txtBatchSize.Text = "1";
                 txtEpochs.Text = "50";
                 txtWeights.Text = "yolov5s.pt";
@@ -324,7 +326,7 @@ namespace LSC_Trainer
             optimizer = "";
             device = "";
 
-            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
+            if (imgSizeDropdown.Text != "") img_size = imgSizeDropdown.Text;
 
             if (txtBatchSize.Text != "") batch_size = txtBatchSize.Text;
 
@@ -511,6 +513,27 @@ namespace LSC_Trainer
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creating training job: {ex.Message}");
+            }
+        }
+
+        private void txtHyperparameters_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
+            string weightFile = imageSizeWeightMapping.GetWeightFile(selectedSize);
+
+            if (weightFile != null)
+            {
+                txtWeights.Text = weightFile;
+            }
+            else
+            {
+                // Default value in the case where the size is not found
+                txtWeights.Text = "640";
             }
         }
     }
