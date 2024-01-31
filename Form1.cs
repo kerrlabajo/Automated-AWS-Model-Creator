@@ -48,6 +48,7 @@ namespace LSC_Trainer
         private string trainingJobName;
 
         private string outputKey;
+        private string modelKey;
 
         public Form1()
         {
@@ -89,6 +90,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
                 // txtDevice.Text = "0";
                 trainingFolder = "train";
                 validationFolder = "Verification Images";
@@ -104,6 +106,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
                 // txtDevice.Text = "0";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -223,50 +226,34 @@ namespace LSC_Trainer
                 out string hyperparameters,
                 out string patience,
                 out string workers,
-                out string optimizer);
+                out string optimizer,
+                out string device);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
             InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
-
-            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
-            string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
-            Console.WriteLine($"Best model key: {bestModelKey}");
-
-            string bestModelDirectoryURI = Path.GetDirectoryName(bestModelURI);
-            bestModelDirectoryURI = bestModelDirectoryURI.Insert(bestModelDirectoryURI.IndexOf('\\'), "\\").Replace("\\", "/");
-            Console.WriteLine($"Best model directory: {bestModelDirectoryURI}");
-
-            string img_size = "";
-            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
-
-            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
-            // Temporary comment until the export request is implemented.
-            // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
-            // The manual saving of the model is not yet implemented in the `export.py` script.
-            // This feature is only for consideration.
-            // This implementation will be discontinued because a different approach
-            // in branch `dev/dockerize-scripts-caller` will be used instead.
+            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
+            //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
-                folderBrowserDialog.Description = "Select a folder to save the file";
+                folderBrowserDialog.Description = "Select a folder to save the results and model";
 
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string selectedLocalPath = folderBrowserDialog.SelectedPath;
 
-                    DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (result == DialogResult.Yes)
                     {
-                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, bestModelKey, selectedLocalPath);
+                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                     }
                 }
             }
@@ -318,7 +305,7 @@ namespace LSC_Trainer
         // TODO: Preferably create another form when performing a new training job request.
         // The tasks should be implemented in branch `feat/training-logging`.
 
-        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer)
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
         {
             img_size = "";
             batch_size = "";
@@ -329,7 +316,7 @@ namespace LSC_Trainer
             patience = "";
             workers = "";
             optimizer = "";
-            string device = "";
+            device = "";
 
             if (txtImageSize.Text != "") img_size = txtImageSize.Text;
 
@@ -362,7 +349,7 @@ namespace LSC_Trainer
             return true;
         }
 
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
         {
             if (Path.GetFileName(customUploadsURI) == "custom-uploads")
             {
@@ -377,7 +364,7 @@ namespace LSC_Trainer
                 {
                     TrainingInputMode = "File",
                     TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
+                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train_and_export.py" },
                     ContainerArguments = new List<string>()
                     {
                         "--img-size", img_size,
@@ -391,7 +378,11 @@ namespace LSC_Trainer
                         "--patience", patience,
                         "--workers", workers,
                         "--optimizer", optimizer,
-                        // "--device", device
+                        "--device", device,
+                        "--img-size", img_size,
+                        "--weights", SAGEMAKER_OUTPUT_DATA_PATH + "results/weights/best.pt",
+                        "--include", "onnx",
+                        "--device", device
                     }
                 },
                 RoleArn = ROLE_ARN,
@@ -439,68 +430,6 @@ namespace LSC_Trainer
                             {
                                 S3DataType = S3DataType.S3Prefix,
                                 S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + validationFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
-                }
-            };
-            return trainingRequest;
-        }
-
-        private CreateTrainingJobRequest CreateExportRequest(string img_size, string format, string bestModelDirectoryURI)
-        {
-            string exportRequestJob = string.Format("Export-{0}", trainingJobName);
-
-            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
-            {
-                AlgorithmSpecification = new AlgorithmSpecification()
-                {
-                    TrainingInputMode = "File",
-                    TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/export.py" },
-                    ContainerArguments = new List<string>()
-                    {
-                        "--img-size", img_size,
-                        "--weights" , SAGEMAKER_INPUT_DATA_PATH + "export/" + "best.pt",
-                        "--format", format,
-                        "--include", format,
-                        // If no manual saving, the exported ONNX will only be saved where the weights are.
-                        // Could not find a way to manually save the model to the SAGEMAKER_MODEL_PATH.
-                        //"--project", SAGEMAKER_MODEL_PATH,
-                        //"--name", "results",
-                        //"--device", "0"
-                    }
-                },
-                RoleArn = ROLE_ARN,
-                OutputDataConfig = new OutputDataConfig()
-                {
-                    S3OutputPath = DESTINATION_URI + trainingJobName + "/models/"
-                },
-                ResourceConfig = new ResourceConfig()
-                {
-                    InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM4Xlarge,
-                    VolumeSizeInGB = 8
-                },
-                TrainingJobName = exportRequestJob,
-                StoppingCondition = new StoppingCondition()
-                {
-                    MaxRuntimeInSeconds = 360000
-                },
-                InputDataConfig = new List<Channel>(){
-                    new Channel()
-                    {
-                        ChannelName = "export",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = bestModelDirectoryURI,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -612,6 +541,7 @@ namespace LSC_Trainer
                                 Console.WriteLine();
                             }
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                            modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             enableDownloadModelButton(true);
                             timer.Stop();
                         }
