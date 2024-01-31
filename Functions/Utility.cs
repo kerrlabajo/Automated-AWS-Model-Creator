@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+
 
 namespace LSC_Trainer.Functions
 {
-    public class ImageSizeWeightMapping
+    public class Utility
     {
         private Dictionary<string, string> sizeToWeightMap;
 
-        public ImageSizeWeightMapping()
+        public Utility()
         {
             sizeToWeightMap = new Dictionary<string, string>
-        {
-            { "640", "yolov5s.pt" },
-            { "1280", "yolov5n6.pt" }
-            // more image sizes
-        };
+            {
+                { "640", "yolov5s.pt" },
+                { "1280", "yolov5n6.pt" }
+                // more image sizes
+            };
         }
 
         public string GetWeightFile(string imageSize)
@@ -29,6 +28,11 @@ namespace LSC_Trainer.Functions
 
             // Default value in the case where the size is not found
             return "640";
+        }
+
+        public string GetValueFromTextBox(TextBox textBox)
+        {
+            return !string.IsNullOrWhiteSpace(textBox.Text) ? textBox.Text : "";
         }
     }
 }
