@@ -25,12 +25,12 @@ namespace LSC_Trainer
             }
         }
 
-        public static void WriteYamlFile(Dictionary<string, string> data)
+        public static string WriteYamlFile(Dictionary<string, string> data)
         {
             if (data == null)
             {
                 Console.WriteLine("No data provided to write.");
-                return;
+                return "";
             }
 
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
@@ -45,10 +45,12 @@ namespace LSC_Trainer
                     string yamlContent = serializer.Serialize(data);
 
                     File.WriteAllText(filePath, yamlContent);
+                    return filePath;
                 }
                 else
                 {
                     Console.WriteLine("---------- Canceled ------------");
+                    return "";
                 }
             }
         }

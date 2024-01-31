@@ -49,7 +49,8 @@ namespace LSC_Trainer
         {
             var hyperparameters = SetHyperparameters();
 
-            FileHandler.WriteYamlFile(hyperparameters);
+            string createdFile = FileHandler.WriteYamlFile(hyperparameters);
+
             this.Close();
         }
 

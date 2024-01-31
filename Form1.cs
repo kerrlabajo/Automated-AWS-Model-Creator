@@ -538,8 +538,10 @@ namespace LSC_Trainer
         {
             if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
             {
-                var customHyperparameterForm = new CustomHyperParamsForm();
                 this.Enabled = false;
+
+                var customHyperparameterForm = new CustomHyperParamsForm();
+
                 customHyperparameterForm.FormClosed += CustomHyperparameterForm_FormClosed;
                 customHyperparameterForm.Show();
             }
