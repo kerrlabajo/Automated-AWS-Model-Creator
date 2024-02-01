@@ -241,11 +241,14 @@ namespace LSC_Trainer
             InitiateTrainingJob(trainingRequest);
         }
 
+        //TODO: Download model should first retrieve list of models from S3 bucket that was fetched from
+        // one or more training jobs. The user will then select the model to download.
+        // This features guarantees that the form can be closed and reopened without losing the model.
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
             //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
-
+            
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder to save the results and model";
@@ -289,8 +292,8 @@ namespace LSC_Trainer
         {
             if (e.ProgressPercentage >= progressBar.Minimum && e.ProgressPercentage <= progressBar.Maximum)
             {
-            progressBar.Value = e.ProgressPercentage;
-        }
+                progressBar.Value = e.ProgressPercentage;
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
@@ -568,6 +571,40 @@ namespace LSC_Trainer
             {
                 Console.WriteLine($"Unexpected error: {error.Message}");
                 MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                List<string> models = await AWS_Helper.GetModelListFromS3(s3Client, SAGEMAKER_BUCKET);
+
+                if (models != null)
+                {
+                    modelListComboBox.Items.Clear(); 
+
+                    foreach (var obj in models)
+                    {
+                        Console.WriteLine($"Object: {obj}");
+                        modelListComboBox.Items.Add(obj); 
+                    }
+                }
+
+                modelListComboBox.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+        private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (modelListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            {
+                outputKey = modelListComboBox.GetItemText(modelListComboBox.SelectedItem);
+                btnDownloadModel.Enabled = true;
             }
         }
     }

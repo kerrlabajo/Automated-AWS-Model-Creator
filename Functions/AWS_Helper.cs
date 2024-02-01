@@ -327,7 +327,8 @@ namespace LSC_Trainer.Functions
                 var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                 {
                     BucketName = bucketName,
-                     Prefix = "models"
+                     Prefix = "training-jobs"
+
                 });
 
                 return response.S3Objects.Select(o => o.Key).ToList();
