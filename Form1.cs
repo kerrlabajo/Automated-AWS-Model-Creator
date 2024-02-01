@@ -13,6 +13,7 @@ using LSC_Trainer.Functions;
 using Amazon.Runtime;
 using System.Threading.Tasks;
 using Amazon.Runtime.Internal;
+using Amazon.Runtime.Internal.Util;
 
 namespace LSC_Trainer
 {
@@ -481,7 +482,6 @@ namespace LSC_Trainer
 
                         trainingInfoForm.UpdateTrainingStatus(tracker.ResourceConfig.InstanceType.ToString(),
                                                                 formattedTime,
-                                                                prevLogMessage,
                                                                 tracker.SecondaryStatusTransitions.Last().Status,
                                                                 tracker.SecondaryStatusTransitions.Last().StatusMessage
                                                              );
@@ -508,6 +508,7 @@ namespace LSC_Trainer
                                 {
                                     for(int i = lastIndex + 1; i < logs.Events.Count; i++)
                                     {
+                                        trainingInfoForm.DisplayLogMessage(logs.Events[i].Message);
                                         Console.WriteLine(logs.Events[i].Message);
                                     }   
                                     prevLogMessage = logs.Events.Last().Message;

@@ -17,18 +17,23 @@ namespace LSC_Trainer
             InitializeComponent();
         }
 
-        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string logMessage, string status, string description)
+        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
-            instanceTypelbl.Text = instanceType;
-            trainingDurationlbl.Text = trainingDuration;
-
+            instanceTypeBox.Text = instanceType;
+            trainingDurationBox.Text = trainingDuration;
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
             // Update other labels and controls as needed
         }
 
         public void DisplayLogMessage(string logMessage)
         {
-            // Display log messages in your desired control (e.g., a TextBox)
-            // logTextBox.AppendText(logMessage + Environment.NewLine);
+            // Append log messages to the TextBox
+            logBox.AppendText(logMessage + Environment.NewLine);
+
+            // Scroll to the end to show the latest log messages
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
         }
     }
 }
