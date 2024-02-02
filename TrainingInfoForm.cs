@@ -23,7 +23,15 @@ namespace LSC_Trainer
             trainingDurationBox.Text = trainingDuration;
             trainingStatusBox.Text = status;
             descBox.Text = description;
-            // Update other labels and controls as needed
+        }
+        public void UpdateTrainingStatus(string trainingDuration)
+        {
+            trainingDurationBox.Text = trainingDuration;
+        }
+        public void UpdateTrainingStatus(string status, string description)
+        {
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
         }
 
         public void DisplayLogMessage(string logMessage)

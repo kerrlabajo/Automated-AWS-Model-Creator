@@ -480,11 +480,19 @@ namespace LSC_Trainer
                         string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
                         trainingDurationlbl.Text = formattedTime;
 
-                        trainingInfoForm.UpdateTrainingStatus(tracker.ResourceConfig.InstanceType.ToString(),
+                        if(tracker.TrainingTimeInSeconds == 0)
+                        {
+                            trainingInfoForm.UpdateTrainingStatus(tracker.ResourceConfig.InstanceType.ToString(),
                                                                 formattedTime,
                                                                 tracker.SecondaryStatusTransitions.Last().Status,
                                                                 tracker.SecondaryStatusTransitions.Last().StatusMessage
                                                              );
+                        }
+                        else
+                        {
+                            trainingInfoForm.UpdateTrainingStatus(formattedTime);
+                        }
+                        
                         // cloudwatch 
                         if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
                         {
@@ -516,9 +524,12 @@ namespace LSC_Trainer
                                 }
                             }
                         }
+
                         if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
                         {
-                            
+                            trainingInfoForm.UpdateTrainingStatus(tracker.SecondaryStatusTransitions.Last().Status, 
+                                                                  tracker.SecondaryStatusTransitions.Last().StatusMessage);
+
                             Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
                             Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
                             Console.WriteLine();
@@ -528,9 +539,13 @@ namespace LSC_Trainer
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             Console.WriteLine("Printing status history...");
+                            trainingInfoForm.DisplayLogMessage("Printing status history...");
+
                             foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
                             {
                                 Console.WriteLine("Status: " + history.Status);
+                                trainingInfoForm.DisplayLogMessage("Status: " + history.Status);
+
                                 TimeSpan elapsed = history.EndTime - history.StartTime;
                                 string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                                               (int)elapsed.TotalHours,
@@ -538,7 +553,10 @@ namespace LSC_Trainer
                                               elapsed.Seconds,
                                               (int)(elapsed.Milliseconds / 100));
                                 Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
+                                trainingInfoForm.DisplayLogMessage($"Elapsed Time: {formattedElapsedTime}");
+
                                 Console.WriteLine("Description: " + history.StatusMessage);
+                                trainingInfoForm.DisplayLogMessage("Description: " + history.StatusMessage + Environment.NewLine);
                                 Console.WriteLine();
                             }
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
