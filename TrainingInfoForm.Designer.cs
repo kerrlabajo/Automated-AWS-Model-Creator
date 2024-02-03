@@ -43,11 +43,11 @@
             // label
             // 
             this.label.AutoSize = true;
-            this.label.Location = new System.Drawing.Point(213, 35);
+            this.label.Location = new System.Drawing.Point(237, 35);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(125, 16);
+            this.label.Size = new System.Drawing.Size(101, 16);
             this.label.TabIndex = 0;
-            this.label.Text = "Training Job Name:";
+            this.label.Text = "Virtual Machine:";
             // 
             // label1
             // 
