@@ -440,6 +440,8 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
+        private Dictionary<string, TrainingInfoForm> trainingJobs = new Dictionary<string, TrainingInfoForm>();
+
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             try
@@ -456,13 +458,9 @@ namespace LSC_Trainer
 
                 VMlbl.Text = trainingDetails.ResourceConfig.InstanceType.ToString();
 
-                string logStreamName = null;
-                int lastIndex = 0;
-                string prevLogMessage = "";
-                string prevStatusMessage = "";
-
-                TrainingInfoForm trainingInfoForm = new TrainingInfoForm();
-                trainingInfoForm.Show(); // Show the new form
+                // Create an entry for the current training job in the dictionary
+                trainingJobs[trainingJobName] = new TrainingInfoForm();
+                trainingJobs[trainingJobName].Show(); // Show the new form
 
                 Timer timer = new Timer();
                 timer.Interval = 1000;
@@ -475,76 +473,77 @@ namespace LSC_Trainer
                             TrainingJobName = trainingJobName
                         });
 
-                        // update training duration
+                        // Update training duration
                         TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
                         string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
                         trainingDurationlbl.Text = formattedTime;
 
-                        if(tracker.TrainingTimeInSeconds == 0)
+                        // Use the dictionary entry for the current training job
+                        var currentTrainingInfo = trainingJobs[trainingJobName];
+
+                        if (tracker.TrainingTimeInSeconds == 0)
                         {
-                            trainingInfoForm.UpdateTrainingStatus(tracker.ResourceConfig.InstanceType.ToString(),
-                                                                formattedTime,
-                                                                tracker.SecondaryStatusTransitions.Last().Status,
-                                                                tracker.SecondaryStatusTransitions.Last().StatusMessage
-                                                             );
+                            currentTrainingInfo.UpdateTrainingStatus(
+                                tracker.ResourceConfig.InstanceType.ToString(),
+                                formattedTime,
+                                tracker.SecondaryStatusTransitions.Last().Status,
+                                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                            );
                         }
                         else
                         {
-                            trainingInfoForm.UpdateTrainingStatus(formattedTime);
+                            currentTrainingInfo.UpdateTrainingStatus(formattedTime);
                         }
-                        
-                        // cloudwatch 
+
+                        // CloudWatch 
                         if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
                         {
-                            //get log stream
-                            
-                            if (logStreamName == null)
+                            // Get log stream
+                            string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+
+                            if (!string.IsNullOrEmpty(logStreamName))
                             {
-                                logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs");
-                            }
-                            else
-                            {
-                                // print cloudwatch logs
-                                // maybe make this dynamic soon
+                                // Print CloudWatch logs
                                 GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
                                 {
                                     LogGroupName = "/aws/sagemaker/TrainingJobs",
                                     LogStreamName = logStreamName
                                 });
 
-                                if (prevLogMessage != logs.Events.Last().Message)
+
+                                if (currentTrainingInfo.PrevStatusMessage != logs.Events.Last().Message)
                                 {
-                                    for(int i = lastIndex + 1; i < logs.Events.Count; i++)
+                                    for (int i = currentTrainingInfo.PrevLogIndex + 1; i < logs.Events.Count; i++)
                                     {
-                                        trainingInfoForm.DisplayLogMessage(logs.Events[i].Message);
+                                        currentTrainingInfo.DisplayLogMessage(logs.Events[i].Message);
                                         Console.WriteLine(logs.Events[i].Message);
-                                    }   
-                                    prevLogMessage = logs.Events.Last().Message;
-                                    lastIndex = logs.Events.IndexOf(logs.Events.Last());
+                                    }
+                                    currentTrainingInfo.PrevStatusMessage = logs.Events.Last().Message;
+                                    currentTrainingInfo.PrevLogIndex = logs.Events.IndexOf(logs.Events.Last());
                                 }
                             }
                         }
-
-                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != currentTrainingInfo.PrevStatusMessage)
                         {
-                            trainingInfoForm.UpdateTrainingStatus(tracker.SecondaryStatusTransitions.Last().Status, 
-                                                                  tracker.SecondaryStatusTransitions.Last().StatusMessage);
+                            currentTrainingInfo.UpdateTrainingStatus(
+                                tracker.SecondaryStatusTransitions.Last().Status,
+                                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                            );
 
                             Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
                             Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
                             Console.WriteLine();
-                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
                         }
 
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             Console.WriteLine("Printing status history...");
-                            trainingInfoForm.DisplayLogMessage("Printing status history...");
+                            currentTrainingInfo.DisplayLogMessage("Printing status history...");
 
                             foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
                             {
                                 Console.WriteLine("Status: " + history.Status);
-                                trainingInfoForm.DisplayLogMessage("Status: " + history.Status);
+                                currentTrainingInfo.DisplayLogMessage("Status: " + history.Status);
 
                                 TimeSpan elapsed = history.EndTime - history.StartTime;
                                 string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
@@ -553,10 +552,10 @@ namespace LSC_Trainer
                                               elapsed.Seconds,
                                               (int)(elapsed.Milliseconds / 100));
                                 Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
-                                trainingInfoForm.DisplayLogMessage($"Elapsed Time: {formattedElapsedTime}");
+                                currentTrainingInfo.DisplayLogMessage($"Elapsed Time: {formattedElapsedTime}");
 
                                 Console.WriteLine("Description: " + history.StatusMessage);
-                                trainingInfoForm.DisplayLogMessage("Description: " + history.StatusMessage + Environment.NewLine);
+                                currentTrainingInfo.DisplayLogMessage("Description: " + history.StatusMessage + Environment.NewLine);
                                 Console.WriteLine();
                             }
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
@@ -580,6 +579,28 @@ namespace LSC_Trainer
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creating training job: {ex.Message}");
+            }
+        }
+
+        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
+        {
+            var request = new DescribeLogStreamsRequest
+            {
+                LogGroupName = logGroupName,
+                LogStreamNamePrefix = trainingJobName
+            };
+
+            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+
+            var latestLogStream = response.LogStreams.FirstOrDefault();
+
+            if (latestLogStream != null)
+            {
+                return latestLogStream.LogStreamName;
+            }
+            else
+            {
+                return null;
             }
         }
 

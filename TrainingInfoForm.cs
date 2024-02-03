@@ -12,8 +12,13 @@ namespace LSC_Trainer
 {
     public partial class TrainingInfoForm : Form
     {
+        public string PrevStatusMessage { get; set; }
+        public string PrevLogMessage { get; set; } 
+        public int PrevLogIndex { get; set; }
         public TrainingInfoForm()
         {
+            PrevLogMessage = "";
+            PrevLogIndex = 0;
             InitializeComponent();
         }
 
@@ -23,6 +28,7 @@ namespace LSC_Trainer
             trainingDurationBox.Text = trainingDuration;
             trainingStatusBox.Text = status;
             descBox.Text = description;
+            PrevStatusMessage = status;
         }
         public void UpdateTrainingStatus(string trainingDuration)
         {
@@ -32,6 +38,7 @@ namespace LSC_Trainer
         {
             trainingStatusBox.Text = status;
             descBox.Text = description;
+            PrevStatusMessage = status;
         }
 
         public void DisplayLogMessage(string logMessage)
