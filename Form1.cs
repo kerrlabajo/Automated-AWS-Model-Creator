@@ -480,6 +480,7 @@ namespace LSC_Trainer
 
                         // Use the dictionary entry for the current training job
                         var currentTrainingInfo = trainingJobs[trainingJobName];
+                        currentTrainingInfo.Text = trainingJobName;
                         
                         if(!currentTrainingInfo.IsDisposed)
                         {
