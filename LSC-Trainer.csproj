@@ -236,6 +236,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreateConnectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateConnectionForm.Designer.cs">
+      <DependentUpon>CreateConnectionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Functions\AWS_Helper.cs" />
     <Compile Include="Functions\FileHandler.cs" />
     <Compile Include="Form1.cs">
@@ -246,6 +252,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CreateConnectionForm.resx">
+      <DependentUpon>CreateConnectionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

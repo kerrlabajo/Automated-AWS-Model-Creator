@@ -110,17 +110,7 @@ namespace LSC_Trainer
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            try
-            {
-                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
-                Console.WriteLine("Connection successful.");
-                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception error)
-            {
-                Console.WriteLine($"Unexpected error: {error.Message}");
-                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+           
         }
 
         // TODO: Create a login form that has the following fields:
@@ -523,6 +513,35 @@ namespace LSC_Trainer
             {
                 Console.WriteLine($"Error creating training job: {ex.Message}");
             }
+        }
+
+        private void testConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                Console.WriteLine("Connection successful.");
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine($"Unexpected error: {error.Message}");
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void createConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+
+            var createConnectionForm = new CreateConnectionForm();
+            createConnectionForm.FormClosed += OtherForm_FormClosed;
+            createConnectionForm.Show();
+        }
+
+        private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Enabled = true;
         }
     }
 }
