@@ -31,10 +31,10 @@ namespace LSC_Trainer
         {
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.regionDropdown = new System.Windows.Forms.ComboBox();
+            this.roleARN = new System.Windows.Forms.TextBox();
+            this.secretKeyID = new System.Windows.Forms.TextBox();
+            this.accessKeyID = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -48,10 +48,10 @@ namespace LSC_Trainer
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.button1);
-            this.panel1.Controls.Add(this.comboBox1);
-            this.panel1.Controls.Add(this.textBox4);
-            this.panel1.Controls.Add(this.textBox2);
-            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Controls.Add(this.regionDropdown);
+            this.panel1.Controls.Add(this.roleARN);
+            this.panel1.Controls.Add(this.secretKeyID);
+            this.panel1.Controls.Add(this.accessKeyID);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.label3);
@@ -73,36 +73,48 @@ namespace LSC_Trainer
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // comboBox1
+            // regionDropdown
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(180, 171);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(319, 24);
-            this.comboBox1.TabIndex = 10;
+            this.regionDropdown.FormattingEnabled = true;
+            this.regionDropdown.Items.AddRange(new object[] {
+            "ap-southeast-1",
+            "ap-southeast-2",
+            "ap-southeast-3",
+            "ap-southeast-4",
+            "ap-northeast-1",
+            "ap-northeast-2",
+            "ap-northeast-3",
+            "ap-east-1",
+            "ap-south-1",
+            "ap-south-2"});
+            this.regionDropdown.Location = new System.Drawing.Point(180, 171);
+            this.regionDropdown.Name = "regionDropdown";
+            this.regionDropdown.Size = new System.Drawing.Size(319, 24);
+            this.regionDropdown.TabIndex = 10;
+            this.regionDropdown.SelectedValueChanged += new System.EventHandler(this.comboBox1_SelectedValueChanged);
             // 
-            // textBox4
+            // roleARN
             // 
-            this.textBox4.Location = new System.Drawing.Point(180, 221);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(319, 22);
-            this.textBox4.TabIndex = 9;
+            this.roleARN.Location = new System.Drawing.Point(180, 221);
+            this.roleARN.Name = "roleARN";
+            this.roleARN.Size = new System.Drawing.Size(319, 22);
+            this.roleARN.TabIndex = 9;
             // 
-            // textBox2
+            // secretKeyID
             // 
-            this.textBox2.Location = new System.Drawing.Point(180, 121);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(319, 22);
-            this.textBox2.TabIndex = 7;
-            this.textBox2.UseSystemPasswordChar = true;
+            this.secretKeyID.Location = new System.Drawing.Point(180, 121);
+            this.secretKeyID.Name = "secretKeyID";
+            this.secretKeyID.Size = new System.Drawing.Size(319, 22);
+            this.secretKeyID.TabIndex = 7;
+            this.secretKeyID.UseSystemPasswordChar = true;
             // 
-            // textBox1
+            // accessKeyID
             // 
-            this.textBox1.Location = new System.Drawing.Point(180, 80);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(319, 22);
-            this.textBox1.TabIndex = 6;
-            this.textBox1.UseSystemPasswordChar = true;
+            this.accessKeyID.Location = new System.Drawing.Point(180, 80);
+            this.accessKeyID.Name = "accessKeyID";
+            this.accessKeyID.Size = new System.Drawing.Size(319, 22);
+            this.accessKeyID.TabIndex = 6;
+            this.accessKeyID.UseSystemPasswordChar = true;
             // 
             // label5
             // 
@@ -177,10 +189,10 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.ComboBox regionDropdown;
+        private System.Windows.Forms.TextBox roleARN;
+        private System.Windows.Forms.TextBox secretKeyID;
+        private System.Windows.Forms.TextBox accessKeyID;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button button1;
     }
