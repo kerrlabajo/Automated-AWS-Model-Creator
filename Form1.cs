@@ -519,7 +519,6 @@ namespace LSC_Trainer
                                         for (int i = currentTrainingInfo.PrevLogIndex + 1; i < logs.Events.Count; i++)
                                         {
                                             currentTrainingInfo.DisplayLogMessage(logs.Events[i].Message);
-                                            Console.WriteLine(logs.Events[i].Message);
                                         }
                                         currentTrainingInfo.PrevStatusMessage = logs.Events.Last().Message;
                                         currentTrainingInfo.PrevLogIndex = logs.Events.IndexOf(logs.Events.Last());
@@ -532,20 +531,14 @@ namespace LSC_Trainer
                                     tracker.SecondaryStatusTransitions.Last().Status,
                                     tracker.SecondaryStatusTransitions.Last().StatusMessage
                                 );
-
-                                Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
-                                Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
-                                Console.WriteLine();
                             }
 
                             if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                             {
-                                Console.WriteLine("Printing status history...");
                                 currentTrainingInfo.DisplayLogMessage("Printing status history...");
 
                                 foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
                                 {
-                                    Console.WriteLine("Status: " + history.Status);
                                     currentTrainingInfo.DisplayLogMessage("Status: " + history.Status);
 
                                     TimeSpan elapsed = history.EndTime - history.StartTime;
@@ -554,12 +547,8 @@ namespace LSC_Trainer
                                                   elapsed.Minutes,
                                                   elapsed.Seconds,
                                                   (int)(elapsed.Milliseconds / 100));
-                                    Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
                                     currentTrainingInfo.DisplayLogMessage($"Elapsed Time: {formattedElapsedTime}");
-
-                                    Console.WriteLine("Description: " + history.StatusMessage);
                                     currentTrainingInfo.DisplayLogMessage("Description: " + history.StatusMessage + Environment.NewLine);
-                                    Console.WriteLine();
                                 }
                                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
@@ -571,6 +560,7 @@ namespace LSC_Trainer
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
                         {
                             Console.WriteLine(tracker.FailureReason);
+                            currentTrainingInfo.DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
                             timer.Stop();
                         }
                     }
