@@ -6,8 +6,11 @@ using Amazon;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
+using System.Threading.Tasks;
 
 namespace LSC_Trainer
 {
@@ -16,6 +19,7 @@ namespace LSC_Trainer
         private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
+        private readonly AmazonIdentityManagementServiceClient _iamClient;
 
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
@@ -47,6 +51,10 @@ namespace LSC_Trainer
         public Form1()
         {
             InitializeComponent();
+            //string selectedRegionSystemName = regionDropdown.GetItemText(regionDropdown.SelectedItem);
+            //RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
+
+            //_iamClient = new AmazonIdentityManagementServiceClient(selectedRegionEndpoint);
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
@@ -62,7 +70,7 @@ namespace LSC_Trainer
             ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
 
             ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
-            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");  
             DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
             customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
             DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
@@ -542,6 +550,48 @@ namespace LSC_Trainer
         private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.Enabled = true;
+        }
+
+
+        public async Task<string> GetRoleDetailsAsync(string roleArn)
+        {
+            try
+            {
+                var response = await _iamClient.GetRoleAsync(new GetRoleRequest
+                {
+                    RoleName = ExtractRoleNameFromArn(roleArn)
+                });
+
+                bool isAdmin = await IsAdminRole(response.Role);
+
+                return isAdmin ? "admin" : "employee";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving role: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static string ExtractRoleNameFromArn(string roleArn)
+        {
+            var splitArn = roleArn.Split(':');
+            var roleName = splitArn.Last().Split('/').Last();
+            return roleName;
+        }
+
+        private async Task<bool> IsAdminRole(Role role)
+        {
+            bool isAdmin = false;
+
+            var managedPoliciesResponse = await _iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
+            {
+                RoleName = role.RoleName
+            });
+
+            isAdmin |= managedPoliciesResponse.AttachedPolicies.Any(policy => policy.PolicyName == "AdministratorAccess");
+
+            return isAdmin;
         }
     }
 }

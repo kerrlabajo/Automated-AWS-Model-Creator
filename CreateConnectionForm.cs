@@ -1,10 +1,5 @@
 ﻿using System;
-using Amazon;
-using Amazon.IdentityManagement;
-using Amazon.IdentityManagement.Model;
 using System.Windows.Forms;
-using System.Threading.Tasks;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 
@@ -12,16 +7,11 @@ namespace LSC_Trainer
 {
     public partial class CreateConnectionForm : Form
     {
-
-        private readonly AmazonIdentityManagementServiceClient _iamClient;
         
         public CreateConnectionForm()
         {
-           
             InitializeComponent();
-
         }
-
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -68,45 +58,5 @@ namespace LSC_Trainer
            
         }
 
-        public async Task<string> GetRoleDetailsAsync(string roleArn)
-        {
-            try
-            {
-                var response = await _iamClient.GetRoleAsync(new GetRoleRequest
-                {
-                    RoleName = ExtractRoleNameFromArn(roleArn)
-                });
-
-                bool isAdmin = await IsAdminRole(response.Role);
-
-                return isAdmin ? "admin" : "employee";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving role: {ex.Message}");
-                return null;
-            }
-        }
-
-        private static string ExtractRoleNameFromArn(string roleArn)
-        {
-            var splitArn = roleArn.Split(':');
-            var roleName = splitArn.Last().Split('/').Last();
-            return roleName;
-        }
-
-        private async Task<bool> IsAdminRole(Role role)
-        {
-            bool isAdmin = false;
-
-            var managedPoliciesResponse = await _iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
-            {
-                RoleName = role.RoleName
-            });
-
-            isAdmin |= managedPoliciesResponse.AttachedPolicies.Any(policy => policy.PolicyName == "AdministratorAccess");
-
-            return isAdmin;
-        }
     }
 }
