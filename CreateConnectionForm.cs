@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.IO;
+using System.Windows.Forms;
 
 namespace LSC_Trainer
 {
@@ -36,18 +35,20 @@ namespace LSC_Trainer
             string region = regionDropdown.GetItemText(regionDropdown.SelectedItem);
             string roleArn = roleARN.Text;
 
-            List<string> lines = new List<string>
+            /*var newVars = new Dictionary<string, string>
             {
-                $"ACCOUNT_ID={accountId}",
-                $"ROLE_ARN={roleArn}",
-                $"ACCESS_KEY_ID={accessKey}",
-                $"SECRET_ACCESS_KEY={secretKey}",
-                $"REGION={region}",
-                $"ROLE_ARN={roleArn}",
-            };
+                {"ACCOUNT_ID", accountId},
+                {"ACCESS_KEY_ID", accessKey},
+                {"SECRET_ACCESS_KEY", secretKey},
+                {"REGION", region},
+                {"ROLE_ARN", roleArn}
+            };*/
 
-            string envFilePath = Path.Combine(Application.StartupPath, "./env");
-            File.WriteAllLines(envFilePath, lines);
+            Environment.SetEnvironmentVariable("ACCOUNT_ID", value: accountId);
+            Environment.SetEnvironmentVariable("ACCESS_KEY_ID", value: accessKey);
+            Environment.SetEnvironmentVariable("SECRET_ACCESS_KEY", value: secretKey);
+            Environment.SetEnvironmentVariable("REGION", value: region);
+            Environment.SetEnvironmentVariable("ROLE_ARN", value: roleArn);
 
             MessageBox.Show("Successfully created a connection");
             this.Close();
