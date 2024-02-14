@@ -321,7 +321,12 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        public static async Task DeleteDataSet(AmazonS3Client s3Client, string bucketName, string key)
+        {
+            await s3Client.DeleteObjectAsync(bucketName, key);
+        }
     }
+
 
     public static class PathHelper
     {
