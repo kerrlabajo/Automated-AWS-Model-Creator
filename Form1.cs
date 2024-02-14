@@ -11,6 +11,7 @@ using Amazon.IdentityManagement.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
 using System.Threading.Tasks;
+using Amazon.Runtime;
 
 namespace LSC_Trainer
 {
@@ -51,10 +52,7 @@ namespace LSC_Trainer
         public Form1()
         {
             InitializeComponent();
-            //string selectedRegionSystemName = regionDropdown.GetItemText(regionDropdown.SelectedItem);
-            //RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
-
-            //_iamClient = new AmazonIdentityManagementServiceClient(selectedRegionEndpoint);
+            
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
@@ -74,6 +72,12 @@ namespace LSC_Trainer
             DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
             customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
             DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+
+            string selectedRegionSystemName = REGION;
+            RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
+            var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
+
+            _iamClient = new AmazonIdentityManagementServiceClient(ACCESS_KEY.ToString(), SECRET_KEY.ToString(), selectedRegionEndpoint);
 
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
@@ -112,8 +116,13 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+
+
             enableUploadToS3Button(false);
             enableDownloadModelButton(false);
+            enableBuildImageButton();
+
+
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -159,6 +168,23 @@ namespace LSC_Trainer
         private void enableUploadToS3Button(bool intent)
         {
             btnUploadToS3.Enabled = intent;
+        }
+
+        private async void enableBuildImageButton()
+        {
+
+            var roleType = await GetRoleDetailsAsync(ROLE_ARN);
+            Console.WriteLine($"User Type: {roleType}");
+            if(roleType == "admin")
+            {
+                panel1.Enabled = false;
+                buildImage.Enabled = true;
+            }
+            else
+            {
+                panel1.Enabled = true;
+                buildImage.Enabled = false;
+            }
         }
 
         private void enableDownloadModelButton(bool intent)
@@ -557,20 +583,31 @@ namespace LSC_Trainer
         {
             try
             {
+                Console.WriteLine("here");
                 var response = await _iamClient.GetRoleAsync(new GetRoleRequest
                 {
                     RoleName = ExtractRoleNameFromArn(roleArn)
                 });
 
+                Console.WriteLine("here again");
+
                 bool isAdmin = await IsAdminRole(response.Role);
 
+                Console.WriteLine("here also");
+
                 return isAdmin ? "admin" : "employee";
+            }
+            catch (AmazonServiceException error)
+            {
+                Console.WriteLine($"AWS Service Error: {error.Message}");
+                Console.WriteLine($"StatusCode: {error.StatusCode}, ErrorCode: {error.ErrorCode}, RequestId: {error.RequestId}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error retrieving role: {ex.Message}");
-                return null;
             }
+
+            return null;
         }
 
         private static string ExtractRoleNameFromArn(string roleArn)
@@ -592,6 +629,14 @@ namespace LSC_Trainer
             isAdmin |= managedPoliciesResponse.AttachedPolicies.Any(policy => policy.PolicyName == "AdministratorAccess");
 
             return isAdmin;
+        }
+
+        private void buildImage_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            var imageBuilderForm = new ImageBuilderForm();
+            imageBuilderForm.FormClosed += OtherForm_FormClosed;
+            imageBuilderForm.Show();
         }
     }
 }
