@@ -34,6 +34,9 @@ namespace LSC_Trainer
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.connectToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.createConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
@@ -79,9 +82,7 @@ namespace LSC_Trainer
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.createConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.testConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.buildImage = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -123,6 +124,26 @@ namespace LSC_Trainer
             this.connectToolStripMenuItem1.Size = new System.Drawing.Size(98, 24);
             this.connectToolStripMenuItem1.Text = "Connection";
             this.connectToolStripMenuItem1.Click += new System.EventHandler(this.connectToolStripMenuItem1_Click);
+            // 
+            // createConnectionToolStripMenuItem
+            // 
+            this.createConnectionToolStripMenuItem.Name = "createConnectionToolStripMenuItem";
+            this.createConnectionToolStripMenuItem.Size = new System.Drawing.Size(214, 26);
+            this.createConnectionToolStripMenuItem.Text = "Create Connection";
+            this.createConnectionToolStripMenuItem.Click += new System.EventHandler(this.createConnectionToolStripMenuItem_Click);
+            // 
+            // closeConnectionToolStripMenuItem
+            // 
+            this.closeConnectionToolStripMenuItem.Name = "closeConnectionToolStripMenuItem";
+            this.closeConnectionToolStripMenuItem.Size = new System.Drawing.Size(214, 26);
+            this.closeConnectionToolStripMenuItem.Text = "Close Connection";
+            // 
+            // testConnectionToolStripMenuItem
+            // 
+            this.testConnectionToolStripMenuItem.Name = "testConnectionToolStripMenuItem";
+            this.testConnectionToolStripMenuItem.Size = new System.Drawing.Size(214, 26);
+            this.testConnectionToolStripMenuItem.Text = "Test Connection";
+            this.testConnectionToolStripMenuItem.Click += new System.EventHandler(this.testConnectionToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -195,7 +216,7 @@ namespace LSC_Trainer
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.lblZipFile);
             this.panel1.Controls.Add(this.btnSelectDataset);
-            this.panel1.Location = new System.Drawing.Point(37, 63);
+            this.panel1.Location = new System.Drawing.Point(33, 95);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(925, 355);
             this.panel1.TabIndex = 4;
@@ -560,31 +581,22 @@ namespace LSC_Trainer
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
-            // createConnectionToolStripMenuItem
+            // buildImage
             // 
-            this.createConnectionToolStripMenuItem.Name = "createConnectionToolStripMenuItem";
-            this.createConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.createConnectionToolStripMenuItem.Text = "Create Connection";
-            this.createConnectionToolStripMenuItem.Click += new System.EventHandler(this.createConnectionToolStripMenuItem_Click);
-            // 
-            // closeConnectionToolStripMenuItem
-            // 
-            this.closeConnectionToolStripMenuItem.Name = "closeConnectionToolStripMenuItem";
-            this.closeConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.closeConnectionToolStripMenuItem.Text = "Close Connection";
-            // 
-            // testConnectionToolStripMenuItem
-            // 
-            this.testConnectionToolStripMenuItem.Name = "testConnectionToolStripMenuItem";
-            this.testConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.testConnectionToolStripMenuItem.Text = "Test Connection";
-            this.testConnectionToolStripMenuItem.Click += new System.EventHandler(this.testConnectionToolStripMenuItem_Click);
+            this.buildImage.Location = new System.Drawing.Point(821, 56);
+            this.buildImage.Name = "buildImage";
+            this.buildImage.Size = new System.Drawing.Size(136, 33);
+            this.buildImage.TabIndex = 5;
+            this.buildImage.Text = "Build Image";
+            this.buildImage.UseVisualStyleBackColor = true;
+            this.buildImage.Click += new System.EventHandler(this.buildImage_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(996, 450);
+            this.ClientSize = new System.Drawing.Size(996, 477);
+            this.Controls.Add(this.buildImage);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
             this.MainMenuStrip = this.menuStrip1;
@@ -655,6 +667,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.ToolStripMenuItem createConnectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeConnectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testConnectionToolStripMenuItem;
+        private System.Windows.Forms.Button buildImage;
     }
 }
 
