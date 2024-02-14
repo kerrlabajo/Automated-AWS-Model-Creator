@@ -448,6 +448,7 @@ namespace LSC_Trainer
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+                string datasetKey = customUploadsURI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 Console.WriteLine("Training job executed successfully.");
 
@@ -553,6 +554,7 @@ namespace LSC_Trainer
                                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                                 enableDownloadModelButton(true);
+                                await AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                                 timer.Stop();
                             }
                         }
