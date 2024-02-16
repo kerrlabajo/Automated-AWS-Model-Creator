@@ -41,12 +41,13 @@ namespace LSC_Trainer
             ExecuteShellScript(accountId, repositoryName, region, imageTag);
         }
 
-        public string ExecuteShellScript(string accountId, string region, string repoName, string imageTag)
+        public void ExecuteShellScript(string accountId, string region, string repoName, string imageTag)
         {
             try
             {
-                string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " training-container/scripts/build_and_push.sh").Replace("\\", "/");
+                string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "training-container/scripts/build_and_push.sh").Replace("\\", "/");
 
+                Console.WriteLine(scriptPath);
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = "/build_and_push.sh"; 
                 psi.Arguments = $"{scriptPath} {accountId} {region} {repoName} {imageTag}";
@@ -60,7 +61,8 @@ namespace LSC_Trainer
                     {
                         string result = reader.ReadToEnd(); 
                         Console.WriteLine(result);
-                        return result;
+                        Environment.SetEnvironmentVariable("ECR_URI", $"{accountId}.dkr.ecr.{region}.amazonaws.com/{repoName}:{imageTag}");
+                        return;
                     }
                 }
             }
@@ -69,7 +71,6 @@ namespace LSC_Trainer
               
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
-            return null;
         }
     }
 }

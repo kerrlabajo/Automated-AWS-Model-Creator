@@ -12,6 +12,7 @@ using System.Linq;
 using LSC_Trainer.Functions;
 using System.Threading.Tasks;
 using Amazon.Runtime;
+using System.Text.RegularExpressions;
 
 namespace LSC_Trainer
 {
@@ -170,10 +171,10 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = intent;
         }
 
-        private async void enableBuildImageButton()
+        private void enableBuildImageButton()
         {
 
-            var roleType = await GetRoleDetailsAsync(ROLE_ARN);
+            var roleType = GetRoleDetailsAsync(ROLE_ARN);
             Console.WriteLine($"User Type: {roleType}");
             if(roleType == "admin")
             {
@@ -579,29 +580,31 @@ namespace LSC_Trainer
         }
 
 
-        public async Task<string> GetRoleDetailsAsync(string roleArn)
+        public string GetRoleDetailsAsync(string roleArn)
         {
             try
             {
-                Console.WriteLine("here");
-                var response = await _iamClient.GetRoleAsync(new GetRoleRequest
+                /*var response = await _iamClient.GetRoleAsync(new GetRoleRequest
                 {
                     RoleName = ExtractRoleNameFromArn(roleArn)
                 });
 
-                Console.WriteLine("here again");
+                bool isAdmin = await IsAdminRole(response.Role);*/
 
-                bool isAdmin = await IsAdminRole(response.Role);
+                //string pattern = @"^arn:aws:iam::(\d{12}):role\/([a-zA-Z0-9_\+=,@\.-]+)$";
+                //Regex regex = new Regex(pattern);
 
-                Console.WriteLine("here also");
+                bool isAdmin = roleArn.Contains(":role/admin");
 
+                Console.WriteLine($"role: {roleArn}");
+                Console.WriteLine(isAdmin);
                 return isAdmin ? "admin" : "employee";
             }
-            catch (AmazonServiceException error)
+            /*catch (AmazonServiceException error)
             {
                 Console.WriteLine($"AWS Service Error: {error.Message}");
                 Console.WriteLine($"StatusCode: {error.StatusCode}, ErrorCode: {error.ErrorCode}, RequestId: {error.RequestId}");
-            }
+            }*/
             catch (Exception ex)
             {
                 Console.WriteLine($"Error retrieving role: {ex.Message}");
