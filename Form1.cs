@@ -567,7 +567,7 @@ namespace LSC_Trainer
                                 {
                                     executing = false;
                                     currentTrainingInfo.DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
-                                    await AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
+                                    AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                                 }
                                 deleteDataset = false;
                                 timer.Stop();
