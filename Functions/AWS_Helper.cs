@@ -11,6 +11,7 @@ using Amazon.S3.Model;
     using System.Net;
     using System.Text;
     using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace LSC_Trainer.Functions
 {
@@ -352,6 +353,8 @@ namespace LSC_Trainer.Functions
                     // Set the marker property
                     listRequest.ContinuationToken = listResponse.NextContinuationToken;
                 } while (listResponse.IsTruncated);
+
+                MessageBox.Show($"Deleted dataset: {key}");
             }
         }
     }

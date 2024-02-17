@@ -449,6 +449,7 @@ namespace LSC_Trainer
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 string datasetKey = customUploadsURI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+                bool deleteDataset = false;
 
                 Console.WriteLine("Training job executed successfully.");
 
@@ -465,6 +466,7 @@ namespace LSC_Trainer
 
                 Timer timer = new Timer();
                 timer.Interval = 1000;
+                
                 timer.Tick += async (sender1, e1) =>
                 {
                     try
@@ -482,8 +484,10 @@ namespace LSC_Trainer
                         // Use the dictionary entry for the current training job
                         var currentTrainingInfo = trainingJobs[trainingJobName];
                         currentTrainingInfo.Text = trainingJobName;
-                        
-                        if(!currentTrainingInfo.IsDisposed)
+
+                        bool executing = true;
+
+                        if (!currentTrainingInfo.IsDisposed)
                         {
                             if (tracker.TrainingTimeInSeconds == 0)
                             {
@@ -534,7 +538,7 @@ namespace LSC_Trainer
                                 );
                             }
 
-                            if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
+                            if (tracker.TrainingJobStatus == TrainingJobStatus.Completed && deleteDataset == false)
                             {
                                 currentTrainingInfo.DisplayLogMessage("Printing status history...");
 
@@ -554,7 +558,18 @@ namespace LSC_Trainer
                                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                                 enableDownloadModelButton(true);
-                                await AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
+                                deleteDataset = true;
+                            }
+
+                            if(deleteDataset)
+                            {
+                                if (executing)
+                                {
+                                    executing = false;
+                                    currentTrainingInfo.DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                                    await AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
+                                }
+                                deleteDataset = false;
                                 timer.Stop();
                             }
                         }
@@ -572,6 +587,8 @@ namespace LSC_Trainer
                     }
                 };
                 timer.Start();
+
+                
             }
             catch (Exception ex)
             {
