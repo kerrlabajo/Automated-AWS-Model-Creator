@@ -39,6 +39,8 @@ namespace LSC_Trainer
 
 
             ExecuteShellScript(accountId, repositoryName, region, imageTag);
+
+            UserConnectionInfo.EcrUri = $"{accountId}.dkr.ecr.{region}.amazonaws.com/{repositoryName}:{imageTag}";
         }
 
         

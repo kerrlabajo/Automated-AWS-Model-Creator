@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 
 namespace LSC_Trainer
@@ -27,28 +28,30 @@ namespace LSC_Trainer
                 return;
             }
 
-            /*string roleArn = roleARN.Text;
-            string roleType = await GetRoleDetailsAsync(roleArn);*/
-            string accountId = accountID.Text;
+            /*string accountId = accountID.Text;
             string accessKey = accessKeyID.Text;
             string secretKey = secretKeyID.Text;
             string region = regionDropdown.GetItemText(regionDropdown.SelectedItem);
             string roleArn = roleARN.Text;
 
-            /*var newVars = new Dictionary<string, string>
+            List<string> lines = new List<string>
             {
-                {"ACCOUNT_ID", accountId},
-                {"ACCESS_KEY_ID", accessKey},
-                {"SECRET_ACCESS_KEY", secretKey},
-                {"REGION", region},
-                {"ROLE_ARN", roleArn}
-            };*/
+                $"ACCOUNT_ID={accountId}",
+                $"ROLE_ARN={roleArn}",
+                $"ACCESS_KEY_ID={accessKey}",
+                $"SECRET_ACCESS_KEY={secretKey}",
+                $"REGION={region}",
+            };
 
-            Environment.SetEnvironmentVariable("ACCOUNT_ID", value: accountId);
-            Environment.SetEnvironmentVariable("ACCESS_KEY_ID", value: accessKey);
-            Environment.SetEnvironmentVariable("SECRET_ACCESS_KEY", value: secretKey);
-            Environment.SetEnvironmentVariable("REGION", value: region);
-            Environment.SetEnvironmentVariable("ROLE_ARN", value: roleArn);
+            string envFilePath = Path.Combine(Application.StartupPath, "file.json");
+            File.WriteAllLines(envFilePath, lines);*/
+
+            // Storing user input in the static class
+            UserConnectionInfo.AccountId = accountID.Text;
+            UserConnectionInfo.AccessKey = accessKeyID.Text;
+            UserConnectionInfo.SecretKey = secretKeyID.Text;
+            UserConnectionInfo.Region = regionDropdown.GetItemText(regionDropdown.SelectedItem);
+            UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
             this.Close();
