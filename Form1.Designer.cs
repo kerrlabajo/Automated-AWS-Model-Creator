@@ -117,7 +117,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectDataset.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectDataset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectDataset.Location = new System.Drawing.Point(51, 308);
+            this.btnSelectDataset.Location = new System.Drawing.Point(57, 308);
             this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectDataset.Name = "btnSelectDataset";
             this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
@@ -130,7 +130,7 @@ namespace LSC_Trainer
             // 
             this.lblZipFile.AutoSize = true;
             this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lblZipFile.Location = new System.Drawing.Point(179, 248);
+            this.lblZipFile.Location = new System.Drawing.Point(185, 248);
             this.lblZipFile.Name = "lblZipFile";
             this.lblZipFile.Size = new System.Drawing.Size(102, 18);
             this.lblZipFile.TabIndex = 3;
@@ -179,7 +179,7 @@ namespace LSC_Trainer
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(420, 273);
+            this.progressBar.Location = new System.Drawing.Point(426, 273);
             this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(171, 23);
@@ -189,7 +189,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectFolder.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectFolder.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectFolder.Location = new System.Drawing.Point(231, 308);
+            this.btnSelectFolder.Location = new System.Drawing.Point(237, 308);
             this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
@@ -201,7 +201,7 @@ namespace LSC_Trainer
             // btnDownloadModel
             // 
             this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
-            this.btnDownloadModel.Location = new System.Drawing.Point(805, 308);
+            this.btnDownloadModel.Location = new System.Drawing.Point(811, 308);
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
@@ -215,7 +215,7 @@ namespace LSC_Trainer
             this.btnRemoveFile.BackColor = System.Drawing.Color.Red;
             this.btnRemoveFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRemoveFile.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnRemoveFile.Location = new System.Drawing.Point(179, 271);
+            this.btnRemoveFile.Location = new System.Drawing.Point(185, 271);
             this.btnRemoveFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveFile.Name = "btnRemoveFile";
             this.btnRemoveFile.Size = new System.Drawing.Size(97, 33);
@@ -228,7 +228,7 @@ namespace LSC_Trainer
             // btnUploadToS3
             // 
             this.btnUploadToS3.BackColor = System.Drawing.Color.Yellow;
-            this.btnUploadToS3.Location = new System.Drawing.Point(423, 308);
+            this.btnUploadToS3.Location = new System.Drawing.Point(429, 308);
             this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
@@ -330,7 +330,7 @@ namespace LSC_Trainer
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(643, 308);
+            this.btnTraining.Location = new System.Drawing.Point(649, 308);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
@@ -450,7 +450,7 @@ namespace LSC_Trainer
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(52, 250);
+            this.label1.Location = new System.Drawing.Point(58, 250);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(89, 16);
             this.label1.TabIndex = 4;
