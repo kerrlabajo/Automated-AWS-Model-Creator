@@ -41,36 +41,24 @@ namespace LSC_Trainer
             ExecuteShellScript(accountId, repositoryName, region, imageTag);
         }
 
+        
         public void ExecuteShellScript(string accountId, string region, string repoName, string imageTag)
         {
-            try
-            {
-                string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "training-container/scripts/build_and_push.sh").Replace("\\", "/");
+            string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .sample.sh").Replace("\\", "/");
+            string command = $"wsl bash -c '\"{scriptPath}\" \"{accountId}\" \"{region}\" \"{repoName}\" \"{imageTag}\"'";
+            var processStartInfo = new ProcessStartInfo();
+            processStartInfo.FileName = "powershell.exe";
+            //processStartInfo.Arguments = $"-Command \"wsl bash -c '{scriptPath}'\" \"{accountId}\" \"{region}\" \"{repoName}\" \"{imageTag}\"'";
+            processStartInfo.Arguments = $"-Command {command}";
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.RedirectStandardOutput = true;
 
-                Console.WriteLine(scriptPath);
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "/build_and_push.sh"; 
-                psi.Arguments = $"{scriptPath} {accountId} {region} {repoName} {imageTag}";
-                psi.UseShellExecute = false;
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    using (StreamReader reader = process.StandardOutput)
-                    {
-                        string result = reader.ReadToEnd(); 
-                        Console.WriteLine(result);
-                        Environment.SetEnvironmentVariable("ECR_URI", $"{accountId}.dkr.ecr.{region}.amazonaws.com/{repoName}:{imageTag}");
-                        return;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-              
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
+            Process process = new Process();
+            process.StartInfo = processStartInfo;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            Console.WriteLine(output);
+            Console.WriteLine("done"); 
         }
     }
 }

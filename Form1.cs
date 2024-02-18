@@ -589,14 +589,14 @@ namespace LSC_Trainer
                     RoleName = ExtractRoleNameFromArn(roleArn)
                 });
 
-                bool isAdmin = await IsAdminRole(response.Role);*/
+                bool isAdmin = await IsAdminRole(response.Role);
 
-                //string pattern = @"^arn:aws:iam::(\d{12}):role\/([a-zA-Z0-9_\+=,@\.-]+)$";
-                //Regex regex = new Regex(pattern);
+                string pattern = @"^arn:aws:iam::(\d{12}):role\/([a-zA-Z0-9_\+=,@\.-]+)$";
+                Regex regex = new Regex(pattern);*/
 
                 bool isAdmin = roleArn.Contains(":role/admin");
 
-                Console.WriteLine($"role: {roleArn}");
+                Console.WriteLine($"role arn: {roleArn}");
                 Console.WriteLine(isAdmin);
                 return isAdmin ? "admin" : "employee";
             }
