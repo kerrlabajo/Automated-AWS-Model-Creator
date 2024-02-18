@@ -561,7 +561,7 @@ namespace LSC_Trainer
                                 deleteDataset = true;
                             }
 
-                            if(deleteDataset)
+                            if(deleteDataset && HasCustomUploads(customUploadsURI))
                             {
                                 if (executing)
                                 {

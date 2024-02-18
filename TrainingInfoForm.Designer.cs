@@ -68,7 +68,7 @@
             // 
             // logBox
             // 
-            this.logBox.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
             this.logBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.logBox.Location = new System.Drawing.Point(46, 199);
             this.logBox.Multiline = true;
@@ -134,6 +134,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(840, 450);
             this.Controls.Add(this.instanceTypeBox);
             this.Controls.Add(this.trainingDurationBox);
