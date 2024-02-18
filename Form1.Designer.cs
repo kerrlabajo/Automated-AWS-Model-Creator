@@ -115,20 +115,22 @@ namespace LSC_Trainer
             // 
             // btnSelectDataset
             // 
-            this.btnSelectDataset.Location = new System.Drawing.Point(33, 308);
+            this.btnSelectDataset.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.btnSelectDataset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnSelectDataset.Location = new System.Drawing.Point(51, 308);
             this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectDataset.Name = "btnSelectDataset";
             this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
             this.btnSelectDataset.TabIndex = 2;
             this.btnSelectDataset.Text = "Select Dataset (.zip)";
-            this.btnSelectDataset.UseVisualStyleBackColor = true;
+            this.btnSelectDataset.UseVisualStyleBackColor = false;
             this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectDataset_Click);
             // 
             // lblZipFile
             // 
             this.lblZipFile.AutoSize = true;
             this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lblZipFile.Location = new System.Drawing.Point(164, 248);
+            this.lblZipFile.Location = new System.Drawing.Point(179, 248);
             this.lblZipFile.Name = "lblZipFile";
             this.lblZipFile.Size = new System.Drawing.Size(102, 18);
             this.lblZipFile.TabIndex = 3;
@@ -136,6 +138,7 @@ namespace LSC_Trainer
             // 
             // panel1
             // 
+            this.panel1.BackColor = System.Drawing.SystemColors.Control;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.progressBar);
             this.panel1.Controls.Add(this.btnSelectFolder);
@@ -176,7 +179,7 @@ namespace LSC_Trainer
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(405, 273);
+            this.progressBar.Location = new System.Drawing.Point(420, 273);
             this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(171, 23);
@@ -184,47 +187,54 @@ namespace LSC_Trainer
             // 
             // btnSelectFolder
             // 
-            this.btnSelectFolder.Location = new System.Drawing.Point(213, 308);
+            this.btnSelectFolder.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.btnSelectFolder.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnSelectFolder.Location = new System.Drawing.Point(231, 308);
             this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
             this.btnSelectFolder.TabIndex = 43;
             this.btnSelectFolder.Text = "Select Dataset (folder)";
-            this.btnSelectFolder.UseVisualStyleBackColor = true;
+            this.btnSelectFolder.UseVisualStyleBackColor = false;
             this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
             // 
             // btnDownloadModel
             // 
-            this.btnDownloadModel.Location = new System.Drawing.Point(787, 308);
+            this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
+            this.btnDownloadModel.Location = new System.Drawing.Point(805, 308);
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
             this.btnDownloadModel.TabIndex = 42;
             this.btnDownloadModel.Text = "Download Model";
-            this.btnDownloadModel.UseVisualStyleBackColor = true;
+            this.btnDownloadModel.UseVisualStyleBackColor = false;
             this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
             // 
             // btnRemoveFile
             // 
-            this.btnRemoveFile.Location = new System.Drawing.Point(164, 271);
+            this.btnRemoveFile.BackColor = System.Drawing.Color.Red;
+            this.btnRemoveFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRemoveFile.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnRemoveFile.Location = new System.Drawing.Point(179, 271);
             this.btnRemoveFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnRemoveFile.Name = "btnRemoveFile";
-            this.btnRemoveFile.Size = new System.Drawing.Size(97, 23);
+            this.btnRemoveFile.Size = new System.Drawing.Size(97, 33);
             this.btnRemoveFile.TabIndex = 41;
             this.btnRemoveFile.Text = "Remove";
-            this.btnRemoveFile.UseVisualStyleBackColor = true;
+            this.btnRemoveFile.UseVisualStyleBackColor = false;
             this.btnRemoveFile.Visible = false;
             this.btnRemoveFile.Click += new System.EventHandler(this.btnRemoveFile_Click);
             // 
             // btnUploadToS3
             // 
-            this.btnUploadToS3.Location = new System.Drawing.Point(405, 308);
+            this.btnUploadToS3.BackColor = System.Drawing.Color.Yellow;
+            this.btnUploadToS3.Location = new System.Drawing.Point(423, 308);
             this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
             this.btnUploadToS3.TabIndex = 40;
             this.btnUploadToS3.Text = "Upload Dataset";
-            this.btnUploadToS3.UseVisualStyleBackColor = true;
+            this.btnUploadToS3.UseVisualStyleBackColor = false;
             this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
             // 
             // txtDevice
@@ -319,13 +329,14 @@ namespace LSC_Trainer
             // 
             // btnTraining
             // 
-            this.btnTraining.Location = new System.Drawing.Point(625, 308);
+            this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
+            this.btnTraining.Location = new System.Drawing.Point(643, 308);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
             this.btnTraining.TabIndex = 28;
             this.btnTraining.Text = "Train";
-            this.btnTraining.UseVisualStyleBackColor = true;
+            this.btnTraining.UseVisualStyleBackColor = false;
             this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
             // 
             // label8
@@ -439,7 +450,7 @@ namespace LSC_Trainer
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(37, 250);
+            this.label1.Location = new System.Drawing.Point(52, 250);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(89, 16);
             this.label1.TabIndex = 4;
