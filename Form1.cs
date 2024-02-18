@@ -49,81 +49,102 @@ namespace LSC_Trainer
 
         private string outputKey;
         private string modelKey;
+        private bool isValidConnectionInfo;
 
         public Form1()
         {
             InitializeComponent();
-            
-            backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            backgroundWorker.WorkerReportsProgress = true;
-            backgroundWorker.DoWork += backgroundWorker_DoWork;
-            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
-            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
-            string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
-            DotNetEnv.Env.Load(ENV_PATH);
-            
-            ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
-            SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
-            REGION = Environment.GetEnvironmentVariable("REGION");
-            ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
+            isValidConnectionInfo = !string.IsNullOrWhiteSpace(UserConnectionInfo.AccountId) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.AccessKey) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.SecretKey) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.Region) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.RoleArn);
 
-            ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
-            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");  
-            DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-            customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
-            DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
-
-            string selectedRegionSystemName = REGION;
-            RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
-            var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
-
-            _iamClient = new AmazonIdentityManagementServiceClient(ACCESS_KEY.ToString(), SECRET_KEY.ToString(), selectedRegionEndpoint);
-
-            RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
-            amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
-            s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
-
-            string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
-            if (datasetName == "MMX059XA_COVERED5B")
+            Console.WriteLine($"Details: {UserConnectionInfo.AccountId}{UserConnectionInfo.AccessKey}{UserConnectionInfo.SecretKey}{UserConnectionInfo.Region}{UserConnectionInfo.RoleArn}");
+            if (isValidConnectionInfo)
             {
-                txtImageSize.Text = "1280";
-                txtBatchSize.Text = "1";
-                txtEpochs.Text = "1";
-                txtWeights.Text = "yolov5n6.pt";
-                txtData.Text = "MMX059XA_COVERED5B.yaml";
-                txtHyperparameters.Text = "hyp.no-augmentation.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                // txtDevice.Text = "0";
-                trainingFolder = "train";
-                validationFolder = "Verification Images";
+                backgroundWorker = new System.ComponentModel.BackgroundWorker();
+                backgroundWorker.WorkerReportsProgress = true;
+                backgroundWorker.DoWork += backgroundWorker_DoWork;
+                backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+                backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
+
+                string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
+                DotNetEnv.Env.Load(ENV_PATH);
+
+                ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
+                SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
+                REGION = Environment.GetEnvironmentVariable("REGION");
+                ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
+
+                // USING THE SINGLETON CLASS INSTEAD OF ENV FILE
+                /*
+                ACCESS_KEY = UserConnectionInfo.AccessKey;
+                SECRET_KEY = UserConnectionInfo.SecretKey;
+                REGION = UserConnectionInfo.Region;
+                ROLE_ARN = UserConnectionInfo.RoleArn;
+                ECR_URI = UserConnectionInfo.EcrUri;
+                */
+                ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
+                SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+                DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
+                customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+                DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+
+                string selectedRegionSystemName = REGION;
+                RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
+                var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
+
+                _iamClient = new AmazonIdentityManagementServiceClient(ACCESS_KEY.ToString(), SECRET_KEY.ToString(), selectedRegionEndpoint);
+
+                RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
+                amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
+                s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
+
+                string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
+                if (datasetName == "MMX059XA_COVERED5B")
+                {
+                    txtImageSize.Text = "1280";
+                    txtBatchSize.Text = "1";
+                    txtEpochs.Text = "1";
+                    txtWeights.Text = "yolov5n6.pt";
+                    txtData.Text = "MMX059XA_COVERED5B.yaml";
+                    txtHyperparameters.Text = "hyp.no-augmentation.yaml";
+                    txtPatience.Text = "100";
+                    txtWorkers.Text = "8";
+                    txtOptimizer.Text = "SGD";
+                    txtDevice.Text = "cpu";
+                    // txtDevice.Text = "0";
+                    trainingFolder = "train";
+                    validationFolder = "Verification Images";
+                }
+                else
+                {
+                    txtImageSize.Text = "640";
+                    txtBatchSize.Text = "1";
+                    txtEpochs.Text = "50";
+                    txtWeights.Text = "yolov5s.pt";
+                    txtData.Text = "data.yaml";
+                    txtHyperparameters.Text = "hyp.scratch-low.yaml";
+                    txtPatience.Text = "100";
+                    txtWorkers.Text = "8";
+                    txtOptimizer.Text = "SGD";
+                    txtDevice.Text = "cpu";
+                    // txtDevice.Text = "0";
+                    trainingFolder = "train";
+                    validationFolder = "val";
+                }
+
+                enableUploadToS3Button(false);
+                enableDownloadModelButton(false);
+            
             }
             else
             {
-                txtImageSize.Text = "640";
-                txtBatchSize.Text = "1";
-                txtEpochs.Text = "50";
-                txtWeights.Text = "yolov5s.pt";
-                txtData.Text = "data.yaml";
-                txtHyperparameters.Text = "hyp.scratch-low.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                // txtDevice.Text = "0";
-                trainingFolder = "train";
-                validationFolder = "val";
+                panel1.Enabled = false;
+                buildImage.Enabled = false;
             }
-
-
-            enableUploadToS3Button(false);
-            enableDownloadModelButton(false);
-            enableBuildImageButton();
-
-
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -173,9 +194,7 @@ namespace LSC_Trainer
 
         private void enableBuildImageButton()
         {
-
-            var roleType = GetRoleDetailsAsync(ROLE_ARN);
-            Console.WriteLine($"User Type: {roleType}");
+            var roleType = GetRoleDetailsAsync(UserConnectionInfo.RoleArn);
             if(roleType == "admin")
             {
                 panel1.Enabled = false;
@@ -183,6 +202,11 @@ namespace LSC_Trainer
             }
             else
             {
+                this.Enabled = false;
+                Form employeeEcrUriInput = new EmployeeEcrUriInputForm();
+                employeeEcrUriInput.FormClosed += OtherForm_FormClosed;
+                employeeEcrUriInput.Show();
+
                 panel1.Enabled = true;
                 buildImage.Enabled = false;
             }
@@ -596,8 +620,6 @@ namespace LSC_Trainer
 
                 bool isAdmin = roleArn.Contains(":role/admin");
 
-                Console.WriteLine($"role arn: {roleArn}");
-                Console.WriteLine(isAdmin);
                 return isAdmin ? "admin" : "employee";
             }
             /*catch (AmazonServiceException error)
@@ -640,6 +662,14 @@ namespace LSC_Trainer
             var imageBuilderForm = new ImageBuilderForm();
             imageBuilderForm.FormClosed += OtherForm_FormClosed;
             imageBuilderForm.Show();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+           
+            Form form = new Form1();
+            form.Refresh();
+            enableBuildImageButton();
         }
     }
 }

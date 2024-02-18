@@ -83,6 +83,7 @@ namespace LSC_Trainer
             this.label1 = new System.Windows.Forms.Label();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.buildImage = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -591,11 +592,22 @@ namespace LSC_Trainer
             this.buildImage.UseVisualStyleBackColor = true;
             this.buildImage.Click += new System.EventHandler(this.buildImage_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(33, 56);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 33);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Refresh";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(996, 477);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.buildImage);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
@@ -668,6 +680,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.ToolStripMenuItem closeConnectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testConnectionToolStripMenuItem;
         private System.Windows.Forms.Button buildImage;
+        private System.Windows.Forms.Button button1;
     }
 }
 
