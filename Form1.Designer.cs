@@ -39,15 +39,24 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label12 = new System.Windows.Forms.Label();
+            this.instanceTypeBox = new System.Windows.Forms.TextBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.trainingDurationBox = new System.Windows.Forms.TextBox();
             this.btnSelectFolder = new System.Windows.Forms.Button();
+            this.trainingStatusBox = new System.Windows.Forms.TextBox();
             this.btnDownloadModel = new System.Windows.Forms.Button();
-            this.btnRemoveFile = new System.Windows.Forms.Button();
+            this.descBox = new System.Windows.Forms.TextBox();
             this.btnUploadToS3 = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
             this.txtDevice = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
+            this.instanceTypelbl = new System.Windows.Forms.Label();
             this.txtOptimizer = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
+            this.label = new System.Windows.Forms.Label();
             this.txtWorkers = new System.Windows.Forms.TextBox();
             this.label22 = new System.Windows.Forms.Label();
             this.txtPatience = new System.Windows.Forms.TextBox();
@@ -69,18 +78,8 @@ namespace LSC_Trainer
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.instanceTypeBox = new System.Windows.Forms.TextBox();
-            this.trainingDurationBox = new System.Windows.Forms.TextBox();
-            this.trainingStatusBox = new System.Windows.Forms.TextBox();
-            this.descBox = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
             this.logBox = new System.Windows.Forms.TextBox();
-            this.instanceTypelbl = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.label12 = new System.Windows.Forms.Label();
             this.SpaceBetween = new System.Windows.Forms.Panel();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -112,7 +111,7 @@ namespace LSC_Trainer
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1078, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(1327, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -140,7 +139,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectDataset.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectDataset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectDataset.Location = new System.Drawing.Point(57, 308);
+            this.btnSelectDataset.Location = new System.Drawing.Point(33, 260);
             this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectDataset.Name = "btnSelectDataset";
             this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
@@ -153,26 +152,41 @@ namespace LSC_Trainer
             // 
             this.lblZipFile.AutoSize = true;
             this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lblZipFile.Location = new System.Drawing.Point(185, 248);
+            this.lblZipFile.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.lblZipFile.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.lblZipFile.Location = new System.Drawing.Point(132, 222);
+            this.lblZipFile.MaximumSize = new System.Drawing.Size(450, 22);
+            this.lblZipFile.MinimumSize = new System.Drawing.Size(145, 22);
             this.lblZipFile.Name = "lblZipFile";
-            this.lblZipFile.Size = new System.Drawing.Size(102, 18);
+            this.lblZipFile.Size = new System.Drawing.Size(145, 22);
             this.lblZipFile.TabIndex = 3;
             this.lblZipFile.Text = "No file selected";
             // 
             // panel1
             // 
             this.panel1.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel1.BackColor = System.Drawing.SystemColors.Control;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.label12);
+            this.panel1.Controls.Add(this.lblZipFile);
+            this.panel1.Controls.Add(this.instanceTypeBox);
             this.panel1.Controls.Add(this.progressBar);
+            this.panel1.Controls.Add(this.trainingDurationBox);
             this.panel1.Controls.Add(this.btnSelectFolder);
+            this.panel1.Controls.Add(this.trainingStatusBox);
             this.panel1.Controls.Add(this.btnDownloadModel);
-            this.panel1.Controls.Add(this.btnRemoveFile);
+            this.panel1.Controls.Add(this.descBox);
             this.panel1.Controls.Add(this.btnUploadToS3);
+            this.panel1.Controls.Add(this.label9);
             this.panel1.Controls.Add(this.txtDevice);
+            this.panel1.Controls.Add(this.label10);
             this.panel1.Controls.Add(this.label24);
+            this.panel1.Controls.Add(this.instanceTypelbl);
             this.panel1.Controls.Add(this.txtOptimizer);
+            this.panel1.Controls.Add(this.label11);
             this.panel1.Controls.Add(this.label23);
+            this.panel1.Controls.Add(this.label);
             this.panel1.Controls.Add(this.txtWorkers);
             this.panel1.Controls.Add(this.label22);
             this.panel1.Controls.Add(this.txtPatience);
@@ -193,28 +207,52 @@ namespace LSC_Trainer
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.lblZipFile);
             this.panel1.Controls.Add(this.btnSelectDataset);
-            this.panel1.Location = new System.Drawing.Point(39, 63);
+            this.panel1.Location = new System.Drawing.Point(12, 40);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel1.MinimumSize = new System.Drawing.Size(1002, 355);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1002, 355);
+            this.panel1.Size = new System.Drawing.Size(1303, 356);
             this.panel1.TabIndex = 4;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(686, 12);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(355, 29);
+            this.label12.TabIndex = 45;
+            this.label12.Text = "TRAINING JOB INFORMATION";
+            // 
+            // instanceTypeBox
+            // 
+            this.instanceTypeBox.Location = new System.Drawing.Point(833, 69);
+            this.instanceTypeBox.Name = "instanceTypeBox";
+            this.instanceTypeBox.ReadOnly = true;
+            this.instanceTypeBox.Size = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.TabIndex = 32;
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(426, 273);
+            this.progressBar.Location = new System.Drawing.Point(232, 260);
             this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(171, 23);
             this.progressBar.TabIndex = 44;
             // 
+            // trainingDurationBox
+            // 
+            this.trainingDurationBox.Location = new System.Drawing.Point(833, 100);
+            this.trainingDurationBox.Name = "trainingDurationBox";
+            this.trainingDurationBox.ReadOnly = true;
+            this.trainingDurationBox.Size = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.TabIndex = 31;
+            // 
             // btnSelectFolder
             // 
             this.btnSelectFolder.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectFolder.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectFolder.Location = new System.Drawing.Point(237, 308);
+            this.btnSelectFolder.Location = new System.Drawing.Point(33, 294);
             this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
@@ -223,10 +261,18 @@ namespace LSC_Trainer
             this.btnSelectFolder.UseVisualStyleBackColor = false;
             this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
             // 
+            // trainingStatusBox
+            // 
+            this.trainingStatusBox.Location = new System.Drawing.Point(833, 128);
+            this.trainingStatusBox.Name = "trainingStatusBox";
+            this.trainingStatusBox.ReadOnly = true;
+            this.trainingStatusBox.Size = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.TabIndex = 30;
+            // 
             // btnDownloadModel
             // 
             this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
-            this.btnDownloadModel.Location = new System.Drawing.Point(811, 308);
+            this.btnDownloadModel.Location = new System.Drawing.Point(437, 295);
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
@@ -235,25 +281,19 @@ namespace LSC_Trainer
             this.btnDownloadModel.UseVisualStyleBackColor = false;
             this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
             // 
-            // btnRemoveFile
+            // descBox
             // 
-            this.btnRemoveFile.BackColor = System.Drawing.Color.Red;
-            this.btnRemoveFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRemoveFile.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnRemoveFile.Location = new System.Drawing.Point(185, 271);
-            this.btnRemoveFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnRemoveFile.Name = "btnRemoveFile";
-            this.btnRemoveFile.Size = new System.Drawing.Size(97, 33);
-            this.btnRemoveFile.TabIndex = 41;
-            this.btnRemoveFile.Text = "Remove";
-            this.btnRemoveFile.UseVisualStyleBackColor = false;
-            this.btnRemoveFile.Visible = false;
-            this.btnRemoveFile.Click += new System.EventHandler(this.btnRemoveFile_Click);
+            this.descBox.Location = new System.Drawing.Point(833, 156);
+            this.descBox.Multiline = true;
+            this.descBox.Name = "descBox";
+            this.descBox.ReadOnly = true;
+            this.descBox.Size = new System.Drawing.Size(268, 40);
+            this.descBox.TabIndex = 29;
             // 
             // btnUploadToS3
             // 
             this.btnUploadToS3.BackColor = System.Drawing.Color.Yellow;
-            this.btnUploadToS3.Location = new System.Drawing.Point(429, 308);
+            this.btnUploadToS3.Location = new System.Drawing.Point(232, 295);
             this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
@@ -262,45 +302,93 @@ namespace LSC_Trainer
             this.btnUploadToS3.UseVisualStyleBackColor = false;
             this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.BackColor = System.Drawing.SystemColors.Control;
+            this.label9.Location = new System.Drawing.Point(688, 156);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(75, 16);
+            this.label9.TabIndex = 28;
+            this.label9.Text = "Description";
+            // 
             // txtDevice
             // 
-            this.txtDevice.Location = new System.Drawing.Point(739, 180);
+            this.txtDevice.Location = new System.Drawing.Point(427, 184);
             this.txtDevice.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtDevice.Name = "txtDevice";
             this.txtDevice.Size = new System.Drawing.Size(145, 22);
             this.txtDevice.TabIndex = 39;
             this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.BackColor = System.Drawing.SystemColors.Control;
+            this.label10.Location = new System.Drawing.Point(688, 128);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(96, 16);
+            this.label10.TabIndex = 27;
+            this.label10.Text = "Training Status";
+            // 
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(606, 183);
+            this.label24.Location = new System.Drawing.Point(292, 184);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(53, 16);
             this.label24.TabIndex = 38;
             this.label24.Text = "Device:";
             // 
+            // instanceTypelbl
+            // 
+            this.instanceTypelbl.AutoSize = true;
+            this.instanceTypelbl.Location = new System.Drawing.Point(792, 73);
+            this.instanceTypelbl.Name = "instanceTypelbl";
+            this.instanceTypelbl.Size = new System.Drawing.Size(0, 16);
+            this.instanceTypelbl.TabIndex = 25;
+            // 
             // txtOptimizer
             // 
-            this.txtOptimizer.Location = new System.Drawing.Point(739, 152);
+            this.txtOptimizer.Location = new System.Drawing.Point(427, 156);
             this.txtOptimizer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtOptimizer.Name = "txtOptimizer";
             this.txtOptimizer.Size = new System.Drawing.Size(145, 22);
             this.txtOptimizer.TabIndex = 37;
             this.txtOptimizer.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.BackColor = System.Drawing.SystemColors.Control;
+            this.label11.Location = new System.Drawing.Point(688, 99);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(109, 16);
+            this.label11.TabIndex = 24;
+            this.label11.Text = "Training Duration";
+            // 
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(606, 155);
+            this.label23.Location = new System.Drawing.Point(292, 156);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(66, 16);
             this.label23.TabIndex = 36;
             this.label23.Text = "Optimizer:";
             // 
+            // label
+            // 
+            this.label.AutoSize = true;
+            this.label.BackColor = System.Drawing.SystemColors.Control;
+            this.label.Location = new System.Drawing.Point(688, 72);
+            this.label.Name = "label";
+            this.label.Size = new System.Drawing.Size(98, 16);
+            this.label.TabIndex = 23;
+            this.label.Text = "Virtual Machine";
+            // 
             // txtWorkers
             // 
-            this.txtWorkers.Location = new System.Drawing.Point(739, 124);
+            this.txtWorkers.Location = new System.Drawing.Point(427, 128);
             this.txtWorkers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWorkers.Name = "txtWorkers";
             this.txtWorkers.Size = new System.Drawing.Size(145, 22);
@@ -310,7 +398,7 @@ namespace LSC_Trainer
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(606, 127);
+            this.label22.Location = new System.Drawing.Point(292, 128);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(61, 16);
             this.label22.TabIndex = 34;
@@ -318,7 +406,7 @@ namespace LSC_Trainer
             // 
             // txtPatience
             // 
-            this.txtPatience.Location = new System.Drawing.Point(739, 95);
+            this.txtPatience.Location = new System.Drawing.Point(427, 99);
             this.txtPatience.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtPatience.Name = "txtPatience";
             this.txtPatience.Size = new System.Drawing.Size(145, 22);
@@ -328,7 +416,7 @@ namespace LSC_Trainer
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(606, 99);
+            this.label21.Location = new System.Drawing.Point(292, 100);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(63, 16);
             this.label21.TabIndex = 32;
@@ -336,7 +424,7 @@ namespace LSC_Trainer
             // 
             // txtHyperparameters
             // 
-            this.txtHyperparameters.Location = new System.Drawing.Point(739, 68);
+            this.txtHyperparameters.Location = new System.Drawing.Point(427, 72);
             this.txtHyperparameters.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtHyperparameters.Name = "txtHyperparameters";
             this.txtHyperparameters.Size = new System.Drawing.Size(145, 22);
@@ -346,7 +434,7 @@ namespace LSC_Trainer
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(606, 71);
+            this.label20.Location = new System.Drawing.Point(292, 72);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(116, 16);
             this.label20.TabIndex = 30;
@@ -355,7 +443,7 @@ namespace LSC_Trainer
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(649, 308);
+            this.btnTraining.Location = new System.Drawing.Point(437, 253);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
@@ -368,7 +456,7 @@ namespace LSC_Trainer
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(362, 19);
+            this.label8.Location = new System.Drawing.Point(21, 12);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(297, 29);
             this.label8.TabIndex = 17;
@@ -376,7 +464,7 @@ namespace LSC_Trainer
             // 
             // txtData
             // 
-            this.txtData.Location = new System.Drawing.Point(273, 180);
+            this.txtData.Location = new System.Drawing.Point(132, 184);
             this.txtData.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtData.Name = "txtData";
             this.txtData.Size = new System.Drawing.Size(145, 22);
@@ -385,7 +473,7 @@ namespace LSC_Trainer
             // 
             // txtWeights
             // 
-            this.txtWeights.Location = new System.Drawing.Point(273, 152);
+            this.txtWeights.Location = new System.Drawing.Point(132, 156);
             this.txtWeights.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWeights.Name = "txtWeights";
             this.txtWeights.Size = new System.Drawing.Size(145, 22);
@@ -394,7 +482,7 @@ namespace LSC_Trainer
             // 
             // txtEpochs
             // 
-            this.txtEpochs.Location = new System.Drawing.Point(273, 124);
+            this.txtEpochs.Location = new System.Drawing.Point(132, 128);
             this.txtEpochs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtEpochs.Name = "txtEpochs";
             this.txtEpochs.Size = new System.Drawing.Size(145, 22);
@@ -403,7 +491,7 @@ namespace LSC_Trainer
             // 
             // txtBatchSize
             // 
-            this.txtBatchSize.Location = new System.Drawing.Point(273, 95);
+            this.txtBatchSize.Location = new System.Drawing.Point(132, 99);
             this.txtBatchSize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtBatchSize.Name = "txtBatchSize";
             this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
@@ -412,7 +500,7 @@ namespace LSC_Trainer
             // 
             // txtImageSize
             // 
-            this.txtImageSize.Location = new System.Drawing.Point(273, 68);
+            this.txtImageSize.Location = new System.Drawing.Point(132, 72);
             this.txtImageSize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtImageSize.Name = "txtImageSize";
             this.txtImageSize.Size = new System.Drawing.Size(145, 22);
@@ -422,7 +510,7 @@ namespace LSC_Trainer
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(143, 179);
+            this.label7.Location = new System.Drawing.Point(30, 180);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(39, 16);
             this.label7.TabIndex = 11;
@@ -431,7 +519,7 @@ namespace LSC_Trainer
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(143, 152);
+            this.label6.Location = new System.Drawing.Point(30, 153);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(59, 16);
             this.label6.TabIndex = 10;
@@ -440,7 +528,7 @@ namespace LSC_Trainer
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(143, 125);
+            this.label5.Location = new System.Drawing.Point(30, 126);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(56, 16);
             this.label5.TabIndex = 9;
@@ -449,7 +537,7 @@ namespace LSC_Trainer
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(143, 98);
+            this.label4.Location = new System.Drawing.Point(30, 99);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(73, 16);
             this.label4.TabIndex = 8;
@@ -458,7 +546,7 @@ namespace LSC_Trainer
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(143, 71);
+            this.label3.Location = new System.Drawing.Point(30, 72);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(77, 16);
             this.label3.TabIndex = 7;
@@ -475,7 +563,7 @@ namespace LSC_Trainer
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(58, 250);
+            this.label1.Location = new System.Drawing.Point(30, 222);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(89, 16);
             this.label1.TabIndex = 4;
@@ -487,142 +575,37 @@ namespace LSC_Trainer
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
-            // instanceTypeBox
-            // 
-            this.instanceTypeBox.Location = new System.Drawing.Point(452, 85);
-            this.instanceTypeBox.Name = "instanceTypeBox";
-            this.instanceTypeBox.ReadOnly = true;
-            this.instanceTypeBox.Size = new System.Drawing.Size(277, 22);
-            this.instanceTypeBox.TabIndex = 32;
-            // 
-            // trainingDurationBox
-            // 
-            this.trainingDurationBox.Location = new System.Drawing.Point(452, 118);
-            this.trainingDurationBox.Name = "trainingDurationBox";
-            this.trainingDurationBox.ReadOnly = true;
-            this.trainingDurationBox.Size = new System.Drawing.Size(277, 22);
-            this.trainingDurationBox.TabIndex = 31;
-            // 
-            // trainingStatusBox
-            // 
-            this.trainingStatusBox.Location = new System.Drawing.Point(452, 153);
-            this.trainingStatusBox.Name = "trainingStatusBox";
-            this.trainingStatusBox.ReadOnly = true;
-            this.trainingStatusBox.Size = new System.Drawing.Size(277, 22);
-            this.trainingStatusBox.TabIndex = 30;
-            // 
-            // descBox
-            // 
-            this.descBox.Location = new System.Drawing.Point(452, 186);
-            this.descBox.Multiline = true;
-            this.descBox.Name = "descBox";
-            this.descBox.ReadOnly = true;
-            this.descBox.Size = new System.Drawing.Size(277, 40);
-            this.descBox.TabIndex = 29;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label9.Location = new System.Drawing.Point(328, 186);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(77, 18);
-            this.label9.TabIndex = 28;
-            this.label9.Text = "Description";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label10.Location = new System.Drawing.Point(307, 153);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(98, 18);
-            this.label10.TabIndex = 27;
-            this.label10.Text = "Training Status";
-            // 
             // logBox
             // 
             this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
             this.logBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.logBox.Location = new System.Drawing.Point(132, 246);
+            this.logBox.Location = new System.Drawing.Point(26, 18);
             this.logBox.Multiline = true;
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
             this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.logBox.Size = new System.Drawing.Size(752, 239);
+            this.logBox.Size = new System.Drawing.Size(1262, 305);
             this.logBox.TabIndex = 26;
             this.logBox.WordWrap = false;
-            // 
-            // instanceTypelbl
-            // 
-            this.instanceTypelbl.AutoSize = true;
-            this.instanceTypelbl.Location = new System.Drawing.Point(446, 79);
-            this.instanceTypelbl.Name = "instanceTypelbl";
-            this.instanceTypelbl.Size = new System.Drawing.Size(0, 16);
-            this.instanceTypelbl.TabIndex = 25;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label11.Location = new System.Drawing.Point(294, 118);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(111, 18);
-            this.label11.TabIndex = 24;
-            this.label11.Text = "Training Duration";
-            // 
-            // label
-            // 
-            this.label.AutoSize = true;
-            this.label.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label.Location = new System.Drawing.Point(305, 85);
-            this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(100, 18);
-            this.label.TabIndex = 23;
-            this.label.Text = "Virtual Machine";
             // 
             // panel2
             // 
             this.panel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.panel2.BackColor = System.Drawing.SystemColors.Control;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.label12);
             this.panel2.Controls.Add(this.logBox);
-            this.panel2.Controls.Add(this.instanceTypeBox);
-            this.panel2.Controls.Add(this.trainingDurationBox);
-            this.panel2.Controls.Add(this.trainingStatusBox);
-            this.panel2.Controls.Add(this.descBox);
-            this.panel2.Controls.Add(this.label9);
-            this.panel2.Controls.Add(this.label10);
-            this.panel2.Controls.Add(this.instanceTypelbl);
-            this.panel2.Controls.Add(this.label11);
-            this.panel2.Controls.Add(this.label);
             this.panel2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.panel2.Location = new System.Drawing.Point(39, 447);
+            this.panel2.Location = new System.Drawing.Point(12, 417);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1002, 495);
+            this.panel2.Size = new System.Drawing.Size(1303, 340);
             this.panel2.TabIndex = 33;
             this.panel2.Visible = false;
             // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(326, 21);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(355, 29);
-            this.label12.TabIndex = 45;
-            this.label12.Text = "TRAINING JOB INFORMATION";
-            // 
             // SpaceBetween
             // 
-            this.SpaceBetween.Location = new System.Drawing.Point(39, 418);
+            this.SpaceBetween.Location = new System.Drawing.Point(11, 401);
             this.SpaceBetween.Name = "SpaceBetween";
-            this.SpaceBetween.Size = new System.Drawing.Size(1001, 28);
+            this.SpaceBetween.Size = new System.Drawing.Size(1304, 10);
             this.SpaceBetween.TabIndex = 34;
             // 
             // Form1
@@ -633,7 +616,7 @@ namespace LSC_Trainer
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.ClientSize = new System.Drawing.Size(1078, 976);
+            this.ClientSize = new System.Drawing.Size(1327, 763);
             this.Controls.Add(this.SpaceBetween);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
@@ -691,7 +674,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.TextBox txtHyperparameters;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Button btnUploadToS3;
-        private System.Windows.Forms.Button btnRemoveFile;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
         private System.Windows.Forms.ProgressBar progressBar;

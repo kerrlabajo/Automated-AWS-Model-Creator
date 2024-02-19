@@ -162,7 +162,6 @@ namespace LSC_Trainer
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected file: {datasetPath}");
-                    btnRemoveFile.Visible = true;
                     isFile = true;
                     enableUploadToS3Button(true);
                 }
@@ -184,18 +183,10 @@ namespace LSC_Trainer
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
-                    btnRemoveFile.Visible = true;
                     isFile = false;
                     enableUploadToS3Button(true);
                 }
             }
-        }
-        private void btnRemoveFile_Click(object sender, EventArgs e)
-        {
-            datasetPath = null;
-            lblZipFile.Text = "No file selected";
-            btnRemoveFile.Visible = false;
-            enableUploadToS3Button(false);
         }
 
         private void btnUploadToS3_Click(object sender, EventArgs e)
@@ -292,7 +283,6 @@ namespace LSC_Trainer
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            btnRemoveFile_Click(sender, e);
             MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
         }
