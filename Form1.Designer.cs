@@ -35,6 +35,7 @@ namespace LSC_Trainer
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.connectToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newTrainingJobToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -68,9 +69,22 @@ namespace LSC_Trainer
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.instanceTypeBox = new System.Windows.Forms.TextBox();
+            this.trainingDurationBox = new System.Windows.Forms.TextBox();
+            this.trainingStatusBox = new System.Windows.Forms.TextBox();
+            this.descBox = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.logBox = new System.Windows.Forms.TextBox();
+            this.instanceTypelbl = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.label12 = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // contextMenuStrip1
@@ -92,7 +106,8 @@ namespace LSC_Trainer
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectToolStripMenuItem1,
-            this.helpToolStripMenuItem});
+            this.helpToolStripMenuItem,
+            this.newTrainingJobToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
@@ -112,6 +127,13 @@ namespace LSC_Trainer
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
             this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // newTrainingJobToolStripMenuItem
+            // 
+            this.newTrainingJobToolStripMenuItem.Name = "newTrainingJobToolStripMenuItem";
+            this.newTrainingJobToolStripMenuItem.Size = new System.Drawing.Size(137, 24);
+            this.newTrainingJobToolStripMenuItem.Text = "New Training Job";
+            this.newTrainingJobToolStripMenuItem.Click += new System.EventHandler(this.newTrainingJobToolStripMenuItem_Click);
             // 
             // btnSelectDataset
             // 
@@ -462,13 +484,136 @@ namespace LSC_Trainer
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
             // 
+            // instanceTypeBox
+            // 
+            this.instanceTypeBox.Location = new System.Drawing.Point(452, 85);
+            this.instanceTypeBox.Name = "instanceTypeBox";
+            this.instanceTypeBox.ReadOnly = true;
+            this.instanceTypeBox.Size = new System.Drawing.Size(277, 22);
+            this.instanceTypeBox.TabIndex = 32;
+            // 
+            // trainingDurationBox
+            // 
+            this.trainingDurationBox.Location = new System.Drawing.Point(449, 118);
+            this.trainingDurationBox.Name = "trainingDurationBox";
+            this.trainingDurationBox.ReadOnly = true;
+            this.trainingDurationBox.Size = new System.Drawing.Size(277, 22);
+            this.trainingDurationBox.TabIndex = 31;
+            // 
+            // trainingStatusBox
+            // 
+            this.trainingStatusBox.Location = new System.Drawing.Point(449, 153);
+            this.trainingStatusBox.Name = "trainingStatusBox";
+            this.trainingStatusBox.ReadOnly = true;
+            this.trainingStatusBox.Size = new System.Drawing.Size(277, 22);
+            this.trainingStatusBox.TabIndex = 30;
+            // 
+            // descBox
+            // 
+            this.descBox.Location = new System.Drawing.Point(449, 186);
+            this.descBox.Multiline = true;
+            this.descBox.Name = "descBox";
+            this.descBox.ReadOnly = true;
+            this.descBox.Size = new System.Drawing.Size(277, 40);
+            this.descBox.TabIndex = 29;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(328, 186);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(78, 16);
+            this.label9.TabIndex = 28;
+            this.label9.Text = "Description:";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(307, 153);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(99, 16);
+            this.label10.TabIndex = 27;
+            this.label10.Text = "Training Status:";
+            // 
+            // logBox
+            // 
+            this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.logBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.logBox.Location = new System.Drawing.Point(133, 246);
+            this.logBox.Multiline = true;
+            this.logBox.Name = "logBox";
+            this.logBox.ReadOnly = true;
+            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.logBox.Size = new System.Drawing.Size(752, 239);
+            this.logBox.TabIndex = 26;
+            this.logBox.WordWrap = false;
+            // 
+            // instanceTypelbl
+            // 
+            this.instanceTypelbl.AutoSize = true;
+            this.instanceTypelbl.Location = new System.Drawing.Point(446, 79);
+            this.instanceTypelbl.Name = "instanceTypelbl";
+            this.instanceTypelbl.Size = new System.Drawing.Size(0, 16);
+            this.instanceTypelbl.TabIndex = 25;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(294, 118);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(112, 16);
+            this.label11.TabIndex = 24;
+            this.label11.Text = "Training Duration:";
+            // 
+            // label
+            // 
+            this.label.AutoSize = true;
+            this.label.Location = new System.Drawing.Point(305, 85);
+            this.label.Name = "label";
+            this.label.Size = new System.Drawing.Size(101, 16);
+            this.label.TabIndex = 23;
+            this.label.Text = "Virtual Machine:";
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel2.Controls.Add(this.label12);
+            this.panel2.Controls.Add(this.logBox);
+            this.panel2.Controls.Add(this.instanceTypeBox);
+            this.panel2.Controls.Add(this.trainingDurationBox);
+            this.panel2.Controls.Add(this.trainingStatusBox);
+            this.panel2.Controls.Add(this.descBox);
+            this.panel2.Controls.Add(this.label9);
+            this.panel2.Controls.Add(this.label10);
+            this.panel2.Controls.Add(this.instanceTypelbl);
+            this.panel2.Controls.Add(this.label11);
+            this.panel2.Controls.Add(this.label);
+            this.panel2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.panel2.Location = new System.Drawing.Point(37, 451);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1001, 496);
+            this.panel2.TabIndex = 33;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(326, 21);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(355, 29);
+            this.label12.TabIndex = 45;
+            this.label12.Text = "TRAINING JOB INFORMATION";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1074, 450);
+            this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.ClientSize = new System.Drawing.Size(1074, 973);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel2);
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
@@ -479,6 +624,8 @@ namespace LSC_Trainer
             this.menuStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -524,6 +671,19 @@ namespace LSC_Trainer
         private System.Windows.Forms.Button btnSelectFolder;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
+        private System.Windows.Forms.ToolStripMenuItem newTrainingJobToolStripMenuItem;
+        private System.Windows.Forms.TextBox instanceTypeBox;
+        private System.Windows.Forms.TextBox trainingDurationBox;
+        private System.Windows.Forms.TextBox trainingStatusBox;
+        private System.Windows.Forms.TextBox descBox;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox logBox;
+        private System.Windows.Forms.Label instanceTypelbl;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label12;
     }
 }
 
