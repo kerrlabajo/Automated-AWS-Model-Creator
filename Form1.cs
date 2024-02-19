@@ -458,8 +458,6 @@ namespace LSC_Trainer
                     TrainingJobName = trainingJobName
                 });
 
-                VMlbl.Text = trainingDetails.ResourceConfig.InstanceType.ToString();
-
                 // Create an entry for the current training job in the dictionary
                 trainingJobs[trainingJobName] = new TrainingInfoForm();
                 trainingJobs[trainingJobName].Show(); // Show the new form
@@ -479,7 +477,6 @@ namespace LSC_Trainer
                         // Update training duration
                         TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
                         string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
-                        trainingDurationlbl.Text = formattedTime;
 
                         // Use the dictionary entry for the current training job
                         var currentTrainingInfo = trainingJobs[trainingJobName];
@@ -561,6 +558,7 @@ namespace LSC_Trainer
                                 deleteDataset = true;
                             }
 
+                            //delete custom dataset after training
                             if(deleteDataset && HasCustomUploads(customUploadsURI))
                             {
                                 if (executing)
