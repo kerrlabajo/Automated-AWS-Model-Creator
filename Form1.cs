@@ -559,16 +559,24 @@ namespace LSC_Trainer
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             enableDownloadModelButton(true);
-                            deleteDataset = true;
+                            
+                            if (!HasCustomUploads(customUploadsURI))
+                            {
+                                deleteDataset = true;
+                                btnTraining.Enabled = true;
+                                timer.Stop();
+                            }
+                            
                         }
 
                         //delete custom dataset after training
-                        if(deleteDataset && HasCustomUploads(customUploadsURI))
+                        if(deleteDataset)
                         {
 
                             DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
                             AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                             deleteDataset = false;
+                            btnTraining.Enabled = true;
                             timer.Stop();
                         }
                         
@@ -641,6 +649,7 @@ namespace LSC_Trainer
         private void newTrainingJobToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new Form1()));
+            t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
 
