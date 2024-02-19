@@ -235,6 +235,7 @@ namespace LSC_Trainer
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
             InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+            
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
@@ -466,10 +467,11 @@ namespace LSC_Trainer
                 System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
                 timer.Interval = 1000;
 
-
                 string prevStatusMessage = "";
                 string prevLogMessage = "";
                 int prevLogIndex = 0;
+                // show panel
+                panel2.Visible = true;
 
                 timer.Tick += async (sender1, e1) =>
                 {

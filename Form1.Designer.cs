@@ -81,6 +81,7 @@ namespace LSC_Trainer
             this.label = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label12 = new System.Windows.Forms.Label();
+            this.SpaceBetween = new System.Windows.Forms.Panel();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -111,7 +112,7 @@ namespace LSC_Trainer
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1074, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1078, 30);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -160,6 +161,7 @@ namespace LSC_Trainer
             // 
             // panel1
             // 
+            this.panel1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.panel1.BackColor = System.Drawing.SystemColors.Control;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.progressBar);
@@ -193,8 +195,9 @@ namespace LSC_Trainer
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.lblZipFile);
             this.panel1.Controls.Add(this.btnSelectDataset);
-            this.panel1.Location = new System.Drawing.Point(37, 63);
+            this.panel1.Location = new System.Drawing.Point(39, 63);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.panel1.MinimumSize = new System.Drawing.Size(1002, 355);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1002, 355);
             this.panel1.TabIndex = 4;
@@ -365,7 +368,7 @@ namespace LSC_Trainer
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(362, 25);
+            this.label8.Location = new System.Drawing.Point(362, 19);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(297, 29);
             this.label8.TabIndex = 17;
@@ -494,7 +497,7 @@ namespace LSC_Trainer
             // 
             // trainingDurationBox
             // 
-            this.trainingDurationBox.Location = new System.Drawing.Point(449, 118);
+            this.trainingDurationBox.Location = new System.Drawing.Point(452, 118);
             this.trainingDurationBox.Name = "trainingDurationBox";
             this.trainingDurationBox.ReadOnly = true;
             this.trainingDurationBox.Size = new System.Drawing.Size(277, 22);
@@ -502,7 +505,7 @@ namespace LSC_Trainer
             // 
             // trainingStatusBox
             // 
-            this.trainingStatusBox.Location = new System.Drawing.Point(449, 153);
+            this.trainingStatusBox.Location = new System.Drawing.Point(452, 153);
             this.trainingStatusBox.Name = "trainingStatusBox";
             this.trainingStatusBox.ReadOnly = true;
             this.trainingStatusBox.Size = new System.Drawing.Size(277, 22);
@@ -510,7 +513,7 @@ namespace LSC_Trainer
             // 
             // descBox
             // 
-            this.descBox.Location = new System.Drawing.Point(449, 186);
+            this.descBox.Location = new System.Drawing.Point(452, 186);
             this.descBox.Multiline = true;
             this.descBox.Name = "descBox";
             this.descBox.ReadOnly = true;
@@ -520,26 +523,30 @@ namespace LSC_Trainer
             // label9
             // 
             this.label9.AutoSize = true;
+            this.label9.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label9.Location = new System.Drawing.Point(328, 186);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(78, 16);
+            this.label9.Size = new System.Drawing.Size(77, 18);
             this.label9.TabIndex = 28;
-            this.label9.Text = "Description:";
+            this.label9.Text = "Description";
             // 
             // label10
             // 
             this.label10.AutoSize = true;
+            this.label10.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.label10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label10.Location = new System.Drawing.Point(307, 153);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(99, 16);
+            this.label10.Size = new System.Drawing.Size(98, 18);
             this.label10.TabIndex = 27;
-            this.label10.Text = "Training Status:";
+            this.label10.Text = "Training Status";
             // 
             // logBox
             // 
             this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
             this.logBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.logBox.Location = new System.Drawing.Point(133, 246);
+            this.logBox.Location = new System.Drawing.Point(132, 246);
             this.logBox.Multiline = true;
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
@@ -559,25 +566,30 @@ namespace LSC_Trainer
             // label11
             // 
             this.label11.AutoSize = true;
+            this.label11.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.label11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label11.Location = new System.Drawing.Point(294, 118);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(112, 16);
+            this.label11.Size = new System.Drawing.Size(111, 18);
             this.label11.TabIndex = 24;
-            this.label11.Text = "Training Duration:";
+            this.label11.Text = "Training Duration";
             // 
             // label
             // 
             this.label.AutoSize = true;
+            this.label.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label.Location = new System.Drawing.Point(305, 85);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(101, 16);
+            this.label.Size = new System.Drawing.Size(100, 18);
             this.label.TabIndex = 23;
-            this.label.Text = "Virtual Machine:";
+            this.label.Text = "Virtual Machine";
             // 
             // panel2
             // 
-            this.panel2.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.panel2.BackColor = System.Drawing.SystemColors.Control;
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.label12);
             this.panel2.Controls.Add(this.logBox);
             this.panel2.Controls.Add(this.instanceTypeBox);
@@ -590,10 +602,11 @@ namespace LSC_Trainer
             this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.label);
             this.panel2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.panel2.Location = new System.Drawing.Point(37, 451);
+            this.panel2.Location = new System.Drawing.Point(39, 447);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1001, 496);
+            this.panel2.Size = new System.Drawing.Size(1002, 495);
             this.panel2.TabIndex = 33;
+            this.panel2.Visible = false;
             // 
             // label12
             // 
@@ -605,17 +618,29 @@ namespace LSC_Trainer
             this.label12.TabIndex = 45;
             this.label12.Text = "TRAINING JOB INFORMATION";
             // 
+            // SpaceBetween
+            // 
+            this.SpaceBetween.Location = new System.Drawing.Point(39, 418);
+            this.SpaceBetween.Name = "SpaceBetween";
+            this.SpaceBetween.Size = new System.Drawing.Size(1001, 28);
+            this.SpaceBetween.TabIndex = 34;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.ClientSize = new System.Drawing.Size(1074, 973);
+            this.ClientSize = new System.Drawing.Size(1078, 976);
+            this.Controls.Add(this.SpaceBetween);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MinimumSize = new System.Drawing.Size(1092, 384);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -684,6 +709,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label label;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Panel SpaceBetween;
     }
 }
 
