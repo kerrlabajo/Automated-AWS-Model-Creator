@@ -129,20 +129,21 @@ namespace LSC_Trainer
             // createConnectionToolStripMenuItem
             // 
             this.createConnectionToolStripMenuItem.Name = "createConnectionToolStripMenuItem";
-            this.createConnectionToolStripMenuItem.Size = new System.Drawing.Size(214, 26);
+            this.createConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.createConnectionToolStripMenuItem.Text = "Create Connection";
             this.createConnectionToolStripMenuItem.Click += new System.EventHandler(this.createConnectionToolStripMenuItem_Click);
             // 
             // closeConnectionToolStripMenuItem
             // 
             this.closeConnectionToolStripMenuItem.Name = "closeConnectionToolStripMenuItem";
-            this.closeConnectionToolStripMenuItem.Size = new System.Drawing.Size(214, 26);
+            this.closeConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.closeConnectionToolStripMenuItem.Text = "Close Connection";
+            this.closeConnectionToolStripMenuItem.Click += new System.EventHandler(this.closeConnectionToolStripMenuItem_Click);
             // 
             // testConnectionToolStripMenuItem
             // 
             this.testConnectionToolStripMenuItem.Name = "testConnectionToolStripMenuItem";
-            this.testConnectionToolStripMenuItem.Size = new System.Drawing.Size(214, 26);
+            this.testConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.testConnectionToolStripMenuItem.Text = "Test Connection";
             this.testConnectionToolStripMenuItem.Click += new System.EventHandler(this.testConnectionToolStripMenuItem_Click);
             // 

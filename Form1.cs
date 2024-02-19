@@ -671,5 +671,10 @@ namespace LSC_Trainer
             form.Refresh();
             enableBuildImageButton();
         }
+
+        private void closeConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UserConnectionInfo.Instance.Reset();
+        }
     }
 }
