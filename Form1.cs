@@ -560,11 +560,15 @@ namespace LSC_Trainer
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             enableDownloadModelButton(true);
                             
-                            if (!HasCustomUploads(customUploadsURI))
+                            if (HasCustomUploads(customUploadsURI) == false)
                             {
-                                deleteDataset = true;
+                                
                                 btnTraining.Enabled = true;
                                 timer.Stop();
+                            }
+                            else
+                            {
+                                deleteDataset = true;
                             }
                             
                         }
@@ -589,7 +593,7 @@ namespace LSC_Trainer
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error in training model: {ex.Message}");
+                        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 };
                 timer.Start();
@@ -599,6 +603,8 @@ namespace LSC_Trainer
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creating training job: {ex.Message}");
+                MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnTraining.Enabled = true;
             }
         }
 
