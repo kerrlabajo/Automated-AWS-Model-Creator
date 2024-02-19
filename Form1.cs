@@ -235,7 +235,7 @@ namespace LSC_Trainer
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
             InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-            
+            btnTraining.Enabled = false;
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
