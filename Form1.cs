@@ -205,6 +205,7 @@ namespace LSC_Trainer
             trainingDurationBox.Text = "";
             trainingStatusBox.Text = "";
             descBox.Text = "";
+            Cursor = Cursors.WaitCursor;
             SetTrainingParameters(
                     out string img_size,
                     out string batch_size,
@@ -463,6 +464,7 @@ namespace LSC_Trainer
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             InputsEnabler(false);
+            Cursor = Cursors.WaitCursor;
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
@@ -556,6 +558,7 @@ namespace LSC_Trainer
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             InputsEnabler(true);
+                            Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
@@ -735,7 +738,7 @@ namespace LSC_Trainer
 
         private async void btnFetchModels_Click(object sender, EventArgs e)
         {
-            mainPanel.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             mainPanel.Enabled = false;
             try
             {
@@ -757,7 +760,7 @@ namespace LSC_Trainer
             }
             finally
             {
-                mainPanel.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
                 mainPanel.Enabled = true;
                 modelListComboBox.Enabled = true;
             }
