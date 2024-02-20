@@ -553,15 +553,14 @@ namespace LSC_Trainer
                             InputsEnabler(true);
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                            enableDownloadModelButton(true);
+                            timer.Stop();
 
                             if (HasCustomUploads(customUploadsURI))
                             {
                                 DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
                                 AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
-                                timer.Stop();
                             }
-                            btnTraining.Enabled = true;
+                            return;
                         }
                         else if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
                         {
@@ -573,6 +572,7 @@ namespace LSC_Trainer
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
                 };
                 timer.Start();
@@ -581,6 +581,7 @@ namespace LSC_Trainer
             {
                 MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnTraining.Enabled = true;
+                return;
             }
         }
 
