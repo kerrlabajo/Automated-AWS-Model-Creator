@@ -18,7 +18,7 @@ using System.Threading;
 
 namespace LSC_Trainer
 {
-    public partial class lscTrainerForm : Form
+    public partial class MainForm : Form
     {
 
         private delegate void SetProgressCallback(int percentDone);
@@ -54,7 +54,7 @@ namespace LSC_Trainer
         private string outputKey;
         private string modelKey;
 
-        public lscTrainerForm()
+        public MainForm()
         {
             InitializeComponent();
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
@@ -636,7 +636,7 @@ namespace LSC_Trainer
 
         private void newTrainingJobToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var t = new Thread(() => Application.Run(new lscTrainerForm()));
+            var t = new Thread(() => Application.Run(new MainForm()));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }

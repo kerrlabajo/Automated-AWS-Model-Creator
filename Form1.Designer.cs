@@ -1,7 +1,7 @@
 ﻿
 namespace LSC_Trainer
 {
-    partial class lscTrainerForm
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -685,7 +685,7 @@ namespace LSC_Trainer
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
             // 
-            // lscTrainerForm
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -701,7 +701,7 @@ namespace LSC_Trainer
             this.MainMenuStrip = this.lscTrainerMenuStrip;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimumSize = new System.Drawing.Size(1182, 400);
-            this.Name = "lscTrainerForm";
+            this.Name = "MainForm";
             this.Text = "LSC Trainer";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.contextMenuStrip1.ResumeLayout(false);
