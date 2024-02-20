@@ -449,7 +449,6 @@ namespace LSC_Trainer
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 string datasetKey = customUploadsURI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
-                bool deleteDataset = false;
 
                 DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
                 {
@@ -535,54 +534,24 @@ namespace LSC_Trainer
                             );
                         }
 
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed && deleteDataset == false)
+                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
-                            DisplayLogMessage("Printing status history...");
-
-                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
-                            {
-                                DisplayLogMessage("Status: " + history.Status);
-
-                                TimeSpan elapsed = history.EndTime - history.StartTime;
-                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                                (int)elapsed.TotalHours,
-                                                elapsed.Minutes,
-                                                elapsed.Seconds,
-                                                (int)(elapsed.Milliseconds / 100));
-                                DisplayLogMessage($"Elapsed Time: {formattedElapsedTime}");
-                                DisplayLogMessage("Description: " + history.StatusMessage + Environment.NewLine);
-                            }
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             enableDownloadModelButton(true);
-                            
-                            if (HasCustomUploads(customUploadsURI) == false)
+
+                            if (HasCustomUploads(customUploadsURI))
                             {
-                                
-                                btnTraining.Enabled = true;
+                                DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                                AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                                 timer.Stop();
                             }
-                            else
-                            {
-                                deleteDataset = true;
-                            }
-                            
-                        }
-
-                        //delete custom dataset after training
-                        if(deleteDataset)
-                        {
-
-                            DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
-                            AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
-                            deleteDataset = false;
                             btnTraining.Enabled = true;
-                            timer.Stop();
                         }
-                        
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                        else if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
                         {
                             DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
+                            btnTraining.Enabled = true;
                             timer.Stop();
                         }
                     }
@@ -592,8 +561,6 @@ namespace LSC_Trainer
                     }
                 };
                 timer.Start();
-
-                
             }
             catch (Exception ex)
             {
