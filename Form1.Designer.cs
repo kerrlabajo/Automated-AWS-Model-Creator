@@ -610,7 +610,7 @@ namespace LSC_Trainer
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.logBox);
             this.panel2.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.panel2.Location = new System.Drawing.Point(12, 417);
+            this.panel2.Location = new System.Drawing.Point(12, 406);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1303, 340);
             this.panel2.TabIndex = 33;
