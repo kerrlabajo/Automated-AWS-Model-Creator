@@ -211,22 +211,39 @@ namespace LSC_Trainer
         private void btnTraining_Click(object sender, EventArgs e)
         {
             SetTrainingParameters(
-                out string img_size,
-                out string batch_size,
-                out string epochs,
-                out string weights,
-                out string data,
-                out string hyperparameters,
-                out string patience,
-                out string workers,
-                out string optimizer,
-                out string device);
+                    out string img_size,
+                    out string batch_size,
+                    out string epochs,
+                    out string weights,
+                    out string data,
+                    out string hyperparameters,
+                    out string patience,
+                    out string workers,
+                    out string optimizer,
+                    out string device);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
-            InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-            btnTraining.Enabled = false;
+
+            if (HasCustomUploads(customUploadsURI))
+            {
+                InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                btnTraining.Enabled = false;
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                if (result == DialogResult.OK)
+                {
+                    InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                    btnTraining.Enabled = false;
+                }
+                else
+                {
+                    return;
+                }
+            }
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
@@ -234,6 +251,8 @@ namespace LSC_Trainer
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
             //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
 
+            Console.WriteLine(outputKey);
+            Console.WriteLine(modelKey);
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder to save the results and model";
