@@ -260,10 +260,30 @@ namespace LSC_Trainer
 
                     if (result == DialogResult.Yes)
                     {
-                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                        try
+                        {
+                            Cursor = Cursors.WaitCursor;
+                            logBox.Visible = true;
+                            logBox.Cursor = Cursors.WaitCursor;
+                            mainPanel.Enabled = false;
+                            string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            DisplayLogMessage(outputResponse);
+                            string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            DisplayLogMessage(modelResponse);
                     }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Error downloading model.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        finally
+                        {
+                            Cursor = Cursors.Default;
+                            logBox.Cursor = Cursors.Default;
+                            mainPanel.Enabled = true;
                 }
+                        
+            }
+        }
             }
         }
 
