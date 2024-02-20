@@ -122,12 +122,10 @@ namespace LSC_Trainer
             try
             {
                 var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
-                Console.WriteLine("Connection successful.");
                 MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception error)
             {
-                Console.WriteLine($"Unexpected error: {error.Message}");
                 MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -251,8 +249,6 @@ namespace LSC_Trainer
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
             //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
 
-            Console.WriteLine(outputKey);
-            Console.WriteLine(modelKey);
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder to save the results and model";
@@ -363,13 +359,6 @@ namespace LSC_Trainer
 
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
         {
-            if (Path.GetFileName(customUploadsURI) == "custom-uploads")
-            {
-                Console.WriteLine(customUploadsURI + "failed");
-                MessageBox.Show("Please upload a dataset first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw new Exception("Please upload a dataset first.");
-            }
-
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
@@ -461,8 +450,6 @@ namespace LSC_Trainer
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 string datasetKey = customUploadsURI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
                 bool deleteDataset = false;
-
-                Console.WriteLine("Training job executed successfully.");
 
                 DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
                 {
@@ -595,7 +582,6 @@ namespace LSC_Trainer
                         
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
                         {
-                            Console.WriteLine(tracker.FailureReason);
                             DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
                             timer.Stop();
                         }
@@ -611,7 +597,6 @@ namespace LSC_Trainer
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creating training job: {ex.Message}");
                 MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnTraining.Enabled = true;
             }
