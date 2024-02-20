@@ -208,10 +208,10 @@ namespace LSC_Trainer
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.btnSelectDataset);
-            this.panel1.Location = new System.Drawing.Point(12, 40);
+            this.panel1.Location = new System.Drawing.Point(12, 41);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1303, 356);
+            this.panel1.Size = new System.Drawing.Size(1303, 344);
             this.panel1.TabIndex = 4;
             // 
             // label12
