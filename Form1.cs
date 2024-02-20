@@ -6,17 +6,25 @@ using Amazon;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
+using Amazon.CloudWatchLogs;
+using Amazon.CloudWatchLogs.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
+using Amazon.Runtime;
+using System.Threading.Tasks;
+using Amazon.Runtime.Internal;
+using Amazon.Runtime.Internal.Util;
+using System.Threading;
 
 namespace LSC_Trainer
 {
-    public partial class Form1 : Form
+    public partial class lscTrainerForm : Form
     {
 
         private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
+        private readonly AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private Utility utility = new Utility();
 
         private readonly string ACCESS_KEY;
@@ -46,7 +54,7 @@ namespace LSC_Trainer
         private string outputKey;
         private string modelKey;
 
-        public Form1()
+        public lscTrainerForm()
         {
             InitializeComponent();
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
@@ -72,6 +80,7 @@ namespace LSC_Trainer
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
+            cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
 
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
@@ -106,49 +115,26 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
-            enableUploadToS3Button(false);
-            enableDownloadModelButton(false);
+            btnUploadToS3.Enabled = false;
+            btnDownloadModel.Enabled = false;
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-          
+            try
+            {
+                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-
-        // TODO: Update training parameters:
-        // - img_size (dropdown)
-        // - weights (very dependent of img_size)(not interactable but changeable)
-        // - hyperparameters (dropdown)(has button to customize specific params)
-        // Customizing hyperparameters will open a new form that contains the configurable parameters
-        // via meter/toggle bars that shows or manually edit its fractional values.
-        // These values will then be entered in `HyperParameters` in the `CreateTrainingJobRequest`.
-        // (This is still not guaranteed but this requires writing the values the same format as the `hyp.scratch.yaml` file
-        // from the yolov5 repository in the user's directory/memory stream.)
-        // (Do not implement this feature yet. This is only for consideration. Keep it as is.)
-        // TODO: Add logout.
-        // TODO: Add help link.
-
-
-        // TODO: Download model should first retrieve list of models from S3 bucket that was fetched from 
-        // one or more training jobs. The user will then select the model to download.
-        // This features guarantees that the form can be closed and reopened without losing the model.
-        // TODO: Display the log stream of the training job request in the form when the training is in progress.
-        // TODO: Preferably create another form when performing a new training job request.
-        // The tasks should be implemented in branch `feat/ui-qol-fix`.
 
         private void Form1_Load(object sender, EventArgs e)
         {
 
-        }
-
-        private void enableUploadToS3Button(bool intent)
-        {
-            btnUploadToS3.Enabled = intent;
-        }
-
-        private void enableDownloadModelButton(bool intent)
-        {
-            btnDownloadModel.Enabled = intent;
         }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
@@ -166,9 +152,8 @@ namespace LSC_Trainer
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected file: {datasetPath}");
-                    btnRemoveFile.Visible = true;
                     isFile = true;
-                    enableUploadToS3Button(true);
+                    btnUploadToS3.Enabled = true;
                 }
             }
         }
@@ -188,18 +173,10 @@ namespace LSC_Trainer
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
-                    btnRemoveFile.Visible = true;
                     isFile = false;
-                    enableUploadToS3Button(true);
+                    btnUploadToS3.Enabled = true;
                 }
             }
-        }
-        private void btnRemoveFile_Click(object sender, EventArgs e)
-        {
-            datasetPath = null;
-            lblZipFile.Text = "No file selected";
-            btnRemoveFile.Visible = false;
-            enableUploadToS3Button(false);
         }
 
         private void btnUploadToS3_Click(object sender, EventArgs e)
@@ -223,22 +200,43 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
+            logBox.Clear();
+            instanceTypeBox.Text = "";
+            trainingDurationBox.Text = "";
+            trainingStatusBox.Text = "";
+            descBox.Text = "";
             SetTrainingParameters(
-                out string img_size,
-                out string batch_size,
-                out string epochs,
-                out string weights,
-                out string data,
-                out string hyperparameters,
-                out string patience,
-                out string workers,
-                out string optimizer,
-                out string device);
+                    out string img_size,
+                    out string batch_size,
+                    out string epochs,
+                    out string weights,
+                    out string data,
+                    out string hyperparameters,
+                    out string patience,
+                    out string workers,
+                    out string optimizer,
+                    out string device);
 
             trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
-            InitiateTrainingJob(trainingRequest);
+
+            if (HasCustomUploads(customUploadsURI))
+            {
+                InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                if (result == DialogResult.OK)
+                {
+                    InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                }
+                else
+                {
+                    return;
+                }
+            }
         }
 
         //TODO: Download model should first retrieve list of models from S3 bucket that was fetched from
@@ -298,7 +296,6 @@ namespace LSC_Trainer
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            btnRemoveFile_Click(sender, e);
             MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
         }
@@ -307,6 +304,12 @@ namespace LSC_Trainer
         {
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
+
+        // TODO: Create another background worker for training job request.
+        // TODO: Display the status of the training job request in the form.
+        // TODO: Display the log stream of the training job request in the form when the training is in progress.
+        // TODO: Preferably create another form when performing a new training job request.
+        // The tasks should be implemented in branch `feat/training-logging`.
 
         private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
         {
@@ -354,13 +357,6 @@ namespace LSC_Trainer
 
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
         {
-            if (Path.GetFileName(customUploadsURI) == "custom-uploads")
-            {
-                Console.WriteLine(customUploadsURI + "failed");
-                MessageBox.Show("Please upload a dataset first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw new Exception("Please upload a dataset first.");
-            }
-
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
@@ -442,18 +438,55 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
-        private void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
+        //private Dictionary<string, TrainingInfoForm> trainingJobs = new Dictionary<string, TrainingInfoForm>();
+
+        private void InputsEnabler(bool intent)
         {
+            imgSizeDropdown.Enabled = intent;
+            txtBatchSize.Enabled = intent;
+            txtEpochs.Enabled = intent;
+            txtWeights.Enabled = intent;
+            txtData.Enabled = intent;
+            hyperparamsDropdown.Enabled = intent;
+            txtPatience.Enabled = intent;
+            txtWorkers.Enabled = intent;
+            txtOptimizer.Enabled = intent;
+            txtDevice.Enabled = intent;
+            btnSelectDataset.Enabled = intent;
+            btnSelectFolder.Enabled = intent;
+            btnUploadToS3.Enabled = intent;
+            btnTraining.Enabled = intent;
+            btnDownloadModel.Enabled = intent;
+            lblZipFile.Enabled = intent;
+            logBox.UseWaitCursor = !intent;
+        }
+        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
+        {
+            InputsEnabler(false);
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+                string datasetKey = customUploadsURI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
-                Console.WriteLine("Training job executed successfully.");
+                DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                {
+                    TrainingJobName = trainingJobName
+                });
+
+                // Create an entry for the current training job in the dictionary
+                //trainingJobs[trainingJobName] = new TrainingInfoForm();
+                //trainingJobs[trainingJobName].Show(); // Show the new form
+
+                System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                timer.Interval = 1000;
 
                 string prevStatusMessage = "";
-                Timer timer = new Timer();
-                timer.Interval = 5000;
+                string prevLogMessage = "";
+                int prevLogIndex = 0;
+                // show panel
+                logPanel.Visible = true;
+
                 timer.Tick += async (sender1, e1) =>
                 {
                     try
@@ -463,52 +496,178 @@ namespace LSC_Trainer
                             TrainingJobName = trainingJobName
                         });
 
+                        // Update training duration
+                        TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
+                        string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+
+                        // Use the dictionary entry for the current training job
+                        //var currentTrainingInfo = trainingJobs[trainingJobName];
+                        //currentTrainingInfo.Text = trainingJobName;
+
+                        if (tracker.TrainingTimeInSeconds == 0)
+                        {
+                            UpdateTrainingStatus(
+                                tracker.ResourceConfig.InstanceType.ToString(),
+                                formattedTime,
+                                tracker.SecondaryStatusTransitions.Last().Status,
+                                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                            );
+                        }
+                        else
+                        {
+                            UpdateTrainingStatus(formattedTime);
+                        }
+
+                        // CloudWatch 
+                        if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
+                        {
+                            // Get log stream
+                            string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+
+                            if (!string.IsNullOrEmpty(logStreamName))
+                            {
+                                // Print CloudWatch logs
+                                GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                                {
+                                    LogGroupName = "/aws/sagemaker/TrainingJobs",
+                                    LogStreamName = logStreamName
+                                });
+
+
+                                if (prevStatusMessage != logs.Events.Last().Message)
+                                {
+                                    for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
+                                    {
+                                        DisplayLogMessage(logs.Events[i].Message);
+                                    }
+                                    prevStatusMessage = logs.Events.Last().Message;
+                                    prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
+                                }
+                            }
+                        }
                         if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
                         {
-                            Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
-                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
-                            Console.WriteLine();
-                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
+                            UpdateTrainingStatus(
+                                tracker.SecondaryStatusTransitions.Last().Status,
+                                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                            );
                         }
 
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
-                            Console.WriteLine("Printing status history...");
-                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
-                            {
-                                Console.WriteLine("Status: " + history.Status);
-                                TimeSpan elapsed = history.EndTime - history.StartTime;
-                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                              (int)elapsed.TotalHours,
-                                              elapsed.Minutes,
-                                              elapsed.Seconds,
-                                              (int)(elapsed.Milliseconds / 100));
-                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
-                                Console.WriteLine("Description: " + history.StatusMessage);
-                                Console.WriteLine();
-                            }
+                            InputsEnabler(true);
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                            enableDownloadModelButton(true);
                             timer.Stop();
+
+                            if (HasCustomUploads(customUploadsURI))
+                            {
+                                DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                                AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
+                            }
+                            return;
                         }
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                        else if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
                         {
-                            Console.WriteLine(tracker.FailureReason);
+                            DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
+                            btnTraining.Enabled = true;
                             timer.Stop();
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error in training model: {ex.Message}");
+                        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
                 };
                 timer.Start();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creating training job: {ex.Message}");
+                MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnTraining.Enabled = true;
+                return;
             }
+        }
+
+        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
+        {
+            var request = new DescribeLogStreamsRequest
+            {
+                LogGroupName = logGroupName,
+                LogStreamNamePrefix = trainingJobName
+            };
+
+            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+
+            var latestLogStream = response.LogStreams.FirstOrDefault();
+
+            if (latestLogStream != null)
+            {
+                return latestLogStream.LogStreamName;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName)
+        {
+            var request = new DescribeLogStreamsRequest
+            {
+                LogGroupName = logGroupName,
+                LogStreamNamePrefix = trainingJobName
+            };
+
+            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+
+            var latestLogStream = response.LogStreams.FirstOrDefault();
+
+            if (latestLogStream != null)
+            {
+                return latestLogStream.LogStreamName;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void newTrainingJobToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var t = new Thread(() => Application.Run(new lscTrainerForm()));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+        }
+
+        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
+        {
+            instanceTypeBox.Text = instanceType;
+            trainingDurationBox.Text = trainingDuration;
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
+            //PrevStatusMessage = status;
+        }
+        public void UpdateTrainingStatus(string trainingDuration)
+        {
+            trainingDurationBox.Text = trainingDuration;
+        }
+        public void UpdateTrainingStatus(string status, string description)
+        {
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
+            //PrevStatusMessage = status;
+        }
+
+        public void DisplayLogMessage(string logMessage)
+        {
+            // Append log messages to the TextBox
+            logBox.AppendText(logMessage + Environment.NewLine);
+
+            // Scroll to the end to show the latest log messages
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
         }
 
         private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
@@ -574,7 +733,7 @@ namespace LSC_Trainer
             }
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private async void btnFetchModels_Click(object sender, EventArgs e)
         {
             try
             {
