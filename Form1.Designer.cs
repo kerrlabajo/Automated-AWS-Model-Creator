@@ -99,6 +99,7 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
             this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
             this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 28);
+            this.lscTrainerMenuStrip.Cursor = System.Windows.Forms.Cursors.Default;
             this.lscTrainerMenuStrip.TabIndex = 1;
             // 
             // connectionMenu
