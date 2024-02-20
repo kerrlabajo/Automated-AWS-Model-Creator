@@ -30,8 +30,6 @@ namespace LSC_Trainer
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lscTrainerMenuStrip = new System.Windows.Forms.MenuStrip();
             this.connectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,7 +75,6 @@ namespace LSC_Trainer
             this.epochsLabel = new System.Windows.Forms.Label();
             this.batchSizeLabel = new System.Windows.Forms.Label();
             this.imageSizeLabel = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.selectedFileLabel = new System.Windows.Forms.Label();
             this.imgSizeDropdown = new System.Windows.Forms.ComboBox();
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
@@ -86,25 +83,10 @@ namespace LSC_Trainer
             this.logBox = new System.Windows.Forms.TextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
-            this.contextMenuStrip1.SuspendLayout();
             this.lscTrainerMenuStrip.SuspendLayout();
             this.mainPanel.SuspendLayout();
             this.logPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.connectToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(133, 28);
-            // 
-            // connectToolStripMenuItem
-            // 
-            this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(132, 24);
-            this.connectToolStripMenuItem.Text = "Connect";
             // 
             // lscTrainerMenuStrip
             // 
