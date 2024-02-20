@@ -324,38 +324,35 @@ namespace LSC_Trainer.Functions
 
         public static async Task DeleteDataSet(AmazonS3Client s3Client, string bucketName, string key)
         {
-            using (s3Client)
+            ListObjectsV2Request listRequest = new ListObjectsV2Request
             {
-                ListObjectsV2Request listRequest = new ListObjectsV2Request
-                {
-                    BucketName = bucketName,
-                    Prefix = key
-                };
+                BucketName = bucketName,
+                Prefix = key
+            };
 
-                ListObjectsV2Response listResponse;
-                do
-                {
-                    // Get the list of objects
-                    listResponse = await s3Client.ListObjectsV2Async(listRequest);
+            ListObjectsV2Response listResponse;
+            do
+            {
+                // Get the list of objects
+                listResponse = await s3Client.ListObjectsV2Async(listRequest);
 
-                    // Delete each object
-                    foreach (S3Object obj in listResponse.S3Objects)
+                // Delete each object
+                foreach (S3Object obj in listResponse.S3Objects)
+                {
+                    var deleteRequest = new DeleteObjectRequest
                     {
-                        var deleteRequest = new DeleteObjectRequest
-                        {
-                            BucketName = bucketName,
-                            Key = obj.Key
-                        };
+                        BucketName = bucketName,
+                        Key = obj.Key
+                    };
 
-                        await s3Client.DeleteObjectAsync(deleteRequest);
-                    }
+                    await s3Client.DeleteObjectAsync(deleteRequest);
+                }
 
-                    // Set the marker property
-                    listRequest.ContinuationToken = listResponse.NextContinuationToken;
-                } while (listResponse.IsTruncated);
+                // Set the marker property
+                listRequest.ContinuationToken = listResponse.NextContinuationToken;
+            } while (listResponse.IsTruncated);
 
-                MessageBox.Show($"Deleted dataset: {key}");
-            }
+            MessageBox.Show($"Deleted dataset: {key}");
         }
     }
 
