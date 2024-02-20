@@ -219,7 +219,6 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.epochsLabel);
             this.mainPanel.Controls.Add(this.batchSizeLabel);
             this.mainPanel.Controls.Add(this.imageSizeLabel);
-            this.mainPanel.Controls.Add(this.label2);
             this.mainPanel.Controls.Add(this.selectedFileLabel);
             this.mainPanel.Controls.Add(this.btnSelectDataset);
             this.mainPanel.Controls.Add(this.imgSizeDropdown);
@@ -567,14 +566,6 @@ namespace LSC_Trainer
             this.imageSizeLabel.TabIndex = 7;
             this.imageSizeLabel.Text = "Image Size:";
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(143, 25);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(0, 16);
-            this.label2.TabIndex = 5;
-            // 
             // selectedFileLabel
             // 
             this.selectedFileLabel.AutoSize = true;
@@ -687,7 +678,6 @@ namespace LSC_Trainer
             this.Name = "MainForm";
             this.Text = "LSC Trainer";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.contextMenuStrip1.ResumeLayout(false);
             this.lscTrainerMenuStrip.ResumeLayout(false);
             this.lscTrainerMenuStrip.PerformLayout();
             this.mainPanel.ResumeLayout(false);
@@ -701,8 +691,6 @@ namespace LSC_Trainer
 
         #endregion
 
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.MenuStrip lscTrainerMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem connectionMenu;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
@@ -710,7 +698,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.Button btnSelectDataset;
         private System.Windows.Forms.Label lblZipFile;
         private System.Windows.Forms.Label selectedFileLabel;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label imageSizeLabel;
         private System.Windows.Forms.Label batchSizeLabel;
         private System.Windows.Forms.Label epochsLabel;
@@ -746,7 +733,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.ToolStripMenuItem closeConnectionMenu;
         private System.Windows.Forms.ToolStripMenuItem testConnectionMenu;
         private System.Windows.Forms.ComboBox modelListComboBox;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ToolStripMenuItem newTrainingJobMenu;
         private System.Windows.Forms.TextBox logBox;
         private System.Windows.Forms.Label instanceTypelbl;
