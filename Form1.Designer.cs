@@ -177,7 +177,7 @@ namespace LSC_Trainer
             this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectDataset.Name = "btnSelectDataset";
             this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
-            this.btnSelectDataset.TabIndex = 2;
+            this.btnSelectDataset.TabIndex = 11;
             this.btnSelectDataset.Text = "Select Dataset (.zip)";
             this.btnSelectDataset.UseVisualStyleBackColor = false;
             this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectDataset_Click);
@@ -332,7 +332,7 @@ namespace LSC_Trainer
             this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
-            this.btnSelectFolder.TabIndex = 43;
+            this.btnSelectFolder.TabIndex = 12;
             this.btnSelectFolder.Text = "Select Dataset (folder)";
             this.btnSelectFolder.UseVisualStyleBackColor = false;
             this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
@@ -344,7 +344,7 @@ namespace LSC_Trainer
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
-            this.btnDownloadModel.TabIndex = 42;
+            this.btnDownloadModel.TabIndex = 17;
             this.btnDownloadModel.Text = "Download Model";
             this.btnDownloadModel.UseVisualStyleBackColor = false;
             this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
@@ -356,7 +356,7 @@ namespace LSC_Trainer
             this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
-            this.btnUploadToS3.TabIndex = 40;
+            this.btnUploadToS3.TabIndex = 13;
             this.btnUploadToS3.Text = "Upload Dataset";
             this.btnUploadToS3.UseVisualStyleBackColor = false;
             this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
@@ -377,7 +377,7 @@ namespace LSC_Trainer
             this.txtDevice.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtDevice.Name = "txtDevice";
             this.txtDevice.Size = new System.Drawing.Size(145, 22);
-            this.txtDevice.TabIndex = 39;
+            this.txtDevice.TabIndex = 10;
             this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // trainingStatusLabel
@@ -413,7 +413,7 @@ namespace LSC_Trainer
             this.txtOptimizer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtOptimizer.Name = "txtOptimizer";
             this.txtOptimizer.Size = new System.Drawing.Size(145, 22);
-            this.txtOptimizer.TabIndex = 37;
+            this.txtOptimizer.TabIndex = 9;
             this.txtOptimizer.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // trainingDurationLabel
@@ -451,7 +451,7 @@ namespace LSC_Trainer
             this.txtWorkers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWorkers.Name = "txtWorkers";
             this.txtWorkers.Size = new System.Drawing.Size(145, 22);
-            this.txtWorkers.TabIndex = 35;
+            this.txtWorkers.TabIndex = 8;
             this.txtWorkers.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // workersLabel
@@ -469,7 +469,7 @@ namespace LSC_Trainer
             this.txtPatience.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtPatience.Name = "txtPatience";
             this.txtPatience.Size = new System.Drawing.Size(145, 22);
-            this.txtPatience.TabIndex = 33;
+            this.txtPatience.TabIndex = 7;
             this.txtPatience.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // patienceLabel
@@ -488,7 +488,7 @@ namespace LSC_Trainer
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
-            this.btnTraining.TabIndex = 28;
+            this.btnTraining.TabIndex = 14;
             this.btnTraining.Text = "Train";
             this.btnTraining.UseVisualStyleBackColor = false;
             this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
@@ -509,7 +509,7 @@ namespace LSC_Trainer
             this.txtData.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtData.Name = "txtData";
             this.txtData.Size = new System.Drawing.Size(145, 22);
-            this.txtData.TabIndex = 16;
+            this.txtData.TabIndex = 5;
             this.txtData.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // txtWeights
@@ -518,7 +518,7 @@ namespace LSC_Trainer
             this.txtWeights.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtWeights.Name = "txtWeights";
             this.txtWeights.Size = new System.Drawing.Size(145, 22);
-            this.txtWeights.TabIndex = 15;
+            this.txtWeights.TabIndex = 4;
             this.txtWeights.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // txtEpochs
@@ -527,7 +527,7 @@ namespace LSC_Trainer
             this.txtEpochs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtEpochs.Name = "txtEpochs";
             this.txtEpochs.Size = new System.Drawing.Size(145, 22);
-            this.txtEpochs.TabIndex = 14;
+            this.txtEpochs.TabIndex = 3;
             this.txtEpochs.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // txtBatchSize
@@ -536,7 +536,7 @@ namespace LSC_Trainer
             this.txtBatchSize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtBatchSize.Name = "txtBatchSize";
             this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
-            this.txtBatchSize.TabIndex = 13;
+            this.txtBatchSize.TabIndex = 2;
             this.txtBatchSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // dataLabel
@@ -611,7 +611,7 @@ namespace LSC_Trainer
             this.imgSizeDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.imgSizeDropdown.Name = "imgSizeDropdown";
             this.imgSizeDropdown.Size = new System.Drawing.Size(145, 24);
-            this.imgSizeDropdown.TabIndex = 45;
+            this.imgSizeDropdown.TabIndex = 1;
             this.imgSizeDropdown.SelectionChangeCommitted += new System.EventHandler(this.imgSizeDropdown_SelectionChangeCommitted);
             // 
             // hyperparamsDropdown
@@ -629,7 +629,7 @@ namespace LSC_Trainer
             this.hyperparamsDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.hyperparamsDropdown.Name = "hyperparamsDropdown";
             this.hyperparamsDropdown.Size = new System.Drawing.Size(145, 24);
-            this.hyperparamsDropdown.TabIndex = 46;
+            this.hyperparamsDropdown.TabIndex = 6;
             this.hyperparamsDropdown.SelectedValueChanged += new System.EventHandler(this.hyperparamsDropdown_SelectedValueChanged);
             // 
             // modelListComboBox
@@ -639,7 +639,7 @@ namespace LSC_Trainer
             this.modelListComboBox.Location = new System.Drawing.Point(691, 257);
             this.modelListComboBox.Name = "modelListComboBox";
             this.modelListComboBox.Size = new System.Drawing.Size(410, 24);
-            this.modelListComboBox.TabIndex = 47;
+            this.modelListComboBox.TabIndex = 15;
             this.modelListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
             // 
             // btnFetchModels
@@ -647,7 +647,7 @@ namespace LSC_Trainer
             this.btnFetchModels.Location = new System.Drawing.Point(691, 295);
             this.btnFetchModels.Name = "btnFetchModels";
             this.btnFetchModels.Size = new System.Drawing.Size(120, 30);
-            this.btnFetchModels.TabIndex = 48;
+            this.btnFetchModels.TabIndex = 16;
             this.btnFetchModels.Text = "Fetch Models";
             this.btnFetchModels.UseVisualStyleBackColor = true;
             this.btnFetchModels.Click += new System.EventHandler(this.btnFetchModels_Click);
