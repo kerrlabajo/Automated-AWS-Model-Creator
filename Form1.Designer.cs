@@ -214,6 +214,54 @@ namespace LSC_Trainer
             this.panel1.Size = new System.Drawing.Size(1303, 344);
             this.panel1.TabIndex = 4;
             // 
+            // descBox
+            // 
+            this.descBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.descBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.descBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.descBox.Location = new System.Drawing.Point(833, 155);
+            this.descBox.MaximumSize = new System.Drawing.Size(268, 40);
+            this.descBox.MinimumSize = new System.Drawing.Size(268, 40);
+            this.descBox.Name = "descBox";
+            this.descBox.Size = new System.Drawing.Size(268, 40);
+            this.descBox.TabIndex = 49;
+            // 
+            // trainingStatusBox
+            // 
+            this.trainingStatusBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.trainingStatusBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.trainingStatusBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.trainingStatusBox.Location = new System.Drawing.Point(833, 125);
+            this.trainingStatusBox.MaximumSize = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.MinimumSize = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.Name = "trainingStatusBox";
+            this.trainingStatusBox.Size = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.TabIndex = 48;
+            // 
+            // trainingDurationBox
+            // 
+            this.trainingDurationBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.trainingDurationBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.trainingDurationBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.trainingDurationBox.Location = new System.Drawing.Point(833, 98);
+            this.trainingDurationBox.MaximumSize = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.MinimumSize = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.Name = "trainingDurationBox";
+            this.trainingDurationBox.Size = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.TabIndex = 47;
+            // 
+            // instanceTypeBox
+            // 
+            this.instanceTypeBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.instanceTypeBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.instanceTypeBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.instanceTypeBox.Location = new System.Drawing.Point(833, 71);
+            this.instanceTypeBox.MaximumSize = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.MinimumSize = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.Name = "instanceTypeBox";
+            this.instanceTypeBox.Size = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.TabIndex = 46;
+            // 
             // label12
             // 
             this.label12.AutoSize = true;
@@ -224,15 +272,6 @@ namespace LSC_Trainer
             this.label12.TabIndex = 45;
             this.label12.Text = "TRAINING JOB INFORMATION";
             // 
-            // instanceTypeBox
-            // 
-            this.instanceTypeBox.Enabled = false;
-            this.instanceTypeBox.Location = new System.Drawing.Point(833, 69);
-            this.instanceTypeBox.Name = "instanceTypeBox";
-            this.instanceTypeBox.ReadOnly = true;
-            this.instanceTypeBox.Size = new System.Drawing.Size(268, 22);
-            this.instanceTypeBox.TabIndex = 32;
-            // 
             // progressBar
             // 
             this.progressBar.Location = new System.Drawing.Point(232, 260);
@@ -240,15 +279,6 @@ namespace LSC_Trainer
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(171, 23);
             this.progressBar.TabIndex = 44;
-            // 
-            // trainingDurationBox
-            // 
-            this.trainingDurationBox.Enabled = false;
-            this.trainingDurationBox.Location = new System.Drawing.Point(833, 100);
-            this.trainingDurationBox.Name = "trainingDurationBox";
-            this.trainingDurationBox.ReadOnly = true;
-            this.trainingDurationBox.Size = new System.Drawing.Size(268, 22);
-            this.trainingDurationBox.TabIndex = 31;
             // 
             // btnSelectFolder
             // 
@@ -263,15 +293,6 @@ namespace LSC_Trainer
             this.btnSelectFolder.UseVisualStyleBackColor = false;
             this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
             // 
-            // trainingStatusBox
-            // 
-            this.trainingStatusBox.Enabled = false;
-            this.trainingStatusBox.Location = new System.Drawing.Point(833, 128);
-            this.trainingStatusBox.Name = "trainingStatusBox";
-            this.trainingStatusBox.ReadOnly = true;
-            this.trainingStatusBox.Size = new System.Drawing.Size(268, 22);
-            this.trainingStatusBox.TabIndex = 30;
-            // 
             // btnDownloadModel
             // 
             this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
@@ -283,16 +304,6 @@ namespace LSC_Trainer
             this.btnDownloadModel.Text = "Download Model";
             this.btnDownloadModel.UseVisualStyleBackColor = false;
             this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
-            // 
-            // descBox
-            // 
-            this.descBox.Enabled = false;
-            this.descBox.Location = new System.Drawing.Point(833, 156);
-            this.descBox.Multiline = true;
-            this.descBox.Name = "descBox";
-            this.descBox.ReadOnly = true;
-            this.descBox.Size = new System.Drawing.Size(268, 40);
-            this.descBox.TabIndex = 29;
             // 
             // btnUploadToS3
             // 
