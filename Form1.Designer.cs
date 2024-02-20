@@ -594,12 +594,12 @@ namespace LSC_Trainer
             // 
             this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
             this.logBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.logBox.Location = new System.Drawing.Point(26, 18);
+            this.logBox.Location = new System.Drawing.Point(26, 26);
             this.logBox.Multiline = true;
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
             this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.logBox.Size = new System.Drawing.Size(1262, 305);
+            this.logBox.Size = new System.Drawing.Size(1262, 297);
             this.logBox.TabIndex = 26;
             this.logBox.WordWrap = false;
             // 
