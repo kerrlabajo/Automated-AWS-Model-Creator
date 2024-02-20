@@ -735,7 +735,7 @@ namespace LSC_Trainer
 
         private async void btnFetchModels_Click(object sender, EventArgs e)
         {
-            Cursor = Cursors.WaitCursor;
+            mainPanel.Cursor = Cursors.WaitCursor;
             mainPanel.Enabled = false;
             try
             {
@@ -757,7 +757,7 @@ namespace LSC_Trainer
             }
             finally
             {
-                Cursor = Cursors.Default;
+                mainPanel.Cursor = Cursors.Default;
                 mainPanel.Enabled = true;
                 modelListComboBox.Enabled = true;
             }
