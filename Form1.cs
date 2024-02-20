@@ -477,6 +477,8 @@ namespace LSC_Trainer
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
+            modelListComboBox.Enabled = intent;
+            btnFetchModels.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
