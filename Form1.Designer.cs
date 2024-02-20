@@ -683,10 +683,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.ProgressBar progressBar;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
         private System.Windows.Forms.ToolStripMenuItem newTrainingJobToolStripMenuItem;
-        private System.Windows.Forms.TextBox instanceTypeBox;
-        private System.Windows.Forms.TextBox trainingDurationBox;
-        private System.Windows.Forms.TextBox trainingStatusBox;
-        private System.Windows.Forms.TextBox descBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox logBox;
@@ -695,6 +691,10 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label label;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label instanceTypeBox;
+        private System.Windows.Forms.Label descBox;
+        private System.Windows.Forms.Label trainingStatusBox;
+        private System.Windows.Forms.Label trainingDurationBox;
         private System.Windows.Forms.Panel SpaceBetween;
     }
 }
