@@ -450,6 +450,7 @@ namespace LSC_Trainer
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
+            btnTraining.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
