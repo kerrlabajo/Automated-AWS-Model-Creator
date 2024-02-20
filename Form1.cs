@@ -198,6 +198,11 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
+            logBox.Clear();
+            instanceTypeBox.Text = "";
+            trainingDurationBox.Text = "";
+            trainingStatusBox.Text = "";
+            descBox.Text = "";
             SetTrainingParameters(
                     out string img_size,
                     out string batch_size,
