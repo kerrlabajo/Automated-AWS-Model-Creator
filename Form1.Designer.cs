@@ -226,6 +226,7 @@ namespace LSC_Trainer
             // 
             // instanceTypeBox
             // 
+            this.instanceTypeBox.Enabled = false;
             this.instanceTypeBox.Location = new System.Drawing.Point(833, 69);
             this.instanceTypeBox.Name = "instanceTypeBox";
             this.instanceTypeBox.ReadOnly = true;
@@ -242,6 +243,7 @@ namespace LSC_Trainer
             // 
             // trainingDurationBox
             // 
+            this.trainingDurationBox.Enabled = false;
             this.trainingDurationBox.Location = new System.Drawing.Point(833, 100);
             this.trainingDurationBox.Name = "trainingDurationBox";
             this.trainingDurationBox.ReadOnly = true;
@@ -263,6 +265,7 @@ namespace LSC_Trainer
             // 
             // trainingStatusBox
             // 
+            this.trainingStatusBox.Enabled = false;
             this.trainingStatusBox.Location = new System.Drawing.Point(833, 128);
             this.trainingStatusBox.Name = "trainingStatusBox";
             this.trainingStatusBox.ReadOnly = true;
@@ -283,6 +286,7 @@ namespace LSC_Trainer
             // 
             // descBox
             // 
+            this.descBox.Enabled = false;
             this.descBox.Location = new System.Drawing.Point(833, 156);
             this.descBox.Multiline = true;
             this.descBox.Name = "descBox";
@@ -308,9 +312,9 @@ namespace LSC_Trainer
             this.label9.BackColor = System.Drawing.SystemColors.Control;
             this.label9.Location = new System.Drawing.Point(688, 156);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(75, 16);
+            this.label9.Size = new System.Drawing.Size(78, 16);
             this.label9.TabIndex = 28;
-            this.label9.Text = "Description";
+            this.label9.Text = "Description:";
             // 
             // txtDevice
             // 
@@ -327,9 +331,9 @@ namespace LSC_Trainer
             this.label10.BackColor = System.Drawing.SystemColors.Control;
             this.label10.Location = new System.Drawing.Point(688, 128);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(96, 16);
+            this.label10.Size = new System.Drawing.Size(99, 16);
             this.label10.TabIndex = 27;
-            this.label10.Text = "Training Status";
+            this.label10.Text = "Training Status:";
             // 
             // label24
             // 
@@ -363,9 +367,9 @@ namespace LSC_Trainer
             this.label11.BackColor = System.Drawing.SystemColors.Control;
             this.label11.Location = new System.Drawing.Point(688, 99);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(109, 16);
+            this.label11.Size = new System.Drawing.Size(112, 16);
             this.label11.TabIndex = 24;
-            this.label11.Text = "Training Duration";
+            this.label11.Text = "Training Duration:";
             // 
             // label23
             // 
@@ -382,9 +386,9 @@ namespace LSC_Trainer
             this.label.BackColor = System.Drawing.SystemColors.Control;
             this.label.Location = new System.Drawing.Point(688, 72);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(98, 16);
+            this.label.Size = new System.Drawing.Size(101, 16);
             this.label.TabIndex = 23;
-            this.label.Text = "Virtual Machine";
+            this.label.Text = "Virtual Machine:";
             // 
             // txtWorkers
             // 
