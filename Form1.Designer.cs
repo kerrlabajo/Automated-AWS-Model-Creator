@@ -618,9 +618,9 @@ namespace LSC_Trainer
             // 
             // SpaceBetween
             // 
-            this.SpaceBetween.Location = new System.Drawing.Point(11, 401);
+            this.SpaceBetween.Location = new System.Drawing.Point(12, 390);
             this.SpaceBetween.Name = "SpaceBetween";
-            this.SpaceBetween.Size = new System.Drawing.Size(1304, 10);
+            this.SpaceBetween.Size = new System.Drawing.Size(1303, 10);
             this.SpaceBetween.TabIndex = 34;
             // 
             // Form1
