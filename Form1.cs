@@ -113,8 +113,8 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
-            enableUploadToS3Button(false);
-            enableDownloadModelButton(false);
+            btnUploadToS3.Enabled = false;
+            btnDownloadModel.Enabled = false;
         }
 
         private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -135,16 +135,6 @@ namespace LSC_Trainer
 
         }
 
-        private void enableUploadToS3Button(bool intent)
-        {
-            btnUploadToS3.Enabled = intent;
-        }
-
-        private void enableDownloadModelButton(bool intent)
-        {
-            btnDownloadModel.Enabled = intent;
-        }
-
         private void btnSelectDataset_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -161,7 +151,7 @@ namespace LSC_Trainer
 
                     MessageBox.Show($"Selected file: {datasetPath}");
                     isFile = true;
-                    enableUploadToS3Button(true);
+                    btnUploadToS3.Enabled = true;
                 }
             }
         }
@@ -182,7 +172,7 @@ namespace LSC_Trainer
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     isFile = false;
-                    enableUploadToS3Button(true);
+                    btnUploadToS3.Enabled = true;
                 }
             }
         }
@@ -227,7 +217,6 @@ namespace LSC_Trainer
             if (HasCustomUploads(customUploadsURI))
             {
                 InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-                btnTraining.Enabled = false;
             }
             else
             {
@@ -235,7 +224,6 @@ namespace LSC_Trainer
                 if (result == DialogResult.OK)
                 {
                     InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-                    btnTraining.Enabled = false;
                 }
                 else
                 {
@@ -442,8 +430,28 @@ namespace LSC_Trainer
 
         //private Dictionary<string, TrainingInfoForm> trainingJobs = new Dictionary<string, TrainingInfoForm>();
 
+        private void InputsEnabler(bool intent)
+        {
+            txtImageSize.Enabled = intent;
+            txtBatchSize.Enabled = intent;
+            txtEpochs.Enabled = intent;
+            txtWeights.Enabled = intent;
+            txtData.Enabled = intent;
+            txtHyperparameters.Enabled = intent;
+            txtPatience.Enabled = intent;
+            txtWorkers.Enabled = intent;
+            txtOptimizer.Enabled = intent;
+            txtDevice.Enabled = intent;
+            btnSelectDataset.Enabled = intent;
+            btnSelectFolder.Enabled = intent;
+            btnUploadToS3.Enabled = intent;
+            btnDownloadModel.Enabled = intent;
+            lblZipFile.Enabled = intent;
+            logBox.UseWaitCursor = !intent;
+        }
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
+            InputsEnabler(false);
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
@@ -536,6 +544,7 @@ namespace LSC_Trainer
 
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
+                            InputsEnabler(true);
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             enableDownloadModelButton(true);
