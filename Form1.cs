@@ -735,6 +735,8 @@ namespace LSC_Trainer
 
         private async void btnFetchModels_Click(object sender, EventArgs e)
         {
+            Cursor = Cursors.WaitCursor;
+            mainPanel.Enabled = false;
             try
             {
                 List<string> models = await AWS_Helper.GetModelListFromS3(s3Client, SAGEMAKER_BUCKET);
@@ -745,16 +747,19 @@ namespace LSC_Trainer
 
                     foreach (var obj in models)
                     {
-                        Console.WriteLine($"Object: {obj}");
                         modelListComboBox.Items.Add(obj); 
                     }
                 }
-
-                modelListComboBox.Enabled = true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+                mainPanel.Enabled = true;
+                modelListComboBox.Enabled = true;
             }
         }
 
