@@ -247,7 +247,7 @@ namespace LSC_Trainer
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
             //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
-            
+
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder to save the results and model";
@@ -270,7 +270,7 @@ namespace LSC_Trainer
                             DisplayLogMessage(outputResponse);
                             string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                             DisplayLogMessage(modelResponse);
-                    }
+                        }
                         catch (Exception)
                         {
                             MessageBox.Show("Error downloading model.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -280,10 +280,10 @@ namespace LSC_Trainer
                             Cursor = Cursors.Default;
                             logBox.Cursor = Cursors.Default;
                             mainPanel.Enabled = true;
-                }
+                        }
                         
-            }
-        }
+                    }
+                }
             }
         }
 
@@ -587,7 +587,7 @@ namespace LSC_Trainer
 
                             if (HasCustomUploads(customUploadsURI))
                             {
-                                DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                                DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
                                 AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                             }
                             return;
