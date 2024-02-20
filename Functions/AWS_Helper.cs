@@ -270,8 +270,9 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static async Task DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        public static async Task<string> DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
         {
+            string response = "";
             try
             {
                 DateTime startTime = DateTime.Now;
@@ -288,37 +289,31 @@ namespace LSC_Trainer.Functions
                         FilePath = filePath
                     };
 
-                    // Add an event handler for the WriteObjectProgressEvent
-                    downloadRequest.WriteObjectProgressEvent += (sender, e) =>
-                    {
-                        Console.WriteLine($"Downloaded {e.TransferredBytes}/{e.TotalBytes} bytes. {e.PercentDone}% complete.");
-                    };
-
                     await transferUtility.DownloadAsync(downloadRequest);
 
-                    Console.WriteLine($"File has been saved to {localFilePath}");
+                    response += $"{Environment.NewLine} File has been saved to {filePath} {Environment.NewLine}";
                     TimeSpan totalTime = DateTime.Now - startTime;
                     string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                         (int)totalTime.TotalHours,
                         totalTime.Minutes,
                         totalTime.Seconds,
                         (int)(totalTime.Milliseconds / 100));
-                    Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
+                    response += $"Total Time Taken: {formattedTotalTime}";
                 }
             }
             catch (AggregateException e)
             {
-                Console.WriteLine("Error downloading file: " + e.Message);
+                throw e;
             }
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine("Error downloading file: " + e.Message);
-                Console.WriteLine($"UnauthorizedAccessException at: {e.StackTrace}");
+                throw e;
             }
             catch (AmazonS3Exception e)
             {
-                Console.WriteLine("Error downloading file: " + e.Message);
+                throw e;
             }
+            return response;
         }
 
         public static async Task DeleteDataSet(AmazonS3Client s3Client, string bucketName, string key)
