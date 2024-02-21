@@ -29,21 +29,13 @@ namespace LSC_Trainer
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.lscTrainerMenuStrip = new System.Windows.Forms.MenuStrip();
             this.connectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.testConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.connectToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.createConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.testConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
@@ -87,26 +79,14 @@ namespace LSC_Trainer
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
             this.modelListComboBox = new System.Windows.Forms.ComboBox();
             this.btnFetchModels = new System.Windows.Forms.Button();
+            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnBuildImage = new System.Windows.Forms.Button();
             this.logBox = new System.Windows.Forms.TextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
             this.lscTrainerMenuStrip.SuspendLayout();
             this.mainPanel.SuspendLayout();
             this.logPanel.SuspendLayout();
-            this.txtImageSize = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.buildImage = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.contextMenuStrip1.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lscTrainerMenuStrip
@@ -119,8 +99,7 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
             this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 28);
-            this.lscTrainerMenuStrip.Cursor = System.Windows.Forms.Cursors.Default;
+            this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 30);
             this.lscTrainerMenuStrip.TabIndex = 1;
             // 
             // connectionMenu
@@ -130,50 +109,30 @@ namespace LSC_Trainer
             this.closeConnectionMenu,
             this.testConnectionMenu});
             this.connectionMenu.Name = "connectionMenu";
-            this.connectionMenu.Size = new System.Drawing.Size(98, 24);
+            this.connectionMenu.Size = new System.Drawing.Size(98, 26);
             this.connectionMenu.Text = "Connection";
             this.connectionMenu.Click += new System.EventHandler(this.connectToolStripMenuItem1_Click);
             // 
             // createConnectionMenu
             // 
             this.createConnectionMenu.Name = "createConnectionMenu";
-            this.createConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.createConnectionMenu.Size = new System.Drawing.Size(224, 26);
             this.createConnectionMenu.Text = "Create Connection";
+            this.createConnectionMenu.Click += new System.EventHandler(this.createConnectionMenu_Click);
             // 
             // closeConnectionMenu
             // 
             this.closeConnectionMenu.Name = "closeConnectionMenu";
             this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.closeConnectionMenu.Text = "Close Connection";
-            this.connectToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createConnectionToolStripMenuItem,
-            this.closeConnectionToolStripMenuItem,
-            this.testConnectionToolStripMenuItem});
-            this.connectToolStripMenuItem1.Name = "connectToolStripMenuItem1";
-            this.connectToolStripMenuItem1.Size = new System.Drawing.Size(98, 24);
-            this.connectToolStripMenuItem1.Text = "Connection";
-            this.connectToolStripMenuItem1.Click += new System.EventHandler(this.connectToolStripMenuItem1_Click);
+            this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
-            // createConnectionToolStripMenuItem
+            // testConnectionMenu
             // 
-            this.createConnectionToolStripMenuItem.Name = "createConnectionToolStripMenuItem";
-            this.createConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.createConnectionToolStripMenuItem.Text = "Create Connection";
-            this.createConnectionToolStripMenuItem.Click += new System.EventHandler(this.createConnectionToolStripMenuItem_Click);
-            // 
-            // closeConnectionToolStripMenuItem
-            // 
-            this.closeConnectionToolStripMenuItem.Name = "closeConnectionToolStripMenuItem";
-            this.closeConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.closeConnectionToolStripMenuItem.Text = "Close Connection";
-            this.closeConnectionToolStripMenuItem.Click += new System.EventHandler(this.closeConnectionToolStripMenuItem_Click);
-            // 
-            // testConnectionToolStripMenuItem
-            // 
-            this.testConnectionToolStripMenuItem.Name = "testConnectionToolStripMenuItem";
-            this.testConnectionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.testConnectionToolStripMenuItem.Text = "Test Connection";
-            this.testConnectionToolStripMenuItem.Click += new System.EventHandler(this.testConnectionToolStripMenuItem_Click);
+            this.testConnectionMenu.Name = "testConnectionMenu";
+            this.testConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.testConnectionMenu.Text = "Test Connection";
+            this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -188,6 +147,21 @@ namespace LSC_Trainer
             this.newTrainingJobMenu.Size = new System.Drawing.Size(137, 24);
             this.newTrainingJobMenu.Text = "New Training Job";
             this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobToolStripMenuItem_Click);
+            // 
+            // createConnectionMenu
+            // 
+            this.createConnectionMenu.Name = "createConnectionMenu";
+            this.createConnectionMenu.Size = new System.Drawing.Size(32, 19);
+            // 
+            // closeConnectionMenu
+            // 
+            this.closeConnectionMenu.Name = "closeConnectionMenu";
+            this.closeConnectionMenu.Size = new System.Drawing.Size(32, 19);
+            // 
+            // testConnectionMenu
+            // 
+            this.testConnectionMenu.Name = "testConnectionMenu";
+            this.testConnectionMenu.Size = new System.Drawing.Size(32, 19);
             // 
             // backgroundWorker
             // 
@@ -268,6 +242,8 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.hyperparamsDropdown);
             this.mainPanel.Controls.Add(this.modelListComboBox);
             this.mainPanel.Controls.Add(this.btnFetchModels);
+            this.mainPanel.Controls.Add(this.btnRefresh);
+            this.mainPanel.Controls.Add(this.btnBuildImage);
             this.mainPanel.Location = new System.Drawing.Point(12, 42);
             this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.mainPanel.Name = "mainPanel";
@@ -669,6 +645,26 @@ namespace LSC_Trainer
             this.btnFetchModels.UseVisualStyleBackColor = true;
             this.btnFetchModels.Click += new System.EventHandler(this.btnFetchModels_Click);
             // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(691, 211);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(75, 33);
+            this.btnRefresh.TabIndex = 6;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
+            // btnBuildImage
+            // 
+            this.btnBuildImage.Location = new System.Drawing.Point(795, 211);
+            this.btnBuildImage.Name = "btnBuildImage";
+            this.btnBuildImage.Size = new System.Drawing.Size(136, 33);
+            this.btnBuildImage.TabIndex = 5;
+            this.btnBuildImage.Text = "Build Image";
+            this.btnBuildImage.UseVisualStyleBackColor = true;
+            this.btnBuildImage.Click += new System.EventHandler(this.btnBuildImage_Click);
+            // 
             // logBox
             // 
             this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
@@ -702,27 +698,7 @@ namespace LSC_Trainer
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
             // 
-            // buildImage
-            // 
-            this.buildImage.Location = new System.Drawing.Point(821, 56);
-            this.buildImage.Name = "buildImage";
-            this.buildImage.Size = new System.Drawing.Size(136, 33);
-            this.buildImage.TabIndex = 5;
-            this.buildImage.Text = "Build Image";
-            this.buildImage.UseVisualStyleBackColor = true;
-            this.buildImage.Click += new System.EventHandler(this.buildImage_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(33, 56);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 33);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Refresh";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -807,12 +783,8 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label trainingDurationBox;
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
-        private System.ComponentModel.BackgroundWorker backgroundWorker;
-        private System.Windows.Forms.ToolStripMenuItem createConnectionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem closeConnectionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem testConnectionToolStripMenuItem;
-        private System.Windows.Forms.Button buildImage;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnBuildImage;
+        private System.Windows.Forms.Button btnRefresh;
     }
 }
 
