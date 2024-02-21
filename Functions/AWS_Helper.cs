@@ -1,6 +1,7 @@
 ﻿    using Amazon.S3;
 using Amazon.S3.Model;
     using Amazon.S3.Transfer;
+using Amazon.SageMaker;
     using ICSharpCode.SharpZipLib.Tar;
     using ICSharpCode.SharpZipLib.Zip;
     using System;
