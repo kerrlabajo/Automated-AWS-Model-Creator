@@ -893,6 +893,10 @@ namespace LSC_Trainer
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
+            var t = new Thread(() => Application.Run(new CreateConnectionForm(development)));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            this.Close();
         }
     }
 }
