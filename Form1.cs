@@ -106,42 +106,42 @@ namespace LSC_Trainer
                 amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
                 s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
 
-            string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
-            if (datasetName == "MMX059XA_COVERED5B")
-            {
-                imgSizeDropdown.Text = "1280";
-                txtBatchSize.Text = "1";
-                txtEpochs.Text = "1";
-                txtWeights.Text = "yolov5n6.pt";
-                txtData.Text = "MMX059XA_COVERED5B.yaml";
-                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                // txtDevice.Text = "0";
-                trainingFolder = "train";
-                validationFolder = "Verification Images";
+                string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
+                if (datasetName == "MMX059XA_COVERED5B")
+                {
+                    imgSizeDropdown.Text = "1280";
+                    txtBatchSize.Text = "1";
+                    txtEpochs.Text = "1";
+                    txtWeights.Text = "yolov5n6.pt";
+                    txtData.Text = "MMX059XA_COVERED5B.yaml";
+                    hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
+                    txtPatience.Text = "100";
+                    txtWorkers.Text = "8";
+                    txtOptimizer.Text = "SGD";
+                    txtDevice.Text = "cpu";
+                    // txtDevice.Text = "0";
+                    trainingFolder = "train";
+                    validationFolder = "Verification Images";
+                }
+                else
+                {
+                    imgSizeDropdown.Text = "640";
+                    txtBatchSize.Text = "1";
+                    txtEpochs.Text = "50";
+                    txtWeights.Text = "yolov5s.pt";
+                    txtData.Text = "data.yaml";
+                    hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
+                    txtPatience.Text = "100";
+                    txtWorkers.Text = "8";
+                    txtOptimizer.Text = "SGD";
+                    txtDevice.Text = "cpu";
+                    // txtDevice.Text = "0";
+                    trainingFolder = "train";
+                    validationFolder = "val";
+                }
+                btnUploadToS3.Enabled = false;
+                btnDownloadModel.Enabled = false;
             }
-            else
-            {
-                imgSizeDropdown.Text = "640";
-                txtBatchSize.Text = "1";
-                txtEpochs.Text = "50";
-                txtWeights.Text = "yolov5s.pt";
-                txtData.Text = "data.yaml";
-                hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                // txtDevice.Text = "0";
-                trainingFolder = "train";
-                validationFolder = "val";
-            }
-            btnUploadToS3.Enabled = false;
-            btnDownloadModel.Enabled = false;
-        }
         }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
@@ -858,19 +858,19 @@ namespace LSC_Trainer
             return roleName;
         }
 
-        private async Task<bool> IsAdminRole(Role role)
-        {
-            bool isAdmin = false;
+        //private async Task<bool> IsAdminRole(Role role)
+        //{
+        //    bool isAdmin = false;
 
-            var managedPoliciesResponse = await _iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
-            {
-                RoleName = role.RoleName
-            });
+        //    var managedPoliciesResponse = await _iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
+        //    {
+        //        RoleName = role.RoleName
+        //    });
 
-            isAdmin |= managedPoliciesResponse.AttachedPolicies.Any(policy => policy.PolicyName == "AdministratorAccess");
+        //    isAdmin |= managedPoliciesResponse.AttachedPolicies.Any(policy => policy.PolicyName == "AdministratorAccess");
 
-            return isAdmin;
-        }
+        //    return isAdmin;
+        //}
 
         private void btnBuildImage_Click(object sender, EventArgs e)
         {
