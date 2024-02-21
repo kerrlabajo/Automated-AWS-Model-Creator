@@ -71,7 +71,7 @@ namespace LSC_Trainer
             this.btnConnect.TabIndex = 6;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
-            this.btnConnect.Click += new System.EventHandler(this.button1_Click);
+            this.btnConnect.Click += new System.EventHandler(this.btnConect_Click);
             // 
             // regionDropdown
             // 
