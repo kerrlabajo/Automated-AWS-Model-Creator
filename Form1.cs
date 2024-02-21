@@ -54,6 +54,8 @@ namespace LSC_Trainer
         private string outputKey;
         private string modelKey;
 
+        private CustomHyperParamsForm customHyperParamsForm;
+
         public MainForm()
         {
             InitializeComponent();
@@ -421,6 +423,7 @@ namespace LSC_Trainer
                 {
                     MaxRuntimeInSeconds = 360000
                 },
+                HyperParameters = customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
@@ -717,10 +720,10 @@ namespace LSC_Trainer
             {
                 this.Enabled = false;
 
-                var customHyperparameterForm = new CustomHyperParamsForm();
+                customHyperParamsForm = new CustomHyperParamsForm();
 
-                customHyperparameterForm.FormClosed += OtherForm_FormClosed;
-                customHyperparameterForm.Show();
+                customHyperParamsForm.FormClosed += OtherForm_FormClosed;
+                customHyperParamsForm.Show();
             }
             else
             {
