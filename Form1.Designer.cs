@@ -147,21 +147,6 @@ namespace LSC_Trainer
             this.newTrainingJobMenu.Text = "New Training Job";
             this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobMenu_Click);
             // 
-            // createConnectionMenu
-            // 
-            this.createConnectionMenu.Name = "createConnectionMenu";
-            this.createConnectionMenu.Size = new System.Drawing.Size(32, 19);
-            // 
-            // closeConnectionMenu
-            // 
-            this.closeConnectionMenu.Name = "closeConnectionMenu";
-            this.closeConnectionMenu.Size = new System.Drawing.Size(32, 19);
-            // 
-            // testConnectionMenu
-            // 
-            this.testConnectionMenu.Name = "testConnectionMenu";
-            this.testConnectionMenu.Size = new System.Drawing.Size(32, 19);
-            // 
             // backgroundWorker
             // 
             this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
