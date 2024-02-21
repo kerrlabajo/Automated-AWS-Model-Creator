@@ -15,36 +15,36 @@ namespace LSC_Trainer
         {
             InitializeComponent();
 
-            //Default hyperparam values
-            learningRate.Text = "0.01";
-            finalLearningRate.Text = "0.01";
+            //Default hyperparam values (hyp.scratch-low.yaml)
+            lr0.Text = "0.01";
+            lrf.Text = "0.01";
             momentum.Text = "0.937";
-            weightDecay.Text = "0.0005";
-            warmupEpochs.Text = "3.0";
-            warmupMomentum.Text = "0.8";
-            warmupBias.Text = "0.1";
+            weight_decay.Text = "0.0005";
+            warmup_epochs.Text = "3.0";
+            warmup_momentum.Text = "0.8";
+            warmup_bias_lr.Text = "0.1";
             box.Text = "0.05";
             cls.Text = "0.5";
-            clsPostiveWeight.Text = "1.0";
+            cls_pw.Text = "1.0";
             obj.Text = "1.0";
-            objPositiveWeight.Text = "1.0";
-            iouTreshold.Text = "0.20";
-            anchorTreshold.Text = "4.0";
-            anchors.Text = "3";
-            focalLossGamma.Text = "0.0";
-            hsvHue.Text = "0.015";
-            hsvSaturation.Text = "0.7";
-            hsvValue.Text = "0.4";
-            imageRotation.Text = "0.0";
-            imageTranslation.Text = "0.1";
-            imageScale.Text = "0.5";
-            imageShear.Text = "0.0";
-            imagePerspective.Text = "0.0";
-            imageFlipUpDown.Text = "0.0";
-            imageFlipLeftRight.Text = "0.5";
-            imageMosaic.Text = "1.0";
-            imageMixup.Text = "0.0";
-            segementCopyPaste.Text = "0.0";
+            obj_pw.Text = "1.0";
+            iou_t.Text = "0.20";
+            anchor_t.Text = "4.0";
+            anchors.Text = "0";
+            fl_gamma.Text = "0.0";
+            hsv_h.Text = "0.015";
+            hsv_s.Text = "0.7";
+            hsv_v.Text = "0.4";
+            degrees.Text = "0.0";
+            translate.Text = "0.1";
+            scale.Text = "0.5";
+            shear.Text = "0.0";
+            perspective.Text = "0.0";
+            flipud.Text = "0.0";
+            fliplr.Text = "0.5";
+            mosaic.Text = "1.0";
+            mixup.Text = "0.0";
+            copy_paste.Text = "0.0";
         }
 
         private void CreateFile_Click(object sender, EventArgs e)
@@ -57,38 +57,36 @@ namespace LSC_Trainer
         {
             HyperParameters = new Dictionary<string, string>
             {
-                {"learning_rate", utility.GetValueFromTextBox(learningRate)},
-                {"final_learning_rate", utility.GetValueFromTextBox(finalLearningRate)},
+                {"lr0", utility.GetValueFromTextBox(lr0)},
+                {"lrf", utility.GetValueFromTextBox(lrf)},
                 {"momentum", utility.GetValueFromTextBox(momentum)},
-                {"weight_decay", utility.GetValueFromTextBox(weightDecay)},
-                {"warmup_epochs", utility.GetValueFromTextBox(warmupEpochs)},
-                {"warmup_momentum", utility.GetValueFromTextBox(warmupMomentum)},
-                {"warmup_bias_lr", utility.GetValueFromTextBox(warmupBias)},
-                {"box_value", utility.GetValueFromTextBox(box)},
-                {"cls_value", utility.GetValueFromTextBox(cls)},
-                {"cls_pw", utility.GetValueFromTextBox(clsPostiveWeight)},
-                {"obj_value", utility.GetValueFromTextBox(obj)},
-                {"obj_pw", utility.GetValueFromTextBox(objPositiveWeight)},
-                {"iou_t", utility.GetValueFromTextBox(iouTreshold)},
-                {"anchor_t", utility.GetValueFromTextBox(anchorTreshold)},
-                {"anchor", utility.GetValueFromTextBox(anchors)},
-                {"fl_gamma", utility.GetValueFromTextBox(focalLossGamma)},
-                {"hsv_h", utility.GetValueFromTextBox(hsvHue)},
-                {"hsv_s", utility.GetValueFromTextBox(hsvSaturation)},
-                {"hsv_v", utility.GetValueFromTextBox(hsvValue)},
-                {"degrees", utility.GetValueFromTextBox(imageRotation)},
-                {"translate", utility.GetValueFromTextBox(imageTranslation)},
-                {"scale", utility.GetValueFromTextBox(imageScale)},
-                {"shear", utility.GetValueFromTextBox(imageShear)},
-                {"perspective", utility.GetValueFromTextBox(imagePerspective)},
-                {"flipUD", utility.GetValueFromTextBox(imageFlipUpDown)},
-                {"flipLR", utility.GetValueFromTextBox(imageFlipLeftRight)},
-                {"mosaic", utility.GetValueFromTextBox(imageMosaic)},
-                {"mixup", utility.GetValueFromTextBox(imageMixup)},
-                {"copy_paste", utility.GetValueFromTextBox(segementCopyPaste)}
+                {"weight_decay", utility.GetValueFromTextBox(weight_decay)},
+                {"warmup_epochs", utility.GetValueFromTextBox(warmup_epochs)},
+                {"warmup_momentum", utility.GetValueFromTextBox(warmup_momentum)},
+                {"warmup_bias_lr", utility.GetValueFromTextBox(warmup_bias_lr)},
+                {"box", utility.GetValueFromTextBox(box)},
+                {"cls", utility.GetValueFromTextBox(cls)},
+                {"cls_pw", utility.GetValueFromTextBox(cls_pw)},
+                {"obj", utility.GetValueFromTextBox(obj)},
+                {"obj_pw", utility.GetValueFromTextBox(obj_pw)},
+                {"iou_t", utility.GetValueFromTextBox(iou_t)},
+                {"anchor_t", utility.GetValueFromTextBox(anchor_t)},
+                {"anchors", utility.GetValueFromTextBox(anchors)},
+                {"fl_gamma", utility.GetValueFromTextBox(fl_gamma)},
+                {"hsv_h", utility.GetValueFromTextBox(hsv_h)},
+                {"hsv_s", utility.GetValueFromTextBox(hsv_s)},
+                {"hsv_v", utility.GetValueFromTextBox(hsv_v)},
+                {"degrees", utility.GetValueFromTextBox(degrees)},
+                {"translate", utility.GetValueFromTextBox(translate)},
+                {"scale", utility.GetValueFromTextBox(scale)},
+                {"shear", utility.GetValueFromTextBox(shear)},
+                {"perspective", utility.GetValueFromTextBox(perspective)},
+                {"flipud", utility.GetValueFromTextBox(flipud)},
+                {"fliplr", utility.GetValueFromTextBox(fliplr)},
+                {"mosaic", utility.GetValueFromTextBox(mosaic)},
+                {"mixup", utility.GetValueFromTextBox(mixup)},
+                {"copy_paste", utility.GetValueFromTextBox(copy_paste)}
             };
-
-            return hyperparameters;
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
