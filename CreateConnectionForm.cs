@@ -105,5 +105,27 @@ namespace LSC_Trainer
                     return "us-east-1";
             }
         }
+
+        private void btnTestConnection_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                AWS_Helper.TestSageMakerClient(
+                    new AmazonSageMakerClient(
+                        accessKeyID.Text, 
+                        secretKeyID.Text, 
+                        RegionEndpoint.GetBySystemName(regionCode)
+                    )
+                );
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                btnConnect.Enabled = true;
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine($"Unexpected error: {error.Message}");
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnConnect.Enabled = false;
+            }
+        }
     }
 }
