@@ -20,6 +20,11 @@ namespace LSC_Trainer.Functions
 
         private static long totalUploaded = 0;
 
+        public static void TestSageMakerClient (AmazonSageMakerClient client)
+        {
+            client.ListTrainingJobs(new Amazon.SageMaker.Model.ListTrainingJobsRequest());
+        }
+
         public static string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
