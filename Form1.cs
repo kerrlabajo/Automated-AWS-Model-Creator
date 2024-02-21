@@ -102,8 +102,6 @@ namespace LSC_Trainer
                 RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
                 var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
 
-                _iamClient = new AmazonIdentityManagementServiceClient(ACCESS_KEY.ToString(), SECRET_KEY.ToString(), selectedRegionEndpoint);
-
                 RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
                 amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
                 s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
