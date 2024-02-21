@@ -106,10 +106,10 @@ namespace LSC_Trainer
             // 
             this.connectionMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.createConnectionMenu,
-            this.closeConnectionMenu,
-            this.testConnectionMenu});
+            this.testConnectionMenu,
+            this.closeConnectionMenu});
             this.connectionMenu.Name = "connectionMenu";
-            this.connectionMenu.Size = new System.Drawing.Size(98, 26);
+            this.connectionMenu.Size = new System.Drawing.Size(98, 24);
             this.connectionMenu.Text = "Connection";
             // 
             // createConnectionMenu
@@ -122,14 +122,14 @@ namespace LSC_Trainer
             // closeConnectionMenu
             // 
             this.closeConnectionMenu.Name = "closeConnectionMenu";
-            this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.closeConnectionMenu.Size = new System.Drawing.Size(224, 26);
             this.closeConnectionMenu.Text = "Close Connection";
             this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
             // testConnectionMenu
             // 
             this.testConnectionMenu.Name = "testConnectionMenu";
-            this.testConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.testConnectionMenu.Size = new System.Drawing.Size(224, 26);
             this.testConnectionMenu.Text = "Test Connection";
             this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
             // 
