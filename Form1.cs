@@ -811,7 +811,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void createConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void createConnectionMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
 
@@ -878,7 +878,7 @@ namespace LSC_Trainer
             return isAdmin;
         }
 
-        private void buildImage_Click(object sender, EventArgs e)
+        private void btnBuildImage_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
             var imageBuilderForm = new ImageBuilderForm();
@@ -886,15 +886,15 @@ namespace LSC_Trainer
             imageBuilderForm.Show();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
            
-            Form form = new Form1();
+            Form form = new MainForm();
             form.Refresh();
-            enableBuildImageButton();
+            btnBuildImage.Enabled = true;
         }
 
-        private void closeConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
         }
