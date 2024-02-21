@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using System.Windows.Forms;
 
 namespace LSC_Trainer
 {
@@ -24,6 +22,36 @@ namespace LSC_Trainer
             {
                 Console.WriteLine($"File not found: {filePath}");
                 return null;
+            }
+        }
+
+        public static string WriteYamlFile(Dictionary<string, string> data)
+        {
+            if (data == null)
+            {
+                Console.WriteLine("No data provided to write.");
+                return "";
+            }
+
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "YAML files (*.yaml)|*.yaml|All files (*.*)|*.*";
+                saveFileDialog.RestoreDirectory = true;
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = saveFileDialog.FileName;
+                    var serializer = new SerializerBuilder().Build();
+                    string yamlContent = serializer.Serialize(data);
+
+                    File.WriteAllText(filePath, yamlContent);
+                    return filePath;
+                }
+                else
+                {
+                    Console.WriteLine("---------- Canceled ------------");
+                    return "";
+                }
             }
         }
     }

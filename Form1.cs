@@ -18,12 +18,14 @@ using System.Threading;
 
 namespace LSC_Trainer
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
+
         private delegate void SetProgressCallback(int percentDone);
         private readonly AmazonSageMakerClient amazonSageMakerClient;
         private readonly AmazonS3Client s3Client;
         private readonly AmazonCloudWatchLogsClient cloudWatchLogsClient;
+        private Utility utility = new Utility();
 
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
@@ -52,7 +54,9 @@ namespace LSC_Trainer
         private string outputKey;
         private string modelKey;
 
-        public Form1()
+        private CustomHyperParamsForm customHyperParamsForm;
+
+        public MainForm()
         {
             InitializeComponent();
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
@@ -83,12 +87,12 @@ namespace LSC_Trainer
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
             {
-                txtImageSize.Text = "1280";
+                imgSizeDropdown.Text = "1280";
                 txtBatchSize.Text = "1";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
                 txtData.Text = "MMX059XA_COVERED5B.yaml";
-                txtHyperparameters.Text = "hyp.no-augmentation.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
@@ -99,12 +103,12 @@ namespace LSC_Trainer
             }
             else
             {
-                txtImageSize.Text = "640";
+                imgSizeDropdown.Text = "640";
                 txtBatchSize.Text = "1";
                 txtEpochs.Text = "50";
                 txtWeights.Text = "yolov5s.pt";
                 txtData.Text = "data.yaml";
-                txtHyperparameters.Text = "hyp.scratch-low.yaml";
+                hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
@@ -203,6 +207,7 @@ namespace LSC_Trainer
             trainingDurationBox.Text = "";
             trainingStatusBox.Text = "";
             descBox.Text = "";
+            Cursor = Cursors.WaitCursor;
             SetTrainingParameters(
                     out string img_size,
                     out string batch_size,
@@ -237,6 +242,9 @@ namespace LSC_Trainer
             }
         }
 
+        //TODO: Download model should first retrieve list of models from S3 bucket that was fetched from
+        // one or more training jobs. The user will then select the model to download.
+        // This features guarantees that the form can be closed and reopened without losing the model.
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
@@ -254,8 +262,28 @@ namespace LSC_Trainer
 
                     if (result == DialogResult.Yes)
                     {
-                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                        await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                        try
+                        {
+                            Cursor = Cursors.WaitCursor;
+                            logBox.Visible = true;
+                            logBox.Cursor = Cursors.WaitCursor;
+                            mainPanel.Enabled = false;
+                            string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            DisplayLogMessage(outputResponse);
+                            string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            DisplayLogMessage(modelResponse);
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Error downloading model.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        finally
+                        {
+                            Cursor = Cursors.Default;
+                            logBox.Cursor = Cursors.Default;
+                            mainPanel.Enabled = true;
+                        }
+                        
                     }
                 }
             }
@@ -285,8 +313,8 @@ namespace LSC_Trainer
         {
             if (e.ProgressPercentage >= progressBar.Minimum && e.ProgressPercentage <= progressBar.Maximum)
             {
-            progressBar.Value = e.ProgressPercentage;
-        }
+                progressBar.Value = e.ProgressPercentage;
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
@@ -319,7 +347,7 @@ namespace LSC_Trainer
             optimizer = "";
             device = "";
 
-            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
+            if (imgSizeDropdown.Text != "") img_size = imgSizeDropdown.Text;
 
             if (txtBatchSize.Text != "") batch_size = txtBatchSize.Text;
 
@@ -329,7 +357,7 @@ namespace LSC_Trainer
 
             if (txtData.Text != "") data = txtData.Text;
 
-            if (txtHyperparameters.Text != "") hyperparameters = txtHyperparameters.Text;
+            if (hyperparamsDropdown.Text != "") hyperparameters = hyperparamsDropdown.Text;
 
             if (txtPatience.Text != "") patience = txtPatience.Text;
 
@@ -395,6 +423,7 @@ namespace LSC_Trainer
                 {
                     MaxRuntimeInSeconds = 360000
                 },
+                HyperParameters = customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
@@ -437,12 +466,12 @@ namespace LSC_Trainer
 
         private void InputsEnabler(bool intent)
         {
-            txtImageSize.Enabled = intent;
+            imgSizeDropdown.Enabled = intent;
             txtBatchSize.Enabled = intent;
             txtEpochs.Enabled = intent;
             txtWeights.Enabled = intent;
             txtData.Enabled = intent;
-            txtHyperparameters.Enabled = intent;
+            hyperparamsDropdown.Enabled = intent;
             txtPatience.Enabled = intent;
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
@@ -451,6 +480,8 @@ namespace LSC_Trainer
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
+            modelListComboBox.Enabled = intent;
+            btnFetchModels.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
@@ -458,6 +489,7 @@ namespace LSC_Trainer
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             InputsEnabler(false);
+            Cursor = Cursors.WaitCursor;
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
@@ -480,7 +512,7 @@ namespace LSC_Trainer
                 string prevLogMessage = "";
                 int prevLogIndex = 0;
                 // show panel
-                panel2.Visible = true;
+                logPanel.Visible = true;
 
                 timer.Tick += async (sender1, e1) =>
                 {
@@ -551,13 +583,14 @@ namespace LSC_Trainer
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             InputsEnabler(true);
+                            Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
 
                             if (HasCustomUploads(customUploadsURI))
                             {
-                                DisplayLogMessage($"Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                                DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
                                 AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                             }
                             return;
@@ -631,7 +664,7 @@ namespace LSC_Trainer
 
         private void newTrainingJobToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var t = new Thread(() => Application.Run(new Form1()));
+            var t = new Thread(() => Application.Run(new MainForm()));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
@@ -663,6 +696,108 @@ namespace LSC_Trainer
             // Scroll to the end to show the latest log messages
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
+        }
+
+        private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
+            string weightFile = utility.GetWeightFile(selectedSize);
+
+            if (weightFile != null)
+            {
+                txtWeights.Text = weightFile;
+            }
+            else
+            {
+                // Default value in the case where the size is not found
+                txtWeights.Text = "640";
+            }
+        }
+
+        private void hyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
+            {
+                this.Enabled = false;
+
+                customHyperParamsForm = new CustomHyperParamsForm();
+
+                customHyperParamsForm.FormClosed += OtherForm_FormClosed;
+                customHyperParamsForm.Show();
+            }
+            else
+            {
+                hyperparamsDropdown.Text = hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem);
+            }
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+
+            var helpForm = new HelpForm();
+
+            helpForm.FormClosed += OtherForm_FormClosed;
+            helpForm.Show();
+        }
+
+        private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Enabled = true;
+        }
+
+        private void testConnnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                Console.WriteLine("Connection successful.");
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine($"Unexpected error: {error.Message}");
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnFetchModels_Click(object sender, EventArgs e)
+        {
+            Cursor = Cursors.WaitCursor;
+            mainPanel.Enabled = false;
+            try
+            {
+                List<string> models = await AWS_Helper.GetModelListFromS3(s3Client, SAGEMAKER_BUCKET);
+
+                if (models != null)
+                {
+                    modelListComboBox.Items.Clear(); 
+
+                    foreach (var obj in models)
+                    {
+                        modelListComboBox.Items.Add(obj); 
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+                mainPanel.Enabled = true;
+                modelListComboBox.Enabled = true;
+            }
+        }
+
+        private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (modelListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            {
+                outputKey = modelListComboBox.GetItemText(modelListComboBox.SelectedItem);
+                btnDownloadModel.Enabled = true;
+            }
         }
     }
 }
