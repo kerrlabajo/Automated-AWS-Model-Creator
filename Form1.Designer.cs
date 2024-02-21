@@ -1,7 +1,7 @@
 ﻿
 namespace LSC_Trainer
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,6 +30,11 @@ namespace LSC_Trainer
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.lscTrainerMenuStrip = new System.Windows.Forms.MenuStrip();
+            this.connectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.createConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.testConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -38,41 +43,56 @@ namespace LSC_Trainer
             this.closeConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.mainPanel = new System.Windows.Forms.Panel();
+            this.hyperparametersLabel = new System.Windows.Forms.Label();
+            this.descBox = new System.Windows.Forms.Label();
+            this.trainingStatusBox = new System.Windows.Forms.Label();
+            this.trainingDurationBox = new System.Windows.Forms.Label();
+            this.instanceTypeBox = new System.Windows.Forms.Label();
+            this.trainingJobInformationLabel = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.btnSelectFolder = new System.Windows.Forms.Button();
             this.btnDownloadModel = new System.Windows.Forms.Button();
-            this.btnRemoveFile = new System.Windows.Forms.Button();
             this.btnUploadToS3 = new System.Windows.Forms.Button();
+            this.descriptionLabel = new System.Windows.Forms.Label();
             this.txtDevice = new System.Windows.Forms.TextBox();
-            this.label24 = new System.Windows.Forms.Label();
+            this.trainingStatusLabel = new System.Windows.Forms.Label();
+            this.deviceLabel = new System.Windows.Forms.Label();
+            this.instanceTypelbl = new System.Windows.Forms.Label();
             this.txtOptimizer = new System.Windows.Forms.TextBox();
-            this.label23 = new System.Windows.Forms.Label();
+            this.trainingDurationLabel = new System.Windows.Forms.Label();
+            this.optimizerLabel = new System.Windows.Forms.Label();
+            this.virtualMachineLabel = new System.Windows.Forms.Label();
             this.txtWorkers = new System.Windows.Forms.TextBox();
-            this.label22 = new System.Windows.Forms.Label();
+            this.workersLabel = new System.Windows.Forms.Label();
             this.txtPatience = new System.Windows.Forms.TextBox();
-            this.label21 = new System.Windows.Forms.Label();
-            this.txtHyperparameters = new System.Windows.Forms.TextBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
+            this.patienceLabel = new System.Windows.Forms.Label();
             this.btnTraining = new System.Windows.Forms.Button();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.trainingParametersLabel = new System.Windows.Forms.Label();
             this.txtData = new System.Windows.Forms.TextBox();
             this.txtWeights = new System.Windows.Forms.TextBox();
             this.txtEpochs = new System.Windows.Forms.TextBox();
             this.txtBatchSize = new System.Windows.Forms.TextBox();
+            this.dataLabel = new System.Windows.Forms.Label();
+            this.weightsLabel = new System.Windows.Forms.Label();
+            this.epochsLabel = new System.Windows.Forms.Label();
+            this.batchSizeLabel = new System.Windows.Forms.Label();
+            this.imageSizeLabel = new System.Windows.Forms.Label();
+            this.selectedFileLabel = new System.Windows.Forms.Label();
+            this.imgSizeDropdown = new System.Windows.Forms.ComboBox();
+            this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
+            this.modelListComboBox = new System.Windows.Forms.ComboBox();
+            this.btnFetchModels = new System.Windows.Forms.Button();
+            this.logBox = new System.Windows.Forms.TextBox();
+            this.logPanel = new System.Windows.Forms.Panel();
+            this.SpaceBetween = new System.Windows.Forms.Panel();
+            this.lscTrainerMenuStrip.SuspendLayout();
+            this.mainPanel.SuspendLayout();
+            this.logPanel.SuspendLayout();
             this.txtImageSize = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -89,34 +109,42 @@ namespace LSC_Trainer
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // contextMenuStrip1
+            // lscTrainerMenuStrip
             // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.connectToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(133, 28);
+            this.lscTrainerMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.lscTrainerMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectionMenu,
+            this.helpToolStripMenuItem,
+            this.newTrainingJobMenu});
+            this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
+            this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
+            this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 28);
+            this.lscTrainerMenuStrip.Cursor = System.Windows.Forms.Cursors.Default;
+            this.lscTrainerMenuStrip.TabIndex = 1;
             // 
-            // connectToolStripMenuItem
+            // connectionMenu
             // 
-            this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(132, 24);
-            this.connectToolStripMenuItem.Text = "Connect";
+            this.connectionMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createConnectionMenu,
+            this.closeConnectionMenu,
+            this.testConnectionMenu});
+            this.connectionMenu.Name = "connectionMenu";
+            this.connectionMenu.Size = new System.Drawing.Size(98, 24);
+            this.connectionMenu.Text = "Connection";
+            this.connectionMenu.Click += new System.EventHandler(this.connectToolStripMenuItem1_Click);
             // 
-            // menuStrip1
+            // createConnectionMenu
             // 
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.connectToolStripMenuItem1,
-            this.helpToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(996, 28);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
+            this.createConnectionMenu.Name = "createConnectionMenu";
+            this.createConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.createConnectionMenu.Text = "Create Connection";
             // 
-            // connectToolStripMenuItem1
+            // closeConnectionMenu
             // 
+            this.closeConnectionMenu.Name = "closeConnectionMenu";
+            this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.closeConnectionMenu.Text = "Close Connection";
             this.connectToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.createConnectionToolStripMenuItem,
             this.closeConnectionToolStripMenuItem,
@@ -152,436 +180,527 @@ namespace LSC_Trainer
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
             this.helpToolStripMenuItem.Text = "Help";
+            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
-            // btnSelectDataset
+            // newTrainingJobMenu
             // 
-            this.btnSelectDataset.Location = new System.Drawing.Point(33, 308);
-            this.btnSelectDataset.Name = "btnSelectDataset";
-            this.btnSelectDataset.Size = new System.Drawing.Size(174, 30);
-            this.btnSelectDataset.TabIndex = 2;
-            this.btnSelectDataset.Text = "Select Dataset (.zip)";
-            this.btnSelectDataset.UseVisualStyleBackColor = true;
-            this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectDataset_Click);
-            // 
-            // lblZipFile
-            // 
-            this.lblZipFile.AutoSize = true;
-            this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lblZipFile.Location = new System.Drawing.Point(176, 226);
-            this.lblZipFile.Name = "lblZipFile";
-            this.lblZipFile.Size = new System.Drawing.Size(107, 19);
-            this.lblZipFile.TabIndex = 3;
-            this.lblZipFile.Text = "No file selected";
-            // 
-            // panel1
-            // 
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.progressBar);
-            this.panel1.Controls.Add(this.btnSelectFolder);
-            this.panel1.Controls.Add(this.btnDownloadModel);
-            this.panel1.Controls.Add(this.btnRemoveFile);
-            this.panel1.Controls.Add(this.btnUploadToS3);
-            this.panel1.Controls.Add(this.txtDevice);
-            this.panel1.Controls.Add(this.label24);
-            this.panel1.Controls.Add(this.txtOptimizer);
-            this.panel1.Controls.Add(this.label23);
-            this.panel1.Controls.Add(this.txtWorkers);
-            this.panel1.Controls.Add(this.label22);
-            this.panel1.Controls.Add(this.txtPatience);
-            this.panel1.Controls.Add(this.label21);
-            this.panel1.Controls.Add(this.txtHyperparameters);
-            this.panel1.Controls.Add(this.label20);
-            this.panel1.Controls.Add(this.label19);
-            this.panel1.Controls.Add(this.btnTraining);
-            this.panel1.Controls.Add(this.label18);
-            this.panel1.Controls.Add(this.label17);
-            this.panel1.Controls.Add(this.label16);
-            this.panel1.Controls.Add(this.label15);
-            this.panel1.Controls.Add(this.label14);
-            this.panel1.Controls.Add(this.label13);
-            this.panel1.Controls.Add(this.label12);
-            this.panel1.Controls.Add(this.label11);
-            this.panel1.Controls.Add(this.label10);
-            this.panel1.Controls.Add(this.label9);
-            this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.txtData);
-            this.panel1.Controls.Add(this.txtWeights);
-            this.panel1.Controls.Add(this.txtEpochs);
-            this.panel1.Controls.Add(this.txtBatchSize);
-            this.panel1.Controls.Add(this.txtImageSize);
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.lblZipFile);
-            this.panel1.Controls.Add(this.btnSelectDataset);
-            this.panel1.Location = new System.Drawing.Point(33, 95);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(925, 355);
-            this.panel1.TabIndex = 4;
-            // 
-            // progressBar
-            // 
-            this.progressBar.Location = new System.Drawing.Point(406, 273);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(170, 23);
-            this.progressBar.TabIndex = 44;
-            // 
-            // btnSelectFolder
-            // 
-            this.btnSelectFolder.Location = new System.Drawing.Point(213, 308);
-            this.btnSelectFolder.Name = "btnSelectFolder";
-            this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
-            this.btnSelectFolder.TabIndex = 43;
-            this.btnSelectFolder.Text = "Select Dataset (folder)";
-            this.btnSelectFolder.UseVisualStyleBackColor = true;
-            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
-            // 
-            // btnDownloadModel
-            // 
-            this.btnDownloadModel.Location = new System.Drawing.Point(787, 308);
-            this.btnDownloadModel.Name = "btnDownloadModel";
-            this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
-            this.btnDownloadModel.TabIndex = 42;
-            this.btnDownloadModel.Text = "Download Model";
-            this.btnDownloadModel.UseVisualStyleBackColor = true;
-            this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
-            // 
-            // btnRemoveFile
-            // 
-            this.btnRemoveFile.Location = new System.Drawing.Point(176, 248);
-            this.btnRemoveFile.Name = "btnRemoveFile";
-            this.btnRemoveFile.Size = new System.Drawing.Size(97, 23);
-            this.btnRemoveFile.TabIndex = 41;
-            this.btnRemoveFile.Text = "Remove";
-            this.btnRemoveFile.UseVisualStyleBackColor = true;
-            this.btnRemoveFile.Visible = false;
-            this.btnRemoveFile.Click += new System.EventHandler(this.btnRemoveFile_Click);
-            // 
-            // btnUploadToS3
-            // 
-            this.btnUploadToS3.Location = new System.Drawing.Point(406, 308);
-            this.btnUploadToS3.Name = "btnUploadToS3";
-            this.btnUploadToS3.Size = new System.Drawing.Size(170, 30);
-            this.btnUploadToS3.TabIndex = 40;
-            this.btnUploadToS3.Text = "Upload Dataset";
-            this.btnUploadToS3.UseVisualStyleBackColor = true;
-            this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
-            // 
-            // txtDevice
-            // 
-            this.txtDevice.Location = new System.Drawing.Point(480, 183);
-            this.txtDevice.Name = "txtDevice";
-            this.txtDevice.Size = new System.Drawing.Size(145, 22);
-            this.txtDevice.TabIndex = 39;
-            this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(346, 186);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(55, 17);
-            this.label24.TabIndex = 38;
-            this.label24.Text = "Device:";
-            // 
-            // txtOptimizer
-            // 
-            this.txtOptimizer.Location = new System.Drawing.Point(480, 155);
-            this.txtOptimizer.Name = "txtOptimizer";
-            this.txtOptimizer.Size = new System.Drawing.Size(145, 22);
-            this.txtOptimizer.TabIndex = 37;
-            this.txtOptimizer.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(346, 158);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(72, 17);
-            this.label23.TabIndex = 36;
-            this.label23.Text = "Optimizer:";
-            // 
-            // txtWorkers
-            // 
-            this.txtWorkers.Location = new System.Drawing.Point(480, 127);
-            this.txtWorkers.Name = "txtWorkers";
-            this.txtWorkers.Size = new System.Drawing.Size(145, 22);
-            this.txtWorkers.TabIndex = 35;
-            this.txtWorkers.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(346, 130);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(65, 17);
-            this.label22.TabIndex = 34;
-            this.label22.Text = "Workers:";
-            // 
-            // txtPatience
-            // 
-            this.txtPatience.Location = new System.Drawing.Point(480, 99);
-            this.txtPatience.Name = "txtPatience";
-            this.txtPatience.Size = new System.Drawing.Size(145, 22);
-            this.txtPatience.TabIndex = 33;
-            this.txtPatience.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(346, 102);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(67, 17);
-            this.label21.TabIndex = 32;
-            this.label21.Text = "Patience:";
-            // 
-            // txtHyperparameters
-            // 
-            this.txtHyperparameters.Location = new System.Drawing.Point(480, 71);
-            this.txtHyperparameters.Name = "txtHyperparameters";
-            this.txtHyperparameters.Size = new System.Drawing.Size(145, 22);
-            this.txtHyperparameters.TabIndex = 31;
-            this.txtHyperparameters.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(346, 74);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(122, 17);
-            this.label20.TabIndex = 30;
-            this.label20.Text = "Hyperparameters:";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(727, 41);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(155, 17);
-            this.label19.TabIndex = 29;
-            this.label19.Text = "TRAINING PROGRESS";
-            // 
-            // btnTraining
-            // 
-            this.btnTraining.Location = new System.Drawing.Point(625, 308);
-            this.btnTraining.Name = "btnTraining";
-            this.btnTraining.Size = new System.Drawing.Size(120, 30);
-            this.btnTraining.TabIndex = 28;
-            this.btnTraining.Text = "Train";
-            this.btnTraining.UseVisualStyleBackColor = true;
-            this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(860, 179);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(31, 17);
-            this.label18.TabIndex = 27;
-            this.label18.Text = "N/A";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(860, 152);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(31, 17);
-            this.label17.TabIndex = 26;
-            this.label17.Text = "N/A";
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(860, 125);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(31, 17);
-            this.label16.TabIndex = 25;
-            this.label16.Text = "N/A";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(860, 98);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(31, 17);
-            this.label15.TabIndex = 24;
-            this.label15.Text = "N/A";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(860, 71);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(31, 17);
-            this.label14.TabIndex = 23;
-            this.label14.Text = "N/A";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(702, 179);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(119, 17);
-            this.label13.TabIndex = 22;
-            this.label13.Text = "Model Save Path:";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(702, 152);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(122, 17);
-            this.label12.TabIndex = 21;
-            this.label12.Text = "Training Duration:";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(702, 125);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(152, 17);
-            this.label11.TabIndex = 20;
-            this.label11.Text = "Virtual Machine Specs:";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(702, 98);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(102, 17);
-            this.label10.TabIndex = 19;
-            this.label10.Text = "Upload Speed:";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Cursor = System.Windows.Forms.Cursors.Default;
-            this.label9.Location = new System.Drawing.Point(702, 71);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(139, 17);
-            this.label9.TabIndex = 18;
-            this.label9.Text = "Connection duration:";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(84, 41);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(171, 17);
-            this.label8.TabIndex = 17;
-            this.label8.Text = "TRAINING PARAMETERS";
-            // 
-            // txtData
-            // 
-            this.txtData.Location = new System.Drawing.Point(178, 183);
-            this.txtData.Name = "txtData";
-            this.txtData.Size = new System.Drawing.Size(145, 22);
-            this.txtData.TabIndex = 16;
-            this.txtData.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // txtWeights
-            // 
-            this.txtWeights.Location = new System.Drawing.Point(178, 155);
-            this.txtWeights.Name = "txtWeights";
-            this.txtWeights.Size = new System.Drawing.Size(145, 22);
-            this.txtWeights.TabIndex = 15;
-            this.txtWeights.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // txtEpochs
-            // 
-            this.txtEpochs.Location = new System.Drawing.Point(178, 127);
-            this.txtEpochs.Name = "txtEpochs";
-            this.txtEpochs.Size = new System.Drawing.Size(145, 22);
-            this.txtEpochs.TabIndex = 14;
-            this.txtEpochs.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // txtBatchSize
-            // 
-            this.txtBatchSize.Location = new System.Drawing.Point(178, 99);
-            this.txtBatchSize.Name = "txtBatchSize";
-            this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
-            this.txtBatchSize.TabIndex = 13;
-            this.txtBatchSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // txtImageSize
-            // 
-            this.txtImageSize.Location = new System.Drawing.Point(178, 71);
-            this.txtImageSize.Name = "txtImageSize";
-            this.txtImageSize.Size = new System.Drawing.Size(145, 22);
-            this.txtImageSize.TabIndex = 12;
-            this.txtImageSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(49, 182);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(42, 17);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Data:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(49, 155);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(63, 17);
-            this.label6.TabIndex = 10;
-            this.label6.Text = "Weights:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(49, 128);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(59, 17);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "Epochs:";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(49, 101);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(79, 17);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "Batch Size:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(49, 74);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(81, 17);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Image Size:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(143, 24);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(0, 17);
-            this.label2.TabIndex = 5;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(49, 228);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(93, 17);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Selected File:";
+            this.newTrainingJobMenu.Name = "newTrainingJobMenu";
+            this.newTrainingJobMenu.Size = new System.Drawing.Size(137, 24);
+            this.newTrainingJobMenu.Text = "New Training Job";
+            this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobToolStripMenuItem_Click);
             // 
             // backgroundWorker
             // 
             this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
             this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);
             this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+            // 
+            // btnSelectDataset
+            // 
+            this.btnSelectDataset.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.btnSelectDataset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnSelectDataset.Location = new System.Drawing.Point(33, 260);
+            this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnSelectDataset.Name = "btnSelectDataset";
+            this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
+            this.btnSelectDataset.TabIndex = 11;
+            this.btnSelectDataset.Text = "Select Dataset (.zip)";
+            this.btnSelectDataset.UseVisualStyleBackColor = false;
+            this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectDataset_Click);
+            // 
+            // lblZipFile
+            // 
+            this.lblZipFile.AutoSize = true;
+            this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lblZipFile.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.lblZipFile.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.lblZipFile.Location = new System.Drawing.Point(132, 222);
+            this.lblZipFile.MaximumSize = new System.Drawing.Size(450, 22);
+            this.lblZipFile.MinimumSize = new System.Drawing.Size(145, 22);
+            this.lblZipFile.Name = "lblZipFile";
+            this.lblZipFile.Size = new System.Drawing.Size(145, 22);
+            this.lblZipFile.TabIndex = 3;
+            this.lblZipFile.Text = "No file selected";
+            // 
+            // mainPanel
+            // 
+            this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
+            this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.hyperparametersLabel);
+            this.mainPanel.Controls.Add(this.descBox);
+            this.mainPanel.Controls.Add(this.trainingStatusBox);
+            this.mainPanel.Controls.Add(this.trainingDurationBox);
+            this.mainPanel.Controls.Add(this.instanceTypeBox);
+            this.mainPanel.Controls.Add(this.trainingJobInformationLabel);
+            this.mainPanel.Controls.Add(this.lblZipFile);
+            this.mainPanel.Controls.Add(this.progressBar);
+            this.mainPanel.Controls.Add(this.btnSelectFolder);
+            this.mainPanel.Controls.Add(this.btnDownloadModel);
+            this.mainPanel.Controls.Add(this.btnUploadToS3);
+            this.mainPanel.Controls.Add(this.descriptionLabel);
+            this.mainPanel.Controls.Add(this.txtDevice);
+            this.mainPanel.Controls.Add(this.trainingStatusLabel);
+            this.mainPanel.Controls.Add(this.deviceLabel);
+            this.mainPanel.Controls.Add(this.instanceTypelbl);
+            this.mainPanel.Controls.Add(this.txtOptimizer);
+            this.mainPanel.Controls.Add(this.trainingDurationLabel);
+            this.mainPanel.Controls.Add(this.optimizerLabel);
+            this.mainPanel.Controls.Add(this.virtualMachineLabel);
+            this.mainPanel.Controls.Add(this.txtWorkers);
+            this.mainPanel.Controls.Add(this.workersLabel);
+            this.mainPanel.Controls.Add(this.txtPatience);
+            this.mainPanel.Controls.Add(this.patienceLabel);
+            this.mainPanel.Controls.Add(this.btnTraining);
+            this.mainPanel.Controls.Add(this.trainingParametersLabel);
+            this.mainPanel.Controls.Add(this.txtData);
+            this.mainPanel.Controls.Add(this.txtWeights);
+            this.mainPanel.Controls.Add(this.txtEpochs);
+            this.mainPanel.Controls.Add(this.txtBatchSize);
+            this.mainPanel.Controls.Add(this.dataLabel);
+            this.mainPanel.Controls.Add(this.weightsLabel);
+            this.mainPanel.Controls.Add(this.epochsLabel);
+            this.mainPanel.Controls.Add(this.batchSizeLabel);
+            this.mainPanel.Controls.Add(this.imageSizeLabel);
+            this.mainPanel.Controls.Add(this.selectedFileLabel);
+            this.mainPanel.Controls.Add(this.btnSelectDataset);
+            this.mainPanel.Controls.Add(this.imgSizeDropdown);
+            this.mainPanel.Controls.Add(this.hyperparamsDropdown);
+            this.mainPanel.Controls.Add(this.modelListComboBox);
+            this.mainPanel.Controls.Add(this.btnFetchModels);
+            this.mainPanel.Location = new System.Drawing.Point(12, 42);
+            this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.mainPanel.Name = "mainPanel";
+            this.mainPanel.Size = new System.Drawing.Size(1140, 344);
+            this.mainPanel.TabIndex = 4;
+            // 
+            // hyperparametersLabel
+            // 
+            this.hyperparametersLabel.AutoSize = true;
+            this.hyperparametersLabel.Location = new System.Drawing.Point(292, 72);
+            this.hyperparametersLabel.Name = "hyperparametersLabel";
+            this.hyperparametersLabel.Size = new System.Drawing.Size(116, 16);
+            this.hyperparametersLabel.TabIndex = 50;
+            this.hyperparametersLabel.Text = "Hyperparameters:";
+            // 
+            // descBox
+            // 
+            this.descBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.descBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.descBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.descBox.Location = new System.Drawing.Point(833, 155);
+            this.descBox.MaximumSize = new System.Drawing.Size(268, 40);
+            this.descBox.MinimumSize = new System.Drawing.Size(268, 40);
+            this.descBox.Name = "descBox";
+            this.descBox.Size = new System.Drawing.Size(268, 40);
+            this.descBox.TabIndex = 49;
+            // 
+            // trainingStatusBox
+            // 
+            this.trainingStatusBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.trainingStatusBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.trainingStatusBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.trainingStatusBox.Location = new System.Drawing.Point(833, 125);
+            this.trainingStatusBox.MaximumSize = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.MinimumSize = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.Name = "trainingStatusBox";
+            this.trainingStatusBox.Size = new System.Drawing.Size(268, 22);
+            this.trainingStatusBox.TabIndex = 48;
+            // 
+            // trainingDurationBox
+            // 
+            this.trainingDurationBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.trainingDurationBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.trainingDurationBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.trainingDurationBox.Location = new System.Drawing.Point(833, 98);
+            this.trainingDurationBox.MaximumSize = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.MinimumSize = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.Name = "trainingDurationBox";
+            this.trainingDurationBox.Size = new System.Drawing.Size(268, 22);
+            this.trainingDurationBox.TabIndex = 47;
+            // 
+            // instanceTypeBox
+            // 
+            this.instanceTypeBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.instanceTypeBox.Cursor = System.Windows.Forms.Cursors.No;
+            this.instanceTypeBox.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.instanceTypeBox.Location = new System.Drawing.Point(833, 71);
+            this.instanceTypeBox.MaximumSize = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.MinimumSize = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.Name = "instanceTypeBox";
+            this.instanceTypeBox.Size = new System.Drawing.Size(268, 22);
+            this.instanceTypeBox.TabIndex = 46;
+            // 
+            // trainingJobInformationLabel
+            // 
+            this.trainingJobInformationLabel.AutoSize = true;
+            this.trainingJobInformationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.trainingJobInformationLabel.Location = new System.Drawing.Point(686, 12);
+            this.trainingJobInformationLabel.Name = "trainingJobInformationLabel";
+            this.trainingJobInformationLabel.Size = new System.Drawing.Size(355, 29);
+            this.trainingJobInformationLabel.TabIndex = 45;
+            this.trainingJobInformationLabel.Text = "TRAINING JOB INFORMATION";
+            // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(232, 260);
+            this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(171, 23);
+            this.progressBar.TabIndex = 44;
+            // 
+            // btnSelectFolder
+            // 
+            this.btnSelectFolder.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.btnSelectFolder.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnSelectFolder.Location = new System.Drawing.Point(33, 294);
+            this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnSelectFolder.Name = "btnSelectFolder";
+            this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
+            this.btnSelectFolder.TabIndex = 12;
+            this.btnSelectFolder.Text = "Select Dataset (folder)";
+            this.btnSelectFolder.UseVisualStyleBackColor = false;
+            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
+            // 
+            // btnDownloadModel
+            // 
+            this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
+            this.btnDownloadModel.Location = new System.Drawing.Point(833, 295);
+            this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnDownloadModel.Name = "btnDownloadModel";
+            this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
+            this.btnDownloadModel.TabIndex = 17;
+            this.btnDownloadModel.Text = "Download Model";
+            this.btnDownloadModel.UseVisualStyleBackColor = false;
+            this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
+            // 
+            // btnUploadToS3
+            // 
+            this.btnUploadToS3.BackColor = System.Drawing.Color.Yellow;
+            this.btnUploadToS3.Location = new System.Drawing.Point(232, 295);
+            this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnUploadToS3.Name = "btnUploadToS3";
+            this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
+            this.btnUploadToS3.TabIndex = 13;
+            this.btnUploadToS3.Text = "Upload Dataset";
+            this.btnUploadToS3.UseVisualStyleBackColor = false;
+            this.btnUploadToS3.Click += new System.EventHandler(this.btnUploadToS3_Click);
+            // 
+            // descriptionLabel
+            // 
+            this.descriptionLabel.AutoSize = true;
+            this.descriptionLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.descriptionLabel.Location = new System.Drawing.Point(688, 156);
+            this.descriptionLabel.Name = "descriptionLabel";
+            this.descriptionLabel.Size = new System.Drawing.Size(78, 16);
+            this.descriptionLabel.TabIndex = 28;
+            this.descriptionLabel.Text = "Description:";
+            // 
+            // txtDevice
+            // 
+            this.txtDevice.Location = new System.Drawing.Point(427, 184);
+            this.txtDevice.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtDevice.Name = "txtDevice";
+            this.txtDevice.Size = new System.Drawing.Size(145, 22);
+            this.txtDevice.TabIndex = 10;
+            this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // trainingStatusLabel
+            // 
+            this.trainingStatusLabel.AutoSize = true;
+            this.trainingStatusLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.trainingStatusLabel.Location = new System.Drawing.Point(688, 128);
+            this.trainingStatusLabel.Name = "trainingStatusLabel";
+            this.trainingStatusLabel.Size = new System.Drawing.Size(99, 16);
+            this.trainingStatusLabel.TabIndex = 27;
+            this.trainingStatusLabel.Text = "Training Status:";
+            // 
+            // deviceLabel
+            // 
+            this.deviceLabel.AutoSize = true;
+            this.deviceLabel.Location = new System.Drawing.Point(292, 184);
+            this.deviceLabel.Name = "deviceLabel";
+            this.deviceLabel.Size = new System.Drawing.Size(53, 16);
+            this.deviceLabel.TabIndex = 38;
+            this.deviceLabel.Text = "Device:";
+            // 
+            // instanceTypelbl
+            // 
+            this.instanceTypelbl.AutoSize = true;
+            this.instanceTypelbl.Location = new System.Drawing.Point(792, 73);
+            this.instanceTypelbl.Name = "instanceTypelbl";
+            this.instanceTypelbl.Size = new System.Drawing.Size(0, 16);
+            this.instanceTypelbl.TabIndex = 25;
+            // 
+            // txtOptimizer
+            // 
+            this.txtOptimizer.Location = new System.Drawing.Point(427, 156);
+            this.txtOptimizer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtOptimizer.Name = "txtOptimizer";
+            this.txtOptimizer.Size = new System.Drawing.Size(145, 22);
+            this.txtOptimizer.TabIndex = 9;
+            this.txtOptimizer.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // trainingDurationLabel
+            // 
+            this.trainingDurationLabel.AutoSize = true;
+            this.trainingDurationLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.trainingDurationLabel.Location = new System.Drawing.Point(688, 99);
+            this.trainingDurationLabel.Name = "trainingDurationLabel";
+            this.trainingDurationLabel.Size = new System.Drawing.Size(112, 16);
+            this.trainingDurationLabel.TabIndex = 24;
+            this.trainingDurationLabel.Text = "Training Duration:";
+            // 
+            // optimizerLabel
+            // 
+            this.optimizerLabel.AutoSize = true;
+            this.optimizerLabel.Location = new System.Drawing.Point(292, 156);
+            this.optimizerLabel.Name = "optimizerLabel";
+            this.optimizerLabel.Size = new System.Drawing.Size(66, 16);
+            this.optimizerLabel.TabIndex = 36;
+            this.optimizerLabel.Text = "Optimizer:";
+            // 
+            // virtualMachineLabel
+            // 
+            this.virtualMachineLabel.AutoSize = true;
+            this.virtualMachineLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.virtualMachineLabel.Location = new System.Drawing.Point(688, 72);
+            this.virtualMachineLabel.Name = "virtualMachineLabel";
+            this.virtualMachineLabel.Size = new System.Drawing.Size(101, 16);
+            this.virtualMachineLabel.TabIndex = 23;
+            this.virtualMachineLabel.Text = "Virtual Machine:";
+            // 
+            // txtWorkers
+            // 
+            this.txtWorkers.Location = new System.Drawing.Point(427, 128);
+            this.txtWorkers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtWorkers.Name = "txtWorkers";
+            this.txtWorkers.Size = new System.Drawing.Size(145, 22);
+            this.txtWorkers.TabIndex = 8;
+            this.txtWorkers.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // workersLabel
+            // 
+            this.workersLabel.AutoSize = true;
+            this.workersLabel.Location = new System.Drawing.Point(292, 128);
+            this.workersLabel.Name = "workersLabel";
+            this.workersLabel.Size = new System.Drawing.Size(61, 16);
+            this.workersLabel.TabIndex = 34;
+            this.workersLabel.Text = "Workers:";
+            // 
+            // txtPatience
+            // 
+            this.txtPatience.Location = new System.Drawing.Point(427, 99);
+            this.txtPatience.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtPatience.Name = "txtPatience";
+            this.txtPatience.Size = new System.Drawing.Size(145, 22);
+            this.txtPatience.TabIndex = 7;
+            this.txtPatience.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // patienceLabel
+            // 
+            this.patienceLabel.AutoSize = true;
+            this.patienceLabel.Location = new System.Drawing.Point(292, 100);
+            this.patienceLabel.Name = "patienceLabel";
+            this.patienceLabel.Size = new System.Drawing.Size(63, 16);
+            this.patienceLabel.TabIndex = 32;
+            this.patienceLabel.Text = "Patience:";
+            // 
+            // btnTraining
+            // 
+            this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
+            this.btnTraining.Location = new System.Drawing.Point(437, 253);
+            this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnTraining.Name = "btnTraining";
+            this.btnTraining.Size = new System.Drawing.Size(120, 30);
+            this.btnTraining.TabIndex = 14;
+            this.btnTraining.Text = "Train";
+            this.btnTraining.UseVisualStyleBackColor = false;
+            this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
+            // 
+            // trainingParametersLabel
+            // 
+            this.trainingParametersLabel.AutoSize = true;
+            this.trainingParametersLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.trainingParametersLabel.Location = new System.Drawing.Point(21, 12);
+            this.trainingParametersLabel.Name = "trainingParametersLabel";
+            this.trainingParametersLabel.Size = new System.Drawing.Size(297, 29);
+            this.trainingParametersLabel.TabIndex = 17;
+            this.trainingParametersLabel.Text = "TRAINING PARAMETERS";
+            // 
+            // txtData
+            // 
+            this.txtData.Location = new System.Drawing.Point(132, 184);
+            this.txtData.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtData.Name = "txtData";
+            this.txtData.Size = new System.Drawing.Size(145, 22);
+            this.txtData.TabIndex = 5;
+            this.txtData.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // txtWeights
+            // 
+            this.txtWeights.Location = new System.Drawing.Point(132, 156);
+            this.txtWeights.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtWeights.Name = "txtWeights";
+            this.txtWeights.Size = new System.Drawing.Size(145, 22);
+            this.txtWeights.TabIndex = 4;
+            this.txtWeights.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // txtEpochs
+            // 
+            this.txtEpochs.Location = new System.Drawing.Point(132, 128);
+            this.txtEpochs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtEpochs.Name = "txtEpochs";
+            this.txtEpochs.Size = new System.Drawing.Size(145, 22);
+            this.txtEpochs.TabIndex = 3;
+            this.txtEpochs.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // txtBatchSize
+            // 
+            this.txtBatchSize.Location = new System.Drawing.Point(132, 99);
+            this.txtBatchSize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtBatchSize.Name = "txtBatchSize";
+            this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
+            this.txtBatchSize.TabIndex = 2;
+            this.txtBatchSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            // 
+            // dataLabel
+            // 
+            this.dataLabel.AutoSize = true;
+            this.dataLabel.Location = new System.Drawing.Point(30, 180);
+            this.dataLabel.Name = "dataLabel";
+            this.dataLabel.Size = new System.Drawing.Size(39, 16);
+            this.dataLabel.TabIndex = 11;
+            this.dataLabel.Text = "Data:";
+            // 
+            // weightsLabel
+            // 
+            this.weightsLabel.AutoSize = true;
+            this.weightsLabel.Location = new System.Drawing.Point(30, 153);
+            this.weightsLabel.Name = "weightsLabel";
+            this.weightsLabel.Size = new System.Drawing.Size(59, 16);
+            this.weightsLabel.TabIndex = 10;
+            this.weightsLabel.Text = "Weights:";
+            // 
+            // epochsLabel
+            // 
+            this.epochsLabel.AutoSize = true;
+            this.epochsLabel.Location = new System.Drawing.Point(30, 126);
+            this.epochsLabel.Name = "epochsLabel";
+            this.epochsLabel.Size = new System.Drawing.Size(56, 16);
+            this.epochsLabel.TabIndex = 9;
+            this.epochsLabel.Text = "Epochs:";
+            // 
+            // batchSizeLabel
+            // 
+            this.batchSizeLabel.AutoSize = true;
+            this.batchSizeLabel.Location = new System.Drawing.Point(30, 99);
+            this.batchSizeLabel.Name = "batchSizeLabel";
+            this.batchSizeLabel.Size = new System.Drawing.Size(73, 16);
+            this.batchSizeLabel.TabIndex = 8;
+            this.batchSizeLabel.Text = "Batch Size:";
+            // 
+            // imageSizeLabel
+            // 
+            this.imageSizeLabel.AutoSize = true;
+            this.imageSizeLabel.Location = new System.Drawing.Point(30, 72);
+            this.imageSizeLabel.Name = "imageSizeLabel";
+            this.imageSizeLabel.Size = new System.Drawing.Size(77, 16);
+            this.imageSizeLabel.TabIndex = 7;
+            this.imageSizeLabel.Text = "Image Size:";
+            // 
+            // selectedFileLabel
+            // 
+            this.selectedFileLabel.AutoSize = true;
+            this.selectedFileLabel.Location = new System.Drawing.Point(30, 222);
+            this.selectedFileLabel.Name = "selectedFileLabel";
+            this.selectedFileLabel.Size = new System.Drawing.Size(89, 16);
+            this.selectedFileLabel.TabIndex = 4;
+            this.selectedFileLabel.Text = "Selected File:";
+            // 
+            // imgSizeDropdown
+            // 
+            this.imgSizeDropdown.FormattingEnabled = true;
+            this.imgSizeDropdown.Items.AddRange(new object[] {
+            "1280",
+            "640"});
+            this.imgSizeDropdown.Location = new System.Drawing.Point(132, 72);
+            this.imgSizeDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.imgSizeDropdown.Name = "imgSizeDropdown";
+            this.imgSizeDropdown.Size = new System.Drawing.Size(145, 24);
+            this.imgSizeDropdown.TabIndex = 1;
+            this.imgSizeDropdown.SelectionChangeCommitted += new System.EventHandler(this.imgSizeDropdown_SelectionChangeCommitted);
+            // 
+            // hyperparamsDropdown
+            // 
+            this.hyperparamsDropdown.FormattingEnabled = true;
+            this.hyperparamsDropdown.Items.AddRange(new object[] {
+            "Custom",
+            "hyp.no-augmentation.yaml",
+            "hyp.Objects365.yaml",
+            "hyp.scratch-low.yaml",
+            "hyp.scratch-med.yaml",
+            "hyp.scratch-high.yaml",
+            "hyp.VOC.yaml"});
+            this.hyperparamsDropdown.Location = new System.Drawing.Point(427, 72);
+            this.hyperparamsDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.hyperparamsDropdown.Name = "hyperparamsDropdown";
+            this.hyperparamsDropdown.Size = new System.Drawing.Size(145, 24);
+            this.hyperparamsDropdown.TabIndex = 6;
+            this.hyperparamsDropdown.SelectedValueChanged += new System.EventHandler(this.hyperparamsDropdown_SelectedValueChanged);
+            // 
+            // modelListComboBox
+            // 
+            this.modelListComboBox.Enabled = false;
+            this.modelListComboBox.FormattingEnabled = true;
+            this.modelListComboBox.Location = new System.Drawing.Point(691, 257);
+            this.modelListComboBox.Name = "modelListComboBox";
+            this.modelListComboBox.Size = new System.Drawing.Size(410, 24);
+            this.modelListComboBox.TabIndex = 15;
+            this.modelListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
+            // 
+            // btnFetchModels
+            // 
+            this.btnFetchModels.Location = new System.Drawing.Point(691, 295);
+            this.btnFetchModels.Name = "btnFetchModels";
+            this.btnFetchModels.Size = new System.Drawing.Size(120, 30);
+            this.btnFetchModels.TabIndex = 16;
+            this.btnFetchModels.Text = "Fetch Models";
+            this.btnFetchModels.UseVisualStyleBackColor = true;
+            this.btnFetchModels.Click += new System.EventHandler(this.btnFetchModels_Click);
+            // 
+            // logBox
+            // 
+            this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.logBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.logBox.Location = new System.Drawing.Point(26, 26);
+            this.logBox.Multiline = true;
+            this.logBox.Name = "logBox";
+            this.logBox.ReadOnly = true;
+            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.logBox.Size = new System.Drawing.Size(1109, 297);
+            this.logBox.TabIndex = 26;
+            this.logBox.WordWrap = false;
+            // 
+            // logPanel
+            // 
+            this.logPanel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.logPanel.BackColor = System.Drawing.SystemColors.Control;
+            this.logPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.logPanel.Controls.Add(this.logBox);
+            this.logPanel.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.logPanel.Location = new System.Drawing.Point(12, 407);
+            this.logPanel.Name = "logPanel";
+            this.logPanel.Size = new System.Drawing.Size(1140, 340);
+            this.logPanel.TabIndex = 33;
+            this.logPanel.Visible = false;
+            // 
+            // SpaceBetween
+            // 
+            this.SpaceBetween.Location = new System.Drawing.Point(12, 391);
+            this.SpaceBetween.Name = "SpaceBetween";
+            this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
+            this.SpaceBetween.TabIndex = 34;
             // 
             // buildImage
             // 
@@ -607,20 +726,27 @@ namespace LSC_Trainer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(996, 477);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.buildImage);
-            this.Controls.Add(this.menuStrip1);
-            this.Controls.Add(this.panel1);
-            this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.AutoScroll = true;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.ClientSize = new System.Drawing.Size(1164, 770);
+            this.Controls.Add(this.SpaceBetween);
+            this.Controls.Add(this.lscTrainerMenuStrip);
+            this.Controls.Add(this.mainPanel);
+            this.Controls.Add(this.logPanel);
+            this.MainMenuStrip = this.lscTrainerMenuStrip;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MinimumSize = new System.Drawing.Size(1182, 400);
+            this.Name = "MainForm";
+            this.Text = "LSC Trainer";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.contextMenuStrip1.ResumeLayout(false);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.lscTrainerMenuStrip.ResumeLayout(false);
+            this.lscTrainerMenuStrip.PerformLayout();
+            this.mainPanel.ResumeLayout(false);
+            this.mainPanel.PerformLayout();
+            this.logPanel.ResumeLayout(false);
+            this.logPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -628,54 +754,59 @@ namespace LSC_Trainer
 
         #endregion
 
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem1;
+        private System.Windows.Forms.MenuStrip lscTrainerMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem connectionMenu;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker backgroundWorker;
         private System.Windows.Forms.Button btnSelectDataset;
         private System.Windows.Forms.Label lblZipFile;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtData;
-        private System.Windows.Forms.TextBox txtWeights;
-        private System.Windows.Forms.TextBox txtEpochs;
+        private System.Windows.Forms.Label selectedFileLabel;
+        private System.Windows.Forms.Label imageSizeLabel;
+        private System.Windows.Forms.Label batchSizeLabel;
+        private System.Windows.Forms.Label epochsLabel;
+        private System.Windows.Forms.Label weightsLabel;
+        private System.Windows.Forms.Label dataLabel;
         private System.Windows.Forms.TextBox txtBatchSize;
-        private System.Windows.Forms.TextBox txtImageSize;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txtEpochs;
+        private System.Windows.Forms.TextBox txtWeights;
+        private System.Windows.Forms.TextBox txtData;
+        private System.Windows.Forms.Label trainingParametersLabel;
+        private System.Windows.Forms.Label descriptionLabel;
+        private System.Windows.Forms.Label trainingStatusLabel;
+        private System.Windows.Forms.Label trainingDurationLabel;
+        private System.Windows.Forms.Label trainingJobInformationLabel;
         private System.Windows.Forms.Button btnTraining;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox txtDevice;
-        private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.TextBox txtOptimizer;
-        private System.Windows.Forms.Label label23;
-        private System.Windows.Forms.TextBox txtWorkers;
-        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label patienceLabel;
         private System.Windows.Forms.TextBox txtPatience;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.TextBox txtHyperparameters;
-        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label workersLabel;
+        private System.Windows.Forms.TextBox txtWorkers;
+        private System.Windows.Forms.Label optimizerLabel;
+        private System.Windows.Forms.TextBox txtOptimizer;
+        private System.Windows.Forms.Label deviceLabel;
+        private System.Windows.Forms.TextBox txtDevice;
         private System.Windows.Forms.Button btnUploadToS3;
-        private System.Windows.Forms.Button btnRemoveFile;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
+        private System.Windows.Forms.Button btnFetchModels;
         private System.Windows.Forms.ProgressBar progressBar;
+        private System.Windows.Forms.ComboBox imgSizeDropdown;
+        private System.Windows.Forms.ComboBox hyperparamsDropdown;
+        private System.Windows.Forms.Panel mainPanel;
+        private System.Windows.Forms.ToolStripMenuItem createConnectionMenu;
+        private System.Windows.Forms.ToolStripMenuItem closeConnectionMenu;
+        private System.Windows.Forms.ToolStripMenuItem testConnectionMenu;
+        private System.Windows.Forms.ComboBox modelListComboBox;
+        private System.Windows.Forms.ToolStripMenuItem newTrainingJobMenu;
+        private System.Windows.Forms.TextBox logBox;
+        private System.Windows.Forms.Label instanceTypelbl;
+        private System.Windows.Forms.Label virtualMachineLabel;
+        private System.Windows.Forms.Panel logPanel;
+        private System.Windows.Forms.Label instanceTypeBox;
+        private System.Windows.Forms.Label descBox;
+        private System.Windows.Forms.Label trainingStatusBox;
+        private System.Windows.Forms.Label trainingDurationBox;
+        private System.Windows.Forms.Panel SpaceBetween;
+        private System.Windows.Forms.Label hyperparametersLabel;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
         private System.Windows.Forms.ToolStripMenuItem createConnectionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeConnectionToolStripMenuItem;
