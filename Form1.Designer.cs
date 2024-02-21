@@ -31,11 +31,11 @@ namespace LSC_Trainer
         {
             this.lscTrainerMenuStrip = new System.Windows.Forms.MenuStrip();
             this.connectionMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.testConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
@@ -94,7 +94,7 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.lscTrainerMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectionMenu,
-            this.helpToolStripMenuItem,
+            this.helpMenu,
             this.newTrainingJobMenu});
             this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
@@ -133,19 +133,19 @@ namespace LSC_Trainer
             this.testConnectionMenu.Text = "Test Connection";
             this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
             // 
-            // helpToolStripMenuItem
+            // helpMenu
             // 
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
-            this.helpToolStripMenuItem.Text = "Help";
-            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
+            this.helpMenu.Name = "helpMenu";
+            this.helpMenu.Size = new System.Drawing.Size(55, 24);
+            this.helpMenu.Text = "Help";
+            this.helpMenu.Click += new System.EventHandler(this.helpMenu_Click);
             // 
             // newTrainingJobMenu
             // 
             this.newTrainingJobMenu.Name = "newTrainingJobMenu";
             this.newTrainingJobMenu.Size = new System.Drawing.Size(137, 24);
             this.newTrainingJobMenu.Text = "New Training Job";
-            this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobToolStripMenuItem_Click);
+            this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobMenu_Click);
             // 
             // createConnectionMenu
             // 
@@ -730,7 +730,7 @@ namespace LSC_Trainer
 
         private System.Windows.Forms.MenuStrip lscTrainerMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem connectionMenu;
-        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpMenu;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
         private System.Windows.Forms.Button btnSelectDataset;
         private System.Windows.Forms.Label lblZipFile;

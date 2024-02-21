@@ -658,7 +658,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void newTrainingJobToolStripMenuItem_Click(object sender, EventArgs e)
+        private void newTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm()));
             t.SetApartmentState(ApartmentState.STA);
@@ -727,7 +727,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        private void helpMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
 
