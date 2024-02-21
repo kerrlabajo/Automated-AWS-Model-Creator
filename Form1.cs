@@ -820,12 +820,6 @@ namespace LSC_Trainer
             createConnectionForm.Show();
         }
 
-        private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            this.Enabled = true;
-        }
-
-
         public string GetRoleDetailsAsync(string roleArn)
         {
             try
