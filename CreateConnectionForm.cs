@@ -1,5 +1,10 @@
-﻿using System;
+﻿using Amazon;
+using Amazon.IdentityManagement.Model;
+using Amazon.SageMaker;
+using LSC_Trainer.Functions;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -9,12 +14,16 @@ namespace LSC_Trainer
     public partial class CreateConnectionForm : Form
     {
         private bool development;
+        private string regionCode;
         
         public CreateConnectionForm(bool development)
         {
             InitializeComponent();
+            btnConnect.Enabled = false;
             this.development = development;
+            regionCode = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
         }
+
 
         private void btnConect_Click(object sender, EventArgs e)
         {
@@ -31,29 +40,10 @@ namespace LSC_Trainer
                 return;
             }
 
-            /*string accountId = accountID.Text;
-            string accessKey = accessKeyID.Text;
-            string secretKey = secretKeyID.Text;
-            string region = regionDropdown.GetItemText(regionDropdown.SelectedItem);
-            string roleArn = roleARN.Text;
-
-            List<string> lines = new List<string>
-            {
-                $"ACCOUNT_ID={accountId}",
-                $"ROLE_ARN={roleArn}",
-                $"ACCESS_KEY_ID={accessKey}",
-                $"SECRET_ACCESS_KEY={secretKey}",
-                $"REGION={region}",
-            };
-
-            string envFilePath = Path.Combine(Application.StartupPath, "file.json");
-            File.WriteAllLines(envFilePath, lines);*/
-
-            // Storing user input in the static class
             UserConnectionInfo.AccountId = accountID.Text;
             UserConnectionInfo.AccessKey = accessKeyID.Text;
             UserConnectionInfo.SecretKey = secretKeyID.Text;
-            UserConnectionInfo.Region = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
+            UserConnectionInfo.Region = regionCode;
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
