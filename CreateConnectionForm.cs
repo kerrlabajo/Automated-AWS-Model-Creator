@@ -50,11 +50,54 @@ namespace LSC_Trainer
             UserConnectionInfo.AccountId = accountID.Text;
             UserConnectionInfo.AccessKey = accessKeyID.Text;
             UserConnectionInfo.SecretKey = secretKeyID.Text;
-            UserConnectionInfo.Region = regionDropdown.GetItemText(regionDropdown.SelectedItem);
+            UserConnectionInfo.Region = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
             this.Close();
+        }
+
+        private string GetRegionCode(string region)
+        {
+            switch (region)
+            {
+                case "US East (N. Virginia)":
+                    return "us-east-1";
+                case "US East (Ohio)":
+                    return "us-east-2";
+                case "US West (N. California)":
+                    return "us-west-1";
+                case "US West (Oregon)":
+                    return "us-west-2";
+                case "Asia Pacific (Mumbai)":
+                    return "ap-south-1";
+                case "Asia Pacific (Osaka)":
+                    return "ap-northeast-3";
+                case "Asia Pacific (Seoul)":
+                    return "ap-northeast-2";
+                case "Asia Pacific (Singapore)":
+                    return "ap-southeast-1";
+                case "Asia Pacific (Sydney)":
+                    return "ap-southeast-2";
+                case "Asia Pacific (Tokyo)":
+                    return "ap-northeast-1";
+                case "Canada (Central)":
+                    return "ca-central-1";
+                case "Europe (Frankfurt)":
+                    return "eu-central-1";
+                case "Europe (Ireland)":
+                    return "eu-west-1";
+                case "Europe (London)":
+                    return "eu-west-2";
+                case "Europe (Paris)":
+                    return "eu-west-3";
+                case "Europe (Stockholm)":
+                    return "eu-north-1";
+                case "South America (São Paulo)":
+                    return "sa-east-1";
+                default:
+                    return "us-east-1";
+            }
         }
     }
 }

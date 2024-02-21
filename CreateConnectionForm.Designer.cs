@@ -77,16 +77,23 @@ namespace LSC_Trainer
             // 
             this.regionDropdown.FormattingEnabled = true;
             this.regionDropdown.Items.AddRange(new object[] {
-            "ap-southeast-1",
-            "ap-southeast-2",
-            "ap-southeast-3",
-            "ap-southeast-4",
-            "ap-northeast-1",
-            "ap-northeast-2",
-            "ap-northeast-3",
-            "ap-east-1",
-            "ap-south-1",
-            "ap-south-2"});
+                "US East (N. Virginia)",
+                "US East (Ohio)",
+                "US West (N. California)",
+                "US West (Oregon)",
+                "Asia Pacific (Mumbai)",
+                "Asia Pacific (Osaka)",
+                "Asia Pacific (Seoul)",
+                "Asia Pacific (Singapore)",
+                "Asia Pacific (Sydney)",
+                "Asia Pacific (Tokyo)",
+                "Canada (Central)",
+                "Europe (Frankfurt)",
+                "Europe (Ireland)",
+                "Europe (London)",
+                "Europe (Paris)",
+                "Europe (Stockholm)",
+                "South America (São Paulo)"});
             this.regionDropdown.Location = new System.Drawing.Point(180, 171);
             this.regionDropdown.Name = "regionDropdown";
             this.regionDropdown.Size = new System.Drawing.Size(319, 24);
