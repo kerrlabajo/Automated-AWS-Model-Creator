@@ -170,7 +170,7 @@ namespace LSC_Trainer
             this.CancelButton.Location = new System.Drawing.Point(365, 488);
             this.CancelButton.Name = "CancelButton";
             this.CancelButton.Size = new System.Drawing.Size(104, 29);
-            this.CancelButton.TabIndex = 78;
+            this.CancelButton.TabIndex = 30;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;
             this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
@@ -181,7 +181,7 @@ namespace LSC_Trainer
             this.CreateFile.Location = new System.Drawing.Point(498, 488);
             this.CreateFile.Name = "CreateFile";
             this.CreateFile.Size = new System.Drawing.Size(104, 29);
-            this.CreateFile.TabIndex = 77;
+            this.CreateFile.TabIndex = 31;
             this.CreateFile.Text = "Set";
             this.CreateFile.UseVisualStyleBackColor = true;
             this.CreateFile.Click += new System.EventHandler(this.CreateFile_Click);
@@ -191,98 +191,98 @@ namespace LSC_Trainer
             this.copy_paste.Location = new System.Drawing.Point(514, 400);
             this.copy_paste.Name = "copy_paste";
             this.copy_paste.Size = new System.Drawing.Size(88, 22);
-            this.copy_paste.TabIndex = 76;
+            this.copy_paste.TabIndex = 29;
             // 
             // hsv_h
             // 
             this.hsv_h.Location = new System.Drawing.Point(514, 67);
             this.hsv_h.Name = "hsv_h";
             this.hsv_h.Size = new System.Drawing.Size(88, 22);
-            this.hsv_h.TabIndex = 75;
+            this.hsv_h.TabIndex = 17;
             // 
             // hsv_s
             // 
             this.hsv_s.Location = new System.Drawing.Point(514, 92);
             this.hsv_s.Name = "hsv_s";
             this.hsv_s.Size = new System.Drawing.Size(88, 22);
-            this.hsv_s.TabIndex = 74;
+            this.hsv_s.TabIndex = 18;
             // 
             // hsv_v
             // 
             this.hsv_v.Location = new System.Drawing.Point(514, 118);
             this.hsv_v.Name = "hsv_v";
             this.hsv_v.Size = new System.Drawing.Size(88, 22);
-            this.hsv_v.TabIndex = 73;
+            this.hsv_v.TabIndex = 19;
             // 
             // translate
             // 
             this.translate.Location = new System.Drawing.Point(514, 178);
             this.translate.Name = "translate";
             this.translate.Size = new System.Drawing.Size(88, 22);
-            this.translate.TabIndex = 72;
+            this.translate.TabIndex = 21;
             // 
             // degrees
             // 
             this.degrees.Location = new System.Drawing.Point(514, 148);
             this.degrees.Name = "degrees";
             this.degrees.Size = new System.Drawing.Size(88, 22);
-            this.degrees.TabIndex = 71;
+            this.degrees.TabIndex = 20;
             // 
             // scale
             // 
             this.scale.Location = new System.Drawing.Point(514, 207);
             this.scale.Name = "scale";
             this.scale.Size = new System.Drawing.Size(88, 22);
-            this.scale.TabIndex = 70;
+            this.scale.TabIndex = 22;
             // 
             // shear
             // 
             this.shear.Location = new System.Drawing.Point(514, 235);
             this.shear.Name = "shear";
             this.shear.Size = new System.Drawing.Size(88, 22);
-            this.shear.TabIndex = 69;
+            this.shear.TabIndex = 23;
             // 
             // perspective
             // 
             this.perspective.Location = new System.Drawing.Point(514, 262);
             this.perspective.Name = "perspective";
             this.perspective.Size = new System.Drawing.Size(88, 22);
-            this.perspective.TabIndex = 68;
+            this.perspective.TabIndex = 24;
             // 
             // flipud
             // 
             this.flipud.Location = new System.Drawing.Point(514, 291);
             this.flipud.Name = "flipud";
             this.flipud.Size = new System.Drawing.Size(88, 22);
-            this.flipud.TabIndex = 67;
+            this.flipud.TabIndex = 25;
             // 
             // fliplr
             // 
             this.fliplr.Location = new System.Drawing.Point(514, 318);
             this.fliplr.Name = "fliplr";
             this.fliplr.Size = new System.Drawing.Size(88, 22);
-            this.fliplr.TabIndex = 66;
+            this.fliplr.TabIndex = 26;
             // 
             // mosaic
             // 
             this.mosaic.Location = new System.Drawing.Point(514, 345);
             this.mosaic.Name = "mosaic";
             this.mosaic.Size = new System.Drawing.Size(88, 22);
-            this.mosaic.TabIndex = 65;
+            this.mosaic.TabIndex = 27;
             // 
             // mixup
             // 
             this.mixup.Location = new System.Drawing.Point(514, 372);
             this.mixup.Name = "mixup";
             this.mixup.Size = new System.Drawing.Size(88, 22);
-            this.mixup.TabIndex = 64;
+            this.mixup.TabIndex = 28;
             // 
             // fl_gamma
             // 
             this.fl_gamma.Location = new System.Drawing.Point(514, 43);
             this.fl_gamma.Name = "fl_gamma";
             this.fl_gamma.Size = new System.Drawing.Size(88, 22);
-            this.fl_gamma.TabIndex = 63;
+            this.fl_gamma.TabIndex = 16;
             // 
             // imageMixupLabel
             // 
@@ -415,105 +415,105 @@ namespace LSC_Trainer
             this.anchors.Location = new System.Drawing.Point(212, 433);
             this.anchors.Name = "anchors";
             this.anchors.Size = new System.Drawing.Size(88, 22);
-            this.anchors.TabIndex = 47;
+            this.anchors.TabIndex = 15;
             // 
             // anchor_t
             // 
             this.anchor_t.Location = new System.Drawing.Point(212, 400);
             this.anchor_t.Name = "anchor_t";
             this.anchor_t.Size = new System.Drawing.Size(88, 22);
-            this.anchor_t.TabIndex = 46;
+            this.anchor_t.TabIndex = 14;
             // 
             // lrf
             // 
             this.lrf.Location = new System.Drawing.Point(212, 67);
             this.lrf.Name = "lrf";
             this.lrf.Size = new System.Drawing.Size(88, 22);
-            this.lrf.TabIndex = 45;
+            this.lrf.TabIndex = 2;
             // 
             // momentum
             // 
             this.momentum.Location = new System.Drawing.Point(212, 92);
             this.momentum.Name = "momentum";
             this.momentum.Size = new System.Drawing.Size(88, 22);
-            this.momentum.TabIndex = 44;
+            this.momentum.TabIndex = 3;
             // 
             // weight_decay
             // 
             this.weight_decay.Location = new System.Drawing.Point(212, 118);
             this.weight_decay.Name = "weight_decay";
             this.weight_decay.Size = new System.Drawing.Size(88, 22);
-            this.weight_decay.TabIndex = 43;
+            this.weight_decay.TabIndex = 4;
             // 
             // warmup_momentum
             // 
             this.warmup_momentum.Location = new System.Drawing.Point(212, 178);
             this.warmup_momentum.Name = "warmup_momentum";
             this.warmup_momentum.Size = new System.Drawing.Size(88, 22);
-            this.warmup_momentum.TabIndex = 42;
+            this.warmup_momentum.TabIndex = 6;
             // 
             // warmup_epochs
             // 
             this.warmup_epochs.Location = new System.Drawing.Point(212, 148);
             this.warmup_epochs.Name = "warmup_epochs";
             this.warmup_epochs.Size = new System.Drawing.Size(88, 22);
-            this.warmup_epochs.TabIndex = 41;
+            this.warmup_epochs.TabIndex = 5;
             // 
             // warmup_bias_lr
             // 
             this.warmup_bias_lr.Location = new System.Drawing.Point(212, 207);
             this.warmup_bias_lr.Name = "warmup_bias_lr";
             this.warmup_bias_lr.Size = new System.Drawing.Size(88, 22);
-            this.warmup_bias_lr.TabIndex = 40;
+            this.warmup_bias_lr.TabIndex = 7;
             // 
             // box
             // 
             this.box.Location = new System.Drawing.Point(212, 235);
             this.box.Name = "box";
             this.box.Size = new System.Drawing.Size(88, 22);
-            this.box.TabIndex = 39;
+            this.box.TabIndex = 8;
             // 
             // cls
             // 
             this.cls.Location = new System.Drawing.Point(212, 262);
             this.cls.Name = "cls";
             this.cls.Size = new System.Drawing.Size(88, 22);
-            this.cls.TabIndex = 38;
+            this.cls.TabIndex = 9;
             // 
             // cls_pw
             // 
             this.cls_pw.Location = new System.Drawing.Point(212, 291);
             this.cls_pw.Name = "cls_pw";
             this.cls_pw.Size = new System.Drawing.Size(88, 22);
-            this.cls_pw.TabIndex = 37;
+            this.cls_pw.TabIndex = 10;
             // 
             // obj
             // 
             this.obj.Location = new System.Drawing.Point(212, 318);
             this.obj.Name = "obj";
             this.obj.Size = new System.Drawing.Size(88, 22);
-            this.obj.TabIndex = 36;
+            this.obj.TabIndex = 11;
             // 
             // obj_pw
             // 
             this.obj_pw.Location = new System.Drawing.Point(212, 345);
             this.obj_pw.Name = "obj_pw";
             this.obj_pw.Size = new System.Drawing.Size(88, 22);
-            this.obj_pw.TabIndex = 35;
+            this.obj_pw.TabIndex = 12;
             // 
             // iou_t
             // 
             this.iou_t.Location = new System.Drawing.Point(212, 372);
             this.iou_t.Name = "iou_t";
             this.iou_t.Size = new System.Drawing.Size(88, 22);
-            this.iou_t.TabIndex = 34;
+            this.iou_t.TabIndex = 13;
             // 
             // lr0
             // 
             this.lr0.Location = new System.Drawing.Point(212, 43);
             this.lr0.Name = "lr0";
             this.lr0.Size = new System.Drawing.Size(88, 22);
-            this.lr0.TabIndex = 33;
+            this.lr0.TabIndex = 1;
             // 
             // iouTrainingThresholdLabel
             // 
