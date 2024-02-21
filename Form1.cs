@@ -756,7 +756,7 @@ namespace LSC_Trainer
             this.Enabled = true;
         }
 
-        private void testConnnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void testConnnectionMenu_Click(object sender, EventArgs e)
         {
             try
             {
