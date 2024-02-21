@@ -91,7 +91,6 @@ namespace LSC_Trainer
             this.regionDropdown.Name = "regionDropdown";
             this.regionDropdown.Size = new System.Drawing.Size(319, 24);
             this.regionDropdown.TabIndex = 4;
-            this.regionDropdown.SelectedValueChanged += new System.EventHandler(this.comboBox1_SelectedValueChanged);
             // 
             // roleARN
             // 

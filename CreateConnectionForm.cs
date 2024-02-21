@@ -56,11 +56,5 @@ namespace LSC_Trainer
             MessageBox.Show("Successfully created a connection");
             this.Close();
         }
-
-        private void comboBox1_SelectedValueChanged(object sender, EventArgs e)
-        {
-           
-        }
-
     }
 }
