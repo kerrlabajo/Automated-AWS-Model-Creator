@@ -71,14 +71,29 @@ namespace LSC_Trainer
                                  !string.IsNullOrWhiteSpace(UserConnectionInfo.RoleArn);
 
             Console.WriteLine($"Details: {UserConnectionInfo.AccountId}{UserConnectionInfo.AccessKey}{UserConnectionInfo.SecretKey}{UserConnectionInfo.Region}{UserConnectionInfo.RoleArn}");
+
+            backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.DoWork += backgroundWorker_DoWork;
+            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
+
+            DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
+            customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+            DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+            REGION = Environment.GetEnvironmentVariable("DEFAULT_REGION");
+
             if (isValidConnectionInfo)
             {
-                backgroundWorker = new System.ComponentModel.BackgroundWorker();
-                backgroundWorker.WorkerReportsProgress = true;
-                backgroundWorker.DoWork += backgroundWorker_DoWork;
-                backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
-                backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
-
+                ACCESS_KEY = UserConnectionInfo.AccessKey;
+                SECRET_KEY = UserConnectionInfo.SecretKey;
+                REGION = UserConnectionInfo.Region;
+                ROLE_ARN = UserConnectionInfo.RoleArn;
+                ECR_URI = UserConnectionInfo.EcrUri;
+                Console.WriteLine($"Logged In Details: {ACCESS_KEY} {SECRET_KEY} {REGION} {ROLE_ARN}");
+            }
+            else if(development)
+            {
                 string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
                 DotNetEnv.Env.Load(ENV_PATH);
 
@@ -87,64 +102,61 @@ namespace LSC_Trainer
                 REGION = Environment.GetEnvironmentVariable("REGION");
                 ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
 
-                // USING THE SINGLETON CLASS INSTEAD OF ENV FILE
-                /*
-                ACCESS_KEY = UserConnectionInfo.AccessKey;
-                SECRET_KEY = UserConnectionInfo.SecretKey;
-                REGION = UserConnectionInfo.Region;
-                ROLE_ARN = UserConnectionInfo.RoleArn;
-                ECR_URI = UserConnectionInfo.EcrUri;
-                */
                 ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
                 SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-                DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-                customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
-                DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
-
-                string selectedRegionSystemName = REGION;
-                RegionEndpoint selectedRegionEndpoint = RegionEndpoint.GetBySystemName(selectedRegionSystemName);
-                var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
-
-                RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
-                amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
-                s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
-
-                string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
-                if (datasetName == "MMX059XA_COVERED5B")
-                {
-                    imgSizeDropdown.Text = "1280";
-                    txtBatchSize.Text = "1";
-                    txtEpochs.Text = "1";
-                    txtWeights.Text = "yolov5n6.pt";
-                    txtData.Text = "MMX059XA_COVERED5B.yaml";
-                    hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
-                    txtPatience.Text = "100";
-                    txtWorkers.Text = "8";
-                    txtOptimizer.Text = "SGD";
-                    txtDevice.Text = "cpu";
-                    // txtDevice.Text = "0";
-                    trainingFolder = "train";
-                    validationFolder = "Verification Images";
-                }
-                else
-                {
-                    imgSizeDropdown.Text = "640";
-                    txtBatchSize.Text = "1";
-                    txtEpochs.Text = "50";
-                    txtWeights.Text = "yolov5s.pt";
-                    txtData.Text = "data.yaml";
-                    hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
-                    txtPatience.Text = "100";
-                    txtWorkers.Text = "8";
-                    txtOptimizer.Text = "SGD";
-                    txtDevice.Text = "cpu";
-                    // txtDevice.Text = "0";
-                    trainingFolder = "train";
-                    validationFolder = "val";
-                }
-                btnUploadToS3.Enabled = false;
-                btnDownloadModel.Enabled = false;
+                Console.WriteLine($"ENV Details: {ACCESS_KEY} {SECRET_KEY} {REGION} {ROLE_ARN}");
             }
+            else
+            {
+                MessageBox.Show("Please create a connection first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var t = new Thread(() => Application.Run(new CreateConnectionForm(development)));
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+                this.Close();
+            }
+
+            RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
+            // var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
+
+            amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
+            s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
+
+            string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
+            if (datasetName == "MMX059XA_COVERED5B")
+            {
+                imgSizeDropdown.Text = "1280";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "1";
+                txtWeights.Text = "yolov5n6.pt";
+                txtData.Text = "MMX059XA_COVERED5B.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
+                // txtDevice.Text = "0";
+                trainingFolder = "train";
+                validationFolder = "Verification Images";
+            }
+            else
+            {
+                imgSizeDropdown.Text = "640";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "50";
+                txtWeights.Text = "yolov5s.pt";
+                txtData.Text = "data.yaml";
+                hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
+                // txtDevice.Text = "0";
+                trainingFolder = "train";
+                validationFolder = "val";
+            }
+            btnUploadToS3.Enabled = false;
+            btnDownloadModel.Enabled = false;
+        }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
         {
