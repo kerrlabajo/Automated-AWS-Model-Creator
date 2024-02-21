@@ -146,36 +146,6 @@ namespace LSC_Trainer
         }
         }
 
-        // TODO: Create a login form that has the following fields:
-        // - Account ID
-        // - Access Key ID (hidden when entering)
-        // - Secret Access Key (hidden when entering)
-        // - Region (dropdown menu)
-        // - Role ARN
-        // (Will consider adding `Help` button to guide how to get the credentials.)
-        // 
-        // TODO: Once getting the Role ARN, retrieve if role is admin or employee.
-        // TODO: Admins are allowed to click on a button that builds and push training image to ECR and get its URI.
-        // This button will first open another form that requires the admin to enter the following fields:
-        // - Account ID
-        // - Region (reuse the region from the login form)
-        // - Repository Name
-        // - Tag (can be string/number)
-        // (This feature requires the `training-container` folder except for its .env files. because it uses parameters.)
-        // (Specifically executing `training-container/scripts/build_and_push.sh` with parameters via .NET.
-        // Research how to execute this file via .NET. Try this with a dummy .sh file that requires arguments/parameters.)
-        // (It will also require that the admin has the AWS CLI and Docker installed on their machine.)
-        // (This feature is dependent on the `dev/dockerize-scripts-caller` branch. DO NOT TRIAL AND ERROR until it's ready.)
-        // 
-        // TODO: Once the admin has pushed the image to ECR, the ECR URI will be predefined within the app with the following format:
-        // {account_id}.dkr.ecr.{region}.amazonaws.com/{repository_name}:{tag} (PS: This will not work if the admin has not pushed the image to ECR.)
-        //
-        // TODO: As for the employees after their login, they are required to enter their admin's ECR URI before being able to proceed.
-        // Otherwise, they will not be able to use the app.
-        // (This use case might be tedious for the employees side. Will research about roles and permissions in AWS so that 
-        // the user will not have to enter the ECR URI manually.)
-        // The tasks should be implemented in branch `feat/login-credentials`.
-
         private void btnSelectDataset_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -279,9 +249,6 @@ namespace LSC_Trainer
             }
         }
 
-        //TODO: Download model should first retrieve list of models from S3 bucket that was fetched from
-        // one or more training jobs. The user will then select the model to download.
-        // This features guarantees that the form can be closed and reopened without losing the model.
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
@@ -364,12 +331,6 @@ namespace LSC_Trainer
         {
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
-
-        // TODO: Create another background worker for training job request.
-        // TODO: Display the status of the training job request in the form.
-        // TODO: Display the log stream of the training job request in the form when the training is in progress.
-        // TODO: Preferably create another form when performing a new training job request.
-        // The tasks should be implemented in branch `feat/training-logging`.
 
         private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
         {
