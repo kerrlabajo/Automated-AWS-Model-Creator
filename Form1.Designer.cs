@@ -111,7 +111,6 @@ namespace LSC_Trainer
             this.connectionMenu.Name = "connectionMenu";
             this.connectionMenu.Size = new System.Drawing.Size(98, 26);
             this.connectionMenu.Text = "Connection";
-            this.connectionMenu.Click += new System.EventHandler(this.connectToolStripMenuItem1_Click);
             // 
             // createConnectionMenu
             // 
@@ -716,7 +715,6 @@ namespace LSC_Trainer
             this.MinimumSize = new System.Drawing.Size(1182, 400);
             this.Name = "MainForm";
             this.Text = "LSC Trainer";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.lscTrainerMenuStrip.ResumeLayout(false);
             this.lscTrainerMenuStrip.PerformLayout();
             this.mainPanel.ResumeLayout(false);

@@ -144,10 +144,6 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
         }
-
-        private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-           
         }
 
         // TODO: Create a login form that has the following fields:
@@ -179,11 +175,6 @@ namespace LSC_Trainer
         // (This use case might be tedious for the employees side. Will research about roles and permissions in AWS so that 
         // the user will not have to enter the ECR URI manually.)
         // The tasks should be implemented in branch `feat/login-credentials`.
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
         {
