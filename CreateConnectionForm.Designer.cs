@@ -77,23 +77,23 @@ namespace LSC_Trainer
             // 
             this.regionDropdown.FormattingEnabled = true;
             this.regionDropdown.Items.AddRange(new object[] {
-                "US East (N. Virginia)",
-                "US East (Ohio)",
-                "US West (N. California)",
-                "US West (Oregon)",
-                "Asia Pacific (Mumbai)",
-                "Asia Pacific (Osaka)",
-                "Asia Pacific (Seoul)",
-                "Asia Pacific (Singapore)",
-                "Asia Pacific (Sydney)",
-                "Asia Pacific (Tokyo)",
-                "Canada (Central)",
-                "Europe (Frankfurt)",
-                "Europe (Ireland)",
-                "Europe (London)",
-                "Europe (Paris)",
-                "Europe (Stockholm)",
-                "South America (São Paulo)"});
+            "US East (N. Virginia)",
+            "US East (Ohio)",
+            "US West (N. California)",
+            "US West (Oregon)",
+            "Asia Pacific (Mumbai)",
+            "Asia Pacific (Osaka)",
+            "Asia Pacific (Seoul)",
+            "Asia Pacific (Singapore)",
+            "Asia Pacific (Sydney)",
+            "Asia Pacific (Tokyo)",
+            "Canada (Central)",
+            "Europe (Frankfurt)",
+            "Europe (Ireland)",
+            "Europe (London)",
+            "Europe (Paris)",
+            "Europe (Stockholm)",
+            "South America (São Paulo)"});
             this.regionDropdown.Location = new System.Drawing.Point(180, 171);
             this.regionDropdown.Name = "regionDropdown";
             this.regionDropdown.Size = new System.Drawing.Size(319, 24);
@@ -181,6 +181,7 @@ namespace LSC_Trainer
             this.ClientSize = new System.Drawing.Size(684, 450);
             this.Controls.Add(this.createConnectionPanel);
             this.Name = "CreateConnectionForm";
+            this.Text = "Create Connection";
             this.createConnectionPanel.ResumeLayout(false);
             this.createConnectionPanel.PerformLayout();
             this.ResumeLayout(false);
