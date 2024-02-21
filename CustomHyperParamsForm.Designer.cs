@@ -291,16 +291,16 @@ namespace LSC_Trainer
             this.imageMixupLabel.Name = "imageMixupLabel";
             this.imageMixupLabel.Size = new System.Drawing.Size(45, 16);
             this.imageMixupLabel.TabIndex = 62;
-            this.imageMixupLabel.Text = "mixup:";
+            this.imageMixupLabel.Text = "Mixup:";
             // 
             // segmentCopyPasteLabel
             // 
             this.segmentCopyPasteLabel.AutoSize = true;
             this.segmentCopyPasteLabel.Location = new System.Drawing.Point(362, 402);
             this.segmentCopyPasteLabel.Name = "segmentCopyPasteLabel";
-            this.segmentCopyPasteLabel.Size = new System.Drawing.Size(81, 16);
+            this.segmentCopyPasteLabel.Size = new System.Drawing.Size(138, 16);
             this.segmentCopyPasteLabel.TabIndex = 61;
-            this.segmentCopyPasteLabel.Text = "copy_paste:";
+            this.segmentCopyPasteLabel.Text = "Segment Copy-Paste:";
             // 
             // imageMosaicLabel
             // 
@@ -309,70 +309,70 @@ namespace LSC_Trainer
             this.imageMosaicLabel.Name = "imageMosaicLabel";
             this.imageMosaicLabel.Size = new System.Drawing.Size(54, 16);
             this.imageMosaicLabel.TabIndex = 59;
-            this.imageMosaicLabel.Text = "mosaic:";
+            this.imageMosaicLabel.Text = "Mosaic:";
             // 
             // imageFlipLeftRightLabel
             // 
             this.imageFlipLeftRightLabel.AutoSize = true;
             this.imageFlipLeftRightLabel.Location = new System.Drawing.Point(362, 319);
             this.imageFlipLeftRightLabel.Name = "imageFlipLeftRightLabel";
-            this.imageFlipLeftRightLabel.Size = new System.Drawing.Size(34, 16);
+            this.imageFlipLeftRightLabel.Size = new System.Drawing.Size(91, 16);
             this.imageFlipLeftRightLabel.TabIndex = 58;
-            this.imageFlipLeftRightLabel.Text = "fliplr:";
+            this.imageFlipLeftRightLabel.Text = "Flip Left-Right:";
             // 
             // imageFlipUpDownLabel
             // 
             this.imageFlipUpDownLabel.AutoSize = true;
             this.imageFlipUpDownLabel.Location = new System.Drawing.Point(362, 293);
             this.imageFlipUpDownLabel.Name = "imageFlipUpDownLabel";
-            this.imageFlipUpDownLabel.Size = new System.Drawing.Size(42, 16);
+            this.imageFlipUpDownLabel.Size = new System.Drawing.Size(91, 16);
             this.imageFlipUpDownLabel.TabIndex = 57;
-            this.imageFlipUpDownLabel.Text = "flipud:";
+            this.imageFlipUpDownLabel.Text = "Flip Up-Down:";
             // 
             // imagePerspectiveLabel
             // 
             this.imagePerspectiveLabel.AutoSize = true;
             this.imagePerspectiveLabel.Location = new System.Drawing.Point(362, 267);
             this.imagePerspectiveLabel.Name = "imagePerspectiveLabel";
-            this.imagePerspectiveLabel.Size = new System.Drawing.Size(81, 16);
+            this.imagePerspectiveLabel.Size = new System.Drawing.Size(82, 16);
             this.imagePerspectiveLabel.TabIndex = 56;
-            this.imagePerspectiveLabel.Text = "perspective:";
+            this.imagePerspectiveLabel.Text = "Perspective:";
             // 
             // imageShearLabel
             // 
             this.imageShearLabel.AutoSize = true;
             this.imageShearLabel.Location = new System.Drawing.Point(362, 237);
             this.imageShearLabel.Name = "imageShearLabel";
-            this.imageShearLabel.Size = new System.Drawing.Size(44, 16);
+            this.imageShearLabel.Size = new System.Drawing.Size(46, 16);
             this.imageShearLabel.TabIndex = 55;
-            this.imageShearLabel.Text = "shear:";
+            this.imageShearLabel.Text = "Shear:";
             // 
             // imageScaleLabel
             // 
             this.imageScaleLabel.AutoSize = true;
             this.imageScaleLabel.Location = new System.Drawing.Point(362, 208);
             this.imageScaleLabel.Name = "imageScaleLabel";
-            this.imageScaleLabel.Size = new System.Drawing.Size(43, 16);
+            this.imageScaleLabel.Size = new System.Drawing.Size(45, 16);
             this.imageScaleLabel.TabIndex = 54;
-            this.imageScaleLabel.Text = "scale:";
+            this.imageScaleLabel.Text = "Scale:";
             // 
             // imageTranslationLabel
             // 
             this.imageTranslationLabel.AutoSize = true;
             this.imageTranslationLabel.Location = new System.Drawing.Point(362, 180);
             this.imageTranslationLabel.Name = "imageTranslationLabel";
-            this.imageTranslationLabel.Size = new System.Drawing.Size(61, 16);
+            this.imageTranslationLabel.Size = new System.Drawing.Size(67, 16);
             this.imageTranslationLabel.TabIndex = 53;
-            this.imageTranslationLabel.Text = "translate:";
+            this.imageTranslationLabel.Text = "Translate:";
             // 
             // imageRotationLabel
             // 
             this.imageRotationLabel.AutoSize = true;
             this.imageRotationLabel.Location = new System.Drawing.Point(362, 152);
             this.imageRotationLabel.Name = "imageRotationLabel";
-            this.imageRotationLabel.Size = new System.Drawing.Size(61, 16);
+            this.imageRotationLabel.Size = new System.Drawing.Size(60, 16);
             this.imageRotationLabel.TabIndex = 52;
-            this.imageRotationLabel.Text = "degrees:";
+            this.imageRotationLabel.Text = "Rotation:";
             // 
             // hsvValueAugLabel
             // 
