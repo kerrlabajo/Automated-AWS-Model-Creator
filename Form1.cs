@@ -796,7 +796,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void testConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void testConnectionMenu_Click(object sender, EventArgs e)
         {
             try
             {
