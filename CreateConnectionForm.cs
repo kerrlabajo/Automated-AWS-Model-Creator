@@ -14,14 +14,12 @@ namespace LSC_Trainer
     public partial class CreateConnectionForm : Form
     {
         private bool development;
-        private string regionCode;
         
         public CreateConnectionForm(bool development)
         {
             InitializeComponent();
             btnConnect.Enabled = false;
             this.development = development;
-            regionCode = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
         }
 
 
@@ -43,7 +41,7 @@ namespace LSC_Trainer
             UserConnectionInfo.AccountId = accountID.Text;
             UserConnectionInfo.AccessKey = accessKeyID.Text;
             UserConnectionInfo.SecretKey = secretKeyID.Text;
-            UserConnectionInfo.Region = regionCode;
+            UserConnectionInfo.Region = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
@@ -104,7 +102,7 @@ namespace LSC_Trainer
                     new AmazonSageMakerClient(
                         accessKeyID.Text, 
                         secretKeyID.Text, 
-                        RegionEndpoint.GetBySystemName(regionCode)
+                        RegionEndpoint.GetBySystemName(GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem)))
                     )
                 );
                 MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
