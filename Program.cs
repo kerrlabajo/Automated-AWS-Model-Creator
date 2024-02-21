@@ -14,10 +14,18 @@ namespace LSC_Trainer
         [STAThread]
         static void Main()
         {
+            bool development = true;
             DotNetEnv.Env.Load();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            if (development)
+            {
+                Application.Run(new MainForm());
+            }
+            else
+            {
+                Application.Run(new CreateConnectionForm());
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace LSC_Trainer
@@ -54,6 +55,9 @@ namespace LSC_Trainer
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
+            var t = new Thread(() => Application.Run(new MainForm()));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
             this.Close();
         }
 
