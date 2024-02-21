@@ -9,6 +9,8 @@ namespace LSC_Trainer
     public partial class CustomHyperParamsForm : Form
     {
         private Utility utility = new Utility();
+        public Dictionary<string, string> HyperParameters { get; private set; }
+
         public CustomHyperParamsForm()
         {
             InitializeComponent();
@@ -47,16 +49,13 @@ namespace LSC_Trainer
 
         private void CreateFile_Click(object sender, EventArgs e)
         {
-            var hyperparameters = SetHyperparameters();
-
-            string createdFile = FileHandler.WriteYamlFile(hyperparameters);
-
+            SetHyperparameters();
             this.Close();
         }
 
-        private Dictionary<string, string> SetHyperparameters()
+        private void SetHyperparameters()
         {
-            var hyperparameters = new Dictionary<string, string>
+            HyperParameters = new Dictionary<string, string>
             {
                 {"learning_rate", utility.GetValueFromTextBox(learningRate)},
                 {"final_learning_rate", utility.GetValueFromTextBox(finalLearningRate)},
