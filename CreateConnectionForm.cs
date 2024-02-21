@@ -8,10 +8,12 @@ namespace LSC_Trainer
 {
     public partial class CreateConnectionForm : Form
     {
+        private bool development;
         
-        public CreateConnectionForm()
+        public CreateConnectionForm(bool development)
         {
             InitializeComponent();
+            this.development = development;
         }
 
         private void btnConect_Click(object sender, EventArgs e)
@@ -55,7 +57,7 @@ namespace LSC_Trainer
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
-            var t = new Thread(() => Application.Run(new MainForm()));
+            var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
             this.Close();

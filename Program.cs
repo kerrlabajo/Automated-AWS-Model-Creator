@@ -20,11 +20,11 @@ namespace LSC_Trainer
             Application.SetCompatibleTextRenderingDefault(false);
             if (development)
             {
-                Application.Run(new MainForm());
+                Application.Run(new MainForm(development));
             }
             else
             {
-                Application.Run(new CreateConnectionForm());
+                Application.Run(new CreateConnectionForm(development));
             }
         }
     }

@@ -55,11 +55,14 @@ namespace LSC_Trainer
         private string modelKey;
         private bool isValidConnectionInfo;
 
+        private bool development;
+
         private CustomHyperParamsForm customHyperParamsForm;
 
-        public MainForm()
+        public MainForm(bool development)
         {
             InitializeComponent();
+            this.development = development;
 
             isValidConnectionInfo = !string.IsNullOrWhiteSpace(UserConnectionInfo.AccountId) &&
                                  !string.IsNullOrWhiteSpace(UserConnectionInfo.AccessKey) &&
@@ -142,7 +145,6 @@ namespace LSC_Trainer
                 btnUploadToS3.Enabled = false;
                 btnDownloadModel.Enabled = false;
             }
-        }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
         {
@@ -660,7 +662,7 @@ namespace LSC_Trainer
 
         private void newTrainingJobMenu_Click(object sender, EventArgs e)
         {
-            var t = new Thread(() => Application.Run(new MainForm()));
+            var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
@@ -815,7 +817,7 @@ namespace LSC_Trainer
         {
             this.Enabled = false;
 
-            var createConnectionForm = new CreateConnectionForm();
+            var createConnectionForm = new CreateConnectionForm(development);
             createConnectionForm.FormClosed += OtherForm_FormClosed;
             createConnectionForm.Show();
         }
@@ -883,7 +885,7 @@ namespace LSC_Trainer
         private void btnRefresh_Click(object sender, EventArgs e)
         {
            
-            Form form = new MainForm();
+            Form form = new MainForm(development);
             form.Refresh();
             btnBuildImage.Enabled = true;
         }
