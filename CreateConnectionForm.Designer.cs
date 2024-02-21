@@ -30,6 +30,7 @@ namespace LSC_Trainer
         private void InitializeComponent()
         {
             this.createConnectionPanel = new System.Windows.Forms.Panel();
+            this.btnTestConnection = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
             this.regionDropdown = new System.Windows.Forms.ComboBox();
             this.roleARN = new System.Windows.Forms.TextBox();
@@ -47,6 +48,7 @@ namespace LSC_Trainer
             // createConnectionPanel
             // 
             this.createConnectionPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.createConnectionPanel.Controls.Add(this.btnTestConnection);
             this.createConnectionPanel.Controls.Add(this.btnConnect);
             this.createConnectionPanel.Controls.Add(this.regionDropdown);
             this.createConnectionPanel.Controls.Add(this.roleARN);
@@ -63,12 +65,23 @@ namespace LSC_Trainer
             this.createConnectionPanel.Size = new System.Drawing.Size(554, 355);
             this.createConnectionPanel.TabIndex = 5;
             // 
+            // btnTestConnection
+            // 
+            this.btnTestConnection.AutoSize = true;
+            this.btnTestConnection.Location = new System.Drawing.Point(264, 298);
+            this.btnTestConnection.Name = "btnTestConnection";
+            this.btnTestConnection.Size = new System.Drawing.Size(114, 31);
+            this.btnTestConnection.TabIndex = 6;
+            this.btnTestConnection.Text = "Test Connection";
+            this.btnTestConnection.UseVisualStyleBackColor = true;
+            this.btnTestConnection.Click += new System.EventHandler(this.btnTestConnection_Click);
+            // 
             // btnConnect
             // 
             this.btnConnect.Location = new System.Drawing.Point(395, 298);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(104, 31);
-            this.btnConnect.TabIndex = 6;
+            this.btnConnect.TabIndex = 7;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
             this.btnConnect.Click += new System.EventHandler(this.btnConect_Click);
@@ -202,5 +215,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.TextBox accessKeyID;
         private System.Windows.Forms.Label roleARNLabel;
         private System.Windows.Forms.Button btnConnect;
+        private System.Windows.Forms.Button btnTestConnection;
     }
 }
