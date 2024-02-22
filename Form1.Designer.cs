@@ -32,8 +32,8 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip = new System.Windows.Forms.MenuStrip();
             this.connectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.testConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
@@ -79,7 +79,6 @@ namespace LSC_Trainer
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
             this.modelListComboBox = new System.Windows.Forms.ComboBox();
             this.btnFetchModels = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
             this.btnBuildImage = new System.Windows.Forms.Button();
             this.logBox = new System.Windows.Forms.TextBox();
             this.logPanel = new System.Windows.Forms.Panel();
@@ -226,7 +225,6 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.hyperparamsDropdown);
             this.mainPanel.Controls.Add(this.modelListComboBox);
             this.mainPanel.Controls.Add(this.btnFetchModels);
-            this.mainPanel.Controls.Add(this.btnRefresh);
             this.mainPanel.Controls.Add(this.btnBuildImage);
             this.mainPanel.Location = new System.Drawing.Point(12, 42);
             this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -629,16 +627,6 @@ namespace LSC_Trainer
             this.btnFetchModels.UseVisualStyleBackColor = true;
             this.btnFetchModels.Click += new System.EventHandler(this.btnFetchModels_Click);
             // 
-            // btnRefresh
-            // 
-            this.btnRefresh.Location = new System.Drawing.Point(691, 211);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 33);
-            this.btnRefresh.TabIndex = 6;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
-            // 
             // btnBuildImage
             // 
             this.btnBuildImage.Location = new System.Drawing.Point(795, 211);
@@ -767,7 +755,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
         private System.Windows.Forms.Button btnBuildImage;
-        private System.Windows.Forms.Button btnRefresh;
     }
 }
 

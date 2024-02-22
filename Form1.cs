@@ -893,14 +893,6 @@ namespace LSC_Trainer
             imageBuilderForm.Show();
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-           
-            Form form = new MainForm(development);
-            form.Refresh();
-            btnBuildImage.Enabled = true;
-        }
-
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
