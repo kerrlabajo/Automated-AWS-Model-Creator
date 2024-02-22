@@ -96,10 +96,9 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                // txtDevice.Text = "0";
+                txtDevice.Text = "0";
                 trainingFolder = "train";
-                validationFolder = "Verification Images";
+                validationFolder = "val";
             }
             else
             {
@@ -112,8 +111,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                // txtDevice.Text = "0";
+                txtDevice.Text = "0";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
@@ -415,7 +413,7 @@ namespace LSC_Trainer
                 ResourceConfig = new ResourceConfig()
                 {
                     InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM5Xlarge,
+                    InstanceType = TrainingInstanceType.MlG4dnXlarge,
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = trainingJobName,
@@ -423,7 +421,7 @@ namespace LSC_Trainer
                 {
                     MaxRuntimeInSeconds = 360000
                 },
-                HyperParameters = customHyperParamsForm.HyperParameters,
+                // HyperParameters = customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
