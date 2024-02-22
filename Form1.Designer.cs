@@ -36,6 +36,7 @@ namespace LSC_Trainer
             this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.buildImageMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
@@ -79,7 +80,6 @@ namespace LSC_Trainer
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
             this.modelListComboBox = new System.Windows.Forms.ComboBox();
             this.btnFetchModels = new System.Windows.Forms.Button();
-            this.btnBuildImage = new System.Windows.Forms.Button();
             this.logBox = new System.Windows.Forms.TextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
@@ -94,7 +94,8 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectionMenu,
             this.helpMenu,
-            this.newTrainingJobMenu});
+            this.newTrainingJobMenu,
+            this.buildImageMenu});
             this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
             this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
@@ -145,6 +146,13 @@ namespace LSC_Trainer
             this.newTrainingJobMenu.Size = new System.Drawing.Size(137, 24);
             this.newTrainingJobMenu.Text = "New Training Job";
             this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobMenu_Click);
+            // 
+            // buildImageMenu
+            // 
+            this.buildImageMenu.Name = "buildImageMenu";
+            this.buildImageMenu.Size = new System.Drawing.Size(103, 24);
+            this.buildImageMenu.Text = "Build Image";
+            this.buildImageMenu.Click += new System.EventHandler(this.buildImageMenu_Click);
             // 
             // backgroundWorker
             // 
@@ -225,7 +233,6 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.hyperparamsDropdown);
             this.mainPanel.Controls.Add(this.modelListComboBox);
             this.mainPanel.Controls.Add(this.btnFetchModels);
-            this.mainPanel.Controls.Add(this.btnBuildImage);
             this.mainPanel.Location = new System.Drawing.Point(12, 42);
             this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.mainPanel.Name = "mainPanel";
@@ -627,16 +634,6 @@ namespace LSC_Trainer
             this.btnFetchModels.UseVisualStyleBackColor = true;
             this.btnFetchModels.Click += new System.EventHandler(this.btnFetchModels_Click);
             // 
-            // btnBuildImage
-            // 
-            this.btnBuildImage.Location = new System.Drawing.Point(795, 211);
-            this.btnBuildImage.Name = "btnBuildImage";
-            this.btnBuildImage.Size = new System.Drawing.Size(136, 33);
-            this.btnBuildImage.TabIndex = 5;
-            this.btnBuildImage.Text = "Build Image";
-            this.btnBuildImage.UseVisualStyleBackColor = true;
-            this.btnBuildImage.Click += new System.EventHandler(this.btnBuildImage_Click);
-            // 
             // logBox
             // 
             this.logBox.BackColor = System.Drawing.SystemColors.HighlightText;
@@ -754,7 +751,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label trainingDurationBox;
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
-        private System.Windows.Forms.Button btnBuildImage;
+        private System.Windows.Forms.ToolStripMenuItem buildImageMenu;
     }
 }
 

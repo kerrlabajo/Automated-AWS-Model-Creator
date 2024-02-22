@@ -883,7 +883,7 @@ namespace LSC_Trainer
         //    return isAdmin;
         //}
 
-        private void btnBuildImage_Click(object sender, EventArgs e)
+        private void buildImageMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
             var imageBuilderForm = new ImageBuilderForm();
