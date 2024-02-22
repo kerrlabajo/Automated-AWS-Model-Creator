@@ -14,9 +14,28 @@ namespace LSC_Trainer
 {
     public partial class ImageBuilderForm : Form
     {
-        public ImageBuilderForm()
+        private string accountId;
+        private string accessKey;
+        private string secretKey;
+        private string region;
+
+        private string repositoryName;
+        private string imageTag;
+
+        private readonly string INTELLISYS_ECR_URI;
+        public ImageBuilderForm(string accountId, string accessKey, string secretKey, string region)
         {
             InitializeComponent();
+            this.accountId = accountId;
+            this.accessKey = accessKey;
+            this.secretKey = secretKey;
+            this.region = region;
+
+            // Load environment variables
+            // The env var to be loaded should only be the INTELLISYS_ECR_URI.
+            string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
+            DotNetEnv.Env.Load(ENV_PATH);
+            INTELLISYS_ECR_URI = Environment.GetEnvironmentVariable("INTELLISYS_ECR_URI");
         }
 
         private void buildButton_Click(object sender, EventArgs e)
@@ -34,8 +53,6 @@ namespace LSC_Trainer
 
             string accountId = accountID.Text;
             string repositoryName = repoName.Text;
-            string region = regionDropdown.GetItemText(regionDropdown.SelectedItem);
-            string imageTag = tag.Text;
 
 
             ExecuteShellScript(accountId, repositoryName, region, imageTag);

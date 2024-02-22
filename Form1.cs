@@ -865,7 +865,7 @@ namespace LSC_Trainer
         private void buildImageMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
-            var imageBuilderForm = new ImageBuilderForm();
+            var imageBuilderForm = new ImageBuilderForm(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY, REGION);
             imageBuilderForm.FormClosed += OtherForm_FormClosed;
             imageBuilderForm.Show();
         }
