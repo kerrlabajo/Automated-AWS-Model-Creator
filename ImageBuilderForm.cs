@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Amazon.EC2;
+using Amazon.EC2.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -51,30 +53,37 @@ namespace LSC_Trainer
             repositoryName = repoName.Text;
             imageTag = tag.Text;
 
-
-            ExecuteShellScript(accountId, repositoryName, region, imageTag);
-
+            var response = LaunchInstancePushPrivateECR();
             UserConnectionInfo.EcrUri = $"{accountId}.dkr.ecr.{region}.amazonaws.com/{repositoryName}:{imageTag}";
         }
 
         
-        public void ExecuteShellScript(string accountId, string region, string repoName, string imageTag)
+        public RunInstancesResponse LaunchInstancePushPrivateECR()
         {
-            string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .sample.sh").Replace("\\", "/");
-            string command = $"wsl bash -c '\"{scriptPath}\" \"{accountId}\" \"{region}\" \"{repoName}\" \"{imageTag}\"'";
-            var processStartInfo = new ProcessStartInfo();
-            processStartInfo.FileName = "powershell.exe";
-            //processStartInfo.Arguments = $"-Command \"wsl bash -c '{scriptPath}'\" \"{accountId}\" \"{region}\" \"{repoName}\" \"{imageTag}\"'";
-            processStartInfo.Arguments = $"-Command {command}";
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.RedirectStandardOutput = true;
+            string userDataScript = $@"
+                #!/bin/bash
+                aws configure set aws_access_key_id {accessKey}
+                aws configure set aws_secret_access_key {secretKey}
+                aws configure set region {region}
+                sudo docker tag {INTELLISYS_ECR_URI} {UserConnectionInfo.EcrUri}
+                sudo docker push {UserConnectionInfo.EcrUri}
+            ";
+            string userData = Convert.ToBase64String(Encoding.UTF8.GetBytes(userDataScript));
+            var client = new AmazonEC2Client();
 
-            Process process = new Process();
-            process.StartInfo = processStartInfo;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            Console.WriteLine(output);
-            Console.WriteLine("done"); 
+            return client.RunInstances(new RunInstancesRequest
+            {
+                //Still temporary and not tested
+                ImageId = "ami-abc12345",
+                InstanceType = "t2.micro",
+                KeyName = "my-key-pair",
+                MaxCount = 1,
+                MinCount = 1,
+                SecurityGroupIds = new List<string> { "sg-1a2b3c4d" },
+                SubnetId = "subnet-6e7f829e",
+                UserData = userData,
+                IamInstanceProfile = new IamInstanceProfileSpecification { Name = "ecsInstanceRole" }
+            });
         }
     }
 }
