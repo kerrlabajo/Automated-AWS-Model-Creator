@@ -40,10 +40,7 @@ namespace LSC_Trainer
 
         private void buildButton_Click(object sender, EventArgs e)
         {
-            bool allTextBoxesFilled = !string.IsNullOrWhiteSpace(accountID.Text) &&
-                             !string.IsNullOrWhiteSpace(repoName.Text) &&
-                             !string.IsNullOrWhiteSpace(regionDropdown.GetItemText(regionDropdown.SelectedItem)) &&
-                             !string.IsNullOrWhiteSpace(tag.Text);
+            bool allTextBoxesFilled = !string.IsNullOrWhiteSpace(repoName.Text) && !string.IsNullOrWhiteSpace(tag.Text);
 
             if (!allTextBoxesFilled)
             {
@@ -51,8 +48,8 @@ namespace LSC_Trainer
                 return;
             }
 
-            string accountId = accountID.Text;
-            string repositoryName = repoName.Text;
+            repositoryName = repoName.Text;
+            imageTag = tag.Text;
 
 
             ExecuteShellScript(accountId, repositoryName, region, imageTag);
