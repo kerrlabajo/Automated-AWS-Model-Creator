@@ -27,6 +27,7 @@ namespace LSC_Trainer
         private readonly AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private Utility utility = new Utility();
 
+        private readonly string ACCOUNT_ID;
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
         private readonly string REGION;
@@ -85,6 +86,7 @@ namespace LSC_Trainer
 
             if (isValidConnectionInfo)
             {
+                ACCOUNT_ID = UserConnectionInfo.AccountId;
                 ACCESS_KEY = UserConnectionInfo.AccessKey;
                 SECRET_KEY = UserConnectionInfo.SecretKey;
                 REGION = UserConnectionInfo.Region;
@@ -97,6 +99,7 @@ namespace LSC_Trainer
                 string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
                 DotNetEnv.Env.Load(ENV_PATH);
 
+                ACCOUNT_ID = Environment.GetEnvironmentVariable("ACCOUNT_ID");
                 ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
                 SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
                 REGION = Environment.GetEnvironmentVariable("REGION");
