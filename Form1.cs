@@ -410,6 +410,9 @@ namespace LSC_Trainer
                 {
                     S3OutputPath = DESTINATION_URI
                 },
+                // Uncomment if using the spot instance (MlG4dn2xlarge for now)
+                // Comment these back if using non-spot instances (MlG4dnXlarge and MlG4dn2xlarge)
+                // EnableManagedSpotTraining = true,
                 ResourceConfig = new ResourceConfig()
                 {
                     InstanceCount = 1,
@@ -419,9 +422,30 @@ namespace LSC_Trainer
                 TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
+                    // If using spot instances, set the max run time to 14400 seconds (4 hours)
                     MaxRuntimeInSeconds = 360000
+                    // and uncomment the following line
+                    //MaxWaitTimeInSeconds = 15000,
                 },
+                // Keep this commented
                 // HyperParameters = customHyperParamsForm.HyperParameters,
+
+                // The following lines below will be used to see the training params used for the training
+                // and keep tabs to input in excel.
+                HyperParameters = new Dictionary<string, string>()
+                {
+                    { "img-size", img_size },
+                    { "batch", batch_size },
+                    { "epochs", epochs },
+                    { "weights", weights },
+                    { "hyp", hyperparameters },
+                    { "patience", patience },
+                    { "workers", workers },
+                    { "optimizer", optimizer },
+                    { "device", device },
+                    { "instance", "ml.g4dn.xlarge" },
+                    { "spot", "False" }
+                },
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
