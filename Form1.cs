@@ -123,6 +123,7 @@ namespace LSC_Trainer
 
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
+            cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
 
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
