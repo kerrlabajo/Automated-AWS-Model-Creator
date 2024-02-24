@@ -517,8 +517,8 @@ namespace LSC_Trainer
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
-            modelListComboBox.Enabled = intent;
-            btnFetchModels.Enabled = intent;
+            outputListComboBox.Enabled = intent;
+            btnFetchOutput.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
@@ -804,15 +804,15 @@ namespace LSC_Trainer
             mainPanel.Enabled = false;
             try
             {
-                List<string> models = await AWS_Helper.GetModelListFromS3(s3Client, SAGEMAKER_BUCKET);
+                List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
 
                 if (models != null)
                 {
-                    modelListComboBox.Items.Clear(); 
+                    outputListComboBox.Items.Clear(); 
 
                     foreach (var obj in models)
                     {
-                        modelListComboBox.Items.Add(obj); 
+                        outputListComboBox.Items.Add(obj); 
                     }
                 }
             }
@@ -824,15 +824,15 @@ namespace LSC_Trainer
             {
                 Cursor = Cursors.Default;
                 mainPanel.Enabled = true;
-                modelListComboBox.Enabled = true;
+                outputListComboBox.Enabled = true;
             }
         }
 
         private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (modelListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
             {
-                string trainingJobOuputs = modelListComboBox.GetItemText(modelListComboBox.SelectedItem);
+                string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
                 outputKey = $"training-jobs/{trainingJobOuputs}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
