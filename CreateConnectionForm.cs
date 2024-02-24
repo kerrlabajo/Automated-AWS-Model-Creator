@@ -14,12 +14,14 @@ namespace LSC_Trainer
     public partial class CreateConnectionForm : Form
     {
         private bool development;
-        
-        public CreateConnectionForm(bool development)
+        private MainForm mainForm;
+
+        public CreateConnectionForm(bool development, MainForm mainForm)
         {
             InitializeComponent();
             btnConnect.Enabled = false;
             this.development = development;
+            this.mainForm = mainForm;
         }
 
 
@@ -48,6 +50,7 @@ namespace LSC_Trainer
             var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
+            mainForm.Close();
             this.Close();
         }
 

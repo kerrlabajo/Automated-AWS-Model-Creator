@@ -112,7 +112,7 @@ namespace LSC_Trainer
             else
             {
                 MessageBox.Show("Please create a connection first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                var t = new Thread(() => Application.Run(new CreateConnectionForm(development)));
+                var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
                 t.SetApartmentState(ApartmentState.STA);
                 t.Start();
                 this.Close();
@@ -883,7 +883,7 @@ namespace LSC_Trainer
         {
             this.Enabled = false;
 
-            var createConnectionForm = new CreateConnectionForm(development);
+            var createConnectionForm = new CreateConnectionForm(development, this);
             createConnectionForm.FormClosed += OtherForm_FormClosed;
             createConnectionForm.Show();
         }
@@ -911,7 +911,7 @@ namespace LSC_Trainer
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
-            var t = new Thread(() => Application.Run(new CreateConnectionForm(development)));
+            var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
             this.Close();
