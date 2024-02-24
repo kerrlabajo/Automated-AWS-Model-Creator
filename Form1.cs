@@ -216,6 +216,12 @@ namespace LSC_Trainer
                 // For testing purposes. Pre-define values.
                 trainingFolder = "train";
                 validationFolder = "val";
+                mainPanel.Enabled = false;
+                logPanel.Enabled = false;
+                connectionMenu.Enabled = false;
+                buildImageMenu.Enabled = false;
+                mainPanel.Cursor = Cursors.WaitCursor;
+                logPanel.Cursor = Cursors.WaitCursor;
                 }
             else
             {
@@ -341,6 +347,12 @@ namespace LSC_Trainer
         {
             MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
+            mainPanel.Enabled = true;
+            logPanel.Enabled = true;
+            connectionMenu.Enabled = true;
+            buildImageMenu.Enabled = true;
+            mainPanel.Cursor = Cursors.Default;
+            logPanel.Cursor = Cursors.Default;
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
@@ -526,7 +538,11 @@ namespace LSC_Trainer
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             InputsEnabler(false);
-            Cursor = Cursors.WaitCursor;
+            connectionMenu.Enabled = false;
+            buildImageMenu.Enabled = false;
+            mainPanel.Cursor = Cursors.WaitCursor;
+            logPanel.Cursor = Cursors.WaitCursor;
+            logBox.Cursor = Cursors.WaitCursor;
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
@@ -620,7 +636,11 @@ namespace LSC_Trainer
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             InputsEnabler(true);
-                            Cursor = Cursors.Default;
+                            connectionMenu.Enabled = true;
+                            buildImageMenu.Enabled = true;
+                            mainPanel.Cursor = Cursors.Default;
+                            logPanel.Cursor = Cursors.Default;
+                            logBox.Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
@@ -800,8 +820,12 @@ namespace LSC_Trainer
 
         private async void btnFetchOutput_Click(object sender, EventArgs e)
         {
-            Cursor = Cursors.WaitCursor;
             mainPanel.Enabled = false;
+            logPanel.Enabled = false;
+            connectionMenu.Enabled = false;
+            buildImageMenu.Enabled = false;
+            mainPanel.Cursor = Cursors.WaitCursor;
+            logPanel.Cursor = Cursors.WaitCursor;
             try
             {
                 List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
@@ -822,8 +846,12 @@ namespace LSC_Trainer
             }
             finally
             {
-                Cursor = Cursors.Default;
-                mainPanel.Enabled = true;
+                mainPanel.Enabled = false;
+                logPanel.Enabled = false;
+                connectionMenu.Enabled = false;
+                buildImageMenu.Enabled = true;
+                mainPanel.Cursor = Cursors.WaitCursor;
+                logPanel.Cursor = Cursors.WaitCursor;
                 outputListComboBox.Enabled = true;
             }
         }
