@@ -24,7 +24,7 @@ namespace LSC_Trainer
             }
             else
             {
-                Application.Run(new CreateConnectionForm(development));
+                Application.Run(new CreateConnectionForm(development, new MainForm(development)));
             }
         }
     }
