@@ -78,8 +78,8 @@ namespace LSC_Trainer
             this.selectedFileLabel = new System.Windows.Forms.Label();
             this.imgSizeDropdown = new System.Windows.Forms.ComboBox();
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
-            this.modelListComboBox = new System.Windows.Forms.ComboBox();
-            this.btnFetchModels = new System.Windows.Forms.Button();
+            this.outputListComboBox = new System.Windows.Forms.ComboBox();
+            this.btnFetchOutput = new System.Windows.Forms.Button();
             this.logBox = new System.Windows.Forms.TextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
@@ -99,7 +99,7 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
             this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 30);
+            this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 28);
             this.lscTrainerMenuStrip.TabIndex = 1;
             // 
             // connectionMenu
@@ -115,23 +115,23 @@ namespace LSC_Trainer
             // createConnectionMenu
             // 
             this.createConnectionMenu.Name = "createConnectionMenu";
-            this.createConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.createConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.createConnectionMenu.Text = "Create Connection";
             this.createConnectionMenu.Click += new System.EventHandler(this.createConnectionMenu_Click);
-            // 
-            // closeConnectionMenu
-            // 
-            this.closeConnectionMenu.Name = "closeConnectionMenu";
-            this.closeConnectionMenu.Size = new System.Drawing.Size(224, 26);
-            this.closeConnectionMenu.Text = "Close Connection";
-            this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
             // testConnectionMenu
             // 
             this.testConnectionMenu.Name = "testConnectionMenu";
-            this.testConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.testConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.testConnectionMenu.Text = "Test Connection";
             this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
+            // 
+            // closeConnectionMenu
+            // 
+            this.closeConnectionMenu.Name = "closeConnectionMenu";
+            this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.closeConnectionMenu.Text = "Close Connection";
+            this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
             // helpMenu
             // 
@@ -231,8 +231,8 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.btnSelectDataset);
             this.mainPanel.Controls.Add(this.imgSizeDropdown);
             this.mainPanel.Controls.Add(this.hyperparamsDropdown);
-            this.mainPanel.Controls.Add(this.modelListComboBox);
-            this.mainPanel.Controls.Add(this.btnFetchModels);
+            this.mainPanel.Controls.Add(this.outputListComboBox);
+            this.mainPanel.Controls.Add(this.btnFetchOutput);
             this.mainPanel.Location = new System.Drawing.Point(12, 42);
             this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.mainPanel.Name = "mainPanel";
@@ -614,25 +614,25 @@ namespace LSC_Trainer
             this.hyperparamsDropdown.TabIndex = 6;
             this.hyperparamsDropdown.SelectedValueChanged += new System.EventHandler(this.hyperparamsDropdown_SelectedValueChanged);
             // 
-            // modelListComboBox
+            // outputListComboBox
             // 
-            this.modelListComboBox.Enabled = false;
-            this.modelListComboBox.FormattingEnabled = true;
-            this.modelListComboBox.Location = new System.Drawing.Point(691, 257);
-            this.modelListComboBox.Name = "modelListComboBox";
-            this.modelListComboBox.Size = new System.Drawing.Size(410, 24);
-            this.modelListComboBox.TabIndex = 15;
-            this.modelListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
+            this.outputListComboBox.Enabled = false;
+            this.outputListComboBox.FormattingEnabled = true;
+            this.outputListComboBox.Location = new System.Drawing.Point(691, 257);
+            this.outputListComboBox.Name = "outputListComboBox";
+            this.outputListComboBox.Size = new System.Drawing.Size(410, 24);
+            this.outputListComboBox.TabIndex = 15;
+            this.outputListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
             // 
-            // btnFetchModels
+            // btnFetchOutput
             // 
-            this.btnFetchModels.Location = new System.Drawing.Point(691, 295);
-            this.btnFetchModels.Name = "btnFetchModels";
-            this.btnFetchModels.Size = new System.Drawing.Size(120, 30);
-            this.btnFetchModels.TabIndex = 16;
-            this.btnFetchModels.Text = "Fetch Models";
-            this.btnFetchModels.UseVisualStyleBackColor = true;
-            this.btnFetchModels.Click += new System.EventHandler(this.btnFetchModels_Click);
+            this.btnFetchOutput.Location = new System.Drawing.Point(691, 295);
+            this.btnFetchOutput.Name = "btnFetchOutput";
+            this.btnFetchOutput.Size = new System.Drawing.Size(120, 30);
+            this.btnFetchOutput.TabIndex = 16;
+            this.btnFetchOutput.Text = "Fetch Output";
+            this.btnFetchOutput.UseVisualStyleBackColor = true;
+            this.btnFetchOutput.Click += new System.EventHandler(this.btnFetchModels_Click);
             // 
             // logBox
             // 
@@ -731,7 +731,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Button btnUploadToS3;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
-        private System.Windows.Forms.Button btnFetchModels;
+        private System.Windows.Forms.Button btnFetchOutput;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.ComboBox imgSizeDropdown;
         private System.Windows.Forms.ComboBox hyperparamsDropdown;
@@ -739,7 +739,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.ToolStripMenuItem createConnectionMenu;
         private System.Windows.Forms.ToolStripMenuItem closeConnectionMenu;
         private System.Windows.Forms.ToolStripMenuItem testConnectionMenu;
-        private System.Windows.Forms.ComboBox modelListComboBox;
+        private System.Windows.Forms.ComboBox outputListComboBox;
         private System.Windows.Forms.ToolStripMenuItem newTrainingJobMenu;
         private System.Windows.Forms.TextBox logBox;
         private System.Windows.Forms.Label instanceTypelbl;
