@@ -632,7 +632,7 @@ namespace LSC_Trainer
             this.btnFetchOutput.TabIndex = 16;
             this.btnFetchOutput.Text = "Fetch Output";
             this.btnFetchOutput.UseVisualStyleBackColor = true;
-            this.btnFetchOutput.Click += new System.EventHandler(this.btnFetchModels_Click);
+            this.btnFetchOutput.Click += new System.EventHandler(this.btnFetchOutput_Click);
             // 
             // logBox
             // 

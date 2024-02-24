@@ -798,7 +798,7 @@ namespace LSC_Trainer
             }
         }
 
-        private async void btnFetchModels_Click(object sender, EventArgs e)
+        private async void btnFetchOutput_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
             mainPanel.Enabled = false;
