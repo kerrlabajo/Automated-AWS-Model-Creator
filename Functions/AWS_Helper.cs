@@ -31,21 +31,9 @@ namespace LSC_Trainer.Functions
             try
             {
                 DateTime startTime = DateTime.Now;
-                string extension = Path.GetExtension(fileName);
-                fileName = Path.ChangeExtension(fileName, null); // Remove the existing extension
-                /*string content = "";
+                //string extension = Path.GetExtension(fileName); //unused
+                //fileName = Path.ChangeExtension(fileName, null); // Remove the existing extension
 
-                if(extension == ".rar")
-                {
-                    fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.rar", fileName, DateTime.Now);
-                    content = "rar";
-                }
-                if(extension == ".zip")
-                {
-                    fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.zip", fileName, DateTime.Now);
-                    content = "zip";
-                }
-                */
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
@@ -63,7 +51,7 @@ namespace LSC_Trainer.Functions
                     uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                     {
                         currentFileUploaded = args.TransferredBytes;
-                        if(args.PercentDone == 100)
+                        if (args.PercentDone == 100)
                         {
                             totalUploaded += currentFileUploaded;
                             int overallPercentage = (int)(totalUploaded * 100 / totalSize);
@@ -74,28 +62,28 @@ namespace LSC_Trainer.Functions
                     transferUtility.Upload(uploadRequest);
                 }
 
-                    string s3Uri = $"s3://{bucketName}/{fileName}";
-                    TimeSpan totalTime = DateTime.Now - startTime;
-                    string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                                  (int)totalTime.TotalHours,
-                                                  totalTime.Minutes,
-                                                  totalTime.Seconds,
-                                                  (int)(totalTime.Milliseconds / 100));
-                    //Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
-                    //Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
-                    return fileName;
-                }
-                catch (AmazonS3Exception e)
-                {
-                    Console.WriteLine("Error uploading file to S3: " + e.Message);
-                    return null;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error uploading file to S3: " + e.Message);
-                    return null;
-                }
+                string s3Uri = $"s3://{bucketName}/{fileName}";
+                TimeSpan totalTime = DateTime.Now - startTime;
+                string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)totalTime.TotalHours,
+                                              totalTime.Minutes,
+                                              totalTime.Seconds,
+                                              (int)(totalTime.Milliseconds / 100));
+                //Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
+                //Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
+                return fileName;
             }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+        }    
 
         public static async Task UploadFolderToS3(AmazonS3Client s3Client, string folderPath,string folderName,string bucketName, IProgress<int> progress)
         {
