@@ -20,18 +20,20 @@ namespace LSC_Trainer
         private string accessKey;
         private string secretKey;
         private string region;
+        private MainForm mainForm;
 
         private string repositoryName;
         private string imageTag;
 
         private readonly string INTELLISYS_ECR_URI;
-        public ImageBuilderForm(string accountId, string accessKey, string secretKey, string region)
+        public ImageBuilderForm(string accountId, string accessKey, string secretKey, string region, MainForm mainForm)
         {
             InitializeComponent();
             this.accountId = accountId;
             this.accessKey = accessKey;
             this.secretKey = secretKey;
             this.region = region;
+            this.mainForm = mainForm;
 
             // Load environment variables
             // The env var to be loaded should only be the INTELLISYS_ECR_URI.
@@ -55,6 +57,7 @@ namespace LSC_Trainer
 
             var response = LaunchInstancePushPrivateECR();
             UserConnectionInfo.EcrUri = $"{accountId}.dkr.ecr.{region}.amazonaws.com/{repositoryName}:{imageTag}";
+            mainForm.IsImageBuilt = true;
         }
 
         
