@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -55,11 +56,14 @@ namespace LSC_Trainer
             repositoryName = repoName.Text;
             imageTag = tag.Text;
 
-            var response = LaunchInstancePushPrivateECR();
+            //var response = LaunchInstancePushPrivateECR();
             UserConnectionInfo.EcrUri = $"{accountId}.dkr.ecr.{region}.amazonaws.com/{repositoryName}:{imageTag}";
-            mainForm.IsImageBuilt = true;
+            var t = new Thread(() => Application.Run(new MainForm(mainForm.development)));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            mainForm.Close();
+            this.Close();
         }
-
         
         public RunInstancesResponse LaunchInstancePushPrivateECR()
         {
