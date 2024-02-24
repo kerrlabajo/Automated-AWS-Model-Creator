@@ -56,7 +56,7 @@ namespace LSC_Trainer
         private string modelKey;
         private bool isValidConnectionInfo;
 
-        private bool development;
+        public bool development;
 
         private CustomHyperParamsForm customHyperParamsForm;
 
