@@ -481,7 +481,7 @@ namespace LSC_Trainer
                 {
                     InstanceCount = 1,
                     // Update the instance type everytime you select an instance type
-                    InstanceType = TrainingInstanceType.MlG4dnXlarge, //change this "MlG4dnXlarge" or "MlG4dn2xlarge"
+                    InstanceType = TrainingInstanceType.MlG4dnXlarge, 
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = trainingJobName,
@@ -507,7 +507,7 @@ namespace LSC_Trainer
                     { "optimizer", optimizer },
                     { "device", device },
                     // Update the instance details everytime you select an instance type
-                    { "instance", "ml.g4dn.xlarge" }, // change this "ml.g4dn.xlarge" or "ml.g4dn.2xlarge"
+                    { "instance", "ml.g4dn.xlarge" },
                     { "spot", "True" }
                 },
                 InputDataConfig = new List<Channel>(){
