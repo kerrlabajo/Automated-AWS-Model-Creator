@@ -328,10 +328,12 @@ namespace LSC_Trainer
                     {
                         try
                         {
-                            Cursor = Cursors.WaitCursor;
-                            logBox.Visible = true;
-                            logBox.Cursor = Cursors.WaitCursor;
                             mainPanel.Enabled = false;
+                            logPanel.Enabled = false;
+                            connectionMenu.Enabled = false;
+                            buildImageMenu.Enabled = false;
+                            Cursor = Cursors.WaitCursor;
+                            lscTrainerMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
                             DisplayLogMessage(outputResponse);
                             string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
@@ -343,9 +345,11 @@ namespace LSC_Trainer
                         }
                         finally
                         {
-                            Cursor = Cursors.Default;
-                            logBox.Cursor = Cursors.Default;
                             mainPanel.Enabled = true;
+                            logPanel.Enabled = true;
+                            connectionMenu.Enabled = true;
+                            buildImageMenu.Enabled = true;
+                            Cursor = Cursors.Default;
                         }
                         
                     }
