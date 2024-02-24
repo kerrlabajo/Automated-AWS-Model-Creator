@@ -71,8 +71,6 @@ namespace LSC_Trainer
                                  !string.IsNullOrWhiteSpace(UserConnectionInfo.Region) &&
                                  !string.IsNullOrWhiteSpace(UserConnectionInfo.RoleArn);
 
-            Console.WriteLine($"Details: {UserConnectionInfo.AccountId}{UserConnectionInfo.AccessKey}{UserConnectionInfo.SecretKey}{UserConnectionInfo.Region}{UserConnectionInfo.RoleArn}");
-
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
@@ -92,7 +90,7 @@ namespace LSC_Trainer
                 REGION = UserConnectionInfo.Region;
                 ROLE_ARN = UserConnectionInfo.RoleArn;
                 ECR_URI = UserConnectionInfo.EcrUri;
-                Console.WriteLine($"Logged In Details: {ACCESS_KEY} {SECRET_KEY} {REGION} {ROLE_ARN}");
+                Console.WriteLine($"User's Details:");
             }
             else if(development)
             {
@@ -107,7 +105,8 @@ namespace LSC_Trainer
 
                 ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
                 SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-                Console.WriteLine($"ENV Details: {ACCESS_KEY} {SECRET_KEY} {REGION} {ROLE_ARN}");
+                MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Console.WriteLine($"Dev's ENV Details:");
             }
             else
             {
