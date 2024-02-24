@@ -156,10 +156,47 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
-            buildImageMenu.Enabled = CheckAdministratorRole(ROLE_ARN);
-            buildImageMenu.Visible = CheckAdministratorRole(ROLE_ARN);
+            isAdminRole = CheckAdministratorRole(ROLE_ARN);
+            buildImageMenu.Enabled = isAdminRole;
+            buildImageMenu.Visible = isAdminRole;
+            ECR_URI = UserConnectionInfo.EcrUri;
+
+            if (isAdminRole && ECR_URI == null && !development) // Admin, Non-dev, Image not yet built
+            {
+                mainPanel.Enabled = false;
+                logPanel.Enabled = false;
+                newTrainingJobMenu.Enabled = false;
+            }
+            else if (isAdminRole && ECR_URI != null && !development) // Admin, Non-dev, Image built
+            {
+                mainPanel.Enabled = true;
+                logPanel.Enabled = true;
+                newTrainingJobMenu.Enabled = true;
+            }
+            else if (!isAdminRole && ECR_URI == null && !development) // Non-admin, Non-dev, Requires ECR URI
+            {
+                this.Enabled = false;
+                var employeeEcrUriInputForm = new EmployeeEcrUriInputForm(this);
+                employeeEcrUriInputForm.FormClosed += OtherForm_FormClosed;
+                employeeEcrUriInputForm.Show();
+            }
+            else if (development)
+            {
+                ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
+            }
+
+            Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
+            Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
+            Console.WriteLine($"SECRET_KEY: {SECRET_KEY}");
+            Console.WriteLine($"REGION: {REGION}");
+            Console.WriteLine($"ROLE_ARN: {ROLE_ARN}");
+            Console.WriteLine($"ECR_URI: {ECR_URI}");
+            Console.WriteLine($"SAGEMAKER_BUCKET: {SAGEMAKER_BUCKET}");
+            Console.WriteLine($"DEFAULT_DATASET_URI: {DEFAULT_DATASET_URI}");
+            Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
         }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
