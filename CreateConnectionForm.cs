@@ -1,5 +1,4 @@
 ﻿using Amazon;
-using Amazon.IdentityManagement.Model;
 using Amazon.SageMaker;
 using LSC_Trainer.Functions;
 using System;
