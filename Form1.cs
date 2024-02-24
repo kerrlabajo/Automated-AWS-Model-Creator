@@ -350,6 +350,7 @@ namespace LSC_Trainer
                             connectionMenu.Enabled = true;
                             buildImageMenu.Enabled = true;
                             Cursor = Cursors.Default;
+                            System.Diagnostics.Process.Start(selectedLocalPath);
                         }
                         
                     }
