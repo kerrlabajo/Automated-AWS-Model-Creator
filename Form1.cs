@@ -82,6 +82,7 @@ namespace LSC_Trainer
             customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
             DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
             REGION = Environment.GetEnvironmentVariable("DEFAULT_REGION");
+            ROLE_ARN = Environment.GetEnvironmentVariable("DEFAULT_ROLE_ARN");
 
             if (isValidConnectionInfo)
             {
