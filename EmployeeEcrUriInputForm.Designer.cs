@@ -55,7 +55,7 @@ namespace LSC_Trainer
             this.btnContinue.TabIndex = 11;
             this.btnContinue.Text = "Continue";
             this.btnContinue.UseVisualStyleBackColor = true;
-            this.btnContinue.Click += new System.EventHandler(this.continueBtn_Click);
+            this.btnContinue.Click += new System.EventHandler(this.btnContinue_Click);
             // 
             // ecrURILabel
             // 

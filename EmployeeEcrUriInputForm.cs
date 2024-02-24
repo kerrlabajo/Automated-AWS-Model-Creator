@@ -17,7 +17,7 @@ namespace LSC_Trainer
             InitializeComponent();
         }
 
-        private void continueBtn_Click(object sender, EventArgs e)
+        private void btnContinue_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.EcrUri = ecrUri.Text;
 
