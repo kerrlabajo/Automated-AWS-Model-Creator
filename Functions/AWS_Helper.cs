@@ -354,7 +354,7 @@ namespace LSC_Trainer.Functions
 
             MessageBox.Show($"Deleted dataset: {key}");
         }
-        public static async Task<List<string>> GetModelListFromS3(AmazonS3Client s3Client, string bucketName)
+        public static async Task<List<string>> GetTrainingJobOutputList(AmazonS3Client s3Client, string bucketName)
         {
             try
             {
