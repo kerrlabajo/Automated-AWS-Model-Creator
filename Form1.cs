@@ -832,7 +832,9 @@ namespace LSC_Trainer
         {
             if (modelListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
             {
-                outputKey = modelListComboBox.GetItemText(modelListComboBox.SelectedItem);
+                string trainingJobOuputs = modelListComboBox.GetItemText(modelListComboBox.SelectedItem);
+                outputKey = $"training-jobs/{trainingJobOuputs}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
             }
         }
