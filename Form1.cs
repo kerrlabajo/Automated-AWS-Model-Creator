@@ -220,9 +220,9 @@ namespace LSC_Trainer
                 logPanel.Enabled = false;
                 connectionMenu.Enabled = false;
                 buildImageMenu.Enabled = false;
-                mainPanel.Cursor = Cursors.WaitCursor;
-                logPanel.Cursor = Cursors.WaitCursor;
-                }
+                Cursor = Cursors.WaitCursor;
+                lscTrainerMenuStrip.Cursor = Cursors.Default;
+            }
             else
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -351,8 +351,7 @@ namespace LSC_Trainer
             logPanel.Enabled = true;
             connectionMenu.Enabled = true;
             buildImageMenu.Enabled = true;
-            mainPanel.Cursor = Cursors.Default;
-            logPanel.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
@@ -824,8 +823,8 @@ namespace LSC_Trainer
             logPanel.Enabled = false;
             connectionMenu.Enabled = false;
             buildImageMenu.Enabled = false;
-            mainPanel.Cursor = Cursors.WaitCursor;
-            logPanel.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
             try
             {
                 List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
@@ -846,12 +845,11 @@ namespace LSC_Trainer
             }
             finally
             {
-                mainPanel.Enabled = false;
-                logPanel.Enabled = false;
-                connectionMenu.Enabled = false;
+                mainPanel.Enabled = true;
+                logPanel.Enabled = true;
+                connectionMenu.Enabled = true;
                 buildImageMenu.Enabled = true;
-                mainPanel.Cursor = Cursors.WaitCursor;
-                logPanel.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.Default;
                 outputListComboBox.Enabled = true;
             }
         }
