@@ -416,7 +416,7 @@ namespace LSC_Trainer
                 {
                     InstanceCount = 1,
                     // Update the instance type everytime you select an instance type
-                    InstanceType = TrainingInstanceType.MlG4dnXlarge,
+                    InstanceType = TrainingInstanceType.MlG4dnXlarge, //change this "MlG4dnXlarge" or "MlG4dn2xlarge"
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = trainingJobName,
@@ -442,7 +442,7 @@ namespace LSC_Trainer
                     { "optimizer", optimizer },
                     { "device", device },
                     // Update the instance details everytime you select an instance type
-                    { "instance", "ml.g4dn.xlarge" },
+                    { "instance", "ml.g4dn.xlarge" }, // change this "ml.g4dn.xlarge" or "ml.g4dn.2xlarge"
                     { "spot", "True" }
                 },
                 InputDataConfig = new List<Channel>(){
@@ -511,6 +511,7 @@ namespace LSC_Trainer
         {
             InputsEnabler(false);
             Cursor = Cursors.WaitCursor;
+            this.Text = trainingJobName;
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
@@ -582,13 +583,13 @@ namespace LSC_Trainer
                                 });
 
 
-                                if (prevStatusMessage != logs.Events.Last().Message)
+                                if (prevLogMessage != logs.Events.Last().Message)
                                 {
                                     for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
                                     {
                                         DisplayLogMessage(logs.Events[i].Message);
                                     }
-                                    prevStatusMessage = logs.Events.Last().Message;
+                                    prevLogMessage = logs.Events.Last().Message;
                                     prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
                                 }
                             }
@@ -599,6 +600,7 @@ namespace LSC_Trainer
                                 tracker.SecondaryStatusTransitions.Last().Status,
                                 tracker.SecondaryStatusTransitions.Last().StatusMessage
                             );
+                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
                         }
 
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
