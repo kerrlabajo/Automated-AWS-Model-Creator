@@ -900,24 +900,10 @@ namespace LSC_Trainer
             return roleName;
         }
 
-        //private async Task<bool> IsAdminRole(Role role)
-        //{
-        //    bool isAdmin = false;
-
-        //    var managedPoliciesResponse = await _iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
-        //    {
-        //        RoleName = role.RoleName
-        //    });
-
-        //    isAdmin |= managedPoliciesResponse.AttachedPolicies.Any(policy => policy.PolicyName == "AdministratorAccess");
-
-        //    return isAdmin;
-        //}
-
         private void buildImageMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
-            var imageBuilderForm = new ImageBuilderForm(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY, REGION);
+            var imageBuilderForm = new ImageBuilderForm(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY, REGION, this);
             imageBuilderForm.FormClosed += OtherForm_FormClosed;
             imageBuilderForm.Show();
         }
