@@ -27,6 +27,7 @@ namespace LSC_Trainer
         private readonly AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private Utility utility = new Utility();
 
+        private readonly string ACCOUNT_ID;
         private readonly string ACCESS_KEY;
         private readonly string SECRET_KEY;
         private readonly string REGION;
@@ -53,33 +54,74 @@ namespace LSC_Trainer
 
         private string outputKey;
         private string modelKey;
+        private bool isValidConnectionInfo;
 
+        public bool development;
+
+        private bool isAdminRole;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        public MainForm()
+        public MainForm(bool development)
         {
             InitializeComponent();
+            this.development = development;
+
+            isValidConnectionInfo = !string.IsNullOrWhiteSpace(UserConnectionInfo.AccountId) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.AccessKey) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.SecretKey) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.Region) &&
+                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.RoleArn);
+
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
-            string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
-            DotNetEnv.Env.Load(ENV_PATH);
-            
-            ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
-            SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
-            REGION = Environment.GetEnvironmentVariable("REGION");
-            ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
-
-            ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
-            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
             DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
             customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
             DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+            REGION = Environment.GetEnvironmentVariable("DEFAULT_REGION");
+            ROLE_ARN = Environment.GetEnvironmentVariable("DEFAULT_ROLE_ARN");
+
+            if (isValidConnectionInfo)
+            {
+                ACCOUNT_ID = UserConnectionInfo.AccountId;
+                ACCESS_KEY = UserConnectionInfo.AccessKey;
+                SECRET_KEY = UserConnectionInfo.SecretKey;
+                REGION = UserConnectionInfo.Region;
+                ROLE_ARN = UserConnectionInfo.RoleArn;
+                ECR_URI = UserConnectionInfo.EcrUri;
+                Console.WriteLine($"User's Details:");
+            }
+            else if(development)
+            {
+                string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
+                DotNetEnv.Env.Load(ENV_PATH);
+
+                ACCOUNT_ID = Environment.GetEnvironmentVariable("ACCOUNT_ID");
+                ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
+                SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
+                REGION = Environment.GetEnvironmentVariable("REGION");
+                ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
+
+                ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
+                SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+                MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Console.WriteLine($"Dev's ENV Details:");
+            }
+            else
+            {
+                MessageBox.Show("Please create a connection first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+                this.Close();
+            }
 
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
+            // var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
+
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
@@ -115,26 +157,47 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
-        }
+            isAdminRole = CheckAdministratorRole(ROLE_ARN);
+            buildImageMenu.Enabled = isAdminRole;
+            buildImageMenu.Visible = isAdminRole;
+            ECR_URI = UserConnectionInfo.EcrUri;
 
-        private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            try
+            if (isAdminRole && ECR_URI == null && !development) // Admin, Non-dev, Image not yet built
             {
-                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
-                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                mainPanel.Enabled = false;
+                logPanel.Enabled = false;
+                newTrainingJobMenu.Enabled = false;
             }
-            catch (Exception error)
+            else if (isAdminRole && ECR_URI != null && !development) // Admin, Non-dev, Image built
             {
-                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                mainPanel.Enabled = true;
+                logPanel.Enabled = true;
+                newTrainingJobMenu.Enabled = true;
             }
-        }
+            else if (!isAdminRole && ECR_URI == null && !development) // Non-admin, Non-dev, Requires ECR URI
+            {
+                this.Enabled = false;
+                var employeeEcrUriInputForm = new EmployeeEcrUriInputForm(this);
+                employeeEcrUriInputForm.FormClosed += OtherForm_FormClosed;
+                employeeEcrUriInputForm.Show();
+            }
+            else if (development)
+            {
+                ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
+            }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
+            Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
+            Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
+            Console.WriteLine($"SECRET_KEY: {SECRET_KEY}");
+            Console.WriteLine($"REGION: {REGION}");
+            Console.WriteLine($"ROLE_ARN: {ROLE_ARN}");
+            Console.WriteLine($"ECR_URI: {ECR_URI}");
+            Console.WriteLine($"SAGEMAKER_BUCKET: {SAGEMAKER_BUCKET}");
+            Console.WriteLine($"DEFAULT_DATASET_URI: {DEFAULT_DATASET_URI}");
+            Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
         }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
@@ -191,7 +254,13 @@ namespace LSC_Trainer
                 // For testing purposes. Pre-define values.
                 trainingFolder = "train";
                 validationFolder = "val";
-                }
+                mainPanel.Enabled = false;
+                logPanel.Enabled = false;
+                connectionMenu.Enabled = false;
+                buildImageMenu.Enabled = false;
+                Cursor = Cursors.WaitCursor;
+                lscTrainerMenuStrip.Cursor = Cursors.Default;
+            }
             else
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -240,9 +309,6 @@ namespace LSC_Trainer
             }
         }
 
-        //TODO: Download model should first retrieve list of models from S3 bucket that was fetched from
-        // one or more training jobs. The user will then select the model to download.
-        // This features guarantees that the form can be closed and reopened without losing the model.
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
@@ -319,18 +385,17 @@ namespace LSC_Trainer
         {
             MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
+            mainPanel.Enabled = true;
+            logPanel.Enabled = true;
+            connectionMenu.Enabled = true;
+            buildImageMenu.Enabled = true;
+            Cursor = Cursors.Default;
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
         {
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
-
-        // TODO: Create another background worker for training job request.
-        // TODO: Display the status of the training job request in the form.
-        // TODO: Display the log stream of the training job request in the form when the training is in progress.
-        // TODO: Preferably create another form when performing a new training job request.
-        // The tasks should be implemented in branch `feat/training-logging`.
 
         private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
         {
@@ -501,8 +566,8 @@ namespace LSC_Trainer
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
-            modelListComboBox.Enabled = intent;
-            btnFetchModels.Enabled = intent;
+            outputListComboBox.Enabled = intent;
+            btnFetchOutput.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
@@ -510,7 +575,11 @@ namespace LSC_Trainer
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             InputsEnabler(false);
-            Cursor = Cursors.WaitCursor;
+            connectionMenu.Enabled = false;
+            buildImageMenu.Enabled = false;
+            mainPanel.Cursor = Cursors.WaitCursor;
+            logPanel.Cursor = Cursors.WaitCursor;
+            logBox.Cursor = Cursors.WaitCursor;
             this.Text = trainingJobName;
             try
             {
@@ -606,7 +675,11 @@ namespace LSC_Trainer
                         if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
                         {
                             InputsEnabler(true);
-                            Cursor = Cursors.Default;
+                            connectionMenu.Enabled = true;
+                            buildImageMenu.Enabled = true;
+                            mainPanel.Cursor = Cursors.Default;
+                            logPanel.Cursor = Cursors.Default;
+                            logBox.Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
@@ -685,9 +758,9 @@ namespace LSC_Trainer
             }
         }
 
-        private void newTrainingJobToolStripMenuItem_Click(object sender, EventArgs e)
+        private void newTrainingJobMenu_Click(object sender, EventArgs e)
         {
-            var t = new Thread(() => Application.Run(new MainForm()));
+            var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
@@ -754,7 +827,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        private void helpMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
 
@@ -769,7 +842,7 @@ namespace LSC_Trainer
             this.Enabled = true;
         }
 
-        private void testConnnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void testConnnectionMenu_Click(object sender, EventArgs e)
         {
             try
             {
@@ -784,21 +857,25 @@ namespace LSC_Trainer
             }
         }
 
-        private async void btnFetchModels_Click(object sender, EventArgs e)
+        private async void btnFetchOutput_Click(object sender, EventArgs e)
         {
-            Cursor = Cursors.WaitCursor;
             mainPanel.Enabled = false;
+            logPanel.Enabled = false;
+            connectionMenu.Enabled = false;
+            buildImageMenu.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
             try
             {
-                List<string> models = await AWS_Helper.GetModelListFromS3(s3Client, SAGEMAKER_BUCKET);
+                List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
 
                 if (models != null)
                 {
-                    modelListComboBox.Items.Clear(); 
+                    outputListComboBox.Items.Clear(); 
 
                     foreach (var obj in models)
                     {
-                        modelListComboBox.Items.Add(obj); 
+                        outputListComboBox.Items.Add(obj); 
                     }
                 }
             }
@@ -808,19 +885,76 @@ namespace LSC_Trainer
             }
             finally
             {
-                Cursor = Cursors.Default;
                 mainPanel.Enabled = true;
-                modelListComboBox.Enabled = true;
+                logPanel.Enabled = true;
+                connectionMenu.Enabled = true;
+                buildImageMenu.Enabled = true;
+                Cursor = Cursors.Default;
+                outputListComboBox.Enabled = true;
             }
         }
 
         private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (modelListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
             {
-                outputKey = modelListComboBox.GetItemText(modelListComboBox.SelectedItem);
+                string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
+                outputKey = $"training-jobs/{trainingJobOuputs}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
             }
+        }
+
+        private void testConnectionMenu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                AWS_Helper.TestSageMakerClient(amazonSageMakerClient);
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine($"Unexpected error: {error.Message}");
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void createConnectionMenu_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+
+            var createConnectionForm = new CreateConnectionForm(development, this);
+            createConnectionForm.FormClosed += OtherForm_FormClosed;
+            createConnectionForm.Show();
+        }
+
+        public bool CheckAdministratorRole(string roleArn)
+        {
+            return roleArn.Contains("Administrator");
+        }
+
+        private static string ExtractRoleNameFromArn(string roleArn)
+        {
+            var splitArn = roleArn.Split(':');
+            var roleName = splitArn.Last().Split('/').Last();
+            return roleName;
+        }
+
+        private void buildImageMenu_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            var imageBuilderForm = new ImageBuilderForm(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY, REGION, this);
+            imageBuilderForm.FormClosed += OtherForm_FormClosed;
+            imageBuilderForm.Show();
+        }
+
+        private void closeConnectionMenu_Click(object sender, EventArgs e)
+        {
+            UserConnectionInfo.Instance.Reset();
+            var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            this.Close();
         }
     }
 }

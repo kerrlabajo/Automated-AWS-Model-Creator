@@ -1,6 +1,7 @@
 ﻿    using Amazon.S3;
 using Amazon.S3.Model;
     using Amazon.S3.Transfer;
+using Amazon.SageMaker;
     using ICSharpCode.SharpZipLib.Tar;
     using ICSharpCode.SharpZipLib.Zip;
     using System;
@@ -19,6 +20,11 @@ namespace LSC_Trainer.Functions
     {
 
         private static long totalUploaded = 0;
+
+        public static void TestSageMakerClient (AmazonSageMakerClient client)
+        {
+            client.ListTrainingJobs(new Amazon.SageMaker.Model.ListTrainingJobsRequest());
+        }
 
         public static string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
@@ -336,18 +342,20 @@ namespace LSC_Trainer.Functions
 
             MessageBox.Show($"Deleted dataset: {key}");
         }
-        public static async Task<List<string>> GetModelListFromS3(AmazonS3Client s3Client, string bucketName)
+        public static async Task<List<string>> GetTrainingJobOutputList(AmazonS3Client s3Client, string bucketName)
         {
             try
             {
                 var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                 {
                     BucketName = bucketName,
-                     Prefix = "training-jobs"
-
+                    Prefix = "training-jobs"
                 });
 
-                return response.S3Objects.Select(o => o.Key).ToList();
+                return response.S3Objects
+                    .Select(o => o.Key.Split('/')[1])
+                    .Distinct()
+                    .ToList();
             }
             catch (AmazonS3Exception e)
             {
