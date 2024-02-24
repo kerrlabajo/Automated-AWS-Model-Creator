@@ -361,11 +361,13 @@ namespace LSC_Trainer.Functions
                 var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                 {
                     BucketName = bucketName,
-                     Prefix = "training-jobs"
-
+                    Prefix = "training-jobs"
                 });
 
-                return response.S3Objects.Select(o => o.Key).ToList();
+                return response.S3Objects
+                    .Select(o => o.Key.Split('/')[1])
+                    .Distinct()
+                    .ToList();
             }
             catch (AmazonS3Exception e)
             {
