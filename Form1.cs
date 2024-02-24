@@ -243,7 +243,7 @@ namespace LSC_Trainer
                     out string optimizer,
                     out string device);
 
-            trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+            trainingJobName = string.Format("LSCI-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
 
