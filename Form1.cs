@@ -426,22 +426,20 @@ namespace LSC_Trainer
                 {
                     S3OutputPath = DESTINATION_URI
                 },
-                // Uncomment if using the spot instance (MlG4dn2xlarge for now)
-                // Comment these back if using non-spot instances (MlG4dnXlarge and MlG4dn2xlarge)
-                // EnableManagedSpotTraining = true,
+                // Keep this true so that devs will be using spot instances from now on
+                EnableManagedSpotTraining = true,
                 ResourceConfig = new ResourceConfig()
                 {
                     InstanceCount = 1,
+                    // Update the instance type everytime you select an instance type
                     InstanceType = TrainingInstanceType.MlG4dnXlarge,
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
-                    // If using spot instances, set the max run time to 14400 seconds (4 hours)
-                    MaxRuntimeInSeconds = 360000
-                    // and uncomment the following line
-                    //MaxWaitTimeInSeconds = 15000,
+                    MaxRuntimeInSeconds = 14400,
+                    MaxWaitTimeInSeconds = 15000,
                 },
                 // Keep this commented
                 // HyperParameters = customHyperParamsForm.HyperParameters,
@@ -459,8 +457,9 @@ namespace LSC_Trainer
                     { "workers", workers },
                     { "optimizer", optimizer },
                     { "device", device },
+                    // Update the instance details everytime you select an instance type
                     { "instance", "ml.g4dn.xlarge" },
-                    { "spot", "False" }
+                    { "spot", "True" }
                 },
                 InputDataConfig = new List<Channel>(){
                     new Channel()
