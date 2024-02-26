@@ -14,6 +14,24 @@ def run_script(script, args):
     `None`
     """
     subprocess.run(["python3", script] + args, check=True)
+    
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Run train.py and export.py scripts with command line arguments.')
+    parser.add_argument('--img-size', type=int, required=True)
+    parser.add_argument('--batch', type=int, required=True)
+    parser.add_argument('--epochs', type=int, required=True)
+    parser.add_argument('--weights', type=str, required=True)
+    parser.add_argument('--data', type=str, required=True)
+    parser.add_argument('--hyp', type=str, required=True)
+    parser.add_argument('--project', type=str, required=True)
+    parser.add_argument('--name', type=str, required=True)
+    parser.add_argument('--patience', type=int, required=True)
+    parser.add_argument('--workers', type=int, required=True)
+    parser.add_argument('--optimizer', type=str, required=True)
+    parser.add_argument('--device', type=int, required=True)
+    parser.add_argument('--include', type=str, required=True)
+
+    return parser.parse_args()
 
 def main():
     """
