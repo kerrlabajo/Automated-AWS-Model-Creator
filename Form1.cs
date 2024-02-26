@@ -484,7 +484,7 @@ namespace LSC_Trainer
                 {
                     InstanceCount = 1,
                     // Update the instance type everytime you select an instance type
-                    InstanceType = TrainingInstanceType.MlG4dnXlarge, 
+                    InstanceType = TrainingInstanceType.FindValue(selectedInstance),
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = trainingJobName,
