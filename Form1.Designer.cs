@@ -354,7 +354,7 @@ namespace LSC_Trainer
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
-            this.btnDownloadModel.TabIndex = 17;
+            this.btnDownloadModel.TabIndex = 18;
             this.btnDownloadModel.Text = "Download Model";
             this.btnDownloadModel.UseVisualStyleBackColor = false;
             this.btnDownloadModel.Click += new System.EventHandler(this.btnDownloadModel_Click);
@@ -494,11 +494,11 @@ namespace LSC_Trainer
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(437, 253);
+            this.btnTraining.Location = new System.Drawing.Point(490, 295);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
-            this.btnTraining.TabIndex = 14;
+            this.btnTraining.TabIndex = 15;
             this.btnTraining.Text = "Train";
             this.btnTraining.UseVisualStyleBackColor = false;
             this.btnTraining.Click += new System.EventHandler(this.btnTraining_Click);
@@ -641,7 +641,7 @@ namespace LSC_Trainer
             this.outputListComboBox.Location = new System.Drawing.Point(691, 257);
             this.outputListComboBox.Name = "outputListComboBox";
             this.outputListComboBox.Size = new System.Drawing.Size(410, 24);
-            this.outputListComboBox.TabIndex = 15;
+            this.outputListComboBox.TabIndex = 16;
             this.outputListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
             // 
             // btnFetchOutput
@@ -649,7 +649,7 @@ namespace LSC_Trainer
             this.btnFetchOutput.Location = new System.Drawing.Point(691, 295);
             this.btnFetchOutput.Name = "btnFetchOutput";
             this.btnFetchOutput.Size = new System.Drawing.Size(120, 30);
-            this.btnFetchOutput.TabIndex = 16;
+            this.btnFetchOutput.TabIndex = 17;
             this.btnFetchOutput.Text = "Fetch Output";
             this.btnFetchOutput.UseVisualStyleBackColor = true;
             this.btnFetchOutput.Click += new System.EventHandler(this.btnFetchOutput_Click);
