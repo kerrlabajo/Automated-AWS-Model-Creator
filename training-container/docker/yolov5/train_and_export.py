@@ -56,14 +56,13 @@ def main():
     converter_args = [
         '/opt/ml/input/config/hyperparameters.json'
     ]
-    
     train_args = [
         "--img-size", args.img_size, 
         "--batch", args.batch, 
         "--epochs", args.epochs, 
         "--weights", args.weights, 
         "--data", args.data, 
-        "--hyp", '/opt/ml/input/config/custom-hyps.yaml', 
+        "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
         "--project", args.project, 
         "--name", args.name, 
         "--patience", args.patience, 
