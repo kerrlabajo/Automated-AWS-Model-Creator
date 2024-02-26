@@ -469,10 +469,7 @@ namespace LSC_Trainer
                         "--workers", workers,
                         "--optimizer", optimizer,
                         "--device", device,
-                        "--img-size", img_size,
-                        "--weights", SAGEMAKER_OUTPUT_DATA_PATH + "results/weights/best.pt",
                         "--include", "onnx",
-                        "--device", device
                     }
                 },
                 RoleArn = ROLE_ARN,
