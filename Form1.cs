@@ -158,7 +158,7 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
-
+            btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
             isAdminRole = CheckAdministratorRole(ROLE_ARN);
