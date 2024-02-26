@@ -492,7 +492,20 @@ namespace LSC_Trainer
                     MaxRuntimeInSeconds = 14400,
                     MaxWaitTimeInSeconds = 15000,
                 },
-                HyperParameters = hyperparameters != "Custom" ? null : customHyperParamsForm.HyperParameters,
+                HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
+                {
+                    {"img-size", img_size},
+                    {"batch-size", batch_size},
+                    {"epochs", epochs},
+                    {"weights", weights},
+                    {"hyp", hyperparameters},
+                    {"patience", patience},
+                    {"workers", workers},
+                    {"optimizer", optimizer},
+                    {"device", device},
+                    {"include", "onnx" }
+                }
+                : customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
