@@ -492,26 +492,7 @@ namespace LSC_Trainer
                     MaxRuntimeInSeconds = 14400,
                     MaxWaitTimeInSeconds = 15000,
                 },
-                // Keep this commented
-                // HyperParameters = customHyperParamsForm.HyperParameters,
-
-                // The following lines below will be used to see the training params used for the training
-                // and keep tabs to input in excel.
-                HyperParameters = new Dictionary<string, string>()
-                {
-                    { "img-size", img_size },
-                    { "batch", batch_size },
-                    { "epochs", epochs },
-                    { "weights", weights },
-                    { "hyp", hyperparameters },
-                    { "patience", patience },
-                    { "workers", workers },
-                    { "optimizer", optimizer },
-                    { "device", device },
-                    // Update the instance details everytime you select an instance type
-                    { "instance", "ml.g4dn.xlarge" },
-                    { "spot", "True" }
-                },
+                HyperParameters = hyperparameters != "Custom" ? null : customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
