@@ -58,22 +58,22 @@ def main():
     ]
     
     train_args = [
-        "--img-size", int(args.img_size), 
-        "--batch", int(args.batch), 
-        "--epochs", int(args.epochs), 
+        "--img-size", args.img_size, 
+        "--batch", args.batch, 
+        "--epochs", args.epochs, 
         "--weights", args.weights, 
         "--data", args.data, 
         "--hyp", '/opt/ml/input/config/custom-hyps.yaml', 
         "--project", args.project, 
         "--name", args.name, 
-        "--patience", int(args.patience), 
-        "--workers", int(args.workers), 
+        "--patience", args.patience, 
+        "--workers", args.workers, 
         "--optimizer", args.optimizer, 
         "--device", args.device,
         "--cache"
     ]
     export_args = [
-        "--img-size", int(args.img_size), 
+        "--img-size", args.img_size, 
         "--weights", '/opt/ml/output/data/results/weights/best.pt', 
         "--include", args.include, 
         "--device", args.device
