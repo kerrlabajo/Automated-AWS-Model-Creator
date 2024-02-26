@@ -953,5 +953,18 @@ namespace LSC_Trainer
             t.Start();
             this.Close();
         }
+
+        private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (instancesDropdown.GetItemText(instancesDropdown.SelectedItem) != null)
+            {
+                selectedInstance = instancesDropdown.GetItemText(instancesDropdown.SelectedItem);
+                btnTraining.Enabled = true;
+            }
+            else
+            {
+                btnTraining.Enabled = false;
+            }
+        }
     }
 }
