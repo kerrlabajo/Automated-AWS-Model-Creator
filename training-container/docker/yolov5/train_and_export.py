@@ -51,8 +51,28 @@ def main():
     Returns:
     None
     """
-    train_args = sys.argv[1:25]
-    export_args = sys.argv[25:]
+    args = parse_arguments()
+    
+    train_args = [
+        "--img-size", args.img_size, 
+        "--batch", args.batch, 
+        "--epochs", args.epochs, 
+        "--weights", args.weights, 
+        "--data", args.data, 
+        "--hyp", '/opt/ml/input/config/custom-hyps.yaml', 
+        "--project", args.project, 
+        "--name", args.name, 
+        "--patience", args.patience, 
+        "--workers", args.workers, 
+        "--optimizer", args.optimizer, 
+        "--device", args.device
+    ]
+    export_args = [
+        "--img-size", args.img_size, 
+        "--weights", '/opt/ml/output/data/results/weights/best.pt', 
+        "--include", args.include, 
+        "--device", args.device
+    ]
 
     run_script("yolov5/train.py", train_args)
     run_script("yolov5/export.py", export_args)
