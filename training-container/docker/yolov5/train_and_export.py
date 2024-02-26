@@ -65,7 +65,8 @@ def main():
         "--patience", args.patience, 
         "--workers", args.workers, 
         "--optimizer", args.optimizer, 
-        "--device", args.device
+        "--device", args.device,
+        "--cache"
     ]
     export_args = [
         "--img-size", args.img_size, 
