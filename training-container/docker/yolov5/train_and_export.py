@@ -69,11 +69,11 @@ def main():
         "--patience", int(args.patience), 
         "--workers", int(args.workers), 
         "--optimizer", args.optimizer, 
-        "--device", int(args.device),
+        "--device", args.device,
         "--cache"
     ]
     export_args = [
-        "--img-size", args.img_size, 
+        "--img-size", int(args.img_size), 
         "--weights", '/opt/ml/output/data/results/weights/best.pt', 
         "--include", args.include, 
         "--device", args.device
