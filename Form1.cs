@@ -287,7 +287,7 @@ namespace LSC_Trainer
                     out string optimizer,
                     out string device);
 
-            trainingJobName = string.Format("LSCI-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            trainingJobName = string.Format("LSCI-TRNG-IMGv5-6-{0}", DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
 
@@ -469,10 +469,7 @@ namespace LSC_Trainer
                         "--workers", workers,
                         "--optimizer", optimizer,
                         "--device", device,
-                        "--img-size", img_size,
-                        "--weights", SAGEMAKER_OUTPUT_DATA_PATH + "results/weights/best.pt",
                         "--include", "onnx",
-                        "--device", device
                     }
                 },
                 RoleArn = ROLE_ARN,
@@ -495,26 +492,20 @@ namespace LSC_Trainer
                     MaxRuntimeInSeconds = 14400,
                     MaxWaitTimeInSeconds = 15000,
                 },
-                // Keep this commented
-                // HyperParameters = customHyperParamsForm.HyperParameters,
-
-                // The following lines below will be used to see the training params used for the training
-                // and keep tabs to input in excel.
-                HyperParameters = new Dictionary<string, string>()
+                HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
                 {
-                    { "img-size", img_size },
-                    { "batch", batch_size },
-                    { "epochs", epochs },
-                    { "weights", weights },
-                    { "hyp", hyperparameters },
-                    { "patience", patience },
-                    { "workers", workers },
-                    { "optimizer", optimizer },
-                    { "device", device },
-                    // Update the instance details everytime you select an instance type
-                    { "instance", "ml.g4dn.xlarge" },
-                    { "spot", "True" }
-                },
+                    {"img-size", img_size},
+                    {"batch-size", batch_size},
+                    {"epochs", epochs},
+                    {"weights", weights},
+                    {"hyp", hyperparameters},
+                    {"patience", patience},
+                    {"workers", workers},
+                    {"optimizer", optimizer},
+                    {"device", device},
+                    {"include", "onnx" }
+                }
+                : customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {

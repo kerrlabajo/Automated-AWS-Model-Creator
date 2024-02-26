@@ -1,6 +1,6 @@
 import shutil
 import subprocess
-import sys
+import argparse
 
 def run_script(script, args):
     """
@@ -14,6 +14,24 @@ def run_script(script, args):
     `None`
     """
     subprocess.run(["python3", script] + args, check=True)
+    
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Run train.py and export.py scripts with command line arguments.')
+    parser.add_argument('--img-size', type=str, required=True)
+    parser.add_argument('--batch', type=str, required=True)
+    parser.add_argument('--epochs', type=str, required=True)
+    parser.add_argument('--weights', type=str, required=True)
+    parser.add_argument('--data', type=str, required=True)
+    parser.add_argument('--hyp', type=str, required=True)
+    parser.add_argument('--project', type=str, required=True)
+    parser.add_argument('--name', type=str, required=True)
+    parser.add_argument('--patience', type=str, required=True)
+    parser.add_argument('--workers', type=str, required=True)
+    parser.add_argument('--optimizer', type=str, required=True)
+    parser.add_argument('--device', type=str, required=True)
+    parser.add_argument('--include', type=str, required=True)
+
+    return parser.parse_args()
 
 def main():
     """
@@ -33,9 +51,36 @@ def main():
     Returns:
     None
     """
-    train_args = sys.argv[1:25]
-    export_args = sys.argv[25:]
+    args = parse_arguments()
+    
+    converter_args = [
+        '/opt/ml/input/config/hyperparameters.json'
+    ]
+    train_args = [
+        "--img-size", args.img_size, 
+        "--batch", args.batch, 
+        "--epochs", args.epochs, 
+        "--weights", args.weights, 
+        "--data", args.data, 
+        "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
+        "--project", args.project, 
+        "--name", args.name, 
+        "--patience", args.patience, 
+        "--workers", args.workers, 
+        "--optimizer", args.optimizer, 
+        "--device", args.device,
+        "--cache"
+    ]
+    export_args = [
+        "--img-size", args.img_size, 
+        "--weights", '/opt/ml/output/data/results/weights/best.pt', 
+        "--include", args.include, 
+        "--device", args.device
+    ]
 
+    if args.hyp == "Custom":
+        run_script("yolov5/json_to_yaml_converter.py", converter_args)
+        
     run_script("yolov5/train.py", train_args)
     run_script("yolov5/export.py", export_args)
 
