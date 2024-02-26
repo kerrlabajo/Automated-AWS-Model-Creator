@@ -78,7 +78,9 @@ def main():
         "--device", args.device
     ]
 
-    run_script("yolov5/json_to_yaml_converter.py", converter_args)
+    if args.hyp == "Custom":
+        run_script("yolov5/json_to_yaml_converter.py", converter_args)
+        
     run_script("yolov5/train.py", train_args)
     run_script("yolov5/export.py", export_args)
 
