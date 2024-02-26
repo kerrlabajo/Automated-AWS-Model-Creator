@@ -59,6 +59,7 @@ namespace LSC_Trainer
         public bool development;
 
         private bool isAdminRole;
+        private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
         public MainForm(bool development)
