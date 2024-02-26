@@ -41,6 +41,7 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.instancesDropdown = new System.Windows.Forms.ComboBox();
             this.hyperparametersLabel = new System.Windows.Forms.Label();
             this.descBox = new System.Windows.Forms.Label();
             this.trainingStatusBox = new System.Windows.Forms.Label();
@@ -192,6 +193,7 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.instancesDropdown);
             this.mainPanel.Controls.Add(this.hyperparametersLabel);
             this.mainPanel.Controls.Add(this.descBox);
             this.mainPanel.Controls.Add(this.trainingStatusBox);
@@ -238,6 +240,24 @@ namespace LSC_Trainer
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(1140, 344);
             this.mainPanel.TabIndex = 4;
+            // 
+            // instancesDropdown
+            // 
+            this.instancesDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.instancesDropdown.FormattingEnabled = true;
+            this.instancesDropdown.Items.AddRange(new object[] {
+            "ml.g4dn.xlarge",
+            "ml.g4dn.2xlarge",
+            "ml.g4dn.4xlarge",
+            "ml.g4dn.8xlarge",
+            "ml.g4dn.12xlarge",
+            "ml.p3.2xlarge"});
+            this.instancesDropdown.Location = new System.Drawing.Point(479, 257);
+            this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.instancesDropdown.Name = "instancesDropdown";
+            this.instancesDropdown.Size = new System.Drawing.Size(145, 24);
+            this.instancesDropdown.TabIndex = 14;
+            this.instancesDropdown.SelectedValueChanged += new System.EventHandler(this.instancesDropdown_SelectedValueChanged);
             // 
             // hyperparametersLabel
             // 
@@ -752,6 +772,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
         private System.Windows.Forms.ToolStripMenuItem buildImageMenu;
+        private System.Windows.Forms.ComboBox instancesDropdown;
     }
 }
 
