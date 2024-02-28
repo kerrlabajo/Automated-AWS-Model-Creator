@@ -82,7 +82,7 @@ def main():
         run_script("yolov5/json_to_yaml_converter.py", converter_args)
         
     device_count = len(args.device.split(','))  # Count the number of devices
-    run_script(["-m", "torch.distributed.run", "--nproc_per_node", str(device_count), "yolov5/train.py"] + train_args)
+    run_script(["-m", "torch.distributed.run", "--nproc_per_node", str(device_count), "yolov5/train.py"], train_args)
     run_script("yolov5/export.py", export_args)
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
