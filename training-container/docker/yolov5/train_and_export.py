@@ -94,7 +94,11 @@ def main():
     if args.hyp == "Custom":
         run_script("yolov5/json_to_yaml_converter.py", converter_args)
         
-    run_script("-m", train_args)
+    if device_count > 1:
+        run_script("torch.distributed.run", multi_gpu_ddp_args + train_args, use_module=True)
+    else:
+        run_script("yolov5/train.py", train_args)
+        
     run_script("yolov5/export.py", export_args)
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
