@@ -2,18 +2,22 @@ import shutil
 import subprocess
 import argparse
 
-def run_script(script, args):
+def run_script(script, args, use_module=False):
     """
     Run a Python script with arguments.
 
     Parameters:
     `script` (str): The name of the script to run.
     `args` (list): The arguments to pass to the script.
+    `use_module` (bool): Whether to use the -m option to run the script as a module.
 
     Returns:
     `None`
     """
-    subprocess.run(["python3", script] + args, check=True)
+    if use_module:
+        subprocess.run(["python3", "-m", script] + args, check=True)
+    else:
+        subprocess.run(["python3", script] + args, check=True)
     
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run train.py and export.py scripts with command line arguments.')
@@ -56,6 +60,7 @@ def main():
     converter_args = [
         '/opt/ml/input/config/hyperparameters.json'
     ]
+    
     device_count = len(args.device.split(','))  # Count the number of devices
     
     train_args = [
