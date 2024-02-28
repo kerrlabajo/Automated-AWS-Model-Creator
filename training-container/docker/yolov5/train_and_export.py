@@ -56,6 +56,8 @@ def main():
     converter_args = [
         '/opt/ml/input/config/hyperparameters.json'
     ]
+    device_count = len(args.device.split(','))  # Count the number of devices
+    
     train_args = [
         "torch.distributed.run", 
         "--nproc_per_node", str(device_count),
@@ -84,7 +86,6 @@ def main():
     if args.hyp == "Custom":
         run_script("yolov5/json_to_yaml_converter.py", converter_args)
         
-    device_count = len(args.device.split(','))  # Count the number of devices
     run_script("-m", train_args)
     run_script("yolov5/export.py", export_args)
 
