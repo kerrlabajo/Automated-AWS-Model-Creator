@@ -64,7 +64,6 @@ def main():
     device_count = len(args.device.split(','))  # Count the number of devices
     
     multi_gpu_ddp_args = [
-        "torch.distributed.run", 
         "--nproc_per_node", str(device_count),
         "yolov5/train.py"
     ]
