@@ -89,8 +89,7 @@ def main():
         "--device", args.device
     ]
 
-    if args.hyp == "Custom":
-        run_script("yolov5/json_to_yaml_converter.py", converter_args)
+    run_script(converter_args) if args.hyp == "Custom" else None
         
     if device_count > 1:
         run_script("torch.distributed.run", multi_gpu_ddp_args + train_args, use_module=True)
