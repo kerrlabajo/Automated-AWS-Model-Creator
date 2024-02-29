@@ -793,6 +793,16 @@ namespace LSC_Trainer
             logBox.ScrollToCaret();
         }
 
+        public string ConvertAnsiToRtf(string ansiText)
+        {
+            ansiText = ansiText.Replace("#033[1m", @"\b ");
+            ansiText = ansiText.Replace("#033[0m", @"\b0 ");
+            ansiText = ansiText.Replace("#033[34m", @"\cf1 ");
+            ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
+            ansiText = ansiText.Replace("#015", @"\line ");
+            return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
+        }
+
         private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
         {
             string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
