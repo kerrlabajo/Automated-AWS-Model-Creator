@@ -81,7 +81,7 @@ namespace LSC_Trainer
             this.hyperparamsDropdown = new System.Windows.Forms.ComboBox();
             this.outputListComboBox = new System.Windows.Forms.ComboBox();
             this.btnFetchOutput = new System.Windows.Forms.Button();
-            this.logBox = new System.Windows.Forms.TextBox();
+            this.logBox = new System.Windows.Forms.RichTextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
             this.lscTrainerMenuStrip.SuspendLayout();
@@ -246,6 +246,7 @@ namespace LSC_Trainer
             this.instancesDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
+            "ml.m5.xlarge",
             "ml.g4dn.xlarge",
             "ml.g4dn.2xlarge",
             "ml.g4dn.4xlarge",
@@ -662,7 +663,7 @@ namespace LSC_Trainer
             this.logBox.Multiline = true;
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
-            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.logBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
             this.logBox.Size = new System.Drawing.Size(1109, 297);
             this.logBox.TabIndex = 26;
             this.logBox.WordWrap = false;
@@ -761,7 +762,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.ToolStripMenuItem testConnectionMenu;
         private System.Windows.Forms.ComboBox outputListComboBox;
         private System.Windows.Forms.ToolStripMenuItem newTrainingJobMenu;
-        private System.Windows.Forms.TextBox logBox;
+        private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.Label instanceTypelbl;
         private System.Windows.Forms.Label virtualMachineLabel;
         private System.Windows.Forms.Panel logPanel;

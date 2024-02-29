@@ -158,6 +158,7 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+            logBox.Rtf = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}";
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
