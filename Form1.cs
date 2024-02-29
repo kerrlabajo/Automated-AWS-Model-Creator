@@ -288,7 +288,8 @@ namespace LSC_Trainer
                     out string optimizer,
                     out string device);
 
-            trainingJobName = string.Format("LSCI-TRNG-IMGv5-6-{0}", DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("XLARGE", "XL");
+            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv6-3-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
 
