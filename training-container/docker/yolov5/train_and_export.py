@@ -55,38 +55,26 @@ def main():
     None
     """
     args = parse_arguments()
+    device_count = len(args.device.split(','))
     
     converter_args = [
-        '/opt/ml/input/config/hyperparameters.json'
+        "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
-    
-    device_count = len(args.device.split(','))  # Count the number of devices
-    
     multi_gpu_ddp_args = [
-        "--nproc_per_node", str(device_count),
-        "yolov5/train.py"
+        "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
-    
     train_args = [
-        "--img-size", args.img_size, 
-        "--batch", args.batch, 
-        "--epochs", args.epochs, 
-        "--weights", args.weights, 
-        "--data", args.data, 
+        "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
+        "--weights", args.weights, "--data", args.data, 
         "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
-        "--project", args.project, 
-        "--name", args.name, 
-        "--patience", args.patience, 
-        "--workers", args.workers, 
-        "--optimizer", args.optimizer, 
-        "--device", args.device,
-        "--cache"
+        "--project", args.project, "--name", args.name, 
+        "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer, 
+        "--device", args.device, "--cache"
     ]
     export_args = [
-        "--img-size", args.img_size, 
+        "yolov5/export.py", "--img-size", args.img_size, 
         "--weights", '/opt/ml/output/data/results/weights/best.pt', 
-        "--include", args.include, 
-        "--device", args.device
+        "--include", args.include, "--device", args.device
     ]
 
     run_script(converter_args) if args.hyp == "Custom" else None
