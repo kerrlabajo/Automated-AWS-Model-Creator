@@ -575,9 +575,9 @@ namespace LSC_Trainer
             InputsEnabler(false);
             connectionMenu.Enabled = false;
             buildImageMenu.Enabled = false;
-            mainPanel.Cursor = Cursors.WaitCursor;
-            logPanel.Cursor = Cursors.WaitCursor;
-            logBox.Cursor = Cursors.WaitCursor;
+            logPanel.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
             this.Text = trainingJobName;
             try
             {
@@ -675,9 +675,8 @@ namespace LSC_Trainer
                             InputsEnabler(true);
                             connectionMenu.Enabled = true;
                             buildImageMenu.Enabled = true;
-                            mainPanel.Cursor = Cursors.Default;
-                            logPanel.Cursor = Cursors.Default;
-                            logBox.Cursor = Cursors.Default;
+                            logPanel.Enabled = true;
+                            Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
