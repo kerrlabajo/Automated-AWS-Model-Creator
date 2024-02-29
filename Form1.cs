@@ -565,6 +565,7 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
             outputListComboBox.Enabled = intent;
+            instancesDropdown.Enabled = intent;
             btnFetchOutput.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
