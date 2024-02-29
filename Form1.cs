@@ -785,8 +785,15 @@ namespace LSC_Trainer
 
         public void DisplayLogMessage(string logMessage)
         {
-            // Append log messages to the TextBox
-            logBox.AppendText(logMessage + Environment.NewLine);
+            // Convert the ANSI log message to RTF
+            string rtfMessage = ConvertAnsiToRtf(logMessage);
+
+            // Remove the start and end of the RTF document from the message
+            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
+            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
+
+            // Append the RTF message at the end of the existing RTF text
+            logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
 
             // Scroll to the end to show the latest log messages
             logBox.SelectionStart = logBox.Text.Length;
