@@ -92,11 +92,11 @@ def main():
     run_script(converter_args) if args.hyp == "Custom" else None
         
     if device_count > 1:
-        run_script("torch.distributed.run", multi_gpu_ddp_args + train_args, use_module=True)
+        run_script(multi_gpu_ddp_args + train_args, use_module=True)
     else:
-        run_script("yolov5/train.py", train_args)
+        run_script(train_args)
         
-    run_script("yolov5/export.py", export_args)
+    run_script(export_args)
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
