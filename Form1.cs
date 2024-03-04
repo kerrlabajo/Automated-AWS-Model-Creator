@@ -131,7 +131,7 @@ namespace LSC_Trainer
             if (datasetName == "MMX059XA_COVERED5B")
             {
                 imgSizeDropdown.Text = "1280";
-                txtBatchSize.Text = "1";
+                txtBatchSize.Text = "16";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
                 txtData.Text = "MMX059XA_COVERED5B.yaml";
@@ -147,17 +147,18 @@ namespace LSC_Trainer
             {
                 imgSizeDropdown.Text = "640";
                 txtBatchSize.Text = "1";
-                txtEpochs.Text = "50";
+                txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5s.pt";
                 txtData.Text = "data.yaml";
-                hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "0";
+                txtDevice.Text = "cpu";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+            logBox.Rtf = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}";
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
@@ -288,7 +289,8 @@ namespace LSC_Trainer
                     out string optimizer,
                     out string device);
 
-            trainingJobName = string.Format("LSCI-TRNG-IMGv5-6-{0}", DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
+            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv6-4-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
 
@@ -564,6 +566,7 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
             outputListComboBox.Enabled = intent;
+            instancesDropdown.Enabled = intent;
             btnFetchOutput.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
@@ -574,9 +577,9 @@ namespace LSC_Trainer
             InputsEnabler(false);
             connectionMenu.Enabled = false;
             buildImageMenu.Enabled = false;
-            mainPanel.Cursor = Cursors.WaitCursor;
-            logPanel.Cursor = Cursors.WaitCursor;
-            logBox.Cursor = Cursors.WaitCursor;
+            logPanel.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
             this.Text = trainingJobName;
             try
             {
@@ -674,9 +677,8 @@ namespace LSC_Trainer
                             InputsEnabler(true);
                             connectionMenu.Enabled = true;
                             buildImageMenu.Enabled = true;
-                            mainPanel.Cursor = Cursors.Default;
-                            logPanel.Cursor = Cursors.Default;
-                            logBox.Cursor = Cursors.Default;
+                            logPanel.Enabled = true;
+                            Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
@@ -783,12 +785,29 @@ namespace LSC_Trainer
 
         public void DisplayLogMessage(string logMessage)
         {
-            // Append log messages to the TextBox
-            logBox.AppendText(logMessage + Environment.NewLine);
+            // Convert the ANSI log message to RTF
+            string rtfMessage = ConvertAnsiToRtf(logMessage);
+
+            // Remove the start and end of the RTF document from the message
+            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
+            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
+
+            // Append the RTF message at the end of the existing RTF text
+            logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
 
             // Scroll to the end to show the latest log messages
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
+        }
+
+        public string ConvertAnsiToRtf(string ansiText)
+        {
+            ansiText = ansiText.Replace("#033[1m", @"\b ");
+            ansiText = ansiText.Replace("#033[0m", @"\b0 ");
+            ansiText = ansiText.Replace("#033[34m", @"\cf1 ");
+            ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
+            ansiText = ansiText.Replace("#015", @"\line ");
+            return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
         }
 
         private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)

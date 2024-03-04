@@ -2,18 +2,21 @@ import shutil
 import subprocess
 import argparse
 
-def run_script(script, args):
+def run_script(args, use_module=False):
     """
     Run a Python script with arguments.
 
     Parameters:
-    `script` (str): The name of the script to run.
-    `args` (list): The arguments to pass to the script.
+    `args` (list): The script and arguments to pass.
+    `use_module` (bool): Whether to use the -m option to run the script as a module.
 
     Returns:
     `None`
     """
-    subprocess.run(["python3", script] + args, check=True)
+    if use_module:
+        subprocess.run(["python3", "-m"] + args, check=True)
+    else:
+        subprocess.run(["python3"] + args, check=True)
     
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run train.py and export.py scripts with command line arguments.')
@@ -52,37 +55,36 @@ def main():
     None
     """
     args = parse_arguments()
+    device_count = len(args.device.split(','))
     
     converter_args = [
-        '/opt/ml/input/config/hyperparameters.json'
+        "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
+    ]
+    multi_gpu_ddp_args = [
+        "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
     train_args = [
-        "--img-size", args.img_size, 
-        "--batch", args.batch, 
-        "--epochs", args.epochs, 
-        "--weights", args.weights, 
-        "--data", args.data, 
+        "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
+        "--weights", args.weights, "--data", args.data, 
         "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
-        "--project", args.project, 
-        "--name", args.name, 
-        "--patience", args.patience, 
-        "--workers", args.workers, 
-        "--optimizer", args.optimizer, 
-        "--device", args.device,
-        "--cache"
+        "--project", args.project, "--name", args.name, 
+        "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer, 
+        "--device", args.device, "--cache"
     ]
     export_args = [
-        "--img-size", args.img_size, 
+        "yolov5/export.py", "--img-size", args.img_size, 
         "--weights", '/opt/ml/output/data/results/weights/best.pt', 
-        "--include", args.include, 
-        "--device", args.device
+        "--include", args.include, "--device", args.device
     ]
 
-    if args.hyp == "Custom":
-        run_script("yolov5/json_to_yaml_converter.py", converter_args)
+    run_script(converter_args) if args.hyp == "Custom" else None
         
-    run_script("yolov5/train.py", train_args)
-    run_script("yolov5/export.py", export_args)
+    if device_count > 1:
+        run_script(multi_gpu_ddp_args + train_args, use_module=True)
+    else:
+        run_script(train_args)
+        
+    run_script(export_args)
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
