@@ -131,7 +131,7 @@ namespace LSC_Trainer
             if (datasetName == "MMX059XA_COVERED5B")
             {
                 imgSizeDropdown.Text = "1280";
-                txtBatchSize.Text = "1";
+                txtBatchSize.Text = "16";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
                 txtData.Text = "MMX059XA_COVERED5B.yaml";
@@ -147,14 +147,14 @@ namespace LSC_Trainer
             {
                 imgSizeDropdown.Text = "640";
                 txtBatchSize.Text = "1";
-                txtEpochs.Text = "50";
+                txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5s.pt";
                 txtData.Text = "data.yaml";
-                hyperparamsDropdown.Text = "hyp.scratch-low.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "0";
+                txtDevice.Text = "cpu";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
