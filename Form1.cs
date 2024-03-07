@@ -22,20 +22,21 @@ namespace LSC_Trainer
     {
 
         private delegate void SetProgressCallback(int percentDone);
-        private readonly AmazonSageMakerClient amazonSageMakerClient;
-        private readonly AmazonS3Client s3Client;
-        private readonly AmazonCloudWatchLogsClient cloudWatchLogsClient;
+        private AmazonSageMakerClient amazonSageMakerClient;
+        private AmazonS3Client s3Client;
+        private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private Utility utility = new Utility();
 
-        private readonly string ACCOUNT_ID;
-        private readonly string ACCESS_KEY;
-        private readonly string SECRET_KEY;
-        private readonly string REGION;
-        private readonly string ROLE_ARN;
+        private string ACCOUNT_ID;
+        private string ACCESS_KEY;
+        private string SECRET_KEY;
+        private string REGION;
+        private string ROLE_ARN;
 
-        private readonly string ECR_URI;
-        private readonly string SAGEMAKER_BUCKET;
-        private readonly string DEFAULT_DATASET_URI;
+        private string ECR_URI;
+        private string SAGEMAKER_BUCKET;
+        private string DEFAULT_DATASET_URI;
+        private string CUSTOM_UPLOADS_URI;
         private readonly string DESTINATION_URI;
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
@@ -45,7 +46,6 @@ namespace LSC_Trainer
         private string datasetPath;
         private bool isFile;
         private string folderOrFileName;
-        private string customUploadsURI;
 
         private string trainingFolder;
         private string validationFolder;
