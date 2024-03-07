@@ -58,7 +58,6 @@ namespace LSC_Trainer
 
         public bool development;
 
-        private bool isAdminRole;
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
@@ -162,34 +161,6 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
-            isAdminRole = CheckAdministratorRole(ROLE_ARN);
-            buildImageMenu.Enabled = isAdminRole;
-            buildImageMenu.Visible = isAdminRole;
-            ECR_URI = UserConnectionInfo.EcrUri;
-
-            if (isAdminRole && ECR_URI == null && !development) // Admin, Non-dev, Image not yet built
-            {
-                mainPanel.Enabled = false;
-                logPanel.Enabled = false;
-                newTrainingJobMenu.Enabled = false;
-            }
-            else if (isAdminRole && ECR_URI != null && !development) // Admin, Non-dev, Image built
-            {
-                mainPanel.Enabled = true;
-                logPanel.Enabled = true;
-                newTrainingJobMenu.Enabled = true;
-            }
-            else if (!isAdminRole && ECR_URI == null && !development) // Non-admin, Non-dev, Requires ECR URI
-            {
-                this.Enabled = false;
-                var employeeEcrUriInputForm = new EmployeeEcrUriInputForm(this);
-                employeeEcrUriInputForm.FormClosed += OtherForm_FormClosed;
-                employeeEcrUriInputForm.Show();
-            }
-            else if (development)
-            {
-                ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
-            }
 
             Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
             Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
@@ -259,7 +230,6 @@ namespace LSC_Trainer
                 mainPanel.Enabled = false;
                 logPanel.Enabled = false;
                 connectionMenu.Enabled = false;
-                buildImageMenu.Enabled = false;
                 Cursor = Cursors.WaitCursor;
                 lscTrainerMenuStrip.Cursor = Cursors.Default;
             }
@@ -334,7 +304,6 @@ namespace LSC_Trainer
                             mainPanel.Enabled = false;
                             logPanel.Enabled = false;
                             connectionMenu.Enabled = false;
-                            buildImageMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
@@ -351,7 +320,6 @@ namespace LSC_Trainer
                             mainPanel.Enabled = true;
                             logPanel.Enabled = true;
                             connectionMenu.Enabled = true;
-                            buildImageMenu.Enabled = true;
                             Cursor = Cursors.Default;
                             System.Diagnostics.Process.Start(selectedLocalPath);
                         }
@@ -396,7 +364,6 @@ namespace LSC_Trainer
             mainPanel.Enabled = true;
             logPanel.Enabled = true;
             connectionMenu.Enabled = true;
-            buildImageMenu.Enabled = true;
             Cursor = Cursors.Default;
         }
 
@@ -576,7 +543,6 @@ namespace LSC_Trainer
         {
             InputsEnabler(false);
             connectionMenu.Enabled = false;
-            buildImageMenu.Enabled = false;
             logPanel.Enabled = false;
             Cursor = Cursors.WaitCursor;
             lscTrainerMenuStrip.Cursor = Cursors.Default;
@@ -676,7 +642,6 @@ namespace LSC_Trainer
                         {
                             InputsEnabler(true);
                             connectionMenu.Enabled = true;
-                            buildImageMenu.Enabled = true;
                             logPanel.Enabled = true;
                             Cursor = Cursors.Default;
                             outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
@@ -878,7 +843,6 @@ namespace LSC_Trainer
             mainPanel.Enabled = false;
             logPanel.Enabled = false;
             connectionMenu.Enabled = false;
-            buildImageMenu.Enabled = false;
             Cursor = Cursors.WaitCursor;
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             try
@@ -904,7 +868,6 @@ namespace LSC_Trainer
                 mainPanel.Enabled = true;
                 logPanel.Enabled = true;
                 connectionMenu.Enabled = true;
-                buildImageMenu.Enabled = true;
                 Cursor = Cursors.Default;
                 outputListComboBox.Enabled = true;
             }
@@ -942,26 +905,6 @@ namespace LSC_Trainer
             var createConnectionForm = new CreateConnectionForm(development, this);
             createConnectionForm.FormClosed += OtherForm_FormClosed;
             createConnectionForm.Show();
-        }
-
-        public bool CheckAdministratorRole(string roleArn)
-        {
-            return roleArn.Contains("Administrator");
-        }
-
-        private static string ExtractRoleNameFromArn(string roleArn)
-        {
-            var splitArn = roleArn.Split(':');
-            var roleName = splitArn.Last().Split('/').Last();
-            return roleName;
-        }
-
-        private void buildImageMenu_Click(object sender, EventArgs e)
-        {
-            this.Enabled = false;
-            var imageBuilderForm = new ImageBuilderForm(ACCOUNT_ID, ACCESS_KEY, SECRET_KEY, REGION, this);
-            imageBuilderForm.FormClosed += OtherForm_FormClosed;
-            imageBuilderForm.Show();
         }
 
         private void closeConnectionMenu_Click(object sender, EventArgs e)
