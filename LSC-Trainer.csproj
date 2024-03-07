@@ -263,12 +263,6 @@
     <Compile Include="CreateConnectionForm.Designer.cs">
       <DependentUpon>CreateConnectionForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="EmployeeEcrUriInputForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="EmployeeEcrUriInputForm.Designer.cs">
-      <DependentUpon>EmployeeEcrUriInputForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Functions\AWS_Helper.cs" />
     <Compile Include="Functions\FileHandler.cs" />
     <Compile Include="Form1.cs">
@@ -284,20 +278,8 @@
     <Compile Include="HelpForm.Designer.cs">
       <DependentUpon>HelpForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImageBuilderForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ImageBuilderForm.Designer.cs">
-      <DependentUpon>ImageBuilderForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TrainingInfoForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TrainingInfoForm.Designer.cs">
-      <DependentUpon>TrainingInfoForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="CustomHyperParamsForm.resx">
       <DependentUpon>CustomHyperParamsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -305,17 +287,11 @@
     <EmbeddedResource Include="CreateConnectionForm.resx">
       <DependentUpon>CreateConnectionForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EmployeeEcrUriInputForm.resx">
-      <DependentUpon>EmployeeEcrUriInputForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HelpForm.resx">
       <DependentUpon>HelpForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ImageBuilderForm.resx">
-      <DependentUpon>ImageBuilderForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -326,9 +302,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="TrainingInfoForm.resx">
-      <DependentUpon>TrainingInfoForm.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include=".env" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
