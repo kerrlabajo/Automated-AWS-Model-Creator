@@ -54,7 +54,6 @@ namespace LSC_Trainer
 
         private string outputKey;
         private string modelKey;
-        private bool isValidConnectionInfo;
 
         public bool development;
 
@@ -66,49 +65,33 @@ namespace LSC_Trainer
             InitializeComponent();
             this.development = development;
 
-            isValidConnectionInfo = !string.IsNullOrWhiteSpace(UserConnectionInfo.AccountId) &&
-                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.AccessKey) &&
-                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.SecretKey) &&
-                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.Region) &&
-                                 !string.IsNullOrWhiteSpace(UserConnectionInfo.RoleArn);
-
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
+            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
             DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-            customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+            CUSTOM_UPLOADS_URI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
             DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
             REGION = Environment.GetEnvironmentVariable("DEFAULT_REGION");
             ROLE_ARN = Environment.GetEnvironmentVariable("DEFAULT_ROLE_ARN");
+            InitializeInputs();
 
-            if (isValidConnectionInfo)
-            {
-                ACCOUNT_ID = UserConnectionInfo.AccountId;
-                ACCESS_KEY = UserConnectionInfo.AccessKey;
-                SECRET_KEY = UserConnectionInfo.SecretKey;
-                REGION = UserConnectionInfo.Region;
-                ROLE_ARN = UserConnectionInfo.RoleArn;
-                ECR_URI = GetECRUri();
-                Console.WriteLine($"User's Details:");
-            }
-            else if(development)
+            if (development)
             {
                 string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
                 DotNetEnv.Env.Load(ENV_PATH);
 
-                ACCOUNT_ID = Environment.GetEnvironmentVariable("ACCOUNT_ID");
-                ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
-                SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
-                REGION = Environment.GetEnvironmentVariable("REGION");
-                ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
-
-                ECR_URI = GetECRUri();
-                SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+                UserConnectionInfo.AccountId = Environment.GetEnvironmentVariable("ACCOUNT_ID");
+                UserConnectionInfo.AccessKey = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
+                UserConnectionInfo.SecretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
+                UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
+                UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
+                UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Console.WriteLine($"Dev's ENV Details:");
+                InitializeClient();
             }
             else
             {
@@ -117,14 +100,42 @@ namespace LSC_Trainer
                 createConnectionForm.Show();
                 this.Enabled = false;
                 this.TopLevel = false;
+                Console.WriteLine($"Establishing Connection...");
             }
+            
+            logBox.Rtf = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}";
+            btnTraining.Enabled = false;
+            btnUploadToS3.Enabled = false;
+            btnDownloadModel.Enabled = false;
+        }
 
+        public void InitializeClient()
+        {
+            ACCOUNT_ID = UserConnectionInfo.AccountId;
+            ACCESS_KEY = UserConnectionInfo.AccessKey;
+            SECRET_KEY = UserConnectionInfo.SecretKey;
+            REGION = UserConnectionInfo.Region;
+            ROLE_ARN = UserConnectionInfo.RoleArn;
+            ECR_URI = GetECRUri();
+            SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
-            // var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
 
+            Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
+            Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
+            Console.WriteLine($"SECRET_KEY: {SECRET_KEY}");
+            Console.WriteLine($"REGION: {REGION}");
+            Console.WriteLine($"ROLE_ARN: {ROLE_ARN}");
+            Console.WriteLine($"ECR_URI: {ECR_URI}");
+            Console.WriteLine($"SAGEMAKER_BUCKET: {SAGEMAKER_BUCKET}");
+            Console.WriteLine($"DEFAULT_DATASET_URI: {DEFAULT_DATASET_URI}");
+            Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
+        }
+
+        public void InitializeInputs()
+        {
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
             {
@@ -156,20 +167,6 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
-            //logBox.Rtf = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}";
-            btnTraining.Enabled = false;
-            btnUploadToS3.Enabled = false;
-            btnDownloadModel.Enabled = false;
-
-            Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
-            Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
-            Console.WriteLine($"SECRET_KEY: {SECRET_KEY}");
-            Console.WriteLine($"REGION: {REGION}");
-            Console.WriteLine($"ROLE_ARN: {ROLE_ARN}");
-            Console.WriteLine($"ECR_URI: {ECR_URI}");
-            Console.WriteLine($"SAGEMAKER_BUCKET: {SAGEMAKER_BUCKET}");
-            Console.WriteLine($"DEFAULT_DATASET_URI: {DEFAULT_DATASET_URI}");
-            Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
         }
 
         public string GetECRUri()
