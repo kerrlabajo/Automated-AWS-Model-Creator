@@ -105,7 +105,7 @@ namespace LSC_Trainer
                 REGION = Environment.GetEnvironmentVariable("REGION");
                 ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
 
-                ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
+                ECR_URI = GetECRUri();
                 SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Console.WriteLine($"Dev's ENV Details:");
@@ -171,6 +171,11 @@ namespace LSC_Trainer
             Console.WriteLine($"SAGEMAKER_BUCKET: {SAGEMAKER_BUCKET}");
             Console.WriteLine($"DEFAULT_DATASET_URI: {DEFAULT_DATASET_URI}");
             Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
+        }
+
+        public string GetECRUri()
+        {
+            return AWS_Helper.GetFirstRepositoryUri(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
         private void btnSelectDataset_Click(object sender, EventArgs e)
