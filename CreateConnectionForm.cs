@@ -46,10 +46,9 @@ namespace LSC_Trainer
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
-            var t = new Thread(() => Application.Run(new MainForm(development)));
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-            mainForm.Close();
+            mainForm.Enabled = true;
+            mainForm.TopLevel = true;
+            mainForm.InitializeClient();
             this.Close();
         }
 

@@ -112,11 +112,11 @@ namespace LSC_Trainer
             }
             else
             {
-                MessageBox.Show("Please create a connection first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
-                t.SetApartmentState(ApartmentState.STA);
-                t.Start();
-                this.Close();
+                var createConnectionForm = new CreateConnectionForm(development, this);
+                createConnectionForm.FormClosed += OtherForm_FormClosed;
+                createConnectionForm.Show();
+                this.Enabled = false;
+                this.TopLevel = false;
             }
 
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
@@ -909,6 +909,8 @@ namespace LSC_Trainer
             var createConnectionForm = new CreateConnectionForm(development, this);
             createConnectionForm.FormClosed += OtherForm_FormClosed;
             createConnectionForm.Show();
+            this.Enabled = false;
+            this.TopLevel = false;
         }
 
         private void closeConnectionMenu_Click(object sender, EventArgs e)
