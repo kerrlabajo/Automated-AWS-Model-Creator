@@ -36,7 +36,6 @@ namespace LSC_Trainer
             this.closeConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newTrainingJobMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.buildImageMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
@@ -95,8 +94,7 @@ namespace LSC_Trainer
             this.lscTrainerMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectionMenu,
             this.helpMenu,
-            this.newTrainingJobMenu,
-            this.buildImageMenu});
+            this.newTrainingJobMenu});
             this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
             this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
@@ -116,21 +114,21 @@ namespace LSC_Trainer
             // createConnectionMenu
             // 
             this.createConnectionMenu.Name = "createConnectionMenu";
-            this.createConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.createConnectionMenu.Size = new System.Drawing.Size(224, 26);
             this.createConnectionMenu.Text = "Create Connection";
             this.createConnectionMenu.Click += new System.EventHandler(this.createConnectionMenu_Click);
             // 
             // testConnectionMenu
             // 
             this.testConnectionMenu.Name = "testConnectionMenu";
-            this.testConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.testConnectionMenu.Size = new System.Drawing.Size(224, 26);
             this.testConnectionMenu.Text = "Test Connection";
             this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
             // 
             // closeConnectionMenu
             // 
             this.closeConnectionMenu.Name = "closeConnectionMenu";
-            this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
+            this.closeConnectionMenu.Size = new System.Drawing.Size(224, 26);
             this.closeConnectionMenu.Text = "Close Connection";
             this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
@@ -147,13 +145,6 @@ namespace LSC_Trainer
             this.newTrainingJobMenu.Size = new System.Drawing.Size(137, 24);
             this.newTrainingJobMenu.Text = "New Training Job";
             this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobMenu_Click);
-            // 
-            // buildImageMenu
-            // 
-            this.buildImageMenu.Name = "buildImageMenu";
-            this.buildImageMenu.Size = new System.Drawing.Size(103, 24);
-            this.buildImageMenu.Text = "Build Image";
-            this.buildImageMenu.Click += new System.EventHandler(this.buildImageMenu_Click);
             // 
             // backgroundWorker
             // 
@@ -770,7 +761,6 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label trainingDurationBox;
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
-        private System.Windows.Forms.ToolStripMenuItem buildImageMenu;
         private System.Windows.Forms.ComboBox instancesDropdown;
     }
 }
