@@ -2,7 +2,9 @@
 using Amazon.S3.Model;
     using Amazon.S3.Transfer;
 using Amazon.SageMaker;
-    using ICSharpCode.SharpZipLib.Tar;
+using Amazon.ECR;
+using Amazon.ECR.Model;
+using ICSharpCode.SharpZipLib.Tar;
     using ICSharpCode.SharpZipLib.Zip;
     using System;
     using System.Collections.Generic;
@@ -13,6 +15,8 @@ using Amazon.SageMaker;
     using System.Text;
     using System.Threading.Tasks;
 using System.Windows.Forms;
+using Amazon.IdentityManagement.Model;
+using Amazon;
 
 namespace LSC_Trainer.Functions
 {
@@ -366,6 +370,23 @@ namespace LSC_Trainer.Functions
             {
                 Console.WriteLine("Error: " + e.Message);
                 return null;
+            }
+        }
+
+        public static string GetFirstRepositoryUri(string accessKey, string secretKey, RegionEndpoint region)
+        {
+            using (var ecrClient = new AmazonECRClient(accessKey, secretKey, region))
+            {
+                var response = ecrClient.DescribeRepositories(new DescribeRepositoriesRequest());
+
+                if (response.Repositories.Count > 0)
+                {
+                    return response.Repositories[0].RepositoryUri;
+                }
+                else
+                {
+                    throw new Exception("No repositories found");
+                }
             }
         }
 
