@@ -268,7 +268,7 @@ namespace LSC_Trainer
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
 
-            if (HasCustomUploads(customUploadsURI))
+            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
             {
                 InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
             }
@@ -341,7 +341,7 @@ namespace LSC_Trainer
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
-                customUploadsURI = customUploadsURI + Path.GetFileNameWithoutExtension(datasetPath) + "/";
+                CUSTOM_UPLOADS_URI = CUSTOM_UPLOADS_URI + Path.GetFileNameWithoutExtension(datasetPath) + "/";
             }
             else
             {
@@ -349,7 +349,7 @@ namespace LSC_Trainer
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
-                customUploadsURI = customUploadsURI + folderOrFileName + "/";
+                CUSTOM_UPLOADS_URI = CUSTOM_UPLOADS_URI + folderOrFileName + "/";
             }
         }
 
@@ -492,7 +492,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + trainingFolder,
+                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + trainingFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -508,7 +508,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + validationFolder,
+                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + validationFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -555,7 +555,7 @@ namespace LSC_Trainer
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-                string datasetKey = customUploadsURI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
                 {
@@ -652,7 +652,7 @@ namespace LSC_Trainer
                             modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                             timer.Stop();
 
-                            if (HasCustomUploads(customUploadsURI))
+                            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
                             {
                                 DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
                                 AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
