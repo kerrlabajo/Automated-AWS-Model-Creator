@@ -91,7 +91,6 @@ namespace LSC_Trainer
                 SECRET_KEY = UserConnectionInfo.SecretKey;
                 REGION = UserConnectionInfo.Region;
                 ROLE_ARN = UserConnectionInfo.RoleArn;
-                ECR_URI = UserConnectionInfo.EcrUri;
                 Console.WriteLine($"User's Details:");
             }
             else if(development)
@@ -105,7 +104,6 @@ namespace LSC_Trainer
                 REGION = Environment.GetEnvironmentVariable("REGION");
                 ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
 
-                ECR_URI = GetECRUri();
                 SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Console.WriteLine($"Dev's ENV Details:");
@@ -121,7 +119,7 @@ namespace LSC_Trainer
 
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             // var awsCredentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_KEY);
-
+            ECR_URI = GetECRUri();
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
