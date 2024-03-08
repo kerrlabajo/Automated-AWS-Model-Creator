@@ -60,6 +60,19 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
+        //TODO: In production (development = false) in `Program.cs`.
+        //TODO: 1. There should be no `.env` usage in the code unless it's for development.
+        //TODO: 2. The `UserConnectionInfo` should be renamed to `UserCredentials`.
+        //TODO: 3. After `CreateConnection`, `user-credentials.json` should be created.
+        //TODO: 4. Every time app runs, it should preemptively check if there are any `user-credentials.json` file
+        //          in the same directory as the `LSC-Trainer.exe` or stored somewhere secure.
+        //TODO: 5. If there are no `user-credentials.json` file, the app should open the `CreateConnectionForm`
+        //          similar to line 107-112 to establish a connection.
+        //TODO: 6. If there are `user-credentials.json` file, the app should test the connection and if it fails,
+        //          it should open the `CreateConnectionForm` similar to line 107-112 to establish a connection.
+        //TODO: 7. If there are `user-credentials.json` file and the connection is successful, the app should
+        //          initialize the client and proceed to the `MainForm`.
+
         public MainForm(bool development)
         {
             InitializeComponent();
