@@ -60,6 +60,14 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
+        //TODO: 1. Refactor all variables, methods, and classes to use the same naming convention.
+        //TODO: 2. Refactor repetitive code to use methods.
+        //TODO: 3. Refactor to use async/await for all methods that are not async.
+        //TODO: 4. Refactor to transfer methods in their respective classes/libraries.
+        //TODO: 5. Clean up code.
+        //TODO: 6. The app should still work after refactoring.
+        //TODO: 7. The order of function/method calls should not change after refactoring.
+
         public MainForm(bool development)
         {
             InitializeComponent();
