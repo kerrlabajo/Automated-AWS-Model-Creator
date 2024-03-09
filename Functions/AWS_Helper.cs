@@ -1,21 +1,21 @@
-﻿    using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
-    using Amazon.S3.Transfer;
+using Amazon.S3.Transfer;
 using Amazon.SageMaker;
 using Amazon.ECR;
 using Amazon.ECR.Model;
 using ICSharpCode.SharpZipLib.Tar;
-    using ICSharpCode.SharpZipLib.Zip;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Linq;
-    using System.Net;
-    using System.Text;
-    using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.Zip;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Amazon.IdentityManagement.Model;
+// using Amazon.IdentityManagement.Model;
 using Amazon;
 
 namespace LSC_Trainer.Functions
