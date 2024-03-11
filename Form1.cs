@@ -558,8 +558,8 @@ namespace LSC_Trainer
             this.Text = trainingJobName;
             try
             {
-                //CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                //string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 //under ani should be all on a seprate class
@@ -569,7 +569,25 @@ namespace LSC_Trainer
                 //});
                 var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
-                handler.StartTrackingTrainingJob(trainingJobName, custom);
+                bool flag =  await handler.StartTrackingTrainingJob(trainingJobName, custom);
+
+                if (flag)
+                {
+                    InputsEnabler(true);
+                    connectionMenu.Enabled = true;
+                    logPanel.Enabled = true;
+                    Cursor = Cursors.Default;
+                    outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                    modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                    //timer.Stop();
+
+                    if (HasCustomUploads(CUSTOM_UPLOADS_URI))
+                    {
+                        DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                        AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
+                    }
+                    return;
+                }
                 //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
                 //timer.Interval = 1000;
 

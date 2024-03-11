@@ -1,4 +1,5 @@
 ﻿using Amazon.CloudWatchLogs;
+using Amazon.CloudWatchLogs.Model;
 using Amazon.ECR.Model;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
@@ -40,9 +41,22 @@ namespace LSC_Trainer.Functions
             this.logBox = logBox;
         }
 
-        public void StartTrackingTrainingJob(string trainingJobName, bool hasCustomUploads)
+        public async Task<bool> StartTrackingTrainingJob(string trainingJobName, bool hasCustomUploads, ref string outputKey, ref string modelKey)
         {
-            instanceTypeBox.Text = "test";
+            try
+            {
+                var completionSource = new TaskCompletionSource<bool>();
+                var timer = InitializeTimer(trainingJobName, completionSource);
+                timer.Start();
+
+                await completionSource.Task;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
 
         private void TrackTrainingJob(string trainingJobName, bool hasCustomUploads, System.Windows.Forms.Timer timer)
@@ -58,16 +72,17 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        //private System.Windows.Forms.Timer InitializeTimer()
-        //{
-        //    // Create a Timer instance with a specified interval (e.g., every 5 secs)
-        //    var timerInterval = 5000;
-        //    //var timer = new Timer(CheckTrainingJobStatus, trainingJobName, TimeSpan.Zero, timerInterval);
+        private System.Timers.Timer InitializeTimer(string trainingJobName, TaskCompletionSource<bool> completionSource)
+        {
+            // Create a Timer instance with a specified interval (e.g., every 5 secs)
+            var timerInterval = 5000;
+            var timer = new System.Timers.Timer(timerInterval);
+            timer.Elapsed += async (sender, e) => await CheckTrainingJobStatus(amazonSageMakerClient, trainingJobName);
 
-        //    // The `CheckTrainingJobStatus` method will be called periodically based on the interval
+            // The `CheckTrainingJobStatus` method will be called periodically based on the interval
 
-        //    return timer;
-        //}
+            return timer;
+        }
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state)
         {
             var trainingJobName = (string)state;
@@ -98,15 +113,18 @@ namespace LSC_Trainer.Functions
                 {
                     UpdateTrainingStatus(formattedTime);
                 }
-                CheckSecondaryStatus(trainingDetails);
+                await CheckSecondaryStatus(trainingDetails, trainingJobName);
 
             }
             else if(trainingStatus == TrainingJobStatus.Completed)
             {
-
-            }else if(trainingStatus == TrainingJobStatus.Failed)
+                completionSource.SetResult(true);
+            }
+            else if(trainingStatus == TrainingJobStatus.Failed)
             {
-
+                DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+                //btnTraining.Enabled = true;
+                //timer.Stop();
             }
             else
             {
@@ -114,9 +132,44 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        private void CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails)
+        private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
         {
-            
+            //CloudWatch
+            if (trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
+            {
+                // Get log stream
+                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+
+                if (!string.IsNullOrEmpty(logStreamName))
+                {
+                    // Print CloudWatch logs
+                    GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                    {
+                        LogGroupName = "/aws/sagemaker/TrainingJobs",
+                        LogStreamName = logStreamName
+                    });
+
+
+                    if (prevLogMessage != logs.Events.Last().Message)
+                    {
+                        for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
+                        {
+                            DisplayLogMessage(logs.Events[i].Message);
+                        }
+                        prevLogMessage = logs.Events.Last().Message;
+                        prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
+                    }
+                }
+            }
+            // Update training status
+            if (trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+            {
+                UpdateTrainingStatus(
+                    trainingDetails.SecondaryStatusTransitions.Last().Status,
+                    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                );
+                prevStatusMessage = trainingDetails.SecondaryStatusTransitions.Last().StatusMessage;
+            }
         }
 
         public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
@@ -130,6 +183,12 @@ namespace LSC_Trainer.Functions
         public void UpdateTrainingStatus(string trainingDuration)
         {
             trainingDurationBox.Text = trainingDuration;
+        }
+
+        public void UpdateTrainingStatus(string status, string description)
+        {
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
         }
 
         public void DisplayLogMessage(string logMessage)
@@ -157,6 +216,28 @@ namespace LSC_Trainer.Functions
             ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
             ansiText = ansiText.Replace("#015", @"\line ");
             return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
+        }
+
+        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
+        {
+            var request = new DescribeLogStreamsRequest
+            {
+                LogGroupName = logGroupName,
+                LogStreamNamePrefix = trainingJobName
+            };
+
+            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+
+            var latestLogStream = response.LogStreams.FirstOrDefault();
+
+            if (latestLogStream != null)
+            {
+                return latestLogStream.LogStreamName;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
