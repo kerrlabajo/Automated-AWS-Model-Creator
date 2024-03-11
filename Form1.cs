@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Amazon.Runtime.Internal;
 using Amazon.Runtime.Internal.Util;
 using System.Threading;
+using System.Timers;
 
 namespace LSC_Trainer
 {
@@ -557,126 +558,122 @@ namespace LSC_Trainer
             this.Text = trainingJobName;
             try
             {
-                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+                //CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+                //string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
-                DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                {
-                    TrainingJobName = trainingJobName
-                });
+                //under ani should be all on a seprate class
+                //DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                //{
+                //    TrainingJobName = trainingJobName
+                //});
+                var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
+                handler.StartTrackingTrainingJob(trainingJobName, custom);
+                //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                //timer.Interval = 1000;
 
-                // Create an entry for the current training job in the dictionary
-                //trainingJobs[trainingJobName] = new TrainingInfoForm();
-                //trainingJobs[trainingJobName].Show(); // Show the new form
+                //string prevStatusMessage = "";
+                //string prevLogMessage = "";
+                //int prevLogIndex = 0;
+                //// show panel
+                //logPanel.Visible = true;
 
-                System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-                timer.Interval = 1000;
+                //timer.Tick += async (sender1, e1) =>
+                //{
+                //    try
+                //    {
+                //        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+                //        {
+                //            TrainingJobName = trainingJobName
+                //        });
 
-                string prevStatusMessage = "";
-                string prevLogMessage = "";
-                int prevLogIndex = 0;
-                // show panel
-                logPanel.Visible = true;
+                //        // Update training duration goods
+                //        TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
+                //        string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
 
-                timer.Tick += async (sender1, e1) =>
-                {
-                    try
-                    {
-                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                        {
-                            TrainingJobName = trainingJobName
-                        });
+                //        if (tracker.TrainingTimeInSeconds == 0)
+                //        {
+                //            UpdateTrainingStatus(
+                //                tracker.ResourceConfig.InstanceType.ToString(),
+                //                formattedTime,
+                //                tracker.SecondaryStatusTransitions.Last().Status,
+                //                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                //            );
+                //        }
+                //        else
+                //        {
+                //            UpdateTrainingStatus(formattedTime);
+                //        }
 
-                        // Update training duration
-                        TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
-                        string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+                //        // CloudWatch 
+                //        if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
+                //        {
+                //            // Get log stream
+                //            string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
 
-                        // Use the dictionary entry for the current training job
-                        //var currentTrainingInfo = trainingJobs[trainingJobName];
-                        //currentTrainingInfo.Text = trainingJobName;
-
-                        if (tracker.TrainingTimeInSeconds == 0)
-                        {
-                            UpdateTrainingStatus(
-                                tracker.ResourceConfig.InstanceType.ToString(),
-                                formattedTime,
-                                tracker.SecondaryStatusTransitions.Last().Status,
-                                tracker.SecondaryStatusTransitions.Last().StatusMessage
-                            );
-                        }
-                        else
-                        {
-                            UpdateTrainingStatus(formattedTime);
-                        }
-
-                        // CloudWatch 
-                        if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
-                        {
-                            // Get log stream
-                            string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
-
-                            if (!string.IsNullOrEmpty(logStreamName))
-                            {
-                                // Print CloudWatch logs
-                                GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
-                                {
-                                    LogGroupName = "/aws/sagemaker/TrainingJobs",
-                                    LogStreamName = logStreamName
-                                });
+                //            if (!string.IsNullOrEmpty(logStreamName))
+                //            {
+                //                // Print CloudWatch logs
+                //                GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                //                {
+                //                    LogGroupName = "/aws/sagemaker/TrainingJobs",
+                //                    LogStreamName = logStreamName
+                //                });
 
 
-                                if (prevLogMessage != logs.Events.Last().Message)
-                                {
-                                    for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
-                                    {
-                                        DisplayLogMessage(logs.Events[i].Message);
-                                    }
-                                    prevLogMessage = logs.Events.Last().Message;
-                                    prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
-                                }
-                            }
-                        }
-                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-                        {
-                            UpdateTrainingStatus(
-                                tracker.SecondaryStatusTransitions.Last().Status,
-                                tracker.SecondaryStatusTransitions.Last().StatusMessage
-                            );
-                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-                        }
+                //                if (prevLogMessage != logs.Events.Last().Message)
+                //                {
+                //                    for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
+                //                    {
+                //                        DisplayLogMessage(logs.Events[i].Message);
+                //                    }
+                //                    prevLogMessage = logs.Events.Last().Message;
+                //                    prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
+                //                }
+                //            }
+                //        }
+                //        // Update training status
+                //        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+                //        {
+                //            UpdateTrainingStatus(
+                //                tracker.SecondaryStatusTransitions.Last().Status,
+                //                tracker.SecondaryStatusTransitions.Last().StatusMessage
+                //            );
+                //            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
+                //        }
 
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
-                        {
-                            InputsEnabler(true);
-                            connectionMenu.Enabled = true;
-                            logPanel.Enabled = true;
-                            Cursor = Cursors.Default;
-                            outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                            modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                            timer.Stop();
+                //        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
+                //        {
+                //            InputsEnabler(true);
+                //            connectionMenu.Enabled = true;
+                //            logPanel.Enabled = true;
+                //            Cursor = Cursors.Default;
+                //            outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                //            modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                //            timer.Stop();
 
-                            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
-                            {
-                                DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
-                                AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
-                            }
-                            return;
-                        }
-                        else if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
-                        {
-                            DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
-                            btnTraining.Enabled = true;
-                            timer.Stop();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                };
-                timer.Start();
+                //            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
+                //            {
+                //                DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
+                //                AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
+                //            }
+                //            return;
+                //        }
+                //        else if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
+                //        {
+                //            DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
+                //            btnTraining.Enabled = true;
+                //            timer.Stop();
+                //        }
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //        return;
+                //    }
+                //};
+                //timer.Start();
             }
             catch (Exception ex)
             {
@@ -686,6 +683,75 @@ namespace LSC_Trainer
             }
         }
 
+        private System.Windows.Forms.Timer InitializeTimer()
+        {
+            // Create a Timer instance with a specified interval (e.g., every 5 secs)
+            var timerInterval = 5000;
+            //var timer = new Timer(CheckTrainingJobStatus, trainingJobName, TimeSpan.Zero, timerInterval);
+
+            // The `CheckTrainingJobStatus` method will be called periodically based on the interval
+
+            return new System.Windows.Forms.Timer();
+        }
+
+        private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state)
+        {
+            var trainingJobName = (string)state;
+
+            // Retrieve the current status of the training job
+            DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+            {
+                TrainingJobName = trainingJobName
+            });
+            var trainingStatus = trainingDetails.TrainingJobStatus;
+
+            if (trainingStatus == TrainingJobStatus.InProgress)
+            {
+                // Update training duration
+                TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
+                string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+
+                if (trainingDetails.TrainingTimeInSeconds == 0)
+                {
+                    UpdateTrainingStatus(
+                        trainingDetails.ResourceConfig.InstanceType.ToString(),
+                        formattedTime,
+                        trainingDetails.SecondaryStatusTransitions.Last().Status,
+                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    );
+                }
+                else
+                {
+                    UpdateTrainingStatus(formattedTime);
+                }
+                CheckSecondaryStatus(trainingDetails);
+
+            }
+            else if (trainingStatus == TrainingJobStatus.Completed)
+            {
+
+            }
+            else if (trainingStatus == TrainingJobStatus.Failed)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        private void CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails)
+        {
+            //if (trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+            //{
+            //    UpdateTrainingStatus(
+            //        tracker.SecondaryStatusTransitions.Last().Status,
+            //        tracker.SecondaryStatusTransitions.Last().StatusMessage
+            //    );
+            //    prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
+            //}
+        }
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
         {
             var request = new DescribeLogStreamsRequest
@@ -707,7 +773,7 @@ namespace LSC_Trainer
                 return null;
             }
         }
-
+        // delete this method
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName)
         {
             var request = new DescribeLogStreamsRequest
@@ -737,7 +803,7 @@ namespace LSC_Trainer
             t.Start();
         }
 
-        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
+        public  void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
             instanceTypeBox.Text = instanceType;
             trainingDurationBox.Text = trainingDuration;
