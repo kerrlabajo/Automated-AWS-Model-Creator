@@ -1,5 +1,6 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
+using Amazon.EC2;
 using Amazon.ECR.Model;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
@@ -12,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LSC_Trainer.Functions
 {
@@ -75,7 +77,7 @@ namespace LSC_Trainer.Functions
         private System.Timers.Timer InitializeTimer(string trainingJobName, TaskCompletionSource<bool> completionSource)
         {
             // Create a Timer instance with a specified interval (e.g., every 5 secs)
-            var timerInterval = 5000;
+            var timerInterval = 1000;
             var timer = new System.Timers.Timer(timerInterval);
             timer.Elapsed += async (sender, e) => await CheckTrainingJobStatus(amazonSageMakerClient, trainingJobName, completionSource);
 
@@ -85,50 +87,57 @@ namespace LSC_Trainer.Functions
         }
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
-            var trainingJobName = (string)state;
+            try {
+                var trainingJobName = (string)state;
 
-            // Retrieve the current status of the training job
-            DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-            {
-                TrainingJobName = trainingJobName
-            });
-            var trainingStatus = trainingDetails.TrainingJobStatus;
-
-            if(trainingStatus == TrainingJobStatus.InProgress)
-            {
-                // Update training duration
-                TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
-                string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
-
-                if (trainingDetails.TrainingTimeInSeconds == 0)
+                // Retrieve the current status of the training job
+                DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
                 {
-                    UpdateTrainingStatus(
-                        trainingDetails.ResourceConfig.InstanceType.ToString(),
-                        formattedTime,
-                        trainingDetails.SecondaryStatusTransitions.Last().Status,
-                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
+                    TrainingJobName = trainingJobName
+                });
+                var trainingStatus = trainingDetails.TrainingJobStatus;
+
+                if (trainingStatus == TrainingJobStatus.InProgress)
+                {
+                    // Update training duration
+                    TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
+                    string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+
+                    if (trainingDetails.TrainingTimeInSeconds == 0)
+                    {
+                        await UpdateTrainingStatus(
+                            trainingDetails.ResourceConfig.InstanceType.ToString(),
+                            formattedTime,
+                            trainingDetails.SecondaryStatusTransitions.Last().Status,
+                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                        );
+                    }
+                    else
+                    {
+                        UpdateTrainingStatus(formattedTime);
+                    }
+                    await CheckSecondaryStatus(trainingDetails, trainingJobName);
+
+                }
+                else if (trainingStatus == TrainingJobStatus.Completed)
+                {
+                    completionSource.SetResult(true);
+                }
+                else if (trainingStatus == TrainingJobStatus.Failed)
+                {
+                    DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+                    //btnTraining.Enabled = true;
+                    //timer.Stop();
                 }
                 else
                 {
-                    UpdateTrainingStatus(formattedTime);
+
                 }
-                await CheckSecondaryStatus(trainingDetails, trainingJobName);
-
             }
-            else if(trainingStatus == TrainingJobStatus.Completed)
-            {
-                completionSource.SetResult(true);
-            }
-            else if(trainingStatus == TrainingJobStatus.Failed)
-            {
-                DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
-                //btnTraining.Enabled = true;
-                //timer.Stop();
-            }
-            else
-            {
-
+            catch (Exception ex)
+    {
+                // Handle any exceptions that may occur during the processing
+                completionSource.SetException(ex);
             }
         }
 
@@ -172,23 +181,72 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
+        public async Task UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
-            instanceTypeBox.Text = instanceType;
-            trainingDurationBox.Text = trainingDuration;
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
+            Action updateUI = () =>
+            {
+                instanceTypeBox.Text = instanceType;
+                trainingDurationBox.Text = trainingDuration;
+                trainingStatusBox.Text = status;
+                descBox.Text = description;
+            };
+
+            // Check if invoking is required
+            if (instanceTypeBox.InvokeRequired || trainingDurationBox.InvokeRequired ||
+                trainingStatusBox.InvokeRequired || descBox.InvokeRequired)
+            {
+                // Invoke on the UI thread
+                instanceTypeBox.Invoke(updateUI);
+                trainingDurationBox.Invoke(updateUI);
+                trainingStatusBox.Invoke(updateUI);
+                descBox.Invoke(updateUI);
+            }
+            else
+            {
+                // No invoke required, execute directly
+                updateUI();
+            }
         }
 
         public void UpdateTrainingStatus(string trainingDuration)
         {
-            trainingDurationBox.Text = trainingDuration;
+            Action updateUI = () =>
+            {
+                trainingDurationBox.Text = trainingDuration;
+            };
+
+            // Check if invoking is required
+            if (trainingDurationBox.InvokeRequired)
+            {
+                // Invoke on the UI thread
+                trainingDurationBox.Invoke(updateUI);
+            }
+            else
+            {
+                // No invoke required, execute directly
+                updateUI();
+            }
+
         }
 
         public void UpdateTrainingStatus(string status, string description)
         {
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
+            Action updateUI = () =>
+            {
+                trainingStatusBox.Text = status;
+                descBox.Text = description;
+            };
+            if (trainingStatusBox.InvokeRequired || descBox.InvokeRequired)
+            {
+                // Invoke on the UI thread
+                trainingStatusBox.Invoke(updateUI);
+                descBox.Invoke(updateUI);
+            }
+            else
+            {
+                // No invoke required, execute directly
+                updateUI();
+            }
         }
 
         public void DisplayLogMessage(string logMessage)
@@ -201,11 +259,25 @@ namespace LSC_Trainer.Functions
             rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
 
             // Append the RTF message at the end of the existing RTF text
-            logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+            Action log = () =>
+            {
+                logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
 
-            // Scroll to the end to show the latest log messages
-            logBox.SelectionStart = logBox.Text.Length;
-            logBox.ScrollToCaret();
+                // Scroll to the end to show the latest log messages
+                logBox.SelectionStart = logBox.Text.Length;
+                logBox.ScrollToCaret();
+            };
+            if (logBox.InvokeRequired)
+            {
+                // Invoke on the UI thread
+                logBox.Invoke(log);
+            }
+            else
+            {
+                // No invoke required, execute directly
+                log();
+            }
+            
         }
 
         public string ConvertAnsiToRtf(string ansiText)

@@ -567,10 +567,11 @@ namespace LSC_Trainer
                 //{
                 //    TrainingJobName = trainingJobName
                 //});
+                logPanel.Visible = true;
                 var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
                 bool flag =  await handler.StartTrackingTrainingJob(trainingJobName, custom);
-
+                
                 if (flag)
                 {
                     InputsEnabler(true);
@@ -581,13 +582,20 @@ namespace LSC_Trainer
                     modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                     //timer.Stop();
 
-                    if (HasCustomUploads(CUSTOM_UPLOADS_URI))
+                    if (custom)
                     {
                         DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
                         AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
                     }
-                    return;
                 }
+                else
+                {
+                    InputsEnabler(true);
+                    connectionMenu.Enabled = true;
+                    logPanel.Enabled = true;
+                    Cursor = Cursors.Default;
+                }
+                return;
                 //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
                 //timer.Interval = 1000;
 
