@@ -41,7 +41,7 @@ namespace LSC_Trainer.Functions
             this.logBox = logBox;
         }
 
-        public async Task<bool> StartTrackingTrainingJob(string trainingJobName, bool hasCustomUploads, ref string outputKey, ref string modelKey)
+        public async Task<bool> StartTrackingTrainingJob(string trainingJobName, bool hasCustomUploads)
         {
             try
             {
@@ -59,31 +59,31 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        private void TrackTrainingJob(string trainingJobName, bool hasCustomUploads, System.Windows.Forms.Timer timer)
-        {
-            try
-            {
+        //private void TrackTrainingJob(string trainingJobName, bool hasCustomUploads, System.Windows.Forms.Timer timer)
+        //{
+        //    try
+        //    {
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        return;
+        //    }
+        //}
 
         private System.Timers.Timer InitializeTimer(string trainingJobName, TaskCompletionSource<bool> completionSource)
         {
             // Create a Timer instance with a specified interval (e.g., every 5 secs)
             var timerInterval = 5000;
             var timer = new System.Timers.Timer(timerInterval);
-            timer.Elapsed += async (sender, e) => await CheckTrainingJobStatus(amazonSageMakerClient, trainingJobName);
+            timer.Elapsed += async (sender, e) => await CheckTrainingJobStatus(amazonSageMakerClient, trainingJobName, completionSource);
 
             // The `CheckTrainingJobStatus` method will be called periodically based on the interval
 
             return timer;
         }
-        private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state)
+        private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
             var trainingJobName = (string)state;
 
