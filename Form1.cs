@@ -208,13 +208,12 @@ namespace LSC_Trainer
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder";
-                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
+                folderBrowserDialog.ShowNewFolderButton = false;
 
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     datasetPath = folderBrowserDialog.SelectedPath;
 
-                    // Display the selected folder path (optional)
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
@@ -744,7 +743,6 @@ namespace LSC_Trainer
             trainingDurationBox.Text = trainingDuration;
             trainingStatusBox.Text = status;
             descBox.Text = description;
-            //PrevStatusMessage = status;
         }
         public void UpdateTrainingStatus(string trainingDuration)
         {
@@ -754,7 +752,6 @@ namespace LSC_Trainer
         {
             trainingStatusBox.Text = status;
             descBox.Text = description;
-            //PrevStatusMessage = status;
         }
 
         public void DisplayLogMessage(string logMessage)
