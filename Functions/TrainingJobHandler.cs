@@ -121,7 +121,10 @@ namespace LSC_Trainer.Functions
                 }
                 else if (trainingStatus == TrainingJobStatus.Completed)
                 {
-                    completionSource.SetResult(true);
+                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    {
+                        completionSource.SetResult(true);
+                    }
                 }
                 else if (trainingStatus == TrainingJobStatus.Failed)
                 {
@@ -135,7 +138,7 @@ namespace LSC_Trainer.Functions
                 }
             }
             catch (Exception ex)
-    {
+            {
                 // Handle any exceptions that may occur during the processing
                 completionSource.SetException(ex);
             }
