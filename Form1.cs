@@ -104,7 +104,6 @@ namespace LSC_Trainer
                 UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
                 UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                InitializeClient();
             }
             else if (!development && UserConnectionInfo.AccountId == null && UserConnectionInfo.AccessKey == null && UserConnectionInfo.SecretKey == null && UserConnectionInfo.Region == null && UserConnectionInfo.RoleArn == null)
             {
