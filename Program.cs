@@ -18,7 +18,14 @@ namespace LSC_Trainer
             DotNetEnv.Env.Load();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm(development));
+            if (development)
+            {
+                Application.Run(new MainForm(development));
+            }
+            else
+            {
+                Application.Run(new CreateConnectionForm());
+            }
         }
     }
 }
