@@ -22,7 +22,7 @@ namespace LSC_Trainer.Functions
     {
         private string prevStatusMessage = "";
         private string prevLogMessage = "";
-        private int prevLogIndex = 0;
+        private int nextLogIndex = 0;
         private bool hasCustomUploads = false;
         private string datasetKey = "";
         private string s3Bucket = "";
@@ -176,14 +176,14 @@ namespace LSC_Trainer.Functions
                     });
 
 
-                    if (prevLogMessage != logs.Events.Last().Message)
+                    if (prevLogMessage != logs.Events.Last().Message && logs.Events.Count != 0)
                     {
-                        for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
+                        for (int i = nextLogIndex; i < logs.Events.Count; i++)
                         {
                             DisplayLogMessage(logs.Events[i].Message);
                         }
                         prevLogMessage = logs.Events.Last().Message;
-                        prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
+                        nextLogIndex = logs.Events.IndexOf(logs.Events.Last()) + 1;
                     }
                 }
             }
