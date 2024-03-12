@@ -919,17 +919,15 @@ namespace LSC_Trainer
         {
             this.Enabled = false;
 
-            var createConnectionForm = new CreateConnectionForm(development, this);
+            var createConnectionForm = new CreateConnectionForm(this);
             createConnectionForm.FormClosed += OtherForm_FormClosed;
             createConnectionForm.Show();
-            this.Enabled = false;
-            this.TopLevel = false;
         }
 
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
-            var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
+            var t = new Thread(() => Application.Run(new CreateConnectionForm()));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
             this.Close();
