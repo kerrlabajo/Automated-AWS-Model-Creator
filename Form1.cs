@@ -594,33 +594,6 @@ namespace LSC_Trainer
             t.Start();
         }
 
-        public void DisplayLogMessage(string logMessage)
-        {
-            // Convert the ANSI log message to RTF
-            string rtfMessage = ConvertAnsiToRtf(logMessage);
-
-            // Remove the start and end of the RTF document from the message
-            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
-            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
-
-            // Append the RTF message at the end of the existing RTF text
-            logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
-
-            // Scroll to the end to show the latest log messages
-            logBox.SelectionStart = logBox.Text.Length;
-            logBox.ScrollToCaret();
-        }
-
-        public string ConvertAnsiToRtf(string ansiText)
-        {
-            ansiText = ansiText.Replace("#033[1m", @"\b ");
-            ansiText = ansiText.Replace("#033[0m", @"\b0 ");
-            ansiText = ansiText.Replace("#033[34m", @"\cf1 ");
-            ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
-            ansiText = ansiText.Replace("#015", @"\line ");
-            return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
-        }
-
         private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
         {
             string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
