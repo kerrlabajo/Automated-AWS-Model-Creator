@@ -106,13 +106,13 @@ namespace LSC_Trainer
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 InitializeClient();
             }
-            else
+            else if (!development && UserConnectionInfo.AccountId == null && UserConnectionInfo.AccessKey == null && UserConnectionInfo.SecretKey == null && UserConnectionInfo.Region == null && UserConnectionInfo.RoleArn == null)
             {
-                var createConnectionForm = new CreateConnectionForm(development, this);
-                createConnectionForm.FormClosed += OtherForm_FormClosed;
-                createConnectionForm.Show();
-                this.Enabled = false;
-                this.TopLevel = false;
+                MessageBox.Show("No connection established. Please create a connection.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var t = new Thread(() => Application.Run(new CreateConnectionForm(this)));
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+                this.Close();
                 Console.WriteLine($"Establishing Connection...");
             }
             
@@ -120,6 +120,9 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
+
+            MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            InitializeClient();
         }
 
         public void InitializeClient()
