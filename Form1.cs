@@ -132,7 +132,7 @@ namespace LSC_Trainer
             REGION = UserConnectionInfo.Region;
             ROLE_ARN = UserConnectionInfo.RoleArn;
             ECR_URI = GetECRUri();
-            SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
+            SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket == null ? SAGEMAKER_BUCKET : UserConnectionInfo.SagemakerBucket;
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
