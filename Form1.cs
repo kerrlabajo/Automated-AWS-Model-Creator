@@ -231,16 +231,19 @@ namespace LSC_Trainer
                 folderOrFileName = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {folderOrFileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
+                if (result == DialogResult.Yes) { 
+                    backgroundWorker.RunWorkerAsync();
+                    mainPanel.Enabled = false;
+                    logPanel.Enabled = false;
+                    connectionMenu.Enabled = false;
+                    Cursor = Cursors.WaitCursor;
+                    lscTrainerMenuStrip.Cursor = Cursors.Default;
+                }
 
                 // For testing purposes. Pre-define values.
                 trainingFolder = "train";
                 validationFolder = "val";
-                mainPanel.Enabled = false;
-                logPanel.Enabled = false;
-                connectionMenu.Enabled = false;
-                Cursor = Cursors.WaitCursor;
-                lscTrainerMenuStrip.Cursor = Cursors.Default;
+                
             }
             else
             {
