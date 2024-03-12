@@ -183,12 +183,12 @@ namespace LSC_Trainer
             return AWS_Helper.GetFirstRepositoryUri(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
-        private void btnSelectDataset_Click(object sender, EventArgs e)
+        private void btnSelectZip_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "ZIP Files (*.zip)|*.zip|RAR Files (*.rar)|*.rar";
-                openFileDialog.Title = "Select a Zip or Rar File";
+                openFileDialog.Filter = "ZIP Files (*.zip)|*.zip";
+                openFileDialog.Title = "Select a Zip File";
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -522,8 +522,6 @@ namespace LSC_Trainer
             };
             return trainingRequest;
         }
-
-        //private Dictionary<string, TrainingInfoForm> trainingJobs = new Dictionary<string, TrainingInfoForm>();
 
         private void InputsEnabler(bool intent)
         {
