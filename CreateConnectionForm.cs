@@ -12,14 +12,18 @@ namespace LSC_Trainer
 {
     public partial class CreateConnectionForm : Form
     {
-        private bool development;
         private MainForm mainForm;
 
-        public CreateConnectionForm(bool development, MainForm mainForm)
+        public CreateConnectionForm()
         {
             InitializeComponent();
             btnConnect.Enabled = false;
-            this.development = development;
+        }
+
+        public CreateConnectionForm(MainForm mainForm)
+        {
+            InitializeComponent();
+            btnConnect.Enabled = false;
             this.mainForm = mainForm;
         }
 
@@ -46,9 +50,10 @@ namespace LSC_Trainer
             UserConnectionInfo.RoleArn = roleARN.Text;
 
             MessageBox.Show("Successfully created a connection");
-            mainForm.Enabled = true;
-            mainForm.TopLevel = true;
-            mainForm.InitializeClient();
+            var t = new Thread(() => Application.Run(new MainForm(false)));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            mainForm?.Close();
             this.Close();
         }
 
