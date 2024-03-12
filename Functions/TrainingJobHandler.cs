@@ -2,6 +2,7 @@
 using Amazon.CloudWatchLogs.Model;
 using Amazon.EC2;
 using Amazon.ECR.Model;
+using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System;
@@ -22,9 +23,14 @@ namespace LSC_Trainer.Functions
         private string prevStatusMessage = "";
         private string prevLogMessage = "";
         private int prevLogIndex = 0;
+        private bool hasCustomUploads = false;
+        private string datasetKey = "";
+        private string s3Bucket = "";
+        private bool deleting = false;
 
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
+        private AmazonS3Client s3Client;
 
         private Label instanceTypeBox;
         private Label trainingDurationBox;
@@ -32,10 +38,11 @@ namespace LSC_Trainer.Functions
         private Label descBox;
         private RichTextBox logBox;
 
-        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox)
+        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
             this.cloudWatchLogsClient = cloudWatchLogsClient;
+            this.s3Client = s3Client;
             this.instanceTypeBox = instanceTypeBox;
             this.trainingDurationBox = trainingDurationBox;
             this.trainingStatusBox = trainingStatusBox;
@@ -43,15 +50,22 @@ namespace LSC_Trainer.Functions
             this.logBox = logBox;
         }
 
-        public async Task<bool> StartTrackingTrainingJob(string trainingJobName, bool hasCustomUploads)
+        public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
         {
             try
             {
+                this.datasetKey = datasetKey;
+                this.s3Bucket = s3Bucket;
+                this.hasCustomUploads = hasCustomUploads;
                 var completionSource = new TaskCompletionSource<bool>();
                 var timer = InitializeTimer(trainingJobName, completionSource);
                 timer.Start();
 
-                await completionSource.Task;
+                if(await completionSource.Task)
+                {
+                    timer.Stop();
+                };
+
                 return true;
             }
             catch (Exception ex)
@@ -60,19 +74,6 @@ namespace LSC_Trainer.Functions
                 return false;
             }
         }
-
-        //private void TrackTrainingJob(string trainingJobName, bool hasCustomUploads, System.Windows.Forms.Timer timer)
-        //{
-        //    try
-        //    {
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //        return;
-        //    }
-        //}
 
         private System.Timers.Timer InitializeTimer(string trainingJobName, TaskCompletionSource<bool> completionSource)
         {
@@ -97,15 +98,15 @@ namespace LSC_Trainer.Functions
                 });
                 var trainingStatus = trainingDetails.TrainingJobStatus;
 
+                TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
+                string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+
                 if (trainingStatus == TrainingJobStatus.InProgress)
                 {
                     // Update training duration
-                    TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
-                    string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
-
                     if (trainingDetails.TrainingTimeInSeconds == 0)
                     {
-                        await UpdateTrainingStatus(
+                        UpdateTrainingStatus(
                             trainingDetails.ResourceConfig.InstanceType.ToString(),
                             formattedTime,
                             trainingDetails.SecondaryStatusTransitions.Last().Status,
@@ -121,20 +122,33 @@ namespace LSC_Trainer.Functions
                 }
                 else if (trainingStatus == TrainingJobStatus.Completed)
                 {
+                    UpdateTrainingStatus(
+                            trainingDetails.ResourceConfig.InstanceType.ToString(),
+                            formattedTime,
+                            trainingDetails.SecondaryStatusTransitions.Last().Status,
+                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    );
+
                     if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
                     {
                         completionSource.SetResult(true);
+                        if (hasCustomUploads && !deleting)
+                        {
+                            deleting = true;
+                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
+                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
+                        }
+                        
                     }
                 }
                 else if (trainingStatus == TrainingJobStatus.Failed)
                 {
                     DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
-                    //btnTraining.Enabled = true;
-                    //timer.Stop();
                 }
                 else
                 {
-
+                    DisplayLogMessage($"Training job stopped or in an unknown state.");
                 }
             }
             catch (Exception ex)
@@ -184,7 +198,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public async Task UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
+        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
             Action updateUI = () =>
             {
@@ -252,7 +266,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public void DisplayLogMessage(string logMessage)
+        public static void DisplayLogMessage(string logMessage, RichTextBox logBox)
         {
             // Convert the ANSI log message to RTF
             string rtfMessage = ConvertAnsiToRtf(logMessage);
@@ -280,10 +294,12 @@ namespace LSC_Trainer.Functions
                 // No invoke required, execute directly
                 log();
             }
-            
         }
-
-        public string ConvertAnsiToRtf(string ansiText)
+        public void DisplayLogMessage(string logMessage)
+        {
+            DisplayLogMessage(logMessage, logBox);
+        }
+        public static string ConvertAnsiToRtf(string ansiText)
         {
             ansiText = ansiText.Replace("#033[1m", @"\b ");
             ansiText = ansiText.Replace("#033[0m", @"\b0 ");

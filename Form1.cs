@@ -316,9 +316,9 @@ namespace LSC_Trainer
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                            DisplayLogMessage(outputResponse);
+                            TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
                             string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
-                            DisplayLogMessage(modelResponse);
+                            TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
                         }
                         catch (Exception)
                         {
@@ -562,144 +562,18 @@ namespace LSC_Trainer
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
-                //under ani should be all on a seprate class
-                //DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                //{
-                //    TrainingJobName = trainingJobName
-                //});
                 logPanel.Visible = true;
-                var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
-                bool flag =  await handler.StartTrackingTrainingJob(trainingJobName, custom);
+                bool success =  await handler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
-                if (flag)
-                {
-                    InputsEnabler(true);
-                    connectionMenu.Enabled = true;
-                    logPanel.Enabled = true;
-                    Cursor = Cursors.Default;
+                if (success)
+                { 
                     outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                     modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                    //timer.Stop();
+                }
 
-                    if (custom)
-                    {
-                        DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
-                        AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
-                    }
-                }
-                else
-                {
-                    InputsEnabler(true);
-                    connectionMenu.Enabled = true;
-                    logPanel.Enabled = true;
-                    Cursor = Cursors.Default;
-                }
                 return;
-                //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-                //timer.Interval = 1000;
-
-                //string prevStatusMessage = "";
-                //string prevLogMessage = "";
-                //int prevLogIndex = 0;
-                //// show panel
-                //logPanel.Visible = true;
-
-                //timer.Tick += async (sender1, e1) =>
-                //{
-                //    try
-                //    {
-                //        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                //        {
-                //            TrainingJobName = trainingJobName
-                //        });
-
-                //        // Update training duration goods
-                //        TimeSpan timeSpan = TimeSpan.FromSeconds(tracker.TrainingTimeInSeconds);
-                //        string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
-
-                //        if (tracker.TrainingTimeInSeconds == 0)
-                //        {
-                //            UpdateTrainingStatus(
-                //                tracker.ResourceConfig.InstanceType.ToString(),
-                //                formattedTime,
-                //                tracker.SecondaryStatusTransitions.Last().Status,
-                //                tracker.SecondaryStatusTransitions.Last().StatusMessage
-                //            );
-                //        }
-                //        else
-                //        {
-                //            UpdateTrainingStatus(formattedTime);
-                //        }
-
-                //        // CloudWatch 
-                //        if (tracker.SecondaryStatusTransitions.Last().Status == "Training")
-                //        {
-                //            // Get log stream
-                //            string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
-
-                //            if (!string.IsNullOrEmpty(logStreamName))
-                //            {
-                //                // Print CloudWatch logs
-                //                GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
-                //                {
-                //                    LogGroupName = "/aws/sagemaker/TrainingJobs",
-                //                    LogStreamName = logStreamName
-                //                });
-
-
-                //                if (prevLogMessage != logs.Events.Last().Message)
-                //                {
-                //                    for (int i = prevLogIndex + 1; i < logs.Events.Count; i++)
-                //                    {
-                //                        DisplayLogMessage(logs.Events[i].Message);
-                //                    }
-                //                    prevLogMessage = logs.Events.Last().Message;
-                //                    prevLogIndex = logs.Events.IndexOf(logs.Events.Last());
-                //                }
-                //            }
-                //        }
-                //        // Update training status
-                //        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-                //        {
-                //            UpdateTrainingStatus(
-                //                tracker.SecondaryStatusTransitions.Last().Status,
-                //                tracker.SecondaryStatusTransitions.Last().StatusMessage
-                //            );
-                //            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-                //        }
-
-                //        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
-                //        {
-                //            InputsEnabler(true);
-                //            connectionMenu.Enabled = true;
-                //            logPanel.Enabled = true;
-                //            Cursor = Cursors.Default;
-                //            outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                //            modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                //            timer.Stop();
-
-                //            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
-                //            {
-                //                DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${SAGEMAKER_BUCKET}");
-                //                AWS_Helper.DeleteDataSet(s3Client, SAGEMAKER_BUCKET, datasetKey);
-                //            }
-                //            return;
-                //        }
-                //        else if(tracker.TrainingJobStatus == TrainingJobStatus.Failed)
-                //        {
-                //            DisplayLogMessage($"Training job failed: {tracker.FailureReason}");
-                //            btnTraining.Enabled = true;
-                //            timer.Stop();
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        MessageBox.Show($"Error in training model: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //        return;
-                //    }
-                //};
-                //timer.Start();
             }
             catch (Exception ex)
             {
@@ -707,143 +581,19 @@ namespace LSC_Trainer
                 btnTraining.Enabled = true;
                 return;
             }
-        }
-
-        private System.Windows.Forms.Timer InitializeTimer()
-        {
-            // Create a Timer instance with a specified interval (e.g., every 5 secs)
-            var timerInterval = 5000;
-            //var timer = new Timer(CheckTrainingJobStatus, trainingJobName, TimeSpan.Zero, timerInterval);
-
-            // The `CheckTrainingJobStatus` method will be called periodically based on the interval
-
-            return new System.Windows.Forms.Timer();
-        }
-
-        private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state)
-        {
-            var trainingJobName = (string)state;
-
-            // Retrieve the current status of the training job
-            DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+            finally
             {
-                TrainingJobName = trainingJobName
-            });
-            var trainingStatus = trainingDetails.TrainingJobStatus;
-
-            if (trainingStatus == TrainingJobStatus.InProgress)
-            {
-                // Update training duration
-                TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
-                string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
-
-                if (trainingDetails.TrainingTimeInSeconds == 0)
-                {
-                    UpdateTrainingStatus(
-                        trainingDetails.ResourceConfig.InstanceType.ToString(),
-                        formattedTime,
-                        trainingDetails.SecondaryStatusTransitions.Last().Status,
-                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
-                }
-                else
-                {
-                    UpdateTrainingStatus(formattedTime);
-                }
-                CheckSecondaryStatus(trainingDetails);
-
-            }
-            else if (trainingStatus == TrainingJobStatus.Completed)
-            {
-
-            }
-            else if (trainingStatus == TrainingJobStatus.Failed)
-            {
-
-            }
-            else
-            {
-
+                InputsEnabler(true);
+                connectionMenu.Enabled = true;
+                logPanel.Enabled = true;
+                Cursor = Cursors.Default;
             }
         }
-
-        private void CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails)
-        {
-            //if (trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-            //{
-            //    UpdateTrainingStatus(
-            //        tracker.SecondaryStatusTransitions.Last().Status,
-            //        tracker.SecondaryStatusTransitions.Last().StatusMessage
-            //    );
-            //    prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-            //}
-        }
-        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
-        {
-            var request = new DescribeLogStreamsRequest
-            {
-                LogGroupName = logGroupName,
-                LogStreamNamePrefix = trainingJobName
-            };
-
-            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
-
-            var latestLogStream = response.LogStreams.FirstOrDefault();
-
-            if (latestLogStream != null)
-            {
-                return latestLogStream.LogStreamName;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        // delete this method
-        public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName)
-        {
-            var request = new DescribeLogStreamsRequest
-            {
-                LogGroupName = logGroupName,
-                LogStreamNamePrefix = trainingJobName
-            };
-
-            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
-
-            var latestLogStream = response.LogStreams.FirstOrDefault();
-
-            if (latestLogStream != null)
-            {
-                return latestLogStream.LogStreamName;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         private void newTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
-        }
-
-        public  void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
-        {
-            instanceTypeBox.Text = instanceType;
-            trainingDurationBox.Text = trainingDuration;
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
-        }
-        public void UpdateTrainingStatus(string trainingDuration)
-        {
-            trainingDurationBox.Text = trainingDuration;
-        }
-        public void UpdateTrainingStatus(string status, string description)
-        {
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
         }
 
         public void DisplayLogMessage(string logMessage)
