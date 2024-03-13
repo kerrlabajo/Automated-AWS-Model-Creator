@@ -13,11 +13,13 @@ namespace LSC_Trainer
     public partial class CreateConnectionForm : Form
     {
         private MainForm mainForm;
+        private bool isDefaultConstructorUsed;
 
         public CreateConnectionForm()
         {
             InitializeComponent();
             btnConnect.Enabled = false;
+            isDefaultConstructorUsed = true;
         }
 
         public CreateConnectionForm(MainForm mainForm)
@@ -25,6 +27,7 @@ namespace LSC_Trainer
             InitializeComponent();
             btnConnect.Enabled = false;
             this.mainForm = mainForm;
+            isDefaultConstructorUsed = false;
         }
 
 
