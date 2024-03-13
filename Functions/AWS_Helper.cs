@@ -35,8 +35,6 @@ namespace LSC_Trainer.Functions
             try
             {
                 DateTime startTime = DateTime.Now;
-                //string extension = Path.GetExtension(fileName); //unused
-                //fileName = Path.ChangeExtension(fileName, null); // Remove the existing extension
 
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
@@ -47,8 +45,6 @@ namespace LSC_Trainer.Functions
                         FilePath = filePath,
                         ContentType = GetContentType(fileName)
                     };
-
-                    Dictionary<string, long> fileProgress = new Dictionary<string, long>();
 
                     long currentFileUploaded = 0;
 
@@ -73,8 +69,7 @@ namespace LSC_Trainer.Functions
                                               totalTime.Minutes,
                                               totalTime.Seconds,
                                               (int)(totalTime.Milliseconds / 100));
-                //Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
-                //Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
+
                 return fileName;
             }
             catch (AmazonS3Exception e)
@@ -87,8 +82,51 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
                 return null;
             }
-        }    
+        }
+        public static string UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
+        {
+            try
+            {
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
+                    {
+                        BucketName = bucketName,
+                        Key = fileName,
+                        InputStream = fileStream,
+                        ContentType = GetContentType(fileName)
+                    };
 
+                    long currentFileUploaded = 0;
+
+                    uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                    {
+                        currentFileUploaded = args.TransferredBytes;
+                        if (args.PercentDone == 100)
+                        {
+                            totalUploaded += currentFileUploaded;
+                            int overallPercentage = (int)(totalUploaded * 100 / totalSize);
+                            progress.Report(overallPercentage);
+                        }
+                    });
+
+                    transferUtility.Upload(uploadRequest);
+                }
+
+                    
+                return fileName;
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+        }
         public static async Task UploadFolderToS3(AmazonS3Client s3Client, string folderPath,string folderName,string bucketName, IProgress<int> progress)
         {
             try
@@ -149,31 +187,9 @@ namespace LSC_Trainer.Functions
                                 // Decompress data into the memory stream
                                 await DecompressEntryAsync(zipStream, memoryStream);
 
-                                var uploadRequest = new TransferUtilityUploadRequest
-                                {
-                                    BucketName = bucketName,
-                                    Key = "custom-uploads/" + entry.Name,
-                                    InputStream = memoryStream,
-                                    ContentType = GetContentType(entry.Name)
-                                };
-
-                                Dictionary<string, long> fileProgress = new Dictionary<string, long>();
                                 long totalSize = CalculateTotalSize(localZipFilePath);
-                                long currentFileUploaded = 0;
-
-                                uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
-                                {
-                                    currentFileUploaded = args.TransferredBytes;
-                                    if (args.PercentDone == 100)
-                                    {
-                                        totalUploaded += currentFileUploaded;
-                                        int overallPercentage = (int)(totalUploaded * 100 / totalSize);
-                                        progress.Report(overallPercentage);
-                                    }
-                                });
-
-
-                                await transferUtility.UploadAsync(uploadRequest);
+                                string fileName = "custom-uploads/" + entry.Name;
+                                UploadFileToS3(s3Client, memoryStream, fileName, bucketName, progress, totalSize);
                             }
                         }
 
