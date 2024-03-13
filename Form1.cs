@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Amazon.Runtime.Internal;
 using Amazon.Runtime.Internal.Util;
 using System.Threading;
+using System.Configuration;
 
 namespace LSC_Trainer
 {
@@ -926,6 +927,12 @@ namespace LSC_Trainer
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            if (File.Exists(config.FilePath))
+            {
+                File.Delete(config.FilePath);
+            }
+
             var t = new Thread(() => Application.Run(new CreateConnectionForm()));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
