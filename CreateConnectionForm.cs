@@ -82,6 +82,20 @@ namespace LSC_Trainer
             UserConnectionInfo.SecretKey = secretKeyID.Text;
             UserConnectionInfo.Region = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
             UserConnectionInfo.RoleArn = roleARN.Text;
+            UserConnectionInfo.SetBucketAndURIs();
+
+            var userConnectionInfoProperties = typeof(UserConnectionInfo).GetProperties();
+            var settings = Properties.Settings.Default;
+
+            foreach (var property in userConnectionInfoProperties)
+            {
+                var settingProperty = settings.Properties[property.Name];
+                if (settingProperty != null)
+                {
+                    settings[property.Name] = property.GetValue(UserConnectionInfo.Instance);
+                }
+            }
+            settings.Save();
 
             MessageBox.Show("Successfully created a connection");
             var t = new Thread(() => Application.Run(new MainForm(false)));
