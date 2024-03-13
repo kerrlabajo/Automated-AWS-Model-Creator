@@ -37,7 +37,7 @@ namespace LSC_Trainer
         private string SAGEMAKER_BUCKET;
         private string DEFAULT_DATASET_URI;
         private string CUSTOM_UPLOADS_URI;
-        private readonly string DESTINATION_URI;
+        private string DESTINATION_URI;
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
         private readonly string SAGEMAKER_OUTPUT_DATA_PATH = "/opt/ml/output/data/";
