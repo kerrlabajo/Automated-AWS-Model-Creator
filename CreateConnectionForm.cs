@@ -3,6 +3,7 @@ using Amazon.SageMaker;
 using LSC_Trainer.Functions;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -30,6 +31,36 @@ namespace LSC_Trainer
             isDefaultConstructorUsed = false;
         }
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            if (isDefaultConstructorUsed)
+            {
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+                if (File.Exists(config.FilePath) && new FileInfo(config.FilePath).Length > 0)
+                {
+                    // Load settings from user.config
+                    var userConnectionInfoProperties = typeof(UserConnectionInfo).GetProperties();
+                    var settings = Properties.Settings.Default;
+
+                    foreach (var property in userConnectionInfoProperties)
+                    {
+                        var settingProperty = settings.Properties[property.Name];
+                        if (settingProperty != null)
+                        {
+                            property.SetValue(UserConnectionInfo.Instance, settings[property.Name]);
+                        }
+                    }
+
+                    // Proceed to MainForm
+                    var t = new Thread(() => Application.Run(new MainForm(false)));
+                    t.SetApartmentState(ApartmentState.STA);
+                    t.Start();
+                    this.Close();
+                }
+            }
+        }
 
         private void btnConect_Click(object sender, EventArgs e)
         {
