@@ -95,6 +95,7 @@ namespace LSC_Trainer
                 UserConnectionInfo.SecretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
                 UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
                 UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
+                UserConnectionInfo.EcrUri = Environment.GetEnvironmentVariable("INTELLISYS_ECR_URI");
                 UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
                 UserConnectionInfo.DefaultDatasetURI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
                 UserConnectionInfo.CustomUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
@@ -128,7 +129,7 @@ namespace LSC_Trainer
             SECRET_KEY = UserConnectionInfo.SecretKey;
             REGION = UserConnectionInfo.Region;
             ROLE_ARN = UserConnectionInfo.RoleArn;
-            ECR_URI = GetECRUri();
+            ECR_URI = GetECRUri() ?? UserConnectionInfo.EcrUri;
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
             CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
