@@ -311,24 +311,40 @@ namespace LSC_Trainer.Functions
 
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
         {
-            var request = new DescribeLogStreamsRequest
-            {
-                LogGroupName = logGroupName,
-                LogStreamNamePrefix = trainingJobName
-            };
+            try {
+                var request = new DescribeLogStreamsRequest
+                {
+                    LogGroupName = logGroupName,
+                    LogStreamNamePrefix = trainingJobName
+                };
 
-            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+                var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
 
-            var latestLogStream = response.LogStreams.FirstOrDefault();
+                var latestLogStream = response.LogStreams.FirstOrDefault();
 
-            if (latestLogStream != null)
-            {
-                return latestLogStream.LogStreamName;
+                if (latestLogStream != null)
+                {
+                    return latestLogStream.LogStreamName;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch (Amazon.CloudWatchLogs.Model.ResourceNotFoundException ex)
             {
+                // Log or handle the exception accordingly
+                Console.WriteLine($"Log group '{logGroupName}' does not exist.");
+                DisplayLogMessage($"{Environment.NewLine} The log group '{logGroupName}' is still being created or does not exist anymore.");
+                return null;
+            }catch(Exception ex)
+            {
+                // Log or handle the exception accordingly
+                Console.WriteLine($"Error in getting log stream: {ex.Message}");
+                DisplayLogMessage($"Error in getting log stream: {ex.Message}");
                 return null;
             }
+
         }
     }
 }
