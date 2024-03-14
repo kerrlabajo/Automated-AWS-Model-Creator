@@ -568,11 +568,8 @@ namespace LSC_Trainer
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
                 bool success =  await handler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
-                if (success)
-                { 
-                    outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                    modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                }
+                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
 
                 return;
             }

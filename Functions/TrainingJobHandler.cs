@@ -27,6 +27,7 @@ namespace LSC_Trainer.Functions
         private string datasetKey = "";
         private string s3Bucket = "";
         private bool deleting = false;
+        private int delay = 0;
 
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
@@ -117,8 +118,11 @@ namespace LSC_Trainer.Functions
                     {
                         UpdateTrainingStatus(formattedTime);
                     }
-                    await CheckSecondaryStatus(trainingDetails, trainingJobName);
 
+                    if (trainingDetails.SecondaryStatusTransitions.Any())
+                    {
+                        await CheckSecondaryStatus(trainingDetails, trainingJobName);
+                    }
                 }
                 else if (trainingStatus == TrainingJobStatus.Completed)
                 {
@@ -184,6 +188,15 @@ namespace LSC_Trainer.Functions
                         }
                         prevLogMessage = logs.Events.Last().Message;
                         nextLogIndex = logs.Events.IndexOf(logs.Events.Last()) + 1;
+                    }
+                }
+                else
+                {
+                    delay++;
+                    if (delay == 10 || delay == 0)
+                    {
+                        DisplayLogMessage($"{Environment.NewLine}The log stream for the training job '{trainingJobName}' is still being created or does not exist anymore.");
+                        delay = 0;
                     }
                 }
             }
