@@ -33,10 +33,10 @@ def parse_arguments():
     parser.add_argument('--optimizer', type=str, required=True)
     parser.add_argument('--device', type=str, required=True)
     parser.add_argument('--include', type=str, required=True)
-    parser.add_argument('--nnodes', type=str, required=True)
-    parser.add_argument('--node-rank', type=str, required=True)
-    parser.add_argument('--master-addr', type=str, required=True)
-    parser.add_argument('--master_port', type=str, required=True)
+    # parser.add_argument('--nnodes', type=str, required=True)
+    # parser.add_argument('--node-rank', type=str, required=True)
+    # parser.add_argument('--master-addr', type=str, required=True)
+    # parser.add_argument('--master_port', type=str, required=True)
 
     return parser.parse_args()
 
