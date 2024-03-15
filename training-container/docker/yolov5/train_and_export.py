@@ -79,6 +79,7 @@ def main():
         "--weights", '/opt/ml/output/data/results/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
+    run_script(network_finder_args)
 
     run_script(converter_args) if args.hyp == "Custom" else None
         
