@@ -70,11 +70,11 @@ def main():
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
-    multi_instance_gpu_ddp_args = [
-        "torch.distributed.run", "--nproc_per_node", str(device_count), 
-        "--nnodes", args.nnodes, "--node_rank", args.node_rank, 
-        "--master_addr", args.master_addr, "--master_port", args.master_port
-    ]
+    # multi_instance_gpu_ddp_args = [
+    #     "torch.distributed.run", "--nproc_per_node", str(device_count), 
+    #     "--nnodes", args.nnodes, "--node_rank", args.node_rank, 
+    #     "--master_addr", args.master_addr, "--master_port", args.master_port
+    # ]
     train_args = [
         "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
         "--weights", args.weights, "--data", args.data, 
