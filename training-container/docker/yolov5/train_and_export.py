@@ -33,6 +33,10 @@ def parse_arguments():
     parser.add_argument('--optimizer', type=str, required=True)
     parser.add_argument('--device', type=str, required=True)
     parser.add_argument('--include', type=str, required=True)
+    parser.add_argument('--nnodes', type=str, required=True)
+    parser.add_argument('--node-rank', type=str, required=True)
+    parser.add_argument('--master-addr', type=str, required=True)
+    parser.add_argument('--master_port', type=str, required=True)
 
     return parser.parse_args()
 
@@ -65,6 +69,11 @@ def main():
     ]
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count)
+    ]
+    multi_instance_gpu_ddp_args = [
+        "torch.distributed.run", "--nproc_per_node", str(device_count), 
+        "--nnodes", args.nnodes, "--node_rank", args.node_rank, 
+        "--master_addr", args.master_addr, "--master_port", args.master_port
     ]
     train_args = [
         "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
