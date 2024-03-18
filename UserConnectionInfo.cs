@@ -38,14 +38,5 @@
             RoleArn = null;
             EcrUri = null;
         }
-
-        public static void SetBucketAndURIs()
-        {
-            EcrUri = Properties.Settings.Default.CITU_DevTeam_ECR_URI;
-            SagemakerBucket = $"sagemaker-{Region}-{AccountId}";
-            DefaultDatasetURI = $"s3://{SagemakerBucket}/default-datasets/lsc-inspector-small-dataset/";
-            CustomUploadsURI = $"s3://{SagemakerBucket}/custom-uploads/";
-            DestinationURI = $"s3://{SagemakerBucket}/training-jobs/";
-        }
     }
 }

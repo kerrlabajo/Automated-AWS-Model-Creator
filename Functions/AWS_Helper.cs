@@ -385,7 +385,7 @@ namespace LSC_Trainer.Functions
                 }
                 else
                 {
-                    return null;
+                    throw new Exception("No repositories found");
                 }
             }
         }

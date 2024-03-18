@@ -8,148 +8,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LSC_Trainer.Properties {
-    
-    
+
+namespace LSC_Trainer.Properties
+{
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.8.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
+    {
+
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
-        public static Settings Default {
-            get {
+
+        public static Settings Default
+        {
+            get
+            {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("792483489296.dkr.ecr.ap-southeast-1.amazonaws.com/ubuntu-cuda-supported-yolov5-tr" +
-            "aining")]
-        public string CITU_DevTeam_ECR_URI {
-            get {
-                return ((string)(this["CITU_DevTeam_ECR_URI"]));
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AccountId {
-            get {
-                return ((string)(this["AccountId"]));
-            }
-            set {
-                this["AccountId"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AccessKey {
-            get {
-                return ((string)(this["AccessKey"]));
-            }
-            set {
-                this["AccessKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string SecretKey {
-            get {
-                return ((string)(this["SecretKey"]));
-            }
-            set {
-                this["SecretKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Region {
-            get {
-                return ((string)(this["Region"]));
-            }
-            set {
-                this["Region"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string RoleARN {
-            get {
-                return ((string)(this["RoleARN"]));
-            }
-            set {
-                this["RoleARN"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string SageMakerBucket {
-            get {
-                return ((string)(this["SageMakerBucket"]));
-            }
-            set {
-                this["SageMakerBucket"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DefaultDatasetURI {
-            get {
-                return ((string)(this["DefaultDatasetURI"]));
-            }
-            set {
-                this["DefaultDatasetURI"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string CustomUploadsURI {
-            get {
-                return ((string)(this["CustomUploadsURI"]));
-            }
-            set {
-                this["CustomUploadsURI"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DestinationURI {
-            get {
-                return ((string)(this["DestinationURI"]));
-            }
-            set {
-                this["DestinationURI"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ECRURI {
-            get {
-                return ((string)(this["ECRURI"]));
-            }
-            set {
-                this["ECRURI"] = value;
             }
         }
     }

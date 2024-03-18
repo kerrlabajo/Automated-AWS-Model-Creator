@@ -3,7 +3,6 @@ using Amazon.SageMaker;
 using LSC_Trainer.Functions;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -13,54 +12,17 @@ namespace LSC_Trainer
 {
     public partial class CreateConnectionForm : Form
     {
+        private bool development;
         private MainForm mainForm;
-        private bool isDefaultConstructorUsed;
 
-        public CreateConnectionForm()
+        public CreateConnectionForm(bool development, MainForm mainForm)
         {
             InitializeComponent();
             btnConnect.Enabled = false;
-            isDefaultConstructorUsed = true;
-        }
-
-        public CreateConnectionForm(MainForm mainForm)
-        {
-            InitializeComponent();
-            btnConnect.Enabled = false;
+            this.development = development;
             this.mainForm = mainForm;
-            isDefaultConstructorUsed = false;
         }
 
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-
-            if (isDefaultConstructorUsed)
-            {
-                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
-                if (File.Exists(config.FilePath) && new FileInfo(config.FilePath).Length > 0)
-                {
-                    // Load settings from user.config
-                    var userConnectionInfoProperties = typeof(UserConnectionInfo).GetProperties();
-                    var settings = Properties.Settings.Default;
-
-                    foreach (var property in userConnectionInfoProperties)
-                    {
-                        var settingProperty = settings.Properties[property.Name];
-                        if (settingProperty != null)
-                        {
-                            property.SetValue(UserConnectionInfo.Instance, settings[property.Name]);
-                        }
-                    }
-
-                    // Proceed to MainForm
-                    var t = new Thread(() => Application.Run(new MainForm(false)));
-                    t.SetApartmentState(ApartmentState.STA);
-                    t.Start();
-                    this.Close();
-                }
-            }
-        }
 
         private void btnConect_Click(object sender, EventArgs e)
         {
@@ -82,26 +44,11 @@ namespace LSC_Trainer
             UserConnectionInfo.SecretKey = secretKeyID.Text;
             UserConnectionInfo.Region = GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem));
             UserConnectionInfo.RoleArn = roleARN.Text;
-            UserConnectionInfo.SetBucketAndURIs();
-
-            var userConnectionInfoProperties = typeof(UserConnectionInfo).GetProperties();
-            var settings = Properties.Settings.Default;
-
-            foreach (var property in userConnectionInfoProperties)
-            {
-                var settingProperty = settings.Properties[property.Name];
-                if (settingProperty != null)
-                {
-                    settings[property.Name] = property.GetValue(UserConnectionInfo.Instance);
-                }
-            }
-            settings.Save();
 
             MessageBox.Show("Successfully created a connection");
-            var t = new Thread(() => Application.Run(new MainForm(false)));
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-            mainForm?.Close();
+            mainForm.Enabled = true;
+            mainForm.TopLevel = true;
+            mainForm.InitializeClient();
             this.Close();
         }
 

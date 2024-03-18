@@ -14,18 +14,15 @@ namespace LSC_Trainer
         [STAThread]
         static void Main()
         {
-            bool development = false;
+            // Keep this as true for development.
+            // There is still a problem when running the application in production wherein
+            // two forms will be loaded and some of the auto role checker are persisting due to
+            // adding `mainForms` as a parameter in the constructor of the forms.
+            bool development = true;
             DotNetEnv.Env.Load();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (development)
-            {
-                Application.Run(new MainForm(development));
-            }
-            else
-            {
-                Application.Run(new CreateConnectionForm());
-            }
+            Application.Run(new MainForm(development));
         }
     }
 }
