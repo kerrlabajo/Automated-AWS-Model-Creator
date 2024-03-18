@@ -239,16 +239,18 @@ namespace LSC_Trainer
                 folderOrFileName = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {folderOrFileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
-
-                // For testing purposes. Pre-define values.
-                trainingFolder = "train";
-                validationFolder = "val";
-                mainPanel.Enabled = false;
-                logPanel.Enabled = false;
-                connectionMenu.Enabled = false;
-                Cursor = Cursors.WaitCursor;
-                lscTrainerMenuStrip.Cursor = Cursors.Default;
+                if (result == DialogResult.Yes)
+                {
+                    backgroundWorker.RunWorkerAsync();
+                    // For testing purposes. Pre-define values.
+                    trainingFolder = "train";
+                    validationFolder = "val";
+                    mainPanel.Enabled = false;
+                    logPanel.Enabled = false;
+                    connectionMenu.Enabled = false;
+                    Cursor = Cursors.WaitCursor;
+                    lscTrainerMenuStrip.Cursor = Cursors.Default;
+                }
             }
             else
             {
@@ -697,22 +699,31 @@ namespace LSC_Trainer
 
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
         {
-            var request = new DescribeLogStreamsRequest
+            try
             {
-                LogGroupName = logGroupName,
-                LogStreamNamePrefix = trainingJobName
-            };
+                var request = new DescribeLogStreamsRequest
+                {
+                    LogGroupName = logGroupName,
+                    LogStreamNamePrefix = trainingJobName
+                };
 
-            var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
+                var response = await amazonCloudWatchLogsClient.DescribeLogStreamsAsync(request);
 
-            var latestLogStream = response.LogStreams.FirstOrDefault();
+                var latestLogStream = response.LogStreams.FirstOrDefault();
 
-            if (latestLogStream != null)
-            {
-                return latestLogStream.LogStreamName;
+                if (latestLogStream != null)
+                {
+                    return latestLogStream.LogStreamName;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch (Amazon.CloudWatchLogs.Model.ResourceNotFoundException ex)
             {
+                // Log or handle the exception accordingly
+                DisplayLogMessage($"{Environment.NewLine} The log group '{logGroupName}' is still being created. Please wait.");
                 return null;
             }
         }
