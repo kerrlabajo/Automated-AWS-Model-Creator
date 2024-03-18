@@ -99,6 +99,7 @@ namespace LSC_Trainer
                 UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
                 UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
                 UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+                UserConnectionInfo.EcrUri= Environment.GetEnvironmentVariable("ECR_URI");
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 InitializeClient();
             }
@@ -125,7 +126,7 @@ namespace LSC_Trainer
             SECRET_KEY = UserConnectionInfo.SecretKey;
             REGION = UserConnectionInfo.Region;
             ROLE_ARN = UserConnectionInfo.RoleArn;
-            ECR_URI = GetECRUri();
+            ECR_URI = GetECRUri() ?? UserConnectionInfo.EcrUri;
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);

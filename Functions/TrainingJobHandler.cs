@@ -158,7 +158,7 @@ namespace LSC_Trainer.Functions
             catch (Exception ex)
             {
                 // Handle any exceptions that may occur during the processing
-                completionSource.SetException(ex);
+                MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -195,8 +195,8 @@ namespace LSC_Trainer.Functions
                     delay++;
                     if (delay == 10 || delay == 0)
                     {
-                        DisplayLogMessage($"{Environment.NewLine}The log stream for the training job '{trainingJobName}' is still being created or does not exist anymore.");
-                        delay = 0;
+                        DisplayLogMessage($"{Environment.NewLine}Creating log stream for the training job.");
+                        delay = 1;
                     }
                 }
             }
@@ -357,7 +357,6 @@ namespace LSC_Trainer.Functions
                 DisplayLogMessage($"Error in getting log stream: {ex.Message}");
                 return null;
             }
-
         }
     }
 }
