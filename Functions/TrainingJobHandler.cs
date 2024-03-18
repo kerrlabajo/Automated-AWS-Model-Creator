@@ -165,7 +165,7 @@ namespace LSC_Trainer.Functions
         private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
         {
             //CloudWatch
-            if (trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
+            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
             {
                 // Get log stream
                 string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
@@ -180,7 +180,7 @@ namespace LSC_Trainer.Functions
                     });
 
 
-                    if (prevLogMessage != logs.Events.Last().Message && logs.Events.Count != 0)
+                    if (logs.Events.Any() && prevLogMessage != logs.Events.Last().Message)
                     {
                         for (int i = nextLogIndex; i < logs.Events.Count; i++)
                         {
@@ -201,7 +201,7 @@ namespace LSC_Trainer.Functions
                 }
             }
             // Update training status
-            if (trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
+            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
             {
                 UpdateTrainingStatus(
                     trainingDetails.SecondaryStatusTransitions.Last().Status,
