@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using Amazon.Runtime.Internal;
 using Amazon.Runtime.Internal.Util;
 using System.Threading;
-using System.Timers;
+using System.Configuration;
 
 namespace LSC_Trainer
 {
@@ -38,7 +38,7 @@ namespace LSC_Trainer
         private string SAGEMAKER_BUCKET;
         private string DEFAULT_DATASET_URI;
         private string CUSTOM_UPLOADS_URI;
-        private readonly string DESTINATION_URI;
+        private string DESTINATION_URI;
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
         private readonly string SAGEMAKER_OUTPUT_DATA_PATH = "/opt/ml/output/data/";
@@ -80,14 +80,6 @@ namespace LSC_Trainer
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
-            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-            DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-            CUSTOM_UPLOADS_URI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
-            DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
-            REGION = Environment.GetEnvironmentVariable("DEFAULT_REGION");
-            ROLE_ARN = Environment.GetEnvironmentVariable("DEFAULT_ROLE_ARN");
-            InitializeInputs();
-
             if (development)
             {
                 string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
@@ -98,18 +90,20 @@ namespace LSC_Trainer
                 UserConnectionInfo.SecretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
                 UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
                 UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
+                UserConnectionInfo.EcrUri = Environment.GetEnvironmentVariable("INTELLISYS_ECR_URI");
                 UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-                UserConnectionInfo.EcrUri= Environment.GetEnvironmentVariable("ECR_URI");
+                UserConnectionInfo.DefaultDatasetURI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
+                UserConnectionInfo.CustomUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+                UserConnectionInfo.DestinationURI = Environment.GetEnvironmentVariable("DESTINATION_URI");
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                InitializeClient();
             }
-            else
+            else if (!development && UserConnectionInfo.AccountId == null && UserConnectionInfo.AccessKey == null && UserConnectionInfo.SecretKey == null && UserConnectionInfo.Region == null && UserConnectionInfo.RoleArn == null)
             {
-                var createConnectionForm = new CreateConnectionForm(development, this);
-                createConnectionForm.FormClosed += OtherForm_FormClosed;
-                createConnectionForm.Show();
-                this.Enabled = false;
-                this.TopLevel = false;
+                MessageBox.Show("No connection established. Please create a connection.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var t = new Thread(() => Application.Run(new CreateConnectionForm(this)));
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+                this.Close();
                 Console.WriteLine($"Establishing Connection...");
             }
             
@@ -117,6 +111,10 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
+
+            MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            InitializeClient();
+            InitializeInputs();
         }
 
         public void InitializeClient()
@@ -128,6 +126,9 @@ namespace LSC_Trainer
             ROLE_ARN = UserConnectionInfo.RoleArn;
             ECR_URI = GetECRUri() ?? UserConnectionInfo.EcrUri;
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
+            DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
+            CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
+            DESTINATION_URI = UserConnectionInfo.DestinationURI;
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
@@ -232,19 +233,18 @@ namespace LSC_Trainer
                 folderOrFileName = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {folderOrFileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes) { 
+                if (result == DialogResult.Yes)
+                {
                     backgroundWorker.RunWorkerAsync();
+                    // For testing purposes. Pre-define values.
+                    trainingFolder = "train";
+                    validationFolder = "val";
                     mainPanel.Enabled = false;
                     logPanel.Enabled = false;
                     connectionMenu.Enabled = false;
                     Cursor = Cursors.WaitCursor;
                     lscTrainerMenuStrip.Cursor = Cursors.Default;
                 }
-
-                // For testing purposes. Pre-define values.
-                trainingFolder = "train";
-                validationFolder = "val";
-                
             }
             else
             {
@@ -722,17 +722,21 @@ namespace LSC_Trainer
         {
             this.Enabled = false;
 
-            var createConnectionForm = new CreateConnectionForm(development, this);
+            var createConnectionForm = new CreateConnectionForm(this);
             createConnectionForm.FormClosed += OtherForm_FormClosed;
             createConnectionForm.Show();
-            this.Enabled = false;
-            this.TopLevel = false;
         }
 
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
-            var t = new Thread(() => Application.Run(new CreateConnectionForm(development, this)));
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            if (File.Exists(config.FilePath))
+            {
+                File.Delete(config.FilePath);
+            }
+
+            var t = new Thread(() => Application.Run(new CreateConnectionForm()));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
             this.Close();
