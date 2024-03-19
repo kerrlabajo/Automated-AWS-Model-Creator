@@ -61,9 +61,6 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     
-    network_finder_args = [
-        "yolov5/network_finder.py",
-    ]
     converter_args = [
         "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
@@ -85,10 +82,9 @@ def main():
     ]
     export_args = [
         "yolov5/export.py", "--img-size", args.img_size, 
-        "--weights", '/opt/ml/output/data/results/weights/best.pt', 
+        "--weights", args.project + args.name + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
-    run_script(network_finder_args)
 
     run_script(converter_args) if args.hyp == "Custom" else None
         
