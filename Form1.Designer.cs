@@ -243,7 +243,9 @@ namespace LSC_Trainer
             "ml.g4dn.4xlarge",
             "ml.g4dn.8xlarge",
             "ml.g4dn.12xlarge",
-            "ml.p3.2xlarge"});
+            "ml.p3.2xlarge",
+            "ml.p3.8xlarge",
+            "ml.p3.16xlarge"});
             this.instancesDropdown.Location = new System.Drawing.Point(479, 257);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
