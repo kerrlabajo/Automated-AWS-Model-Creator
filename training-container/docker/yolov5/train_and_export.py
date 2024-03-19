@@ -53,6 +53,7 @@ def get_latest_folder(base_folder):
     `str`: The latest folder name.
     """
     all_dirs = next(os.walk('/opt/ml/output/data/'))[1]
+    print(all_dirs)
 
     matching_dirs = [d for d in all_dirs if d.startswith(base_folder)]
     # print all matching dirs
