@@ -110,7 +110,7 @@ def main():
     ]
     export_args = [
         "yolov5/export.py", "--img-size", args.img_size, 
-        "--weights", args.project + args.name + '/weights/best.pt', 
+        "--weights", args.project + get_latest_folder(args.name) + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
 
