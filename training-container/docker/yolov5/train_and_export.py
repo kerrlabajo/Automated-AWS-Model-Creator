@@ -57,11 +57,13 @@ def get_latest_folder(base_folder):
     matching_dirs = [d for d in all_dirs if d.startswith(base_folder)]
 
     if not matching_dirs:
+        print("No matching directories found.")
         return base_folder
 
     numbers = [int(re.search(r'\d+$', d).group()) for d in matching_dirs if re.search(r'\d+$', d)]
 
     if not numbers:
+        print("No numbers found in matching directories.")
         return base_folder
 
     highest_number = max(numbers)
