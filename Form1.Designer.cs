@@ -163,7 +163,7 @@ namespace LSC_Trainer
             this.btnSelectDataset.TabIndex = 11;
             this.btnSelectDataset.Text = "Select Dataset (.zip)";
             this.btnSelectDataset.UseVisualStyleBackColor = false;
-            this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectDataset_Click);
+            this.btnSelectDataset.Click += new System.EventHandler(this.btnSelectZip_Click);
             // 
             // lblZipFile
             // 

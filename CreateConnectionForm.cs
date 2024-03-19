@@ -62,7 +62,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void btnConect_Click(object sender, EventArgs e)
+        private void btnConnect_Click(object sender, EventArgs e)
         {
 
             bool allTextBoxesFilled = !string.IsNullOrWhiteSpace(accountID.Text) &&
