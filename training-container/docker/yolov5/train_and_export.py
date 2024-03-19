@@ -55,6 +55,8 @@ def get_latest_folder(base_folder):
     all_dirs = next(os.walk('/opt/ml/output/data/'))[1]
 
     matching_dirs = [d for d in all_dirs if d.startswith(base_folder)]
+    # print all matching dirs
+    print(matching_dirs)
 
     if not matching_dirs:
         print("No matching directories found.")
