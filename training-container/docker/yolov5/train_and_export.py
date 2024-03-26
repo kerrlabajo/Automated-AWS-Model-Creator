@@ -1,6 +1,14 @@
 import shutil
 import subprocess
 import argparse
+import json
+
+def get_node_rank():
+    with open('/opt/ml/input/config/resourceconfig.json') as f:
+        data = json.load(f)
+    current_host = data['current_host']
+    node_rank = int(current_host.split('-')[1]) - 1
+    return node_rank
 
 def run_script(args, use_module=False):
     """
@@ -59,6 +67,9 @@ def main():
     """
     args = parse_arguments()
     device_count = len(args.device.split(','))
+    node_rank = get_node_rank()
+    master_addr = "algo-1"
+    master_port = "1234"
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -69,11 +80,11 @@ def main():
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
-    # multi_instance_gpu_ddp_args = [
-    #     "torch.distributed.run", "--nproc_per_node", str(device_count), 
-    #     "--nnodes", args.nnodes, "--node_rank", args.node_rank, 
-    #     "--master_addr", args.master_addr, "--master_port", args.master_port
-    # ]
+    multi_instance_gpu_ddp_args = [
+        "torch.distributed.run", "--nproc_per_node", str(device_count), 
+        "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
+        "--master_addr", master_addr, "--master_port", master_port
+    ]
     train_args = [
         "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
         "--weights", args.weights, "--data", args.data, 
@@ -92,6 +103,9 @@ def main():
     
     run_script(converter_args) if args.hyp == "Custom" else None
         
+    if int(args.nnodes) > 1:
+        run_script(multi_instance_gpu_ddp_args + train_args, use_module=True)
+          
     if device_count > 1:
         run_script(multi_gpu_ddp_args + train_args, use_module=True)
     else:
