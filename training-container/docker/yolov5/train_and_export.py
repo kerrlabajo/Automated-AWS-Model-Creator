@@ -33,7 +33,7 @@ def parse_arguments():
     parser.add_argument('--optimizer', type=str, required=True)
     parser.add_argument('--device', type=str, required=True)
     parser.add_argument('--include', type=str, required=True)
-    # parser.add_argument('--nnodes', type=str, required=True)
+    parser.add_argument('--nnodes', type=str, required=True)
     # parser.add_argument('--node-rank', type=str, required=True)
     # parser.add_argument('--master-addr', type=str, required=True)
     # parser.add_argument('--master_port', type=str, required=True)
@@ -50,8 +50,7 @@ def main():
     >>> python3 yolov5/train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt 
     >>> --data /opt/ml/input/data/train/data.yaml --hyp hyp.scratch-low.yaml 
     >>> --project "/opt/ml/output/data/" --name "results" 
-    >>> --patience 100 --workers 8 --optimizer SGD --device 0 
-    >>> --img-size 640 --weights /opt/ml/output/data/results/weights/best.pt --include onnx --device 0
+    >>> --patience 100 --workers 8 --optimizer SGD --device 0 --include onnx --nnodes 1
     
     The 25th args is the start of the `export.py` args.
 
