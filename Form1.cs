@@ -113,7 +113,7 @@ namespace LSC_Trainer
             InitializeInputs();
         }
         /// <summary>
-        /// Initializes the Amazon SageMaker, Amazon S3, and Amazon CloudWatch Logs clients with UserConnectionInfo.
+        /// Initializes the User Credentials, necessary URIs, region, Amazon SageMaker, Amazon S3, and Amazon CloudWatch Logs clients with UserConnectionInfo.
         /// </summary>
         public void InitializeClient()
         {
@@ -433,11 +433,29 @@ namespace LSC_Trainer
             Cursor = Cursors.Default;
         }
 
+        /// <summary>
+        /// Event handler to select all text when a control receives the click event.
+        /// </summary>
+        /// <param name="sender">The control that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void SelectAllTextOnClick(object sender, EventArgs e)
         {
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
 
+        /// <summary>
+        /// Sets the training parameters based on the text properties of UI controls.
+        /// </summary>
+        /// <param name="img_size">Output parameter to store the image size.</param>
+        /// <param name="batch_size">Output parameter to store the batch size.</param>
+        /// <param name="epochs">Output parameter to store the number of epochs.</param>
+        /// <param name="weights">Output parameter to store the weights.</param>
+        /// <param name="data">Output parameter to store the data.</param>
+        /// <param name="hyperparameters">Output parameter to store the hyperparameters.</param>
+        /// <param name="patience">Output parameter to store the patience.</param>
+        /// <param name="workers">Output parameter to store the number of workers.</param>
+        /// <param name="optimizer">Output parameter to store the optimizer.</param>
+        /// <param name="device">Output parameter to store the device.</param>
         private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
         {
             img_size = "";
@@ -472,6 +490,13 @@ namespace LSC_Trainer
             if (txtDevice.Text != "") device = txtDevice.Text;
         }
 
+        /// <summary>
+        /// Checks if the provided custom uploads URI corresponds to a directory named "custom-uploads".
+        /// </summary>
+        /// <param name="customUploadsURI">The URI of the custom uploads directory.</param>
+        /// <returns>True if the custom uploads URI does not correspond 
+        /// to a directory named "custom-uploads", otherwise false.
+        /// </returns>
         private static bool HasCustomUploads(string customUploadsURI)
         {
             string customUploadsDirectory = Path.GetFileName(Path.GetDirectoryName(customUploadsURI));
@@ -482,6 +507,20 @@ namespace LSC_Trainer
             return true;
         }
 
+        /// <summary>
+        /// Creates a CreateTrainingJobRequest for starting a training job with the specified parameters.
+        /// </summary>
+        /// <param name="img_size">The size of the images.</param>
+        /// <param name="batch_size">The batch size for training.</param>
+        /// <param name="epochs">The number of epochs for training.</param>
+        /// <param name="weights">The weights for initialization.</param>
+        /// <param name="data">The data used for training.</param>
+        /// <param name="hyperparameters">The hyperparameters for training.</param>
+        /// <param name="patience">The patience parameter for training.</param>
+        /// <param name="workers">The number of workers used for training.</param>
+        /// <param name="optimizer">The optimizer used for training.</param>
+        /// <param name="device">The device used for training.</param>
+        /// <returns>A CreateTrainingJobRequest for starting a training job.</returns>
         private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
@@ -580,6 +619,10 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
+        /// <summary>
+        /// Enables or disables various input controls based on the provided intent.
+        /// </summary>
+        /// <param name="intent">True to enable the input controls, false to disable them.</param>
         private void InputsEnabler(bool intent)
         {
             imgSizeDropdown.Enabled = intent;
@@ -603,6 +646,11 @@ namespace LSC_Trainer
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
         }
+        /// <summary>
+        /// Initiates a training job using the provided training request and tracks it using the CloudWatch Logs client.
+        /// </summary>
+        /// <param name="trainingRequest">The request object for starting the training job.</param>
+        /// <param name="cloudWatchLogsClient">The CloudWatch Logs client used for logging.</param>
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             InputsEnabler(false);
@@ -641,6 +689,12 @@ namespace LSC_Trainer
                 Cursor = Cursors.Default;
             }
         }
+
+        /// <summary>
+        /// Event handler for the click event of the menu item "New Training Job" to create a new training job form.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void newTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm(development)));
@@ -648,6 +702,13 @@ namespace LSC_Trainer
             t.Start();
         }
 
+        /// <summary>
+        /// Event handler for the selection change committed event of the image size dropdown.
+        /// Sets the weights text box to the weight file based on the selected image size, or default value if weight file 
+        /// is null.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
         {
             string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
@@ -664,6 +725,13 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the SelectedValueChanged event of the hyperparameters dropdown.
+        /// Opens the custom hyperparameters form if the selected item is "Custom". 
+        /// Otherwise, sets the text of the dropdown to the selected item.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void hyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
             if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
@@ -681,6 +749,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the click event of the Help menu item.
+        /// Opens the help form to display information about the application.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void helpMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
@@ -690,12 +764,22 @@ namespace LSC_Trainer
             helpForm.FormClosed += OtherForm_FormClosed;
             helpForm.Show();
         }
-
+        /// <summary>
+        /// Event handler for the FormClosed event of another form.
+        /// Re-enables the main form when the other form is closed.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.Enabled = true;
         }
-
+        /// <summary>
+        /// Event handler for the click event of the Test Connection menu item.
+        /// Lists the models in the Amazon SageMaker service to test the connection.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void testConnnectionMenu_Click(object sender, EventArgs e)
         {
             try
@@ -710,7 +794,12 @@ namespace LSC_Trainer
                 MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        /// <summary>
+        /// Event handler for the click event of the Fetch Output button.
+        /// Fetches the output list from the Amazon S3 bucket and populates the output list combo box with the list of models.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void btnFetchOutput_Click(object sender, EventArgs e)
         {
             mainPanel.Enabled = false;
@@ -745,7 +834,12 @@ namespace LSC_Trainer
                 outputListComboBox.Enabled = true;
             }
         }
-
+        /// <summary>
+        /// Event handler for the SelectedValueChanged event of the model list combo box.
+        /// Sets the output key and model key based on the selected model, and enables the download model button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
             if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
@@ -757,6 +851,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the click event of the Test Connection menu item.
+        /// Tests the connection to the Amazon SageMaker service by listing the models in the service.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void testConnectionMenu_Click(object sender, EventArgs e)
         {
             try
@@ -770,7 +870,12 @@ namespace LSC_Trainer
                 MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        /// <summary>
+        /// Event handler for the click event of the Create Connection menu item.
+        /// Creates a new connection form to establish a new connection to the Amazon SageMaker service.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void createConnectionMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
@@ -780,6 +885,12 @@ namespace LSC_Trainer
             createConnectionForm.Show();
         }
 
+        /// <summary>
+        /// Event handler for the click event of the Close Connection menu item.
+        /// Logs out the user and resets the connection information, then opens the create connection form to establish a new connection.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void closeConnectionMenu_Click(object sender, EventArgs e)
         {
             UserConnectionInfo.Instance.Reset();
@@ -795,6 +906,12 @@ namespace LSC_Trainer
             this.Close();
         }
 
+        /// <summary>
+        /// Event handler for the SelectedValueChanged event of the instancesDropdown control.
+        /// Updates the selectedInstance variable and enables/disables the btnTraining button accordingly.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
             if (instancesDropdown.GetItemText(instancesDropdown.SelectedItem) != null)
