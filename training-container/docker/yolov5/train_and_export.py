@@ -60,6 +60,9 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     
+    resource_config_args = [
+        "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
+    ]
     converter_args = [
         "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
@@ -84,6 +87,8 @@ def main():
         "--weights", args.project + args.name + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
+    
+    run_script(resource_config_args)
     
     run_script(converter_args) if args.hyp == "Custom" else None
         
