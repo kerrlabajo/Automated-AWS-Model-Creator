@@ -89,8 +89,6 @@ def main():
         "--include", args.include, "--device", args.device
     ]
     
-    run_script(local_ip_address_getter_args)
-    
     run_script(converter_args) if args.hyp == "Custom" else None
         
     if device_count > 1:
