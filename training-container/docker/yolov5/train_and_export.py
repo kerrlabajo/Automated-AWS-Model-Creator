@@ -115,11 +115,11 @@ def main():
         "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
         "--project", args.project, "--name", args.name, 
         "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer, 
-        "--device", args.device, "--cache"
+        "--device", args.device, "--cache", "--exist-ok"
     ]
     export_args = [
         "yolov5/export.py", "--img-size", args.img_size, 
-        "--weights", args.project + get_latest_folder(args.project, args.name) + '/weights/best.pt', 
+        "--weights", args.project + args.name + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
 
