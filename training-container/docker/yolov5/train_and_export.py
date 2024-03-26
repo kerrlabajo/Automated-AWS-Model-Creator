@@ -60,10 +60,6 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     
-    local_ip_address_getter_args = [
-        "yolov5/local_ip_address_getter.py"
-    ]
-    
     converter_args = [
         "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
