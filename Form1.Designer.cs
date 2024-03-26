@@ -40,6 +40,8 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.txtInstanceCount = new System.Windows.Forms.TextBox();
+            this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
             this.hyperparametersLabel = new System.Windows.Forms.Label();
             this.descBox = new System.Windows.Forms.Label();
@@ -184,6 +186,8 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.txtInstanceCount);
+            this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
             this.mainPanel.Controls.Add(this.hyperparametersLabel);
             this.mainPanel.Controls.Add(this.descBox);
@@ -231,6 +235,23 @@ namespace LSC_Trainer
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(1140, 344);
             this.mainPanel.TabIndex = 4;
+            // 
+            // txtInstanceCount
+            // 
+            this.txtInstanceCount.Location = new System.Drawing.Point(427, 222);
+            this.txtInstanceCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtInstanceCount.Name = "txtInstanceCount";
+            this.txtInstanceCount.Size = new System.Drawing.Size(145, 22);
+            this.txtInstanceCount.TabIndex = 51;
+            // 
+            // instanceCountLabel
+            // 
+            this.instanceCountLabel.AutoSize = true;
+            this.instanceCountLabel.Location = new System.Drawing.Point(292, 222);
+            this.instanceCountLabel.Name = "instanceCountLabel";
+            this.instanceCountLabel.Size = new System.Drawing.Size(97, 16);
+            this.instanceCountLabel.TabIndex = 52;
+            this.instanceCountLabel.Text = "Instance Count:";
             // 
             // instancesDropdown
             // 
@@ -764,6 +785,8 @@ namespace LSC_Trainer
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
         private System.Windows.Forms.ComboBox instancesDropdown;
+        private System.Windows.Forms.TextBox txtInstanceCount;
+        private System.Windows.Forms.Label instanceCountLabel;
     }
 }
 
