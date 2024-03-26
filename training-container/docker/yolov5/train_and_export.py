@@ -54,6 +54,10 @@ def get_latest_folder(parent_folder, base_folder):
     `str`: The latest folder name.
     """
     all_dirs = next(os.walk(parent_folder))[1]
+    print(all_dirs)
+    
+    dir_list = os.listdir(parent_folder)
+    print(dir_list)
 
     matching_dirs = [d for d in all_dirs if re.match(f'{base_folder}\d+', d)]
 
