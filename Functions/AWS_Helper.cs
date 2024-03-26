@@ -389,6 +389,15 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Retrieves the URI of the first repository in Amazon Elastic Container Registry (ECR).
+        /// </summary>
+        /// <param name="accessKey">The access key used for authentication.</param>
+        /// <param name="secretKey">The secret key used for authentication.</param>
+        /// <param name="region">The AWS region to connect to.</param>
+        /// <returns>
+        /// The URI of the first repository in ECR if available; otherwise, returns null.
+        /// </returns>
         public static string GetFirstRepositoryUri(string accessKey, string secretKey, RegionEndpoint region)
         {
             using (var ecrClient = new AmazonECRClient(accessKey, secretKey, region))
