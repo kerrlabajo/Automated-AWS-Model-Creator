@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import argparse
 import json
+import os
 
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -70,6 +71,7 @@ def main():
     node_rank = get_node_rank()
     master_addr = "algo-1"
     master_port = "1234"
+    os.environ["NCCL_DEBUG"] = "INFO"
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
