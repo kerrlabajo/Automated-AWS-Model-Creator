@@ -42,37 +42,31 @@ def parse_arguments():
 
     return parser.parse_args()
 
-def get_latest_folder(base_folder):
+def get_latest_folder(parent_folder, base_folder):
     """
     Get the latest folder that starts with the base_folder name.
 
     Parameters:
+    `parent_folder` (str): The parent folder of the base folder.
     `base_folder` (str): The base folder name.
 
     Returns:
     `str`: The latest folder name.
     """
-    all_dirs = next(os.walk('/opt/ml/output/data/'))[1]
-    print(all_dirs)
+    all_dirs = next(os.walk(parent_folder))[1]
 
-    matching_dirs = [d for d in all_dirs if d.startswith(base_folder)]
-    # print all matching dirs
-    print(matching_dirs)
+    matching_dirs = [d for d in all_dirs if re.match(f'{base_folder}\d+', d)]
 
     if not matching_dirs:
         print("No matching directories found.")
         return base_folder
 
-    numbers = [int(re.search(r'\d+$', d).group()) for d in matching_dirs if re.search(r'\d+$', d)]
-
-    if not numbers:
-        print("No numbers found in matching directories.")
-        return base_folder
+    numbers = [int(re.search(r'\d+$', d).group()) for d in matching_dirs]
 
     highest_number = max(numbers)
 
-    return base_folder + str(highest_number)
-
+    return base_folder + str(highest_number + 1)
+    
 def main():
     """
     Main function to run `train.py` and `export.py` scripts with command line arguments.
@@ -115,7 +109,7 @@ def main():
     ]
     export_args = [
         "yolov5/export.py", "--img-size", args.img_size, 
-        "--weights", args.project + get_latest_folder(args.name) + '/weights/best.pt', 
+        "--weights", args.project + get_latest_folder(args.project, args.name) + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
 
