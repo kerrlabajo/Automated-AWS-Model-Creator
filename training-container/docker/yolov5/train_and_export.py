@@ -1,8 +1,6 @@
 import shutil
 import subprocess
 import argparse
-import os
-import re
 
 def run_script(args, use_module=False):
     """
@@ -41,41 +39,6 @@ def parse_arguments():
     # parser.add_argument('--master_port', type=str, required=True)
 
     return parser.parse_args()
-
-def get_latest_folder(parent_folder, base_folder):
-    """
-    Get the latest folder that starts with the base_folder name.
-
-    Parameters:
-    `parent_folder` (str): The parent folder of the base folder.
-    `base_folder` (str): The base folder name.
-
-    Returns:
-    `str`: The latest folder name.
-    """
-    if not os.path.exists(parent_folder):
-        print("Parent folder does not exist.")
-    
-    if not os.path.exists(parent_folder + base_folder + '/'):
-        print("Base folder does not exist.")
-    
-    all_dirs = next(os.walk(parent_folder))[1]
-    print(all_dirs)
-    
-    dir_list = os.listdir(parent_folder)
-    print(dir_list)
-
-    matching_dirs = [d for d in all_dirs if re.match(f'{base_folder}\d+', d)]
-
-    if not matching_dirs:
-        print("No matching directories found.")
-        return base_folder
-
-    numbers = [int(re.search(r'\d+$', d).group()) for d in matching_dirs]
-
-    highest_number = max(numbers)
-
-    return base_folder + str(highest_number + 1)
     
 def main():
     """
