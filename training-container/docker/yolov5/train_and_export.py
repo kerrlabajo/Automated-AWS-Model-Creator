@@ -53,6 +53,12 @@ def get_latest_folder(parent_folder, base_folder):
     Returns:
     `str`: The latest folder name.
     """
+    if not os.path.exists(parent_folder):
+        print("Parent folder does not exist.")
+    
+    if not os.path.exists(parent_folder + base_folder):
+        print("Base folder does not exist.")
+    
     all_dirs = next(os.walk(parent_folder))[1]
     print(all_dirs)
     
