@@ -562,7 +562,7 @@ namespace LSC_Trainer
         {
             InputsEnabler(false);
             connectionMenu.Enabled = false;
-            logPanel.Enabled = false;
+            logPanel.Enabled = true;
             Cursor = Cursors.WaitCursor;
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             this.Text = trainingJobName;
