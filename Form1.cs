@@ -61,14 +61,10 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        //TODO: 1. Refactor all variables, methods, and classes to use the same naming convention.
-        //TODO: 2. Refactor repetitive code to use methods.
-        //TODO: 3. Refactor to use async/await for all methods that are not async.
-        //TODO: 4. Refactor to transfer methods in their respective classes/libraries.
-        //TODO: 5. Clean up code.
-        //TODO: 6. The app should still work after refactoring.
-        //TODO: 7. The order of function/method calls should not change after refactoring.
-
+        /// <summary>
+        /// Initializes the MainForm, UserConnectionInfo, and Form Controls.
+        /// </summary>
+        /// <param name="development">A boolean indicating whether the application is running in development mode.</param>
         public MainForm(bool development)
         {
             InitializeComponent();
@@ -116,7 +112,9 @@ namespace LSC_Trainer
             InitializeClient();
             InitializeInputs();
         }
-
+        /// <summary>
+        /// Initializes the Amazon SageMaker, Amazon S3, and Amazon CloudWatch Logs clients with UserConnectionInfo.
+        /// </summary>
         public void InitializeClient()
         {
             ACCOUNT_ID = UserConnectionInfo.AccountId;
@@ -145,6 +143,9 @@ namespace LSC_Trainer
             Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
         }
 
+        /// <summary>
+        /// Initializes the input fields with default values based on the default dataset URI.
+        /// </summary>
         public void InitializeInputs()
         {
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
@@ -180,11 +181,21 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Retrieves the URI of the first repository in Amazon Elastic Container Registry (ECR).
+        /// </summary>
+        /// <returns>The URI of the first repository in ECR, or null if no repositories are found.</returns>
         public string GetECRUri()
         {
             return AWS_Helper.GetFirstRepositoryUri(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
+        /// <summary>
+        /// Event handler for the Click event of the "Select Dataset (Zip)" button.
+        /// Opens a file dialog to allow the user to select a ZIP file.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void btnSelectZip_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -206,6 +217,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the Click event of the "Select Dataset (Folder)" button.
+        /// Opens a folder browser dialog to allow the user to select a folder.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void btnSelectFolder_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
@@ -226,6 +243,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the Click event of the "Upload Dataset" button.
+        /// Uploads the selected dataset to an Amazon S3 bucket if available.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void btnUploadToS3_Click(object sender, EventArgs e)
         {
             if(datasetPath != null)
@@ -252,6 +275,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the Click event of the "Train" button.
+        /// Clears log box and sets training parameters before initiating a training job.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void btnTraining_Click(object sender, EventArgs e)
         {
             logBox.Clear();
@@ -295,6 +324,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the Click event of the "Download Model" button.
+        /// Downloads the trained model and results from Amazon S3 to a selected local folder.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
@@ -342,6 +377,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the DoWork event of the background worker.
+        /// Performs background work, such as uploading files or folders to Amazon S3 and progress tracking.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">An instance of DoWorkEventArgs containing event data.</param>
         private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             if (isFile)
@@ -362,6 +403,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the ProgressChanged event of the background worker.
+        /// Updates the progress bar value based on the reported progress percentage.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">An instance of ProgressChangedEventArgs containing event data.</param>
         private void backgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             if (e.ProgressPercentage >= progressBar.Minimum && e.ProgressPercentage <= progressBar.Maximum)
@@ -370,6 +417,12 @@ namespace LSC_Trainer
             }
         }
 
+        /// <summary>
+        /// Event handler for the RunWorkerCompleted event of the background worker.
+        /// Displays a message indicating that the upload has completed, and resets UI elements.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">An instance of RunWorkerCompletedEventArgs containing event data.</param>
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
             MessageBox.Show("Upload completed!");
