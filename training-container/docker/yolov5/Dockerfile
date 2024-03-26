@@ -3,6 +3,7 @@ FROM ubuntu-cuda
 RUN git clone https://github.com/ultralytics/yolov5
 ENV PATH="/yolov5:${PATH}"
 ENV TMPDIR='/var/tmp'
+ENV NCCL_DEBUG=INFO
 
 RUN pip3 install -r /yolov5/requirements.txt --no-cache-dir && \
     pip3 install 'onnx>=1.12.0' --no-cache-dir && \
