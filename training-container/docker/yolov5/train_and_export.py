@@ -75,6 +75,7 @@ def main():
     master_port = "1234"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["MASTER_ADDR"] = master_addr
+    os.environ["MASTER_PORT"] = master_port
     dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes))
     
     resource_config_args = [
