@@ -3,7 +3,6 @@ import subprocess
 import argparse
 import json
 import os
-import socket
 import torch.distributed as dist
 
 def get_node_rank():
@@ -76,12 +75,7 @@ def main():
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
-    os.environ["RANK"] = str(node_rank)
-    os.environ["WORLD_SIZE"] = str(device_count) * int(args.nnodes)
-    os.environ["MASTER_ADDR"] = master_addr
-    os.environ["MASTER_PORT"] = master_port
-    dist.init_process_group(backend="nccl")
-    socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count)
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
