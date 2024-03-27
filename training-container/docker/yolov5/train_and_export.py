@@ -83,8 +83,8 @@ def main():
     os.environ["MASTER_ADDR"] = local_addr
     os.environ["MASTER_PORT"] = master_port
     print("Local IP address:", local_addr)
-    
-    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count)
+    init_method = f"tcp://{local_addr}:{master_port}"
+    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
