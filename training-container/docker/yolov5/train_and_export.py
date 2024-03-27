@@ -74,6 +74,7 @@ def main():
     master_addr = "algo-1"
     master_port = "1234"
     os.environ["NCCL_DEBUG"] = "INFO"
+    os.environ["MASTER_ADDR"] = master_addr
     dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes))
     
     resource_config_args = [
