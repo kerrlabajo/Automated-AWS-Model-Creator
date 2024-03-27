@@ -74,9 +74,8 @@ def main():
     master_addr = "algo-1"
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
-    os.environ["MASTER_ADDR"] = master_addr
-    os.environ["MASTER_PORT"] = master_port
-    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes))
+    os.environ["NCCL_SOCKET_IFNAME"] = "torchnet"
+    os.environ["NCCL_IB_DISABLE"] = "1"
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
