@@ -78,6 +78,8 @@ def main():
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
     os.environ["RANK"] = str(node_rank)
     os.environ["WORLD_SIZE"] = str(device_count) * int(args.nnodes)
+    os.environ["MASTER_ADDR"] = master_addr
+    os.environ["MASTER_PORT"] = master_port
     dist.init_process_group(backend="nccl")
     socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
