@@ -1,6 +1,10 @@
 import shutil
 import subprocess
 import argparse
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def run_script(args, use_module=False):
     """
@@ -54,40 +58,45 @@ def main():
     Returns:
     None
     """
-    args = parse_arguments()
-    device_count = len(args.device.split(','))
+    try:
+      args = parse_arguments()
+      device_count = len(args.device.split(','))
+      
+      converter_args = [
+          "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
+      ]
+      multi_gpu_ddp_args = [
+          "torch.distributed.run", "--nproc_per_node", str(device_count)
+      ]
+      train_args = [
+          "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
+          "--weights", args.weights, "--data", args.data, 
+          "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
+          "--project", args.project, "--name", args.name, 
+          "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer, 
+          "--device", args.device, "--cache"
+      ]
+      export_args = [
+          "yolov5/export.py", "--img-size", args.img_size, 
+          "--weights", '/opt/ml/output/data/results/weights/best.pt', 
+          "--include", args.include, "--device", args.device
+      ]
+
+      run_script(converter_args) if args.hyp == "Custom" else None
+          
+      if device_count > 1:
+          run_script(multi_gpu_ddp_args + train_args, use_module=True)
+      else:
+          run_script(train_args)
+          
+      run_script(export_args)
+
+      # Copy the best.onnx file to the /opt/ml/model/ directory
+      shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
     
-    converter_args = [
-        "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
-    ]
-    multi_gpu_ddp_args = [
-        "torch.distributed.run", "--nproc_per_node", str(device_count)
-    ]
-    train_args = [
-        "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
-        "--weights", args.weights, "--data", args.data, 
-        "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
-        "--project", args.project, "--name", args.name, 
-        "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer, 
-        "--device", args.device, "--cache"
-    ]
-    export_args = [
-        "yolov5/export.py", "--img-size", args.img_size, 
-        "--weights", '/opt/ml/output/data/results/weights/best.pt', 
-        "--include", args.include, "--device", args.device
-    ]
-
-    run_script(converter_args) if args.hyp == "Custom" else None
-        
-    if device_count > 1:
-        run_script(multi_gpu_ddp_args + train_args, use_module=True)
-    else:
-        run_script(train_args)
-        
-    run_script(export_args)
-
-    # Copy the best.onnx file to the /opt/ml/model/ directory
-    shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
+    except Exception as e:
+      logging.error(f"Failed to complete the training and exporting process: {e}")
+      exit(1)
 
 if __name__ == "__main__":
     main()
