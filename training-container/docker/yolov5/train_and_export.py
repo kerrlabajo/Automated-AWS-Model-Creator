@@ -77,6 +77,7 @@ def main():
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
     os.environ["RANK"] = str(node_rank)
+    os.environ["WORLD_SIZE"] = str(device_count) * int(args.nnodes)
     dist.init_process_group(backend="nccl")
     socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
