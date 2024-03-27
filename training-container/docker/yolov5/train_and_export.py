@@ -72,7 +72,7 @@ def main():
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
     master_addr = "algo-1"
-    master_port = "1234"
+    master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["MASTER_ADDR"] = master_addr
     os.environ["MASTER_PORT"] = master_port
@@ -88,7 +88,7 @@ def main():
         "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
     multi_instance_gpu_ddp_args = [
-        "torch.distributed.launch", "--nproc_per_node", str(device_count), 
+        "torch.distributed.run", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
         "--master_addr", master_addr, "--master_port", master_port
     ]
