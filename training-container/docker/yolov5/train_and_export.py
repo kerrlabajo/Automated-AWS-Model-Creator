@@ -3,6 +3,7 @@ import subprocess
 import argparse
 import json
 import os
+import torch.distributed as dist
 
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -73,6 +74,7 @@ def main():
     master_addr = "algo-1"
     master_port = "1234"
     os.environ["NCCL_DEBUG"] = "INFO"
+    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes))
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -84,7 +86,7 @@ def main():
         "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
     multi_instance_gpu_ddp_args = [
-        "torch.distributed.run", "--nproc_per_node", str(device_count), 
+        "torch.distributed.launch", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
         "--master_addr", master_addr, "--master_port", master_port
     ]
