@@ -82,6 +82,7 @@ def main():
     # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     os.environ["MASTER_ADDR"] = master_addr
     os.environ["MASTER_PORT"] = master_port
+    os.environ["LOCAL_RANK"] = str(node_rank)
     print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
     # init_method = f"tcp://{master_addr}:{master_port}"
