@@ -77,8 +77,8 @@ def main():
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    local_addr = s.getsockname()[0]
     s.connect(("8.8.8.8", 80))
+    local_addr = s.getsockname()[0]
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     os.environ["MASTER_ADDR"] = local_addr
     os.environ["MASTER_PORT"] = master_port
