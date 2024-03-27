@@ -74,7 +74,6 @@ def main():
     master_addr = "algo-1"
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
-    os.environ["NCCL_SOCKET_IFNAME"] = "torchnet"
     os.environ["NCCL_IB_DISABLE"] = "1"
     
     resource_config_args = [
