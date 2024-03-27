@@ -3,7 +3,6 @@ import subprocess
 import argparse
 import json
 import os
-import socket
 
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -70,10 +69,9 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
-    master_addr = "algo-1"
+    master_addr = os.environ["HOSTNAME"]
     master_port = "1234"
     os.environ["NCCL_DEBUG"] = "INFO"
-    IPAddr = socket.gethostbyname(socket.gethostname())
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -87,7 +85,7 @@ def main():
     multi_instance_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
-        "--master_addr", IPAddr, "--master_port", master_port
+        "--master_addr", master_addr, "--master_port", master_port
     ]
     train_args = [
         "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
