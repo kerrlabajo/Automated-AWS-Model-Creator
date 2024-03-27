@@ -69,7 +69,7 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
-    master_addr = os.environ["HOSTNAME"]
+    master_addr = "algo-1"
     master_port = "1234"
     os.environ["NCCL_DEBUG"] = "INFO"
     
