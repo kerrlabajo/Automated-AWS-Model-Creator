@@ -8,7 +8,8 @@ def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
     current_host = data['current_host']
-    node_rank = int(current_host.split('-')[1]) - 1
+    hosts = data['hosts']
+    node_rank = hosts.index(current_host)
     return node_rank
 
 def run_script(args, use_module=False):
