@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import torch.distributed as dist
+import socket
 
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -75,8 +76,14 @@ def main():
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
-    os.environ["MASTER_ADDR"] = master_addr
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    local_addr = s.getsockname()[0]
+    s.connect(("8.8.8.8", 80))
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    os.environ["MASTER_ADDR"] = local_addr
     os.environ["MASTER_PORT"] = master_port
+    print("Local IP address:", local_addr)
+    
     dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count)
     
     resource_config_args = [
@@ -91,7 +98,7 @@ def main():
     multi_instance_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
-        "--master_addr", master_addr, "--master_port", master_port
+        "--master_addr", local_addr, "--master_port", master_port
     ]
     train_args = [
         "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
@@ -123,6 +130,7 @@ def main():
         run_script(train_args)
         
     run_script(export_args)
+    s.close()
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
