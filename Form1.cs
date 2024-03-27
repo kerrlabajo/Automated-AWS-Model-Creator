@@ -276,7 +276,7 @@ namespace LSC_Trainer
                     out string instanceCount);
 
             string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv8-3-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv8-4-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
