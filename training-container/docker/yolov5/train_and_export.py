@@ -72,7 +72,7 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
-    master_addr = "algo-1"
+    master_addr = socket.gethostbyname('algo-1')
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
@@ -80,10 +80,11 @@ def main():
     s.connect(("8.8.8.8", 80))
     local_addr = s.getsockname()[0]
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    os.environ["MASTER_ADDR"] = local_addr
+    os.environ["MASTER_ADDR"] = master_addr
     os.environ["MASTER_PORT"] = master_port
+    print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
-    init_method = f"tcp://{local_addr}:{master_port}"
+    init_method = f"tcp://{master_addr}:{master_port}"
     dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
     
     resource_config_args = [
