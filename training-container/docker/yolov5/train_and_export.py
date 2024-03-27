@@ -75,8 +75,7 @@ def main():
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
-    init_method = f'tcp://{master_addr}:{master_port}'
-    dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes))
+    dist.init_process_group(backend="nccl")
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
