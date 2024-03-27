@@ -76,16 +76,16 @@ def main():
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    local_addr = s.getsockname()[0]
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect(("8.8.8.8", 80))
+    local_addr = socket.gethostbyname('algo-' + str(node_rank + 1))
+    # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     os.environ["MASTER_ADDR"] = master_addr
     os.environ["MASTER_PORT"] = master_port
     print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
-    init_method = f"tcp://{master_addr}:{master_port}"
-    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
+    # init_method = f"tcp://{master_addr}:{master_port}"
+    # dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
