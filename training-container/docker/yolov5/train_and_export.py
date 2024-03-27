@@ -3,6 +3,7 @@ import subprocess
 import argparse
 import json
 import os
+import socket
 import torch.distributed as dist
 
 def get_node_rank():
@@ -76,6 +77,7 @@ def main():
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
     dist.init_process_group(backend="nccl")
+    socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
