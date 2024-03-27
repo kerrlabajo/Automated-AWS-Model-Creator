@@ -108,6 +108,9 @@ def main():
     
     run_script(resource_config_args)
     
+    gpu_info = subprocess.check_output('nvidia-smi', shell=True).decode('utf-8')
+    print(gpu_info)
+    
     run_script(converter_args) if args.hyp == "Custom" else None
         
     if int(args.nnodes) > 1:
