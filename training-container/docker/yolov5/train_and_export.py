@@ -76,6 +76,7 @@ def main():
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
+    os.environ["RANK"] = str(node_rank)
     dist.init_process_group(backend="nccl")
     socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     
