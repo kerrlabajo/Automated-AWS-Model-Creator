@@ -80,8 +80,8 @@ def main():
     master_host = 'algo-1'
     master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
-    init_method = f"tcp://{master_addr}:{master_port}"
-    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method, timeout=datetime.timedelta(seconds=10))
+    # init_method = f"tcp://{master_addr}:{master_port}"
+    dist.init_process_group(backend='nccl')
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
