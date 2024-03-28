@@ -44,7 +44,7 @@ namespace LSC_Trainer.Functions
         private RichTextBox logBox;
 
         /// <summary>
-        /// Initializes a new instance of the TrainingJobHandler class with the specified Amazon SageMaker client, Amazon CloudWatch Logs client, Amazon S3 client, and UI elements for displaying training job information.
+        /// Initializes a new instance of the <see cref="TrainingJobHandler"/> class with the specified Amazon SageMaker client, Amazon CloudWatch Logs client, Amazon S3 client, and UI elements for displaying training job information.
         /// </summary>
         /// <param name="amazonSageMakerClient">The Amazon SageMaker client to interact with SageMaker services.</param>
         /// <param name="cloudWatchLogsClient">The Amazon CloudWatch Logs client to interact with CloudWatch Logs.</param>
