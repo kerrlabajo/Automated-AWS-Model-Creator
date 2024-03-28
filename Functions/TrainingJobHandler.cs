@@ -18,6 +18,10 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LSC_Trainer.Functions
 {
+    /// <summary>
+    /// Handles training job-related operations such as monitoring status, logging, and interacting with AWS services. Also responsible for
+    /// updating the UI elements with the training job status and logs.
+    /// </summary>
     internal class TrainingJobHandler
     {
         private string prevStatusMessage = "";
@@ -39,6 +43,17 @@ namespace LSC_Trainer.Functions
         private Label descBox;
         private RichTextBox logBox;
 
+        /// <summary>
+        /// Initializes a new instance of the TrainingJobHandler class with the specified Amazon SageMaker client, Amazon CloudWatch Logs client, Amazon S3 client, and UI elements for displaying training job information.
+        /// </summary>
+        /// <param name="amazonSageMakerClient">The Amazon SageMaker client to interact with SageMaker services.</param>
+        /// <param name="cloudWatchLogsClient">The Amazon CloudWatch Logs client to interact with CloudWatch Logs.</param>
+        /// <param name="s3Client">The Amazon S3 client to interact with S3 services.</param>
+        /// <param name="instanceTypeBox">The label control to display the instance type of the training job.</param>
+        /// <param name="trainingDurationBox">The label control to display the duration of the training job.</param>
+        /// <param name="trainingStatusBox">The label control to display the status of the training job.</param>
+        /// <param name="descBox">The label control to display the description of the training job.</param>
+        /// <param name="logBox">The RichTextBox control to display logs related to the training job.</param>
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
@@ -51,6 +66,17 @@ namespace LSC_Trainer.Functions
             this.logBox = logBox;
         }
 
+        /// <summary>
+        /// Initiates tracking of the specified training job, updating UI elements with its progress and status.
+        /// </summary>
+        /// <param name="trainingJobName">The name of the training job to track.</param>
+        /// <param name="datasetKey">The key of the dataset associated with the training job.</param>
+        /// <param name="s3Bucket">The name of the S3 bucket containing the training job data.</param>
+        /// <param name="hasCustomUploads">A boolean indicating whether the training job uses custom uploads.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result indicates whether the tracking of the training job was successful.
+        /// </returns>
+        /// <exception cref="Exception">Thrown when an error occurs during the tracking of the training job.</exception>
         public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
         {
             try
@@ -76,6 +102,12 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Initializes a timer to periodically check the status of the specified training job.
+        /// </summary>
+        /// <param name="trainingJobName">The name of the training job to monitor.</param>
+        /// <param name="completionSource">The TaskCompletionSource used to signal completion of the tracking operation.</param>
+        /// <returns>The initialized System.Timers.Timer instance.</returns>
         private System.Timers.Timer InitializeTimer(string trainingJobName, TaskCompletionSource<bool> completionSource)
         {
             // Create a Timer instance with a specified interval (e.g., every 5 secs)
@@ -87,6 +119,15 @@ namespace LSC_Trainer.Functions
 
             return timer;
         }
+
+        /// <summary>
+        /// Asynchronously checks the status of a training job and updates the UI accordingly.
+        /// </summary>
+        /// <param name="amazonSageMakerClient">The Amazon SageMaker client used to interact with training jobs.</param>
+        /// <param name="state">The state object containing the training job name.</param>
+        /// <param name="completionSource">The TaskCompletionSource used to signal completion of the tracking operation.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs during the tracking of the training job.</exception>
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
             try {
@@ -162,6 +203,12 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Asynchronously checks the secondary status of a training job and updates the UI with status messages.
+        /// This function is also responsible for logging the training job progress using CloudWatch logs.
+        /// </summary>
+        /// <param name="trainingDetails">The response containing details of the training job.</param>
+        /// <param name="trainingJobName">The name of the training job.</param>
         private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
         {
             //CloudWatch
@@ -211,6 +258,13 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Updates the training status label with the provided instance type, training duration, status, and description.
+        /// </summary>
+        /// <param name="instanceType">The instance type used for training.</param>
+        /// <param name="trainingDuration">The duration of the training.</param>
+        /// <param name="status">The status of the training job.</param>
+        /// <param name="description">A description of the training job status.</param>
         public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
             Action updateUI = () =>
@@ -238,6 +292,10 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Updates the training duration label with the provided training duration value.
+        /// </summary>
+        /// <param name="trainingDuration">The duration of the training.</param>
         public void UpdateTrainingStatus(string trainingDuration)
         {
             Action updateUI = () =>
@@ -256,9 +314,13 @@ namespace LSC_Trainer.Functions
                 // No invoke required, execute directly
                 updateUI();
             }
-
         }
 
+        /// <summary>
+        /// Updates the training status and description labels with the provided values.
+        /// </summary>
+        /// <param name="status">The status of the training.</param>
+        /// <param name="description">The description of the training.</param>
         public void UpdateTrainingStatus(string status, string description)
         {
             Action updateUI = () =>
@@ -279,6 +341,11 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Displays the provided log message in the specified RichTextBox control.
+        /// </summary>
+        /// <param name="logMessage">The log message to be displayed.</param>
+        /// <param name="logBox">The RichTextBox control where the log message will be displayed.</param>
         public static void DisplayLogMessage(string logMessage, RichTextBox logBox)
         {
             // Convert the ANSI log message to RTF
@@ -308,10 +375,20 @@ namespace LSC_Trainer.Functions
                 log();
             }
         }
+        /// <summary>
+        /// Displays the provided log message in the associated RichTextBox control.
+        /// </summary>
+        /// <param name="logMessage">The log message to be displayed.</param>
         public void DisplayLogMessage(string logMessage)
         {
             DisplayLogMessage(logMessage, logBox);
         }
+
+        /// <summary>
+        /// Converts ANSI formatted text to RTF format for a more readable display in a RichTextBox control.
+        /// </summary>
+        /// <param name="ansiText">The ANSI formatted text to be converted.</param>
+        /// <returns>The RTF formatted string.</returns>
         public static string ConvertAnsiToRtf(string ansiText)
         {
             ansiText = ansiText.Replace("#033[1m", @"\b ");
@@ -322,6 +399,15 @@ namespace LSC_Trainer.Functions
             return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
         }
 
+        /// <summary>
+        /// Retrieves the latest log stream associated with a given log group and training job name.
+        /// </summary>
+        /// <param name="amazonCloudWatchLogsClient">The Amazon CloudWatch Logs client instance.</param>
+        /// <param name="logGroupName">The name of the log group.</param>
+        /// <param name="trainingJobName">The name of the training job.</param>
+        /// <returns>The name of the latest log stream, or null if not found.</returns>
+        /// <exception cref="Amazon.CloudWatchLogs.Model.ResourceNotFoundException"> Thrown when the log group does not exist.</exception>
+        /// <exception cref="Exception">Thrown when an error occurs while retrieving the log stream.</exception>
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
         {
             try {
