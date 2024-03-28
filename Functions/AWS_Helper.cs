@@ -398,14 +398,15 @@ namespace LSC_Trainer.Functions
                 if (response.Repositories.Count > 0)
                 {
                     var firstRepo = response.Repositories[0];
-                    var imageResponse = ecrClient.ListImages(new ListImagesRequest
+                    var imageResponse = ecrClient.DescribeImages(new DescribeImagesRequest
                     {
-                        RepositoryName = firstRepo.RepositoryName
+                        RepositoryName = firstRepo.RepositoryName,
+                        ImageIds = new List<ImageIdentifier> { new ImageIdentifier { ImageTag = "latest" } }
                     });
 
-                    if (imageResponse.ImageIds.Count > 0)
+                    if (imageResponse.ImageDetails.Count > 0)
                     {
-                        return (firstRepo.RepositoryUri, imageResponse.ImageIds[0].ImageTag);
+                        return (firstRepo.RepositoryUri, imageResponse.ImageDetails[0].ImageTags[0]);
                     }
                 }
 
