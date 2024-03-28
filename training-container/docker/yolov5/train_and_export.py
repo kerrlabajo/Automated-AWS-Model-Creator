@@ -81,7 +81,7 @@ def main():
     master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
     init_method = f"tcp://0.0.0.0:{master_port}"
-    dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count)
+    dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count, timeout=datetime.timedelta(seconds=10))
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
