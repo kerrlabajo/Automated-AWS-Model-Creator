@@ -72,21 +72,24 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
+    local_addr = socket.gethostbyname('algo-' + str(node_rank + 1))
+    socket.close()
+    
     master_addr = socket.gethostbyname('algo-1')
     master_port = "12355"
     os.environ["NCCL_DEBUG"] = "INFO"
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
+    
     # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     # s.connect(("8.8.8.8", 80))
-    local_addr = socket.gethostbyname('algo-' + str(node_rank + 1))
     # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     os.environ["MASTER_ADDR"] = master_addr
     os.environ["MASTER_PORT"] = master_port
     os.environ["LOCAL_RANK"] = str(node_rank)
     print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
-    # init_method = f"tcp://{master_addr}:{master_port}"
-    # dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
+    init_method = f"tcp://{master_addr}:{master_port}"
+    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -129,7 +132,7 @@ def main():
         run_script(train_args)
         
     run_script(export_args)
-    s.close()
+    socket.close()
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
