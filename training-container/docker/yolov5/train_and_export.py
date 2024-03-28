@@ -83,6 +83,7 @@ def main():
     os.environ['MASTER_ADDR'] = master_addr
     os.environ['MASTER_PORT'] = master_port
     os.environ['RANK'] = str(node_rank)
+    os.environ['WORLD_SIZE'] = args.nnodes * device_count
     # init_method = f"tcp://{master_addr}:{master_port}"
     dist.init_process_group(backend='nccl')
     
