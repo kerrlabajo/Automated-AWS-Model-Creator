@@ -6,6 +6,10 @@ import os
 import torch.distributed as dist
 import socket
 
+def print_network_connections():
+    netstat_output = subprocess.check_output('netstat -tuln', shell=True).decode('utf-8')
+    print(netstat_output)
+    
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
@@ -110,6 +114,8 @@ def main():
     
     print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
+    
+    print_network_connections()
     
     run_script(resource_config_args)
     
