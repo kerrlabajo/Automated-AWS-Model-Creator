@@ -116,7 +116,7 @@ def main():
     
     # Ping the master address
     print("Pinging master address...")
-    subprocess.run(["ping", "-c", "4", master_addr], check=True)
+    subprocess.run(["/bin/ping", "-c", "4", master_addr], check=True)
     
     run_script(resource_config_args)
     
