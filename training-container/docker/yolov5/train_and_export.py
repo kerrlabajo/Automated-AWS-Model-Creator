@@ -74,16 +74,19 @@ def main():
     args = parse_arguments()
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
-    local_addr = socket.gethostbyname('algo-' + str(node_rank + 1))
-    master_addr = socket.gethostbyname('algo-1')
+    current_host = 'algo-' + str(node_rank + 1)
+    local_addr = socket.gethostbyname(current_host)
+    master_host = 'algo-1'
+    master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
     # init_method = f"tcp://{master_addr}:{master_port}"
     os.environ['MASTER_ADDR'] = master_addr
     os.environ['MASTER_PORT'] = master_port
     os.environ['LOCAL_RANK'] = str(node_rank)
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect((master_addr, int(master_port)))
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    if current_host == master_host:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect((master_addr, int(master_port)))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count)
     
     resource_config_args = [
