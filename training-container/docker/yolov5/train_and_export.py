@@ -78,6 +78,10 @@ def main():
     master_addr = socket.gethostbyname('algo-1')
     master_port = "12355"
     init_method = f"tcp://{master_addr}:{master_port}"
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind((master_addr, int(master_port)))
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.close()
     dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
     
     resource_config_args = [
