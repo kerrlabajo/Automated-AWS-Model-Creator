@@ -19,6 +19,9 @@ using System.Configuration;
 
 namespace LSC_Trainer
 {
+    /// <summary>
+    /// Represents the main form of the application. Also the Training Job form.
+    /// </summary>
     public partial class MainForm : Form
     {
 
@@ -330,6 +333,7 @@ namespace LSC_Trainer
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
+        /// <exception cref="Exception"> Thrown when an error occurs while downloading the model.</exception>
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
             //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
@@ -651,6 +655,7 @@ namespace LSC_Trainer
         /// </summary>
         /// <param name="trainingRequest">The request object for starting the training job.</param>
         /// <param name="cloudWatchLogsClient">The CloudWatch Logs client used for logging.</param>
+        /// <exception cref="Exception">Thrown when an error occurs while initiating the training job.</exception>
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
             InputsEnabler(false);
@@ -780,6 +785,7 @@ namespace LSC_Trainer
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
+        /// <exception cref="Exception">Thrown when an error occurs while testing the connection.</exception>
         private void testConnnectionMenu_Click(object sender, EventArgs e)
         {
             try
@@ -800,6 +806,7 @@ namespace LSC_Trainer
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
+        /// <exception cref="Exception">Thrown when an error occurs while fetching the output list.</exception>
         private async void btnFetchOutput_Click(object sender, EventArgs e)
         {
             mainPanel.Enabled = false;
@@ -857,6 +864,7 @@ namespace LSC_Trainer
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
+        /// <exception cref="Exception">Thrown when an error occurs while testing the connection.</exception>
         private void testConnectionMenu_Click(object sender, EventArgs e)
         {
             try
