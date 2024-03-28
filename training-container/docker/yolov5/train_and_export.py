@@ -80,14 +80,14 @@ def main():
     master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
     # init_method = f"tcp://{master_addr}:{master_port}"
-    os.environ['MASTER_ADDR'] = master_addr
-    os.environ['MASTER_PORT'] = master_port
-    os.environ['LOCAL_RANK'] = str(node_rank)
-    if current_host == master_host:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect((master_addr, int(master_port)))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count)
+    # os.environ['MASTER_ADDR'] = master_addr
+    # os.environ['MASTER_PORT'] = master_port
+    # os.environ['LOCAL_RANK'] = str(node_rank)
+    # if current_host == master_host:
+    #     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #     s.connect((master_addr, int(master_port)))
+    #     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count)
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -133,7 +133,6 @@ def main():
         run_script(train_args)
         
     run_script(export_args)
-    s.close()
 
     # Copy the best.onnx file to the /opt/ml/model/ directory
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
