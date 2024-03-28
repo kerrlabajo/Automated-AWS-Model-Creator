@@ -114,6 +114,10 @@ def main():
     print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
     
+    # Ping the master address
+    print("Pinging master address...")
+    subprocess.run(["ping", "-c", "4", master_addr], check=True)
+    
     run_script(resource_config_args)
     
     run_script(converter_args) if args.hyp == "Custom" else None
