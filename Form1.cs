@@ -35,6 +35,7 @@ namespace LSC_Trainer
         private string ROLE_ARN;
 
         private string ECR_URI;
+        private string IMAGE_TAG;
         private string SAGEMAKER_BUCKET;
         private string DEFAULT_DATASET_URI;
         private string CUSTOM_UPLOADS_URI;
@@ -124,7 +125,9 @@ namespace LSC_Trainer
             SECRET_KEY = UserConnectionInfo.SecretKey;
             REGION = UserConnectionInfo.Region;
             ROLE_ARN = UserConnectionInfo.RoleArn;
-            ECR_URI = GetECRUri() ?? UserConnectionInfo.EcrUri;
+            var ecrUriAndImageTag = GetECRUri();
+            ECR_URI = ecrUriAndImageTag.Item1 ?? UserConnectionInfo.EcrUri;
+            IMAGE_TAG = ecrUriAndImageTag.Item2 ?? "latest";
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
             CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
@@ -182,9 +185,9 @@ namespace LSC_Trainer
             }
         }
 
-        public string GetECRUri()
+        public (string, string) GetECRUri()
         {
-            return AWS_Helper.GetFirstRepositoryUri(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
+            return AWS_Helper.GetFirstRepositoryUriAndImageTag(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
         private void btnSelectZip_Click(object sender, EventArgs e)
@@ -276,7 +279,7 @@ namespace LSC_Trainer
                     out string instanceCount);
 
             string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv10-6-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
