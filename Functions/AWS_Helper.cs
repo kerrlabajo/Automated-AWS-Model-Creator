@@ -400,13 +400,16 @@ namespace LSC_Trainer.Functions
                     var firstRepo = response.Repositories[0];
                     var imageResponse = ecrClient.DescribeImages(new DescribeImagesRequest
                     {
-                        RepositoryName = firstRepo.RepositoryName,
-                        ImageIds = new List<ImageIdentifier> { new ImageIdentifier { ImageTag = "latest" } }
+                        RepositoryName = firstRepo.RepositoryName
                     });
 
                     if (imageResponse.ImageDetails.Count > 0)
                     {
-                        return (firstRepo.RepositoryUri, imageResponse.ImageDetails[0].ImageTags[0]);
+                        var latestImage = imageResponse.ImageDetails
+                            .OrderByDescending(img => img.ImagePushedAt)
+                            .First();
+
+                        return (firstRepo.RepositoryUri, latestImage.ImageTags[0]);
                     }
                 }
 
