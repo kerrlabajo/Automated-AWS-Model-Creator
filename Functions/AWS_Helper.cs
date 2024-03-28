@@ -409,7 +409,12 @@ namespace LSC_Trainer.Functions
                             .OrderByDescending(img => img.ImagePushedAt)
                             .First();
 
-                        return (firstRepo.RepositoryUri, latestImage.ImageTags[0]);
+                        if (int.TryParse(latestImage.ImageTags[0], out _))
+                        {
+                            return (firstRepo.RepositoryUri, latestImage.ImageTags[0]);
+
+                        }
+                        return (firstRepo.RepositoryUri, latestImage.ImageTags[1]);
                     }
                 }
 
