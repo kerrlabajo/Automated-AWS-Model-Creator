@@ -1,3 +1,4 @@
+import datetime
 import shutil
 import subprocess
 import argparse
@@ -79,12 +80,12 @@ def main():
     master_host = 'algo-1'
     master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
-    init_method = f"tcp://0.0.0.0:{master_port}"
+    init_method = f"tcp://127.0.0.1:{master_port}"
     if current_host == master_host:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect((master_addr, int(master_port)))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method)
+    dist.init_process_group(backend='nccl', rank=node_rank, world_size=int(args.nnodes) * device_count, init_method=init_method, timeout=datetime.timedelta(seconds=10))
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
