@@ -11,6 +11,3 @@ RUN pip3 install -r /yolov5/requirements.txt --no-cache-dir && \
 COPY json_to_yaml_converter.py /yolov5/json_to_yaml_converter.py
 COPY train_and_export.py /yolov5/train_and_export.py
 COPY resource_config_reader.py /yolov5/resource_config_reader.py
-
-RUN apt-get update && apt-get install -y iputils-ping net-tools && \
-    setcap cap_net_raw+ep /bin/ping
