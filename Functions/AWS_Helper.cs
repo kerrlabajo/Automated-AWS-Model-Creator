@@ -409,12 +409,13 @@ namespace LSC_Trainer.Functions
                             .OrderByDescending(img => img.ImagePushedAt)
                             .First();
 
-                        if (int.TryParse(latestImage.ImageTags[0], out _))
+                        foreach (var tag in latestImage.ImageTags)
                         {
-                            return (firstRepo.RepositoryUri, latestImage.ImageTags[0]);
-
+                            if (tag != "latest")
+                            {
+                                return (firstRepo.RepositoryUri, tag);
+                            }
                         }
-                        return (firstRepo.RepositoryUri, latestImage.ImageTags[1]);
                     }
                 }
 
