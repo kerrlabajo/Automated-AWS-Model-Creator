@@ -389,7 +389,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static string GetFirstRepositoryUri(string accessKey, string secretKey, RegionEndpoint region)
+        public static (string, string) GetFirstRepositoryUriAndImageTag(string accessKey, string secretKey, RegionEndpoint region)
         {
             using (var ecrClient = new AmazonECRClient(accessKey, secretKey, region))
             {
@@ -397,12 +397,19 @@ namespace LSC_Trainer.Functions
 
                 if (response.Repositories.Count > 0)
                 {
-                    return response.Repositories[0].RepositoryUri;
+                    var firstRepo = response.Repositories[0];
+                    var imageResponse = ecrClient.ListImages(new ListImagesRequest
+                    {
+                        RepositoryName = firstRepo.RepositoryName
+                    });
+
+                    if (imageResponse.ImageIds.Count > 0)
+                    {
+                        return (firstRepo.RepositoryUri, imageResponse.ImageIds[0].ImageTag);
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return (null, null);
             }
         }
 
