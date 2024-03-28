@@ -80,7 +80,7 @@ def main():
     master_host = 'algo-1'
     master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
-    init_method = f"tcp://127.0.0.1:{master_port}"
+    init_method = f"tcp://{master_addr}:{master_port}"
     if current_host == master_host:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect((master_addr, int(master_port)))
