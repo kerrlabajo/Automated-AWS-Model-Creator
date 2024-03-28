@@ -114,7 +114,6 @@ def main():
         "--weights", args.project + args.name + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
-    subprocess.run(['ss', '-lptn', 'sport = :12355'], check=True)
     
     print("Master IP address:", master_addr)
     print("Local IP address:", local_addr)
