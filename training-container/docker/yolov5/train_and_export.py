@@ -80,6 +80,9 @@ def main():
     master_host = 'algo-1'
     master_addr = socket.gethostbyname(master_host)
     master_port = "12355"
+    os.environ['MASTER_ADDR'] = master_addr
+    os.environ['MASTER_PORT'] = master_port
+    os.environ['RANK'] = str(node_rank)
     # init_method = f"tcp://{master_addr}:{master_port}"
     dist.init_process_group(backend='nccl')
     
