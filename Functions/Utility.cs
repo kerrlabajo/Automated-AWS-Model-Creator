@@ -5,10 +5,16 @@ using System.Windows.Forms;
 
 namespace LSC_Trainer.Functions
 {
+    /// <summary>
+    /// Utility class for managing weight files and retrieving values from text boxes.
+    /// </summary>
     public class Utility
     {
         private Dictionary<string, string> sizeToWeightMap;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Utility"/> class.
+        /// </summary>      
         public Utility()
         {
             sizeToWeightMap = new Dictionary<string, string>
@@ -19,6 +25,11 @@ namespace LSC_Trainer.Functions
             };
         }
 
+        /// <summary>
+        /// Gets the weight file corresponding to the given image size.
+        /// </summary>
+        /// <param name="imageSize">The size of the image.</param>
+        /// <returns>The weight file name.</returns>
         public string GetWeightFile(string imageSize)
         {
             if (sizeToWeightMap.TryGetValue(imageSize, out string weightFile))
@@ -30,7 +41,11 @@ namespace LSC_Trainer.Functions
             return "640";
         }
 
-        //Pwede sad ni magamit sa katong Form1 na SetTrainingParameters()
+        /// <summary>
+        /// Retrieves the value from the specified text box.
+        /// </summary>
+        /// <param name="textBox">The text box from which to retrieve the value.</param>
+        /// <returns>The value from the text box, or an empty string if the text box is null or empty.</returns>
         public string GetValueFromTextBox(TextBox textBox)
         {
             return !string.IsNullOrWhiteSpace(textBox.Text) ? textBox.Text : "";
