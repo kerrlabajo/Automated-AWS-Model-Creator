@@ -96,7 +96,7 @@ def main():
         "--master_addr", master_host, "--master_port", master_port
     ]
     train_args = [
-        "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
+        "/yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
         "--weights", args.weights, "--data", args.data, 
         "--hyp", '/opt/ml/input/config/custom-hyps.yaml' if args.hyp == "Custom" else args.hyp, 
         "--project", args.project, "--name", args.name, 
@@ -104,7 +104,7 @@ def main():
         "--device", args.device, "--cache", "--exist-ok"
     ]
     export_args = [
-        "yolov5/export.py", "--img-size", args.img_size, 
+        "/yolov5/export.py", "--img-size", args.img_size, 
         "--weights", args.project + args.name + '/weights/best.pt', 
         "--include", args.include, "--device", args.device
     ]
