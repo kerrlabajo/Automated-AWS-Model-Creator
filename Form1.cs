@@ -128,6 +128,7 @@ namespace LSC_Trainer
             var ecrUriAndImageTag = GetECRUri();
             ECR_URI = ecrUriAndImageTag.Item1 ?? UserConnectionInfo.EcrUri;
             IMAGE_TAG = ecrUriAndImageTag.Item2 ?? "latest";
+            ECR_URI = $"{ECR_URI}:{IMAGE_TAG}";
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
             CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
