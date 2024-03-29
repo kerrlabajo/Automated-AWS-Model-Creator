@@ -446,7 +446,7 @@ namespace LSC_Trainer
                 {
                     TrainingInputMode = "File",
                     TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "code/train_and_export.py" },
+                    ContainerEntrypoint = new List<string>() { "python3", "/code/train_and_export.py" },
                     ContainerArguments = new List<string>()
                     {
                         "--img-size", img_size,
