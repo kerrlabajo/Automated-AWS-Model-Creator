@@ -76,12 +76,10 @@ def main():
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
     current_host = 'algo-' + str(node_rank + 1)
-    local_addr = socket.gethostbyname(current_host)
     master_host = 'algo-1'
-    master_addr = socket.gethostbyname(master_host)
-    master_port = "12356"
-    init_method = f"tcp://{master_addr}:{master_port}"
-    dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count, timeout=datetime.timedelta(seconds=10))
+    master_port = "43829"
+    # init_method = f"tcp://{master_host}:{master_port}"
+    # dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count, timeout=datetime.timedelta(seconds=10))
     
     resource_config_args = [
         "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -95,7 +93,7 @@ def main():
     multi_instance_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
-        "--master_addr", master_addr, "--master_port", master_port
+        "--master_addr", master_host, "--master_port", master_port
     ]
     train_args = [
         "yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
@@ -111,8 +109,8 @@ def main():
         "--include", args.include, "--device", args.device
     ]
     
-    print("Master IP address:", master_addr)
-    print("Local IP address:", local_addr)
+    print("Master IP address:", master_host)
+    print("Local IP address:", current_host)
     
     run_script(resource_config_args)
     
