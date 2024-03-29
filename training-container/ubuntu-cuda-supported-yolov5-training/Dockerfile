@@ -20,10 +20,6 @@ RUN apt-get update --fix-missing && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Print IP and connected networks
-RUN echo "IP address:" && ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' && \
-    echo "Connected networks:" && netstat -r
-
 # Clone the repository and set the PATH
 RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
