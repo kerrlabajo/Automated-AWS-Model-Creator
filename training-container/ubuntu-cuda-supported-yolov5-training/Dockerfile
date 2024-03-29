@@ -30,6 +30,6 @@ RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
     pip3 install -q --no-input pyyaml
 
 # Copy the Python scripts
-COPY ../ubuntu-cuda-supported-yolov5-training/json_to_yaml_converter.py /code/json_to_yaml_converter.py
-COPY ../ubuntu-cuda-supported-yolov5-training/train_and_export.py /code/train_and_export.py
-COPY ../ubuntu-cuda-supported-yolov5-training/resource_config_reader.py /code/resource_config_reader.py
+COPY ./json_to_yaml_converter.py /code/json_to_yaml_converter.py
+COPY ./train_and_export.py /code/train_and_export.py
+COPY ./resource_config_reader.py /code/resource_config_reader.py
