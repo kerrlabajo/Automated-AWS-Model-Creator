@@ -20,12 +20,6 @@ RUN apt-get update --fix-missing && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install security updates and show information on the installed packages
-RUN apt-get update && unattended-upgrade -d \
-    && apt-get install -y apt-show-versions \
-    && apt-show-versions | grep uptodate | grep -v python \
-    && rm -rf /var/lib/apt/lists/*
-
 # Clone the repository and set the PATH
 RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
