@@ -20,11 +20,6 @@ RUN apt-get update --fix-missing && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Print versions
-RUN echo "Ubuntu version:" && lsb_release -a && \
-    echo "Python version:" && python3 --version && \
-    echo "CUDA version:" && nvcc --version
-
 # Print IP and connected networks
 RUN echo "IP address:" && ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' && \
     echo "Connected networks:" && netstat -r
