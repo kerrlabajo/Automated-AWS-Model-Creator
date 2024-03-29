@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update --fix-missing && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
+    apt-utils \
     ca-certificates \
     gnupg \
     curl \
