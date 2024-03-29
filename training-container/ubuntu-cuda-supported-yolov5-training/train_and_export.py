@@ -82,10 +82,10 @@ def main():
     # dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count, timeout=datetime.timedelta(seconds=10))
     
     resource_config_args = [
-        "yolov5/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
+        "resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
     ]
     converter_args = [
-        "yolov5/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
+        "json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count)
