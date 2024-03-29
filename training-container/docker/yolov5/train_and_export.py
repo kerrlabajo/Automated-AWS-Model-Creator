@@ -76,8 +76,8 @@ def main():
     device_count = len(args.device.split(','))
     node_rank = get_node_rank()
     current_host = 'algo-' + str(node_rank + 1)
-    master_host = '169.254.255.18'
-    master_port = "32905"
+    master_host = 'algo-1'
+    master_port = "43829"
     # init_method = f"tcp://{master_host}:{master_port}"
     # dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count, timeout=datetime.timedelta(seconds=10))
     
