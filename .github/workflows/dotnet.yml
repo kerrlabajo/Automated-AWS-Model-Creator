@@ -68,7 +68,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore LSC-Trainer.csproj
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build LSC-Trainer.csproj --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
