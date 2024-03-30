@@ -60,7 +60,7 @@ def main():
     The first 24 arguments are passed to `train.py` and the remaining arguments are passed to export.py.
 
     Example:
-    >>> python3 yolov5/train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt 
+    >>> python3 /code/train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt 
     >>> --data /opt/ml/input/data/train/data.yaml --hyp hyp.scratch-low.yaml 
     >>> --project "/opt/ml/output/data/" --name "results" 
     >>> --patience 100 --workers 8 --optimizer SGD --device 0 --include onnx --nnodes 1
