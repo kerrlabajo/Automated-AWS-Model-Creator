@@ -74,8 +74,7 @@ def main():
     os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
     args = parse_arguments()
     device_count = len(args.device.split(','))
-    node_rank = get_node_rank()
-    current_host = 'algo-' + str(node_rank + 1)
+    current_host, node_rank = get_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
     # init_method = f"tcp://{master_host}:{master_port}"
