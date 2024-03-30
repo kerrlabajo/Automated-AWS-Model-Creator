@@ -57,7 +57,7 @@ jobs:
 
     env:
       Solution_Name: LSC-Trainer.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
-      Test_Project_Path: LSC-Trainer\LSC-TrainerIntegrationTests\LSC-TrainerUnitTest.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      Test_Project_Path: LSC-TrainerIntegrationTests\LSC-TrainerUnitTest.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
       DISABLEOUTOFPROCTASKHOST: 1
       #Wap_Project_Directory: LSC-Trainer\packages    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
       #Wap_Project_Path: your-wap-project-path                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
