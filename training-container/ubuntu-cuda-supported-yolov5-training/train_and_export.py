@@ -13,7 +13,7 @@ def get_node_rank():
     current_host = data['current_host']
     hosts = data['hosts']
     node_rank = hosts.index(current_host)
-    return node_rank
+    return current_host, node_rank
 
 def run_script(args, use_module=False):
     """
