@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LSC-Trainer", "LSC-Trainer.csproj", "{F279F86F-4DC5-4490-9369-15F8CE038860}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LSC-TrainerIntegrationTests", "LSC-TrainerIntegrationTests\LSC-TrainerIntegrationTests.csproj", "{B9BE2A99-ED59-421C-87CE-ACE066151F92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LSC-TrainerUnitTests", "LSC-TrainerIntegrationTests\LSC-TrainerUnitTests.csproj", "{B9BE2A99-ED59-421C-87CE-ACE066151F92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
