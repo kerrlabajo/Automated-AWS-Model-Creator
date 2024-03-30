@@ -64,8 +64,6 @@ def main():
     >>> --data /opt/ml/input/data/train/data.yaml --hyp hyp.scratch-low.yaml 
     >>> --project "/opt/ml/output/data/" --name "results" 
     >>> --patience 100 --workers 8 --optimizer SGD --device 0 --include onnx --nnodes 1
-    
-    The 25th args is the start of the `export.py` args.
 
     Returns:
     None
@@ -77,8 +75,6 @@ def main():
     current_host, node_rank = get_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
-    # init_method = f"tcp://{master_host}:{master_port}"
-    # dist.init_process_group(backend='nccl', init_method=init_method, rank=node_rank, world_size=int(args.nnodes) * device_count, timeout=datetime.timedelta(seconds=10))
     
     resource_config_args = [
         "/code/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
