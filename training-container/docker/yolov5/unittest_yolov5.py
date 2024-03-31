@@ -1,8 +1,14 @@
+import pathlib
+import subprocess
 import unittest
 from unittest import mock
 from train_and_export import run_script, run_script, parse_arguments, main
 
-# import json_to_yaml_converter
+import tempfile
+import os
+import argparse
+import sys
+#import json_to_yaml_converter
 
 
 class TestYOLOv5Script(unittest.TestCase):
@@ -79,7 +85,7 @@ class TestYOLOv5Script(unittest.TestCase):
             epochs="10",
             weights="yolov5n6.pt",
             data="data.yaml",
-            hyp="hyp.yaml",
+            hyp="test/hyp.yaml",
             project="project",
             name="test",
             patience="3",
@@ -116,6 +122,21 @@ class TestYOLOv5Script(unittest.TestCase):
         )
 
 
+class TestJsonToYamlConverter(unittest.TestCase):
+    @mock.patch("subprocess.run")
+    def test_conversion_invocation(self, mock_subprocess_run):
+        # Arrange
+        converter_args = [
+            "yolov5/json_to_yaml_converter.py",
+            "sample.json",
+        ]
+
+        # Act
+        subprocess.run(["python3", "-m"] + converter_args, check=True)
+
+        # Assert
+        mock_subprocess_run.assert_called_once_with(["python3", "-m"] + converter_args, check=True)
+
 # class TestJsonToYamlConversion(unittest.TestCase):
 #     @mock.patch(
 #         "builtins.open",
@@ -149,6 +170,7 @@ class TestYOLOv5Script(unittest.TestCase):
 #         self.assertEqual(converted_data, {"key1": 100.0, "key2": 200.0})
 
 #         mock_path_join.assert_called_once_with("path/to", "custom-hyps.yaml")
+
 
 
 if __name__ == "__main__":
