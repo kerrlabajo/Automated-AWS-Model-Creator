@@ -65,10 +65,12 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+    - name: Restore Dependencies
+      run: dotnet restore 
     - name: Build
-      run: dotnet build LSC-Trainer.csproj 
+      run: dotnet build
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test
 
    # Decode the base 64 encoded pfx and save the Signing_Certificate
    # - name: Decode the pfx
