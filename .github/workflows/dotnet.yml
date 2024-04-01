@@ -37,36 +37,34 @@
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
 name: Build and Test
-
 on:
   push:
     branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests"]
   pull_request:
     branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
-
 jobs:
-
   build:
-
     strategy:
       matrix:
         configuration: [Release]
-
     runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on 
-        
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
     - name: Restore Dependencies
-      run: dotnet restore 
+      run: dotnet restore
     - name: Build
-      run: dotnet build
+      run: dotnet build LSC-Trainer.sln
     - name: Test
-      run: dotnet test
+      run: dotnet test --no-build --verbosity normal
 
    # Decode the base 64 encoded pfx and save the Signing_Certificate
    # - name: Decode the pfx
