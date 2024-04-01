@@ -53,11 +53,7 @@ jobs:
         configuration: [Release]
 
     runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on 
         
     steps:
     - uses: actions/checkout@v3
@@ -65,12 +61,12 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore LSC-Trainer.csproj
+    - name: Restore Dependencies
+      run: dotnet restore 
     - name: Build
-      run: dotnet build LSC-Trainer.csproj --no-restore
+      run: dotnet build
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test
 
    # Decode the base 64 encoded pfx and save the Signing_Certificate
    # - name: Decode the pfx
