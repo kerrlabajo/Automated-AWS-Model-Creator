@@ -60,7 +60,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore Test 
-      run: nuget restore LSC-TrainerUnitTest.csproj
+      run: nuget restore LSC-TrainerUnitTest\LSC-TrainerUnitTest.csproj
     - name: Restore Dependencies
       run: nuget restore 
     - name: Build
