@@ -36,37 +36,31 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: Build and Test
+name: .NET
 
 on:
   push:
-    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests"]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
+    branches: [ "main" ]
 
 jobs:
-
   build:
 
-    strategy:
-      matrix:
-        configuration: [Release]
+    runs-on: ubuntu-latest
 
-    runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on 
-        
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 6.0.x
-    - name: Restore Dependencies
-      run: dotnet restore 
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
     - name: Build
-      run: dotnet build
+      run: dotnet build --no-restore
     - name: Test
-      run: dotnet test
+      run: dotnet test --no-build --verbosity normal
 
    # Decode the base 64 encoded pfx and save the Signing_Certificate
    # - name: Decode the pfx
