@@ -58,7 +58,7 @@ jobs:
     - name: Restore Main Project
       run: dotnet restore LSC-Trainer.csproj
     - name: Restore Test
-      run: dotnet restore LSC-TrainerUnitTest.csproj
+      run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
     - name: Test
