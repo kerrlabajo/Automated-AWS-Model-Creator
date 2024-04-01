@@ -37,17 +37,21 @@
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
 name: Build and Test
-
 on:
   push:
-    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
+    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests"]
   pull_request:
     branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
-
 jobs:
   build:
-
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Release]
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
 
     steps:
     - uses: actions/checkout@v4
@@ -60,7 +64,7 @@ jobs:
     - name: Restore Test
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
