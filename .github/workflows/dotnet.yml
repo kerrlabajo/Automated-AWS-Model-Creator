@@ -59,10 +59,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
-    - name: Restore AWS SDK Packages (optional)
-      run: dotnet restore LSC-Trainer.csproj --runtime=win-x86
+    - name: Restore Test 
+      run: nuget restore LSC-TrainerUnitTest\LSC-TrainerUnitTest.csproj
     - name: Restore Dependencies
-      run: nuget restore LSC-Trainer.sln
+      run: nuget restore 
     - name: Build
       run: dotnet build LSC-Trainer.sln
     - name: Test
