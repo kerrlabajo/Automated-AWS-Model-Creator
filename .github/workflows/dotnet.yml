@@ -59,12 +59,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
-    - name: Restore Main Project
-      run: dotnet restore LSC-Trainer.csproj
-    - name: Restore Test
+    - name: Restore Dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build
+      run: dotnet build LSC-Trainer.sln
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
