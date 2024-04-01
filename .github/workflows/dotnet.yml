@@ -36,13 +36,13 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET
+name: Build and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
 
 jobs:
   build:
