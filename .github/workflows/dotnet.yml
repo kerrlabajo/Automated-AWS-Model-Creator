@@ -59,6 +59,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
+    - name: Restore AWS SDK Packages
+      run:  dotnet restore ./LSC-Trainer.sln --packages="**/packages.config"
     - name: Restore Dependencies
       run: dotnet restore
     - name: Build
