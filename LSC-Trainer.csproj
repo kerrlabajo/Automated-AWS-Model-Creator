@@ -349,7 +349,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="packages\AWSSDK.CloudWatchLogs.3.7.303.8\analyzers\dotnet\cs\AWSSDK.CloudWatchLogs.CodeAnalysis.dll" />
+    <Analyzer Include="packages\AWSSDK.EC2.3.7.314.10\analyzers\dotnet\cs\AWSSDK.EC2.CodeAnalysis.dll" />
+    <Analyzer Include="packages\AWSSDK.ECR.3.7.301.49\analyzers\dotnet\cs\AWSSDK.ECR.CodeAnalysis.dll" />
+    <Analyzer Include="packages\AWSSDK.S3.3.7.304.2\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+    <Analyzer Include="packages\AWSSDK.SageMaker.3.7.305\analyzers\dotnet\cs\AWSSDK.SageMaker.CodeAnalysis.dll" />
+    <Analyzer Include="packages\AWSSDK.SageMaker.3.7.305\analyzers\dotnet\cs\SharedAnalysisCode.dll" />
+    <Analyzer Include="packages\AWSSDK.SageMakerRuntime.3.7.301.2\analyzers\dotnet\cs\AWSSDK.SageMakerRuntime.CodeAnalysis.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update=".env">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
