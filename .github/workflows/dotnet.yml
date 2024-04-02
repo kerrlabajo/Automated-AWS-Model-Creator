@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-    runs-on: ubuntu-latest  # Or a specific runner with .NET support
+    runs-on: windows-latest  # Or a specific runner with .NET support
     defaults:
       run:
         working-directory: ${{ github.workspace }}
