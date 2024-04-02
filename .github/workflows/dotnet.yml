@@ -65,11 +65,7 @@ jobs:
     - name: Build
       run: dotnet build LSC-Trainer.sln --configuration Release
     - name: Run vstests
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-          testAssembly: LSC-TrainerUnitTest.dll
-          searchFolder: .\LSC-TrainerUnitTest\bin\Debug\
-          runInParallel: true
+      run: dotnet test --no-build --verbosity normal
 
    # Decode the base 64 encoded pfx and save the Signing_Certificate
    # - name: Decode the pfx
