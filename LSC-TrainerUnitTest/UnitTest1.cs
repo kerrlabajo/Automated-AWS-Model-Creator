@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Test
+namespace LSC_TrainerUnitTest
 {
     [TestClass]
     public class UnitTest1

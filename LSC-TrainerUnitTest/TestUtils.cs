@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Test
+namespace LSC_TrainerUnitTest
 {
-    class Utils
+    internal class TestUtils
     {
         public static Control GetControlNamed(Control ParentControl, string name, bool searchAllChildren)
         {
