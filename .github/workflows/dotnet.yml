@@ -57,19 +57,21 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x  # Adjust as needed
+        dotnet-version: '6.0.x'
     - name: Restore Dependencies
       run: nuget restore LSC-Trainer.sln  # Or specific project file
     - name: Build
       run: dotnet build LSC-Trainer.sln --configuration Release
     - name: Setup VSTest
       uses: darenm/setup-vswhere@v1
-    - name: Test
-      run: |
-        vstest_path=$(vswhere -latest -property installationPath)/Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe
-        dotnet test --no-build --verbosity normal $vstest_path Test/bin/Debug/Test.dll
+    - name: Run vstests
+      uses: microsoft/vstest-action@v1.0.0
+      with:
+          testAssembly: Test.dll
+          searchFolder: .\Test\bin\Debug\
+          runInParallel: true
 
    # Decode the base 64 encoded pfx and save the Signing_Certificate
    # - name: Decode the pfx
