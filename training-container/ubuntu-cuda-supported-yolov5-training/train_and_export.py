@@ -128,6 +128,7 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         with open('/opt/ml/output/failure', 'w') as f:
+            print(e)
             f.write(str(e))
             f.write(traceback.format_exc())
         sys.exit(1)
