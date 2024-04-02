@@ -64,8 +64,6 @@ jobs:
       run: nuget restore LSC-Trainer.sln  # Or specific project file
     - name: Build
       run: dotnet build LSC-Trainer.sln --configuration Release
-    - name: Setup VSTest
-      uses: darenm/setup-vswhere@v1
     - name: Run vstests
       uses: microsoft/vstest-action@v1.0.0
       with:
