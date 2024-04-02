@@ -17,6 +17,7 @@ RUN apt-get update --fix-missing && \
     python3-pip \
     ffmpeg libsm6 libxext6 \
     net-tools \
+    autoconf \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
