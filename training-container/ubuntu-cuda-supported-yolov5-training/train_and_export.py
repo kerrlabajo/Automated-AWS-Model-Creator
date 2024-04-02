@@ -6,6 +6,8 @@ import json
 import os
 import torch.distributed as dist
 import socket
+import sys
+import traceback
     
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -125,4 +127,10 @@ def main():
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        with open('/opt/ml/output/failure', 'w') as f:
+            f.write(str(e))
+            f.write(traceback.format_exc())
+        sys.exit(1)
