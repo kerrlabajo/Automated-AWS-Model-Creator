@@ -106,6 +106,10 @@ def main():
     print("Master IP address:", master_host)
     print("Local IP address:", current_host)
     
+    subprocess.run(["netstat", "-tuln"])
+
+    subprocess.run(["netstat", "--inet", "-n"])
+    
     run_script(resource_config_args)
     
     run_script(converter_args) if args.hyp == "Custom" else None
