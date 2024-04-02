@@ -16,6 +16,11 @@ RUN apt-get update --fix-missing && \
     libnl-route-3-dev\
     pciutils\
     apt-utils \
+    udev \
+    dmidecode \
+    ethtool \
+    iproute2 \
+    rdma-core \
     ca-certificates \
     gnupg \
     curl \
