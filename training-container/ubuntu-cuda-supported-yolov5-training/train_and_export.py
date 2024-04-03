@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import traceback
+import socket
     
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -74,6 +75,8 @@ def main():
     current_host, node_rank = get_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
+    fetched_master_ip = socket.gethostbyname(master_host)
+    fetched_local_ip = socket.gethostbyname(current_host)
     
     resource_config_args = [
         "/code/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
@@ -103,8 +106,8 @@ def main():
         "--include", args.include, "--device", args.device
     ]
     
-    print("Master IP address:", master_host)
-    print("Local IP address:", current_host)
+    print("Master IP address:", fetched_master_ip)
+    print("Local IP address:", fetched_local_ip)
     
     subprocess.run(["netstat", "-tuln"])
 
