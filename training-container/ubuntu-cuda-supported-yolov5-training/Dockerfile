@@ -36,6 +36,7 @@ RUN apt-get update --fix-missing && \
     python3-pip \
     ffmpeg libsm6 libxext6 \
     net-tools \
+    make \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -72,7 +73,7 @@ RUN cd $HOME \
        --with-cuda=/usr/local/cuda \
        --with-nccl=/usr/local --prefix=/usr/local \
   && make && make install
-  
+
 RUN cd $HOME \
   && git clone https://github.com/NVIDIA/nccl-tests.git \
   && cd nccl-tests \
