@@ -55,11 +55,6 @@ RUN cd $HOME \
 
 ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
 
-RUN cd $HOME \
-  && git clone https://github.com/NVIDIA/nccl-tests.git \
-  && cd nccl-tests \
-  && make MPI=1 MPI_HOME=/opt/amazon/openmpi CUDA_HOME=/usr/local/cuda NCCL_HOME=/usr/local
-
 # Clone the repository and set the PATH
 RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
