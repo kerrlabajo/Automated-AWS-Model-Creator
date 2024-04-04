@@ -122,6 +122,7 @@ def main():
     run_script(converter_args) if args.hyp == "Custom" else None
         
     if int(args.nnodes) > 1:
+        run_nccl_tests()
         run_script(multi_instance_gpu_ddp_args + train_args, use_module=True)
           
     if device_count > 1:
@@ -136,7 +137,6 @@ def main():
 
 if __name__ == "__main__":
     try:
-        run_nccl_tests()
         main()
     except Exception as e:
         with open('/opt/ml/output/failure', 'w') as f:
