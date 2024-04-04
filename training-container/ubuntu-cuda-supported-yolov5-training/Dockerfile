@@ -20,6 +20,38 @@ RUN apt-get update --fix-missing && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+ARG OPEN_MPI_PATH=/opt/amazon/openmpi/
+ENV NCCL_VERSION=2.7.8
+ENV EFA_VERSION=1.30.0
+ENV BRANCH_OFI=1.1.1
+
+#################################################
+## EFA and MPI SETUP
+RUN cd $HOME \
+  && curl -O https://s3-us-west-2.amazonaws.com/aws-efa-installer/aws-efa-installer-${EFA_VERSION}.tar.gz \
+  && tar -xf aws-efa-installer-${EFA_VERSION}.tar.gz \
+  && cd aws-efa-installer \
+  && ./efa_installer.sh -y --skip-kmod -g
+
+ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
+ENV LD_LIBRARY_PATH="$OPEN_MPI_PATH/lib/:$LD_LIBRARY_PATH"
+
+RUN apt-get update && apt-get install -y autoconf
+RUN cd $HOME \
+  && git clone https://github.com/aws/aws-ofi-nccl.git -b v${BRANCH_OFI} \
+  && cd aws-ofi-nccl \
+  && ./autogen.sh \
+  && ./configure --with-libfabric=/opt/amazon/efa \
+       --with-mpi=/opt/amazon/openmpi \
+       --with-cuda=/usr/local/cuda \
+       --with-nccl=/usr/local --prefix=/usr/local \
+  && make && make install
+  
+RUN cd $HOME \
+  && git clone https://github.com/NVIDIA/nccl-tests \
+  && cd nccl-tests \
+  && make MPI=1 MPI_HOME=/opt/amazon/openmpi CUDA_HOME=/usr/local/cuda NCCL_HOME=/usr/local
+
 # Clone the repository and set the PATH
 RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
