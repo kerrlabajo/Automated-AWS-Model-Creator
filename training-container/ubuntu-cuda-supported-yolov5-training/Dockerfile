@@ -54,17 +54,6 @@ RUN cd $HOME \
   && ./efa_installer.sh -y --skip-kmod -g
 
 ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
-  
-RUN apt-get update && apt-get install -y autoconf
-RUN cd $HOME \
-  && git clone https://github.com/aws/aws-ofi-nccl.git -b v${BRANCH_OFI} \
-  && cd aws-ofi-nccl \
-  && ./autogen.sh \
-  && ./configure --with-libfabric=/opt/amazon/efa \
-       --with-mpi=/opt/amazon/openmpi \
-       --with-cuda=/usr/local/cuda \
-       --with-nccl=/usr/local --prefix=/usr/local \
-  && make && make install
 
 RUN cd $HOME \
   && git clone https://github.com/NVIDIA/nccl-tests.git \
