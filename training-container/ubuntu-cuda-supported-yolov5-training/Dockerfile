@@ -25,6 +25,9 @@ RUN apt-get update --fix-missing && \
     libevent-core-2.1-7 \
     libevent-pthreads-2.1-7 \
     libhwloc15 \
+    libatomic1 \
+    openssh-client \
+    ssh-client \
     ca-certificates \
     gnupg \
     curl \
