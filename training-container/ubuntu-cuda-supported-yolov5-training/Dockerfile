@@ -22,6 +22,11 @@ RUN apt-get update --fix-missing && \
     dmidecode \
     ethtool \
     iproute2 \
+    openmpi50-aws \
+    libevent-core-2.1-7 \
+    libevent-pthreads-2.1-7 \
+    libhwloc15 \
+    prrte-aws \
     ca-certificates \
     gnupg \
     curl \
