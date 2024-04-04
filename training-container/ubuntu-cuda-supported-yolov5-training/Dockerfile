@@ -36,7 +36,15 @@ RUN cd $HOME \
 ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
 ENV LD_LIBRARY_PATH="$OPEN_MPI_PATH/lib/:$LD_LIBRARY_PATH"
 
-RUN apt-get update && apt-get install -y autoconf
+RUN apt-get update && apt-get install -y autoconf \
+    pciutils \
+    environment-modules \
+    tcl \
+    libnl-3-200 \
+    libnl-3-dev \
+    libnl-route-3-200 \
+    libnl-route-3-dev
+
 RUN cd $HOME \
   && git clone https://github.com/aws/aws-ofi-nccl.git -b v${BRANCH_OFI} \
   && cd aws-ofi-nccl \
