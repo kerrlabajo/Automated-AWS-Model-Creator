@@ -42,7 +42,6 @@ RUN apt-get update --fix-missing && \
     && rm -rf /var/lib/apt/lists/*
 
 ARG OPEN_MPI_PATH=/opt/amazon/openmpi/
-ENV NCCL_VERSION=2.7.8
 ENV EFA_VERSION=1.30.0
 ENV BRANCH_OFI=1.1.1
 
@@ -55,14 +54,6 @@ RUN cd $HOME \
   && ./efa_installer.sh -y --skip-kmod -g
 
 ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
-ENV LD_LIBRARY_PATH="$OPEN_MPI_PATH/lib/:$LD_LIBRARY_PATH"
-
-#################################################
-## NCCL, OFI, NCCL-TEST SETUP
-RUN cd $HOME \
-  && git clone https://github.com/NVIDIA/nccl.git -b v${NCCL_VERSION}-1 \
-  && cd nccl \
-  && make -j64 src.build BUILDDIR=/usr/local
   
 RUN apt-get update && apt-get install -y autoconf
 RUN cd $HOME \
