@@ -53,6 +53,10 @@ def parse_arguments():
 
     return parser.parse_args()
     
+def run_nccl_tests():
+    subprocess.run(["git", "clone", "https://github.com/NVIDIA/nccl-tests.git"], check=True)
+    subprocess.run(["make", "MPI=1", "MPI_HOME=/opt/amazon/openmpi", "CUDA_HOME=/usr/local/cuda", "NCCL_HOME=/usr/local"], cwd="nccl-tests", check=True)
+
 def main():
     """
     Main function to run `train.py` and `export.py` scripts with command line arguments.
@@ -132,6 +136,7 @@ def main():
 
 if __name__ == "__main__":
     try:
+        run_nccl_tests()
         main()
     except Exception as e:
         with open('/opt/ml/output/failure', 'w') as f:
