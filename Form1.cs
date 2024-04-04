@@ -112,6 +112,7 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
+            txtInstanceCount.Enabled = false;
 
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
