@@ -6,6 +6,7 @@ import os
 import sys
 import traceback
 import socket
+import torch.distributed as dist
     
 def get_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -77,6 +78,8 @@ def main():
     master_port = "29500"
     fetched_master_ip = socket.gethostbyname(master_host)
     fetched_local_ip = socket.gethostbyname(current_host)
+    init_method = f"tcp://{fetched_master_ip}:{master_port}"
+    dist.init_process_group(backend='nccl', init_method=init_method, world_size=int(args.nnodes) * device_count, rank=node_rank)
     
     resource_config_args = [
         "/code/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
