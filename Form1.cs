@@ -501,13 +501,13 @@ namespace LSC_Trainer
                     {"include", "onnx" }
                 }
                 : customHyperParamsForm.HyperParameters,
-                VpcConfig = new VpcConfig()
-                {
-                    SecurityGroupIds = new List<string>() { "sg-01d8a8d18d5e7b9b0" },
-                    Subnets = new List<string>() {
-                        "subnet-02f60707766d68515"
-                    }
-                },
+                // VpcConfig = new VpcConfig()
+                // {
+                //     SecurityGroupIds = new List<string>() { "sg-01d8a8d18d5e7b9b0" },
+                //     Subnets = new List<string>() {
+                //         "subnet-02f60707766d68515"
+                //     }
+                // },
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
