@@ -56,7 +56,7 @@ ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
 ENV LD_LIBRARY_PATH="$OPEN_MPI_PATH/lib/:$LD_LIBRARY_PATH"
   
 RUN cd $HOME \
-  && git clone https://github.com/NVIDIA/nccl-tests \
+  && git clone https://github.com/NVIDIA/nccl-tests.git \
   && cd nccl-tests \
   && make MPI=1 MPI_HOME=/opt/amazon/openmpi CUDA_HOME=/usr/local/cuda NCCL_HOME=/usr/local
 
