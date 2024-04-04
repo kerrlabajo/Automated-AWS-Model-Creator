@@ -37,6 +37,7 @@ RUN apt-get update --fix-missing && \
     ffmpeg libsm6 libxext6 \
     net-tools \
     make \
+    g++ \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
