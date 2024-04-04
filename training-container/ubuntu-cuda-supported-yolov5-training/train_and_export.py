@@ -76,7 +76,7 @@ def main():
     current_host, node_rank = get_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
-    fetched_master_ip = socket.gethostbyname(master_host)
+    fetched_master_ip = '169.254.255.18'
     fetched_local_ip = socket.gethostbyname(current_host)
     init_method = f"tcp://{fetched_master_ip}:{master_port}"
     dist.init_process_group(backend='nccl', init_method=init_method, world_size=int(args.nnodes) * device_count, rank=node_rank)
