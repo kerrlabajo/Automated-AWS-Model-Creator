@@ -258,15 +258,16 @@ namespace LSC_Trainer
             this.instancesDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
-            "ml.m5.xlarge",
+            //"ml.m5.xlarge",
             "ml.g4dn.xlarge",
-            "ml.g4dn.2xlarge",
-            "ml.g4dn.4xlarge",
-            "ml.g4dn.8xlarge",
-            "ml.g4dn.12xlarge",
-            "ml.p3.2xlarge",
-            "ml.p3.8xlarge",
-            "ml.p3.16xlarge"});
+            //"ml.g4dn.2xlarge",
+            //"ml.g4dn.4xlarge",
+            //"ml.g4dn.8xlarge",
+            //"ml.g4dn.12xlarge",
+            //"ml.p3.2xlarge",
+            //"ml.p3.8xlarge",
+            //"ml.p3.16xlarge"
+            });
             this.instancesDropdown.Location = new System.Drawing.Point(479, 257);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
