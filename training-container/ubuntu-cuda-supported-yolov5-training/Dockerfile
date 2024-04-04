@@ -8,7 +8,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update --fix-missing && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
+    autoconf \
     apt-utils \
+    pciutils \
+    environment-modules \
+    tcl \
+    libnl-3-200 \
+    libnl-3-dev \
+    libnl-route-3-200 \
+    libnl-route-3-dev \
     ca-certificates \
     gnupg \
     curl \
@@ -36,15 +44,7 @@ RUN cd $HOME \
 ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
 ENV LD_LIBRARY_PATH="$OPEN_MPI_PATH/lib/:$LD_LIBRARY_PATH"
 
-RUN apt-get update && apt-get install -y autoconf \
-    pciutils \
-    environment-modules \
-    tcl \
-    libnl-3-200 \
-    libnl-3-dev \
-    libnl-route-3-200 \
-    libnl-route-3-dev
-
+RUN apt-get update && apt-get install -y autoconf 
 RUN cd $HOME \
   && git clone https://github.com/aws/aws-ofi-nccl.git -b v${BRANCH_OFI} \
   && cd aws-ofi-nccl \
