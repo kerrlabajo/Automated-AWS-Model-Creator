@@ -1,5 +1,5 @@
 # Start from NVIDIA CUDA image
-FROM nvidia/cuda:12.3.2-devel-ubuntu22.04
+FROM nvidia/cuda:12.3.2-base-ubuntu22.04
 
 # Avoid timezone prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -56,7 +56,8 @@ RUN cd $HOME \
 ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
 
 # Clone the repository and set the PATH
-RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
+WORKDIR /code
+RUN git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
 
 # Install Python dependencies
