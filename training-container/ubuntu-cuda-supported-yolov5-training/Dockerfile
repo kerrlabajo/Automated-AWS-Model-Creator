@@ -4,6 +4,12 @@ FROM nvidia/cuda:12.3.2-base-ubuntu22.04
 # Avoid timezone prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Add universe repository and update package list
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository universe && \
+    apt-get update
+
 # Update and install dependencies
 RUN apt-get update --fix-missing && \
     apt-get upgrade -y && \
