@@ -17,6 +17,11 @@ RUN apt-get update --fix-missing && \
     libnl-3-dev \
     libnl-route-3-200 \
     libnl-route-3-dev \
+    rdma-core \
+    udev \
+    dmidecode \
+    ethtool \
+    iproute2 \
     ca-certificates \
     gnupg \
     curl \
