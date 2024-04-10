@@ -35,6 +35,7 @@ namespace LSC_Trainer
         private string ROLE_ARN;
 
         private string ECR_URI;
+        private string IMAGE_TAG;
         private string SAGEMAKER_BUCKET;
         private string DEFAULT_DATASET_URI;
         private string CUSTOM_UPLOADS_URI;
@@ -111,6 +112,7 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
+            txtInstanceCount.Enabled = false;
 
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
@@ -124,7 +126,10 @@ namespace LSC_Trainer
             SECRET_KEY = UserConnectionInfo.SecretKey;
             REGION = UserConnectionInfo.Region;
             ROLE_ARN = UserConnectionInfo.RoleArn;
-            ECR_URI = GetECRUri() ?? UserConnectionInfo.EcrUri;
+            var ecrUriAndImageTag = GetECRUri();
+            ECR_URI = ecrUriAndImageTag.Item1 ?? UserConnectionInfo.EcrUri;
+            IMAGE_TAG = ecrUriAndImageTag.Item2 ?? "latest";
+            ECR_URI = $"{ECR_URI}:{IMAGE_TAG}";
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
             CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
@@ -160,6 +165,7 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "0";
+                txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
@@ -175,14 +181,15 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "cpu";
+                txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
         }
 
-        public string GetECRUri()
+        public (string, string) GetECRUri()
         {
-            return AWS_Helper.GetFirstRepositoryUri(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
+            return AWS_Helper.GetFirstRepositoryUriAndImageTag(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
         private void btnSelectZip_Click(object sender, EventArgs e)
@@ -270,12 +277,13 @@ namespace LSC_Trainer
                     out string patience,
                     out string workers,
                     out string optimizer,
-                    out string device);
+                    out string device,
+                    out string instanceCount);
 
             string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv6-8-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
             if (HasCustomUploads(CUSTOM_UPLOADS_URI))
             {
@@ -385,7 +393,7 @@ namespace LSC_Trainer
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
 
-        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device, out string instanceCount)
         {
             img_size = "";
             batch_size = "";
@@ -397,6 +405,7 @@ namespace LSC_Trainer
             workers = "";
             optimizer = "";
             device = "";
+            instanceCount = "";
 
             if (imgSizeDropdown.Text != "") img_size = imgSizeDropdown.Text;
 
@@ -417,6 +426,8 @@ namespace LSC_Trainer
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
             if (txtDevice.Text != "") device = txtDevice.Text;
+
+            if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
 
         private static bool HasCustomUploads(string customUploadsURI)
@@ -429,7 +440,7 @@ namespace LSC_Trainer
             return true;
         }
 
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
@@ -437,7 +448,7 @@ namespace LSC_Trainer
                 {
                     TrainingInputMode = "File",
                     TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train_and_export.py" },
+                    ContainerEntrypoint = new List<string>() { "python3", "/code/train_and_export.py" },
                     ContainerArguments = new List<string>()
                     {
                         "--img-size", img_size,
@@ -453,6 +464,7 @@ namespace LSC_Trainer
                         "--optimizer", optimizer,
                         "--device", device,
                         "--include", "onnx",
+                        "--nnodes", instanceCount
                     }
                 },
                 RoleArn = ROLE_ARN,
@@ -464,7 +476,7 @@ namespace LSC_Trainer
                 EnableManagedSpotTraining = true,
                 ResourceConfig = new ResourceConfig()
                 {
-                    InstanceCount = 1,
+                    InstanceCount = int.Parse(instanceCount),
                     // Update the instance type everytime you select an instance type
                     InstanceType = TrainingInstanceType.FindValue(selectedInstance),
                     VolumeSizeInGB = 12
@@ -489,6 +501,13 @@ namespace LSC_Trainer
                     {"include", "onnx" }
                 }
                 : customHyperParamsForm.HyperParameters,
+                // VpcConfig = new VpcConfig()
+                // {
+                //     SecurityGroupIds = new List<string>() { "sg-01d8a8d18d5e7b9b0" },
+                //     Subnets = new List<string>() {
+                //         "subnet-02f60707766d68515"
+                //     }
+                // },
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
@@ -539,6 +558,7 @@ namespace LSC_Trainer
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
             txtDevice.Enabled = intent;
+            txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
@@ -554,7 +574,7 @@ namespace LSC_Trainer
         {
             InputsEnabler(false);
             connectionMenu.Enabled = false;
-            logPanel.Enabled = false;
+            logPanel.Enabled = true;
             Cursor = Cursors.WaitCursor;
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             this.Text = trainingJobName;
