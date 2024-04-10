@@ -41,21 +41,6 @@ RUN apt-get update --fix-missing && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ARG OPEN_MPI_PATH=/opt/amazon/openmpi/
-ENV EFA_VERSION=1.30.0
-ENV BRANCH_OFI=1.1.1
-
-#################################################
-## EFA and MPI SETUP
-RUN cd $HOME \
-  && curl -O https://s3-us-west-2.amazonaws.com/aws-efa-installer/aws-efa-installer-${EFA_VERSION}.tar.gz \
-  && tar -xf aws-efa-installer-${EFA_VERSION}.tar.gz \
-  && cd aws-efa-installer \
-  && ./efa_installer.sh -y --skip-kmod -g
-
-ENV PATH="$OPEN_MPI_PATH/bin:$PATH"
-
-# Clone the repository and set the PATH
 RUN cd - && mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
 
