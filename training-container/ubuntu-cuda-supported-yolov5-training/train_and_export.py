@@ -52,10 +52,6 @@ def parse_arguments():
     # parser.add_argument('--master_port', type=str, required=True)
 
     return parser.parse_args()
-    
-def run_nccl_tests():
-    subprocess.run(["git", "clone", "https://github.com/NVIDIA/nccl-tests.git"], check=True)
-    subprocess.run(["make", "MPI=1", "MPI_HOME=/opt/amazon/openmpi", "CUDA_HOME=/usr/local/cuda", "NCCL_HOME=/usr/local"], cwd="nccl-tests", check=True)
 
 def main():
     """
