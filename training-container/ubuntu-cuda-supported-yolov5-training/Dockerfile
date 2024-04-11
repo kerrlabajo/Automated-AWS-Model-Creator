@@ -31,4 +31,3 @@ RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
 # Copy the Python scripts
 COPY json_to_yaml_converter.py /code/json_to_yaml_converter.py
 COPY train_and_export.py /code/train_and_export.py
-COPY resource_config_reader.py /code/resource_config_reader.py

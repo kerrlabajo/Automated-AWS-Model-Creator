@@ -79,9 +79,6 @@ def main():
     fetched_master_ip = socket.gethostbyname(master_host)
     fetched_local_ip = socket.gethostbyname(current_host)
     
-    resource_config_args = [
-        "/code/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
-    ]
     converter_args = [
         "/code/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
@@ -109,8 +106,6 @@ def main():
     
     print("Master IP address:", fetched_master_ip)
     print("Local IP address:", fetched_local_ip)
-    
-    run_script(resource_config_args)
     
     run_script(converter_args) if args.hyp == "Custom" else None
         
