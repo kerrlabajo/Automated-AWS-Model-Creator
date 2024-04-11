@@ -9,8 +9,8 @@ def get_hosts_and_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
     current_host = data['current_host']
-    node_rank = hosts.index(current_host)
     hosts = data['hosts']
+    node_rank = hosts.index(current_host)
     return current_host, node_rank, hosts
 
 def print_details(master_host, current_host, node_rank, hosts):
