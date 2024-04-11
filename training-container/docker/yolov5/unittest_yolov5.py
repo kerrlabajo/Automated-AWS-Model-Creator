@@ -2,8 +2,6 @@ import unittest
 from unittest import mock
 from train_and_export import run_script, run_script, parse_arguments, main
 
-# import json_to_yaml_converter
-
 
 class TestYOLOv5Script(unittest.TestCase):
     @mock.patch("subprocess.run")
@@ -114,41 +112,6 @@ class TestYOLOv5Script(unittest.TestCase):
         mock_copy.assert_called_with(
             "/opt/ml/output/data/results/weights/best.onnx", "/opt/ml/model/"
         )
-
-
-# class TestJsonToYamlConversion(unittest.TestCase):
-#     @mock.patch(
-#         "builtins.open",
-#         new_callable=mock.mock_open,
-#         read_data='{"key1": "100", "key2": "200"}',
-#     )
-#     @mock.patch("argparse.ArgumentParser.parse_args")
-#     @mock.patch("os.path.join", return_value="path/to/custom-hyps.yaml")
-#     @mock.patch("pathlib.Path.parent", return_value="path/to")
-#     @mock.patch("yaml.dump")
-#     def test_conversion(
-#         self, mock_yaml_dump, mock_path_join, mock_parent, mock_args, mock_file
-#     ):
-#         # Arrange:
-#         mock_args.return_value = mock.Mock(Path="path/to/input.json")
-
-#         # Act:
-#         with mock.patch.object(json_to_yaml_converter, "__name__", "__main__"):
-#             with mock.patch.object(
-#                 json_to_yaml_converter, "args", mock_args.return_value
-#             ):
-#                 json_to_yaml_converter
-
-#         # Assert:
-#         mock_file.assert_called_once_with("path/to/input.json", "r")
-#         mock_yaml_dump.assert_called_once()
-
-#         called_args, _ = mock_yaml_dump.call_args
-#         converted_data = called_args[0]
-
-#         self.assertEqual(converted_data, {"key1": 100.0, "key2": 200.0})
-
-#         mock_path_join.assert_called_once_with("path/to", "custom-hyps.yaml")
 
 
 if __name__ == "__main__":
