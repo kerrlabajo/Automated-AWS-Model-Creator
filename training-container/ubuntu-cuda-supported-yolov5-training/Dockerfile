@@ -1,5 +1,5 @@
 # Start from NVIDIA CUDA image
-FROM nvidia/cuda:12.3.2-base-ubuntu22.04
+FROM nvidia/cuda:12.4.1-base-ubuntu22.04
 
 # Avoid timezone prompts
 ENV DEBIAN_FRONTEND=noninteractive
