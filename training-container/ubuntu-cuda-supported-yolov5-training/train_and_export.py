@@ -109,8 +109,7 @@ def main():
         
     if int(args.nnodes) > 1:
         run_script(multi_node_gpu_ddp_args + train_args, use_module=True)
-          
-    if device_count > 1:
+    elif device_count > 1:
         run_script(multi_gpu_ddp_args + train_args, use_module=True)
     else:
         run_script(train_args)
