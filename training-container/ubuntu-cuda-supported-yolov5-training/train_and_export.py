@@ -98,7 +98,7 @@ def main():
     export_args = [
         "/code/yolov5/export.py", "--img-size", args.img_size, 
         "--weights", args.project + args.name + '/weights/best.pt', 
-        "--include", args.include, "--device", args.device
+        "--include", args.include, "--device", args.device, "--opset", '12'
     ]
     
     print("Master Host:", master_host)
