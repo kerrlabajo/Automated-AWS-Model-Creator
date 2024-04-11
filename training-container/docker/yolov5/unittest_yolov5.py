@@ -1,3 +1,5 @@
+import pathlib
+import subprocess
 import unittest
 from unittest import mock
 from train_and_export import run_script, run_script, parse_arguments, main
@@ -77,7 +79,7 @@ class TestYOLOv5Script(unittest.TestCase):
             epochs="10",
             weights="yolov5n6.pt",
             data="data.yaml",
-            hyp="hyp.yaml",
+            hyp="test/hyp.yaml",
             project="project",
             name="test",
             patience="3",
