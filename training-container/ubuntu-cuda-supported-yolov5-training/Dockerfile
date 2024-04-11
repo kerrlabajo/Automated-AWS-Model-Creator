@@ -1,6 +1,27 @@
-FROM 763104351884.dkr.ecr.ap-southeast-1.amazonaws.com/pytorch-training:2.2.0-gpu-py310-cu121-ubuntu20.04-sagemaker
+# Start from NVIDIA CUDA image
+FROM nvidia/cuda:12.3.2-base-ubuntu22.04
 
-RUN cd - && mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
+# Avoid timezone prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install dependencies
+RUN apt-get update --fix-missing && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    apt-utils \
+    ca-certificates \
+    gnupg \
+    curl \
+    git \
+    python3 \
+    python3-pip \
+    ffmpeg libsm6 libxext6 \
+    net-tools \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone the repository and set the PATH
+RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
 ENV PATH="/code:${PATH}"
 
 # Install Python dependencies
