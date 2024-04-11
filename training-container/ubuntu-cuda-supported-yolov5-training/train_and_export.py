@@ -4,6 +4,13 @@ import argparse
 import json
 import sys
 import traceback
+import torch
+
+def clear_cuda_memory():
+    """
+    Clears CUDA memory.
+    """
+    torch.cuda.empty_cache()
     
 def get_hosts_and_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
@@ -114,6 +121,8 @@ def main():
         run_script(multi_gpu_ddp_args + train_args, use_module=True)
     else:
         run_script(train_args)
+        
+    clear_cuda_memory()
         
     run_script(export_args)
 
