@@ -26,7 +26,7 @@ ENV PATH="/code:${PATH}"
 
 # Install Python dependencies
 RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
-    pip3 install 'onnx>=1.12.0' --no-cache-dir && \
+    pip3 install 'onnx>=1.10.0' --no-cache-dir && \
     pip3 install -q --no-input pyyaml
 
 # Copy the Python scripts
