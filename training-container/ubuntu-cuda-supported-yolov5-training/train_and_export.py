@@ -73,9 +73,6 @@ def main():
     Returns:
     None
     """
-    os.environ["NCCL_DEBUG"] = "INFO"
-    os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
-    os.environ["NCCL_SOCKET_IFNAME"] = "eth0"
     args = parse_arguments()
     device_count = len(args.device.split(','))
     current_host, node_rank, hosts = get_hosts_and_node_rank()

@@ -2,7 +2,10 @@
 FROM nvidia/cuda:12.4.1-base-ubuntu22.04
 
 # Avoid timezone prompts
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    NCCL_DEBUG=INFO \
+    NCCL_DEBUG_SUBSYS=GRAPH \
+    NCCL_SOCKET_IFNAME=eth0
 
 # Update and install dependencies
 RUN apt-get update --fix-missing && \
