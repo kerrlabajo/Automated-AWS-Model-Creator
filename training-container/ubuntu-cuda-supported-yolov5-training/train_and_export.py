@@ -121,7 +121,6 @@ def main():
         
     run_script(export_args)
 
-    # Copy the best.onnx file to the /opt/ml/model/ directory
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
 
 if __name__ == "__main__":
