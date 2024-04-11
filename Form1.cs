@@ -17,6 +17,7 @@ using Amazon.Runtime.Internal.Util;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
 
 namespace LSC_Trainer
 {
@@ -180,6 +181,8 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+
+            instancesDropdown_SetValues();
         }
 
         public (string, string) GetECRUri()
@@ -757,6 +760,17 @@ namespace LSC_Trainer
             this.Close();
         }
 
+        private async void instancesDropdown_SetValues() {
+            instancesDropdown.Items.Clear();
+
+            List<string> instances = await AWS_Helper.GetAllSpotTrainingQuotas(serviceQuotasClient);
+
+            foreach(var instance in instances)
+            {
+                instancesDropdown.Items.Add(instance);
+            }
+
+        }
         private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
             if (instancesDropdown.GetItemText(instancesDropdown.SelectedItem) != null)
