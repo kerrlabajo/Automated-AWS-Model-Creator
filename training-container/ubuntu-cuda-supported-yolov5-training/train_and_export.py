@@ -12,7 +12,7 @@ def get_hosts_and_node_rank():
     current_host = data['current_host']
     hosts = data['hosts']
     node_rank = hosts.index(current_host)
-    return current_host, node_rank
+    return current_host, hosts, node_rank
 
 def run_script(args, use_module=False):
     """
@@ -72,7 +72,7 @@ def main():
     os.environ["NCCL_SOCKET_IFNAME"] = "eth0"
     args = parse_arguments()
     device_count = len(args.device.split(','))
-    current_host, node_rank = get_hosts_and_node_rank()
+    current_host, hosts, node_rank = get_hosts_and_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
     
