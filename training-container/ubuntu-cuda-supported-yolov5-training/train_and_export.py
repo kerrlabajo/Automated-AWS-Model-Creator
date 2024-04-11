@@ -6,7 +6,7 @@ import os
 import sys
 import traceback
     
-def get_current_host_and_node_rank():
+def get_hosts_and_node_rank():
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
     current_host = data['current_host']
@@ -72,7 +72,7 @@ def main():
     os.environ["NCCL_SOCKET_IFNAME"] = "eth0"
     args = parse_arguments()
     device_count = len(args.device.split(','))
-    current_host, node_rank = get_current_host_and_node_rank()
+    current_host, node_rank = get_hosts_and_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
     
