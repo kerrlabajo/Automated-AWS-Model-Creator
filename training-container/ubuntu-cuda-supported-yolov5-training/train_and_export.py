@@ -114,7 +114,8 @@ def main():
     else:
         run_script(train_args)
         
-    run_script(export_args)
+    if current_host == master_host:
+        run_script(export_args)
 
     shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
 
