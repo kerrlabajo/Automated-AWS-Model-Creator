@@ -82,7 +82,7 @@ def main():
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
-    multi_instance_gpu_ddp_args = [
+    multi_node_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
         "--master_addr", master_host, "--master_port", master_port
@@ -107,7 +107,7 @@ def main():
     run_script(converter_args) if args.hyp == "Custom" else None
         
     if int(args.nnodes) > 1:
-        run_script(multi_instance_gpu_ddp_args + train_args, use_module=True)
+        run_script(multi_node_gpu_ddp_args + train_args, use_module=True)
           
     if device_count > 1:
         run_script(multi_gpu_ddp_args + train_args, use_module=True)
