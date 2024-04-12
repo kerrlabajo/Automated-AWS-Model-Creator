@@ -116,21 +116,21 @@ namespace LSC_Trainer
             // createConnectionMenu
             // 
             this.createConnectionMenu.Name = "createConnectionMenu";
-            this.createConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.createConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.createConnectionMenu.Text = "Create Connection";
             this.createConnectionMenu.Click += new System.EventHandler(this.createConnectionMenu_Click);
             // 
             // testConnectionMenu
             // 
             this.testConnectionMenu.Name = "testConnectionMenu";
-            this.testConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.testConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.testConnectionMenu.Text = "Test Connection";
             this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
             // 
             // closeConnectionMenu
             // 
             this.closeConnectionMenu.Name = "closeConnectionMenu";
-            this.closeConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.closeConnectionMenu.Text = "Close Connection";
             this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
@@ -258,16 +258,7 @@ namespace LSC_Trainer
             this.instancesDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
-            //"ml.m5.xlarge",
-            "ml.g4dn.xlarge",
-            //"ml.g4dn.2xlarge",
-            //"ml.g4dn.4xlarge",
-            //"ml.g4dn.8xlarge",
-            //"ml.g4dn.12xlarge",
-            //"ml.p3.2xlarge",
-            //"ml.p3.8xlarge",
-            //"ml.p3.16xlarge"
-            });
+            "ml.g4dn.xlarge"});
             this.instancesDropdown.Location = new System.Drawing.Point(479, 257);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
@@ -720,6 +711,7 @@ namespace LSC_Trainer
             this.MinimumSize = new System.Drawing.Size(1182, 400);
             this.Name = "MainForm";
             this.Text = "LSC Trainer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.lscTrainerMenuStrip.ResumeLayout(false);
             this.lscTrainerMenuStrip.PerformLayout();
             this.mainPanel.ResumeLayout(false);

@@ -358,5 +358,13 @@ namespace LSC_Trainer.Functions
                 return null;
             }
         }
+
+        public void Dispose()
+        {
+            // Dispose the resources
+            amazonSageMakerClient.Dispose();
+            cloudWatchLogsClient.Dispose();
+            s3Client.Dispose();
+        } 
     }
 }
