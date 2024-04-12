@@ -116,8 +116,7 @@ def main():
         
     if current_host == master_host:
         run_script(export_args)
-
-    shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
+        shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
 
 if __name__ == "__main__":
     try:
