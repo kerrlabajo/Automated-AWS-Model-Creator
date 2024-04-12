@@ -172,6 +172,25 @@ namespace LSC_Trainer.Functions
                 else
                 {
                     DisplayLogMessage($"Training job stopped or in an unknown state.");
+                    UpdateTrainingStatus(
+                            trainingDetails.ResourceConfig.InstanceType.ToString(),
+                            formattedTime,
+                            trainingDetails.SecondaryStatusTransitions.Last().Status,
+                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    );
+
+                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    {
+                        completionSource.SetResult(true);
+                        if (hasCustomUploads && !deleting)
+                        {
+                            deleting = true;
+                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
+                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
+                        }
+
+                    }
                 }
             }
             catch (Exception ex)
