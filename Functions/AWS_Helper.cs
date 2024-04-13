@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 // using Amazon.IdentityManagement.Model;
 using Amazon;
+using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
+using Amazon.Runtime.Internal;
 
 namespace LSC_Trainer.Functions
 {
@@ -467,6 +470,37 @@ namespace LSC_Trainer.Functions
 
                 return (null, null);
             }
+        }
+
+        public static async Task<List<string>> GetAllSpotTrainingQuotas(AmazonServiceQuotasClient serviceQuotasClient)
+        {
+            var allInstances = new List<string>();
+            string nextToken = null;
+
+            do
+            {
+                var listQuotasRequest = new ListServiceQuotasRequest()
+                {
+                    ServiceCode = "sagemaker",
+                    MaxResults = 100,
+                    NextToken = nextToken
+                };
+
+                var response = await serviceQuotasClient.ListServiceQuotasAsync(listQuotasRequest);
+
+                foreach (var quota in response.Quotas)
+                {
+                    // Check if the quota name contains the keyword "spot instances for training"
+                    if (quota.QuotaName.Contains("for spot training job usage") && quota.Value >= 1)
+                    {
+                        allInstances.Add(quota.QuotaName.Replace(" for spot training job usage", ""));
+                    }
+                }
+
+                nextToken = response.NextToken;
+            } while (nextToken != null);
+
+            return allInstances;
         }
 
     }
