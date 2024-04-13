@@ -13,12 +13,6 @@ def get_hosts_and_node_rank():
     node_rank = hosts.index(current_host)
     return current_host, node_rank, hosts
 
-def print_details(master_host, current_host, node_rank, hosts):
-    print("Master Host:", master_host)
-    print("Current Host:", current_host)
-    print("Node Rank: ", node_rank  )
-    print("Hosts: ", hosts)
-
 def run_script(args, use_module=False):
     """
     Run a Python script with arguments.
@@ -102,8 +96,6 @@ def main():
         "--weights", args.project + args.name + '/weights/best.pt', 
         "--include", args.include, "--device", args.device, "--opset", '12'
     ]
-    
-    print_details(master_host, current_host, node_rank, hosts)
     
     run_script(converter_args) if args.hyp == "Custom" else None
         
