@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Amazon.S3.Model;
+using System.Windows.Forms;
 
 namespace LSC_Trainer.Functions
 {
@@ -123,7 +125,54 @@ namespace LSC_Trainer.Functions
                 LogError("Error uploading folder to S3: ", e);
             }
         }
+        public async Task<string> DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        {
+            try
+            {
+                DateTime startTime = DateTime.Now;
+                string filePath = PrepareLocalFile(localFilePath, objectKey);
 
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    TransferUtilityDownloadRequest downloadRequest = CreateDownloadRequest(bucketName, objectKey, filePath);
+                    await transferUtility.DownloadAsync(downloadRequest);
+                }
+
+                return GenerateResponseMessage(startTime, filePath);
+            }
+            catch (AggregateException e)
+            {
+                throw e;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                throw e;
+            }
+            catch (AmazonS3Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task DeleteDataSet(AmazonS3Client s3Client, string bucketName, string key)
+        {
+            try
+            {
+                ListObjectsV2Request listRequest = CreateListRequest(bucketName, key);
+
+                await DeleteObjectsInList(s3Client, bucketName, listRequest);
+
+                MessageBox.Show($"Deleted dataset: {key}");
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error deleting objects from S3: " + e.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error deleting objects from S3: " + e.Message);
+            }
+        }
         private static TransferUtilityUploadRequest CreateUploadRequest(string filePath, string fileName, string bucketName)
         {
             return new TransferUtilityUploadRequest
@@ -270,6 +319,75 @@ namespace LSC_Trainer.Functions
                 default:
                     return "application/octet-stream"; // Default MIME type for unknown file types
             }
+        }
+
+        private static string PrepareLocalFile(string localFilePath, string objectKey)
+        {
+            string directoryPath = Path.GetDirectoryName(localFilePath);
+            Directory.CreateDirectory(directoryPath);
+            return Path.Combine(localFilePath, objectKey.Split('/').Last());
+        }
+
+        private static TransferUtilityDownloadRequest CreateDownloadRequest(string bucketName, string objectKey, string filePath)
+        {
+            return new TransferUtilityDownloadRequest
+            {
+                BucketName = bucketName,
+                Key = objectKey,
+                FilePath = filePath
+            };
+        }
+
+        private static string GenerateResponseMessage(DateTime startTime, string filePath)
+        {
+            string response = $"\n File has been saved to {filePath} \n";
+            TimeSpan totalTime = DateTime.Now - startTime;
+            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                (int)totalTime.TotalHours,
+                totalTime.Minutes,
+                totalTime.Seconds,
+                (int)(totalTime.Milliseconds / 100));
+            response += $"Total Time Taken: {formattedTotalTime}";
+            return response;
+        }
+
+        private static ListObjectsV2Request CreateListRequest(string bucketName, string key)
+        {
+            return new ListObjectsV2Request
+            {
+                BucketName = bucketName,
+                Prefix = key
+            };
+        }
+
+        private static async Task DeleteObjectsInList(AmazonS3Client s3Client, string bucketName, ListObjectsV2Request listRequest)
+        {
+            ListObjectsV2Response listResponse;
+            do
+            {
+                // Get the list of objects
+                listResponse = await s3Client.ListObjectsV2Async(listRequest);
+
+                // Delete each object
+                foreach (S3Object obj in listResponse.S3Objects)
+                {
+                    await DeleteObject(s3Client, bucketName, obj.Key);
+                }
+
+                // Set the marker property
+                listRequest.ContinuationToken = listResponse.NextContinuationToken;
+            } while (listResponse.IsTruncated);
+        }
+
+        private static async Task DeleteObject(AmazonS3Client s3Client, string bucketName, string key)
+        {
+            var deleteRequest = new DeleteObjectRequest
+            {
+                BucketName = bucketName,
+                Key = key
+            };
+
+            await s3Client.DeleteObjectAsync(deleteRequest);
         }
     }
 }

@@ -3,6 +3,7 @@ using Amazon.CloudWatchLogs.Model;
 using Amazon.EC2;
 using Amazon.ECR.Model;
 using Amazon.S3;
+using Amazon.S3.Transfer;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System;
@@ -33,13 +34,14 @@ namespace LSC_Trainer.Functions
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private AmazonS3Client s3Client;
 
+        private LSC_Trainer.Functions.IFileTransferUtility transferUtility;
         private Label instanceTypeBox;
         private Label trainingDurationBox;
         private Label trainingStatusBox;
         private Label descBox;
         private RichTextBox logBox;
 
-        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox)
+        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
             this.cloudWatchLogsClient = cloudWatchLogsClient;
@@ -49,6 +51,7 @@ namespace LSC_Trainer.Functions
             this.trainingStatusBox = trainingStatusBox;
             this.descBox = descBox;
             this.logBox = logBox;
+            this.transferUtility = fileTransferUtility;
         }
 
         public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
@@ -140,7 +143,7 @@ namespace LSC_Trainer.Functions
                         {
                             deleting = true;
                             DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
                             DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
                         
@@ -163,7 +166,7 @@ namespace LSC_Trainer.Functions
                         {
                             deleting = true;
                             DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
                             DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
 
@@ -186,7 +189,7 @@ namespace LSC_Trainer.Functions
                         {
                             deleting = true;
                             DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
                             DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
 

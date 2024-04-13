@@ -341,7 +341,7 @@ namespace LSC_Trainer.Functions
 
         private static string GenerateResponseMessage(DateTime startTime, string filePath)
         {
-            string response = $"{Environment.NewLine} File has been saved to {filePath} {Environment.NewLine}";
+            string response = $"\n File has been saved to {filePath} \n";
             TimeSpan totalTime = DateTime.Now - startTime;
             string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                 (int)totalTime.TotalHours,
