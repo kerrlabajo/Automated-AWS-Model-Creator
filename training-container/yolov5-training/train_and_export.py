@@ -6,12 +6,24 @@ import sys
 import traceback
     
 def get_hosts_and_node_rank():
+    """
+    This function reads the resource configuration file provided by SageMaker 
+    and returns the current host, its rank among all hosts (node rank), and the list of all hosts.
+
+    The resource configuration file is a JSON file that has information about the current 
+    and all hosts. It's located at '/opt/ml/input/config/resourceconfig.json'.
+
+    Returns:
+        current_host (str): The name of the current host.
+        node_rank (int): The rank of the current host in the list of all hosts.
+        hosts (list): The list of all hosts.
+    """
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
     current_host = data['current_host']
     hosts = data['hosts']
     node_rank = hosts.index(current_host)
-    return current_host, node_rank
+    return current_host, node_rank, hosts
 
 def run_script(args, use_module=False):
     """
