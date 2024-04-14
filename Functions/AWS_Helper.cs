@@ -1,16 +1,25 @@
-﻿    using Amazon.S3;
-    using Amazon.S3.Model;
-    using Amazon.S3.Transfer;
-    using ICSharpCode.SharpZipLib.Tar;
-    using ICSharpCode.SharpZipLib.Zip;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Linq;
-    using System.Net;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
+using Amazon.SageMaker;
+using Amazon.ECR;
+using Amazon.ECR.Model;
+using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Zip;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+// using Amazon.IdentityManagement.Model;
+using Amazon;
+using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
+using Amazon.Runtime.Internal;
 
 namespace LSC_Trainer.Functions
 {
@@ -19,26 +28,17 @@ namespace LSC_Trainer.Functions
 
         private static long totalUploaded = 0;
 
+        public static void TestSageMakerClient (AmazonSageMakerClient client)
+        {
+            client.ListTrainingJobs(new Amazon.SageMaker.Model.ListTrainingJobsRequest());
+        }
+
         public static string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
             {
                 DateTime startTime = DateTime.Now;
-                string extension = Path.GetExtension(fileName);
-                fileName = Path.ChangeExtension(fileName, null); // Remove the existing extension
-                /*string content = "";
 
-                if(extension == ".rar")
-                {
-                    fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.rar", fileName, DateTime.Now);
-                    content = "rar";
-                }
-                if(extension == ".zip")
-                {
-                    fileName = String.Format("{0}-{1:yyyy-MM-dd-HH-mmss}.zip", fileName, DateTime.Now);
-                    content = "zip";
-                }
-                */
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
@@ -49,14 +49,12 @@ namespace LSC_Trainer.Functions
                         ContentType = GetContentType(fileName)
                     };
 
-                    Dictionary<string, long> fileProgress = new Dictionary<string, long>();
-
                     long currentFileUploaded = 0;
 
                     uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
                     {
                         currentFileUploaded = args.TransferredBytes;
-                        if(args.PercentDone == 100)
+                        if (args.PercentDone == 100)
                         {
                             totalUploaded += currentFileUploaded;
                             int overallPercentage = (int)(totalUploaded * 100 / totalSize);
@@ -67,29 +65,71 @@ namespace LSC_Trainer.Functions
                     transferUtility.Upload(uploadRequest);
                 }
 
-                    string s3Uri = $"s3://{bucketName}/{fileName}";
-                    TimeSpan totalTime = DateTime.Now - startTime;
-                    string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                                  (int)totalTime.TotalHours,
-                                                  totalTime.Minutes,
-                                                  totalTime.Seconds,
-                                                  (int)(totalTime.Milliseconds / 100));
-                    //Console.WriteLine($"Upload completed. Total Time Taken: {formattedTotalTime}");
-                    //Console.WriteLine($"S3 URI of the uploaded file: {s3Uri}");
-                    return fileName;
-                }
-                catch (AmazonS3Exception e)
-                {
-                    Console.WriteLine("Error uploading file to S3: " + e.Message);
-                    return null;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error uploading file to S3: " + e.Message);
-                    return null;
-                }
-            }
+                string s3Uri = $"s3://{bucketName}/{fileName}";
+                TimeSpan totalTime = DateTime.Now - startTime;
+                string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                              (int)totalTime.TotalHours,
+                                              totalTime.Minutes,
+                                              totalTime.Seconds,
+                                              (int)(totalTime.Milliseconds / 100));
 
+                return fileName;
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+        }
+        public static string UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
+        {
+            try
+            {
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
+                    {
+                        BucketName = bucketName,
+                        Key = fileName,
+                        InputStream = fileStream,
+                        ContentType = GetContentType(fileName)
+                    };
+
+                    long currentFileUploaded = 0;
+
+                    uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
+                    {
+                        currentFileUploaded = args.TransferredBytes;
+                        if (args.PercentDone == 100)
+                        {
+                            totalUploaded += currentFileUploaded;
+                            int overallPercentage = (int)(totalUploaded * 100 / totalSize);
+                            progress.Report(overallPercentage);
+                        }
+                    });
+
+                    transferUtility.Upload(uploadRequest);
+                }
+
+                    
+                return fileName;
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error uploading file to S3: " + e.Message);
+                return null;
+            }
+        }
         public static async Task UploadFolderToS3(AmazonS3Client s3Client, string folderPath,string folderName,string bucketName, IProgress<int> progress)
         {
             try
@@ -150,31 +190,9 @@ namespace LSC_Trainer.Functions
                                 // Decompress data into the memory stream
                                 await DecompressEntryAsync(zipStream, memoryStream);
 
-                                var uploadRequest = new TransferUtilityUploadRequest
-                                {
-                                    BucketName = bucketName,
-                                    Key = "custom-uploads/" + entry.Name,
-                                    InputStream = memoryStream,
-                                    ContentType = GetContentType(entry.Name)
-                                };
-
-                                Dictionary<string, long> fileProgress = new Dictionary<string, long>();
                                 long totalSize = CalculateTotalSize(localZipFilePath);
-                                long currentFileUploaded = 0;
-
-                                uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
-                                {
-                                    currentFileUploaded = args.TransferredBytes;
-                                    if (args.PercentDone == 100)
-                                    {
-                                        totalUploaded += currentFileUploaded;
-                                        int overallPercentage = (int)(totalUploaded * 100 / totalSize);
-                                        progress.Report(overallPercentage);
-                                    }
-                                });
-
-
-                                await transferUtility.UploadAsync(uploadRequest);
+                                string fileName = "custom-uploads/" + entry.Name;
+                                UploadFileToS3(s3Client, memoryStream, fileName, bucketName, progress, totalSize);
                             }
                         }
 
@@ -196,85 +214,6 @@ namespace LSC_Trainer.Functions
             catch (Exception e)
             {
                 Console.WriteLine("Error uploading file to S3: " + e.Message);
-            }
-        }
-
-        public static async Task<string> ExtractAndUploadBestPt(AmazonS3Client s3Client, string bucketName, string modelKey)
-        {
-            try
-            {
-                Console.WriteLine("Starting Extract For Best.pt");
-                DateTime startTime = DateTime.Now;
-                // Download the tar.gz file from S3
-                GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, modelKey);
-
-                //change to [0] after update
-                string trainingJobName = modelKey.Split('/')[1];
-
-                using (var tarStream = new TarInputStream(new GZipStream(response.ResponseStream, CompressionMode.Decompress)))
-                {
-                    var transferUtility = new TransferUtility(s3Client);
-
-                    // Specify the file name you are looking for
-                    string fileName = "results/weights/best.pt";
-
-                    TarEntry entry;
-                    while ((entry = tarStream.GetNextEntry()) != null)
-                    {
-                        // Check if the entry is a directory
-                        if (entry.IsDirectory)
-                        {
-                            continue;
-                        }
-
-                        // Check if the entry name matches the desired file name
-                        if (entry.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                // Copy the content from the entry's stream to the memory stream in chunks
-                                var buffer = new byte[4096];
-                                int bytesRead;
-                                while ((bytesRead = tarStream.Read(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    memoryStream.Write(buffer, 0, bytesRead);
-                                }
-
-                                TransferUtilityUploadRequest uploadRequest = new TransferUtilityUploadRequest
-                                {
-                                    BucketName = bucketName,
-                                    Key = $"training-jobs/{trainingJobName}/models/best.pt",
-                                    InputStream = memoryStream,
-                                };
-
-                                uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
-                                {
-                                    Console.WriteLine($"Progress: {args.PercentDone}%");
-                                });
-                                // Upload the content to S3
-                                await transferUtility.UploadAsync(uploadRequest);
-                            }
-                            string s3URI = $"s3://{bucketName}/training-jobs/{trainingJobName}/models/best.pt";
-                            //Console.WriteLine($"Successfully uploaded model at: {s3URI}");
-                            TimeSpan totalTime = DateTime.Now - startTime;
-                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                (int)totalTime.TotalHours,
-                                totalTime.Minutes,
-                                totalTime.Seconds,
-                                (int)(totalTime.Milliseconds / 100));
-                            Console.WriteLine($"Extraction Total Time Taken: {formattedTotalTime}");
-                            return s3URI;
-                        }
-                    }                   
-                }
-                // maybe improve this soon
-                Console.WriteLine("Extraction and upload failed.");
-                return null;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error extracting and uploading best.pt: {e.Message}");
-                return null;
             }
         }
 
@@ -315,9 +254,9 @@ namespace LSC_Trainer.Functions
             }
         }
 
-            private static string GetContentType(string fileName)
-            {
-                string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
+        private static string GetContentType(string fileName)
+        {
+            string extension = Path.GetExtension(fileName)?.ToLowerInvariant();
 
             switch (extension)
             {
@@ -348,50 +287,179 @@ namespace LSC_Trainer.Functions
             }
         }
 
-
-            public static async Task DownloadFile(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        public static async Task<string> DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
+        {
+            string response = "";
+            try
             {
-                try
-                {
-                    DateTime startTime = DateTime.Now;
-                    GetObjectResponse response = await s3Client.GetObjectAsync(bucketName, objectKey);
+                DateTime startTime = DateTime.Now;
+                string directoryPath = Path.GetDirectoryName(localFilePath);
+                Directory.CreateDirectory(directoryPath);
+                string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
 
-                    // Ensure the directory exists
-                    string directoryPath = Path.GetDirectoryName(localFilePath);
-                    Directory.CreateDirectory(directoryPath);
-                    string filePath = Path.Combine(localFilePath, objectKey.Split('/').Last());
-                    using (var fileStream = File.OpenWrite(filePath))
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    TransferUtilityDownloadRequest downloadRequest = new TransferUtilityDownloadRequest
                     {
-                        await response.ResponseStream.CopyToAsync(fileStream);
-                        if (response.HttpStatusCode == HttpStatusCode.OK)
-                        {
-                            Console.WriteLine($"File has been saved to {localFilePath}");
-                            TimeSpan totalTime = DateTime.Now - startTime;
-                            string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                (int)totalTime.TotalHours,
-                                totalTime.Minutes,
-                                totalTime.Seconds,
-                                (int)(totalTime.Milliseconds / 100));
-                            Console.WriteLine($"Total Time Taken: {formattedTotalTime}");
-                        }
-                    }
+                        BucketName = bucketName,
+                        Key = objectKey,
+                        FilePath = filePath
+                    };
+
+                    await transferUtility.DownloadAsync(downloadRequest);
+
+                    response += $"{Environment.NewLine} File has been saved to {filePath} {Environment.NewLine}";
+                    TimeSpan totalTime = DateTime.Now - startTime;
+                    string formattedTotalTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                        (int)totalTime.TotalHours,
+                        totalTime.Minutes,
+                        totalTime.Seconds,
+                        (int)(totalTime.Milliseconds / 100));
+                    response += $"Total Time Taken: {formattedTotalTime}";
                 }
+            }
             catch (AggregateException e)
             {
-                Console.WriteLine("Error downloading file: " + e.Message);
+                throw e;
             }
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine("Error downloading file: " + e.Message);
-                Console.WriteLine($"UnauthorizedAccessException at: {e.StackTrace}");
+                throw e;
             }
             catch (AmazonS3Exception e)
             {
-                Console.WriteLine("Error downloading file: " + e.Message);
+                throw e;
+            }
+            return response;
+        }
+
+        public static async Task DeleteDataSet(AmazonS3Client s3Client, string bucketName, string key)
+        {
+            ListObjectsV2Request listRequest = new ListObjectsV2Request
+            {
+                BucketName = bucketName,
+                Prefix = key
+            };
+
+            ListObjectsV2Response listResponse;
+            do
+            {
+                // Get the list of objects
+                listResponse = await s3Client.ListObjectsV2Async(listRequest);
+
+                // Delete each object
+                foreach (S3Object obj in listResponse.S3Objects)
+                {
+                    var deleteRequest = new DeleteObjectRequest
+                    {
+                        BucketName = bucketName,
+                        Key = obj.Key
+                    };
+
+                    await s3Client.DeleteObjectAsync(deleteRequest);
+                }
+
+                // Set the marker property
+                listRequest.ContinuationToken = listResponse.NextContinuationToken;
+            } while (listResponse.IsTruncated);
+
+            MessageBox.Show($"Deleted dataset: {key}");
+        }
+        public static async Task<List<string>> GetTrainingJobOutputList(AmazonS3Client s3Client, string bucketName)
+        {
+            try
+            {
+                var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                {
+                    BucketName = bucketName,
+                    Prefix = "training-jobs"
+                });
+
+                return response.S3Objects
+                    .Select(o => o.Key.Split('/')[1])
+                    .Distinct()
+                    .ToList();
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error retrieving list from S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return null;
             }
         }
 
+        public static (string, string) GetFirstRepositoryUriAndImageTag(string accessKey, string secretKey, RegionEndpoint region)
+        {
+            using (var ecrClient = new AmazonECRClient(accessKey, secretKey, region))
+            {
+                var response = ecrClient.DescribeRepositories(new DescribeRepositoriesRequest());
+
+                if (response.Repositories.Count > 0)
+                {
+                    var firstRepo = response.Repositories[0];
+                    var imageResponse = ecrClient.DescribeImages(new DescribeImagesRequest
+                    {
+                        RepositoryName = firstRepo.RepositoryName
+                    });
+
+                    if (imageResponse.ImageDetails.Count > 0)
+                    {
+                        var latestImage = imageResponse.ImageDetails
+                            .OrderByDescending(img => img.ImagePushedAt)
+                            .First();
+
+                        foreach (var tag in latestImage.ImageTags)
+                        {
+                            if (tag != "latest")
+                            {
+                                return (firstRepo.RepositoryUri, tag);
+                            }
+                        }
+                    }
+                }
+
+                return (null, null);
+            }
+        }
+
+        public static async Task<List<(string QuotaName, double QuotaValue)>> GetAllSpotTrainingQuotas(AmazonServiceQuotasClient serviceQuotasClient)
+        {
+            var allInstances = new List<(string QuotaName, double QuotaValue)>();
+            string nextToken = null;
+
+            do
+            {
+                var listQuotasRequest = new ListServiceQuotasRequest()
+                {
+                    ServiceCode = "sagemaker",
+                    MaxResults = 100,
+                    NextToken = nextToken
+                };
+
+                var response = await serviceQuotasClient.ListServiceQuotasAsync(listQuotasRequest);
+
+                foreach (var quota in response.Quotas)
+                {
+                    if (quota.QuotaName.Contains("for spot training job usage") && quota.Value >= 1)
+                    {
+                        allInstances.Add((quota.QuotaName.Replace(" for spot training job usage", ""), quota.Value));
+                    }
+                }
+
+                nextToken = response.NextToken;
+            } while (nextToken != null);
+
+            allInstances = allInstances.OrderBy(instance => instance.QuotaName).ToList();
+
+            return allInstances;
+        }
+
     }
+
 
     public static class PathHelper
     {

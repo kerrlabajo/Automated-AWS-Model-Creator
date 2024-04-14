@@ -369,3 +369,7 @@ FodyWeavers.xsd
 
 # Ignore all .env files throughout the project
 **/.env
+
+# Ignore all env folders
+**/env/
+```

@@ -6,26 +6,43 @@ using Amazon;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
+using Amazon.CloudWatchLogs;
+using Amazon.CloudWatchLogs.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
+using Amazon.Runtime;
+using System.Threading.Tasks;
+using Amazon.Runtime.Internal;
+using Amazon.Runtime.Internal.Util;
+using System.Threading;
+using System.Configuration;
+using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
 
 namespace LSC_Trainer
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
+
         private delegate void SetProgressCallback(int percentDone);
-        private readonly AmazonSageMakerClient amazonSageMakerClient;
-        private readonly AmazonS3Client s3Client;
+        private AmazonSageMakerClient amazonSageMakerClient;
+        private AmazonS3Client s3Client;
+        private AmazonCloudWatchLogsClient cloudWatchLogsClient;
+        private AmazonServiceQuotasClient serviceQuotasClient;
+        private Utility utility = new Utility();
 
-        private readonly string ACCESS_KEY;
-        private readonly string SECRET_KEY;
-        private readonly string REGION;
-        private readonly string ROLE_ARN;
+        private string ACCOUNT_ID;
+        private string ACCESS_KEY;
+        private string SECRET_KEY;
+        private string REGION;
+        private string ROLE_ARN;
 
-        private readonly string ECR_URI;
-        private readonly string SAGEMAKER_BUCKET;
-        private readonly string DEFAULT_DATASET_URI;
-        private readonly string DESTINATION_URI;
+        private string ECR_URI;
+        private string IMAGE_TAG;
+        private string SAGEMAKER_BUCKET;
+        private string DEFAULT_DATASET_URI;
+        private string CUSTOM_UPLOADS_URI;
+        private string DESTINATION_URI;
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
         private readonly string SAGEMAKER_OUTPUT_DATA_PATH = "/opt/ml/output/data/";
@@ -34,7 +51,6 @@ namespace LSC_Trainer
         private string datasetPath;
         private bool isFile;
         private string folderOrFileName;
-        private string customUploadsURI;
 
         private string trainingFolder;
         private string validationFolder;
@@ -42,105 +58,145 @@ namespace LSC_Trainer
         private string trainingJobName;
 
         private string outputKey;
+        private string modelKey;
 
-        public Form1()
+        public bool development;
+
+        private string selectedInstance;
+        private CustomHyperParamsForm customHyperParamsForm;
+
+        private TrainingJobHandler trainingJobHandler;
+
+        public MainForm(bool development)
         {
             InitializeComponent();
+            this.development = development;
+
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.DoWork += backgroundWorker_DoWork;
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
 
-            string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\","/");
-            DotNetEnv.Env.Load(ENV_PATH);
+            if (development)
+            {
+                string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
+                DotNetEnv.Env.Load(ENV_PATH);
+
+                UserConnectionInfo.AccountId = Environment.GetEnvironmentVariable("ACCOUNT_ID");
+                UserConnectionInfo.AccessKey = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
+                UserConnectionInfo.SecretKey = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
+                UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
+                UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
+                UserConnectionInfo.EcrUri = Environment.GetEnvironmentVariable("INTELLISYS_ECR_URI");
+                UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
+                UserConnectionInfo.DefaultDatasetURI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
+                UserConnectionInfo.CustomUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
+                UserConnectionInfo.DestinationURI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+                MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (!development && UserConnectionInfo.AccountId == null && UserConnectionInfo.AccessKey == null && UserConnectionInfo.SecretKey == null && UserConnectionInfo.Region == null && UserConnectionInfo.RoleArn == null)
+            {
+                MessageBox.Show("No connection established. Please create a connection.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var t = new Thread(() => Application.Run(new CreateConnectionForm(this)));
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+                this.Close();
+                Console.WriteLine($"Establishing Connection...");
+            }
             
-            ACCESS_KEY = Environment.GetEnvironmentVariable("ACCESS_KEY_ID");
-            SECRET_KEY = Environment.GetEnvironmentVariable("SECRET_ACCESS_KEY");
-            REGION = Environment.GetEnvironmentVariable("REGION");
-            ROLE_ARN = Environment.GetEnvironmentVariable("ROLE_ARN");
+            logBox.Rtf = @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}";
+            btnTraining.Enabled = false;
+            btnUploadToS3.Enabled = false;
+            btnDownloadModel.Enabled = false;
 
-            ECR_URI = Environment.GetEnvironmentVariable("ECR_URI");
-            SAGEMAKER_BUCKET = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-            DEFAULT_DATASET_URI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-            customUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
-            DESTINATION_URI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+            MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            InitializeClient();
+            InitializeInputs();
+        }
 
+        public void InitializeClient()
+        {
+            ACCOUNT_ID = UserConnectionInfo.AccountId;
+            ACCESS_KEY = UserConnectionInfo.AccessKey;
+            SECRET_KEY = UserConnectionInfo.SecretKey;
+            REGION = UserConnectionInfo.Region;
+            ROLE_ARN = UserConnectionInfo.RoleArn;
+            var ecrUriAndImageTag = GetECRUri();
+            ECR_URI = ecrUriAndImageTag.Item1 ?? UserConnectionInfo.EcrUri;
+            IMAGE_TAG = ecrUriAndImageTag.Item2 ?? "latest";
+            ECR_URI = $"{ECR_URI}:{IMAGE_TAG}";
+            SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
+            DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
+            CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
+            DESTINATION_URI = UserConnectionInfo.DestinationURI;
             RegionEndpoint region = RegionEndpoint.GetBySystemName(REGION);
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
+            cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
+            serviceQuotasClient = new AmazonServiceQuotasClient(ACCESS_KEY, SECRET_KEY, region);
 
+            Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
+            Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
+            Console.WriteLine($"SECRET_KEY: {SECRET_KEY}");
+            Console.WriteLine($"REGION: {REGION}");
+            Console.WriteLine($"ROLE_ARN: {ROLE_ARN}");
+            Console.WriteLine($"ECR_URI: {ECR_URI}");
+            Console.WriteLine($"SAGEMAKER_BUCKET: {SAGEMAKER_BUCKET}");
+            Console.WriteLine($"DEFAULT_DATASET_URI: {DEFAULT_DATASET_URI}");
+            Console.WriteLine($"DESTINATION_URI: {DESTINATION_URI}");
+        }
+
+        public void InitializeInputs()
+        {
             string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
             if (datasetName == "MMX059XA_COVERED5B")
             {
-                txtImageSize.Text = "1280";
-                txtBatchSize.Text = "1";
+                imgSizeDropdown.Text = "1280";
+                txtBatchSize.Text = "16";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
                 txtData.Text = "MMX059XA_COVERED5B.yaml";
-                txtHyperparameters.Text = "hyp.no-augmentation.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                // txtDevice.Text = "0";
-                trainingFolder = "train";
-                validationFolder = "Verification Images";
-            }
-            else
-            {
-                txtImageSize.Text = "640";
-                txtBatchSize.Text = "1";
-                txtEpochs.Text = "50";
-                txtWeights.Text = "yolov5s.pt";
-                txtData.Text = "data.yaml";
-                txtHyperparameters.Text = "hyp.scratch-low.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
-                // txtDevice.Text = "0";
+                txtDevice.Text = "0";
+                txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
-            enableUploadToS3Button(false);
-            enableDownloadModelButton(false);
-        }
-
-        private void connectToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            try
+            else
             {
-                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
-                Console.WriteLine("Connection successful.");
-                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                imgSizeDropdown.Text = "640";
+                txtBatchSize.Text = "1";
+                txtEpochs.Text = "1";
+                txtWeights.Text = "yolov5s.pt";
+                txtData.Text = "data.yaml";
+                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
+                txtPatience.Text = "100";
+                txtWorkers.Text = "8";
+                txtOptimizer.Text = "SGD";
+                txtDevice.Text = "cpu";
+                txtInstanceCount.Text = "1";
+                trainingFolder = "train";
+                validationFolder = "val";
             }
-            catch (Exception error)
-            {
-                Console.WriteLine($"Unexpected error: {error.Message}");
-                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
+            instancesDropdown_SetValues();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        public (string, string) GetECRUri()
         {
-
+            return AWS_Helper.GetFirstRepositoryUriAndImageTag(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
-        private void enableUploadToS3Button(bool intent)
-        {
-            btnUploadToS3.Enabled = intent;
-        }
-
-        private void enableDownloadModelButton(bool intent)
-        {
-            btnDownloadModel.Enabled = intent;
-        }
-
-        private void btnSelectDataset_Click(object sender, EventArgs e)
+        private void btnSelectZip_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "ZIP Files (*.zip)|*.zip|RAR Files (*.rar)|*.rar";
-                openFileDialog.Title = "Select a Zip or Rar File";
+                openFileDialog.Filter = "ZIP Files (*.zip)|*.zip";
+                openFileDialog.Title = "Select a Zip File";
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -150,9 +206,8 @@ namespace LSC_Trainer
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected file: {datasetPath}");
-                    btnRemoveFile.Visible = true;
                     isFile = true;
-                    enableUploadToS3Button(true);
+                    btnUploadToS3.Enabled = true;
                 }
             }
         }
@@ -162,28 +217,19 @@ namespace LSC_Trainer
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder";
-                folderBrowserDialog.ShowNewFolderButton = false; // Optional: Set to true if you want to allow the user to create a new folder
+                folderBrowserDialog.ShowNewFolderButton = false;
 
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     datasetPath = folderBrowserDialog.SelectedPath;
 
-                    // Display the selected folder path (optional)
                     lblZipFile.Text = datasetPath;
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
-                    btnRemoveFile.Visible = true;
                     isFile = false;
-                    enableUploadToS3Button(true);
+                    btnUploadToS3.Enabled = true;
                 }
             }
-        }
-        private void btnRemoveFile_Click(object sender, EventArgs e)
-        {
-            datasetPath = null;
-            lblZipFile.Text = "No file selected";
-            btnRemoveFile.Visible = false;
-            enableUploadToS3Button(false);
         }
 
         private void btnUploadToS3_Click(object sender, EventArgs e)
@@ -193,12 +239,19 @@ namespace LSC_Trainer
                 folderOrFileName = datasetPath.Split('\\').Last();
                 DialogResult result = MessageBox.Show($"Do you want to upload {folderOrFileName} to s3 bucket?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (result == DialogResult.Yes) backgroundWorker.RunWorkerAsync();
-
-                // For testing purposes. Pre-define values.
-                trainingFolder = "train";
-                validationFolder = "val";
+                if (result == DialogResult.Yes)
+                {
+                    backgroundWorker.RunWorkerAsync();
+                    // For testing purposes. Pre-define values.
+                    trainingFolder = "train";
+                    validationFolder = "val";
+                    mainPanel.Enabled = false;
+                    logPanel.Enabled = false;
+                    connectionMenu.Enabled = false;
+                    Cursor = Cursors.WaitCursor;
+                    lscTrainerMenuStrip.Cursor = Cursors.Default;
                 }
+            }
             else
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -207,58 +260,90 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
+            logBox.Clear();
+            instanceTypeBox.Text = "";
+            trainingDurationBox.Text = "";
+            trainingStatusBox.Text = "";
+            descBox.Text = "";
+            Cursor = Cursors.WaitCursor;
             SetTrainingParameters(
-                out string img_size,
-                out string batch_size,
-                out string epochs,
-                out string weights,
-                out string data,
-                out string hyperparameters,
-                out string patience,
-                out string workers,
-                out string optimizer);
+                    out string img_size,
+                    out string batch_size,
+                    out string epochs,
+                    out string weights,
+                    out string data,
+                    out string hyperparameters,
+                    out string patience,
+                    out string workers,
+                    out string optimizer,
+                    out string device,
+                    out string instanceCount);
 
-            trainingJobName = string.Format("Ubuntu-CUDA-YOLOv5-Training-{0}", DateTime.Now.ToString("yyyy-MM-dd-hh-mmss"));
+            string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
+            trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer);
-            InitiateTrainingJob(trainingRequest);
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
+
+            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
+            {
+                InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                if (result == DialogResult.OK)
+                {
+                    InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                }
+                else
+                {
+                    return;
+                }
+            }
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            ///TODO: Use the bestModelURI to get the bestModelKey as a way to create another 
-            ///training job request but for exporting the model to ONNX.
-            ///To be implemented in branch `dev/aws-sagemaker-export-request`.
-            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2023-12-20-01-4125/output/output.tar.gz";
-
-            string bestModelURI = await AWS_Helper.ExtractAndUploadBestPt(s3Client, SAGEMAKER_BUCKET, outputKey);
-            string bestModelKey = bestModelURI.Split('/').Skip(3).Aggregate((a, b) => a + "/" + b);
-            Console.WriteLine($"Best model key: {bestModelKey}");
-
-            string bestModelDirectoryURI = Path.GetDirectoryName(bestModelURI);
-            bestModelDirectoryURI = bestModelDirectoryURI.Insert(bestModelDirectoryURI.IndexOf('\\'), "\\").Replace("\\", "/");
-            Console.WriteLine($"Best model directory: {bestModelDirectoryURI}");
-
-            string img_size = "";
-            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
-
-            // Temporary comment until the export request is implemented.
-            // Waiting for response from this issue: https://github.com/ultralytics/yolov5/issues/12517
-            // CreateTrainingJobRequest exportRequest = CreateExportRequest(img_size, "onnx", bestModelDirectoryURI);
+            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
+            //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
 
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
-                folderBrowserDialog.Description = "Select a folder to save the file";
+                folderBrowserDialog.Description = "Select a folder to save the results and model";
 
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     string selectedLocalPath = folderBrowserDialog.SelectedPath;
 
-                    DialogResult result = MessageBox.Show($"Do you want to save the model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (result == DialogResult.Yes)
                     {
-                        await AWS_Helper.DownloadFile(s3Client, SAGEMAKER_BUCKET, bestModelKey, selectedLocalPath);
+                        try
+                        {
+                            mainPanel.Enabled = false;
+                            logPanel.Enabled = false;
+                            connectionMenu.Enabled = false;
+                            Cursor = Cursors.WaitCursor;
+                            lscTrainerMenuStrip.Cursor = Cursors.Default;
+                            string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
+                            string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show("Error downloading model.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        finally
+                        {
+                            mainPanel.Enabled = true;
+                            logPanel.Enabled = true;
+                            connectionMenu.Enabled = true;
+                            Cursor = Cursors.Default;
+                            System.Diagnostics.Process.Start(selectedLocalPath);
+                        }
+                        
                     }
                 }
             }
@@ -272,7 +357,7 @@ namespace LSC_Trainer
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
-                customUploadsURI = customUploadsURI + Path.GetFileNameWithoutExtension(datasetPath) + "/";
+                CUSTOM_UPLOADS_URI = CUSTOM_UPLOADS_URI + Path.GetFileNameWithoutExtension(datasetPath) + "/";
             }
             else
             {
@@ -280,7 +365,7 @@ namespace LSC_Trainer
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
-                customUploadsURI = customUploadsURI + folderOrFileName + "/";
+                CUSTOM_UPLOADS_URI = CUSTOM_UPLOADS_URI + folderOrFileName + "/";
             }
         }
 
@@ -288,15 +373,18 @@ namespace LSC_Trainer
         {
             if (e.ProgressPercentage >= progressBar.Minimum && e.ProgressPercentage <= progressBar.Maximum)
             {
-            progressBar.Value = e.ProgressPercentage;
-        }
+                progressBar.Value = e.ProgressPercentage;
+            }
         }
 
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            btnRemoveFile_Click(sender, e);
             MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
+            mainPanel.Enabled = true;
+            logPanel.Enabled = true;
+            connectionMenu.Enabled = true;
+            Cursor = Cursors.Default;
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
@@ -304,7 +392,7 @@ namespace LSC_Trainer
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
 
-        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer)
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device, out string instanceCount)
         {
             img_size = "";
             batch_size = "";
@@ -315,9 +403,10 @@ namespace LSC_Trainer
             patience = "";
             workers = "";
             optimizer = "";
-            string device = "";
+            device = "";
+            instanceCount = "";
 
-            if (txtImageSize.Text != "") img_size = txtImageSize.Text;
+            if (imgSizeDropdown.Text != "") img_size = imgSizeDropdown.Text;
 
             if (txtBatchSize.Text != "") batch_size = txtBatchSize.Text;
 
@@ -327,7 +416,7 @@ namespace LSC_Trainer
 
             if (txtData.Text != "") data = txtData.Text;
 
-            if (txtHyperparameters.Text != "") hyperparameters = txtHyperparameters.Text;
+            if (hyperparamsDropdown.Text != "") hyperparameters = hyperparamsDropdown.Text;
 
             if (txtPatience.Text != "") patience = txtPatience.Text;
 
@@ -336,6 +425,8 @@ namespace LSC_Trainer
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
             if (txtDevice.Text != "") device = txtDevice.Text;
+
+            if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
 
         private static bool HasCustomUploads(string customUploadsURI)
@@ -348,22 +439,15 @@ namespace LSC_Trainer
             return true;
         }
 
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer)
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
         {
-            if (Path.GetFileName(customUploadsURI) == "custom-uploads")
-            {
-                Console.WriteLine(customUploadsURI + "failed");
-                MessageBox.Show("Please upload a dataset first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                throw new Exception("Please upload a dataset first.");
-            }
-
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
                 AlgorithmSpecification = new AlgorithmSpecification()
                 {
                     TrainingInputMode = "File",
                     TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train.py" },
+                    ContainerEntrypoint = new List<string>() { "python3", "/code/train_and_export.py" },
                     ContainerArguments = new List<string>()
                     {
                         "--img-size", img_size,
@@ -377,7 +461,9 @@ namespace LSC_Trainer
                         "--patience", patience,
                         "--workers", workers,
                         "--optimizer", optimizer,
-                        // "--device", device
+                        "--device", device,
+                        "--include", "onnx",
+                        "--nnodes", instanceCount
                     }
                 },
                 RoleArn = ROLE_ARN,
@@ -385,17 +471,35 @@ namespace LSC_Trainer
                 {
                     S3OutputPath = DESTINATION_URI
                 },
+                // Keep this true so that devs will be using spot instances from now on
+                EnableManagedSpotTraining = true,
                 ResourceConfig = new ResourceConfig()
                 {
-                    InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM5Xlarge,
+                    InstanceCount = int.Parse(instanceCount),
+                    // Update the instance type everytime you select an instance type
+                    InstanceType = TrainingInstanceType.FindValue(selectedInstance),
                     VolumeSizeInGB = 12
                 },
                 TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
-                    MaxRuntimeInSeconds = 360000
+                    MaxRuntimeInSeconds = 14400,
+                    MaxWaitTimeInSeconds = 15000,
                 },
+                HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
+                {
+                    {"img-size", img_size},
+                    {"batch-size", batch_size},
+                    {"epochs", epochs},
+                    {"weights", weights},
+                    {"hyp", hyperparameters},
+                    {"patience", patience},
+                    {"workers", workers},
+                    {"optimizer", optimizer},
+                    {"device", device},
+                    {"include", "onnx" }
+                }
+                : customHyperParamsForm.HyperParameters,
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
@@ -408,7 +512,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + trainingFolder,
+                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + trainingFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -424,7 +528,7 @@ namespace LSC_Trainer
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(customUploadsURI) ? customUploadsURI : DEFAULT_DATASET_URI) + validationFolder,
+                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + validationFolder,
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
@@ -434,134 +538,250 @@ namespace LSC_Trainer
             return trainingRequest;
         }
 
-        private CreateTrainingJobRequest CreateExportRequest(string img_size, string format, string bestModelDirectoryURI)
+        private void InputsEnabler(bool intent)
         {
-            string exportRequestJob = string.Format("Export-{0}", trainingJobName);
-
-            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
-            {
-                AlgorithmSpecification = new AlgorithmSpecification()
-                {
-                    TrainingInputMode = "File",
-                    TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/export.py" },
-                    ContainerArguments = new List<string>()
-                    {
-                        "--img-size", img_size,
-                        "--weights" , SAGEMAKER_INPUT_DATA_PATH + "export/" + "best.pt",
-                        "--format", format,
-                        "--include", format,
-                        // If no manual saving, the exported ONNX will only be saved where the weights are.
-                        // Could not find a way to manually save the model to the SAGEMAKER_MODEL_PATH.
-                        //"--project", SAGEMAKER_MODEL_PATH,
-                        //"--name", "results",
-                        //"--device", "0"
-                    }
-                },
-                RoleArn = ROLE_ARN,
-                OutputDataConfig = new OutputDataConfig()
-                {
-                    S3OutputPath = DESTINATION_URI + trainingJobName + "/models/"
-                },
-                ResourceConfig = new ResourceConfig()
-                {
-                    InstanceCount = 1,
-                    InstanceType = TrainingInstanceType.MlM4Xlarge,
-                    VolumeSizeInGB = 8
-                },
-                TrainingJobName = exportRequestJob,
-                StoppingCondition = new StoppingCondition()
-                {
-                    MaxRuntimeInSeconds = 360000
-                },
-                InputDataConfig = new List<Channel>(){
-                    new Channel()
-                    {
-                        ChannelName = "export",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = bestModelDirectoryURI,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
-                }
-            };
-            return trainingRequest;
+            imgSizeDropdown.Enabled = intent;
+            txtBatchSize.Enabled = intent;
+            txtEpochs.Enabled = intent;
+            txtWeights.Enabled = intent;
+            txtData.Enabled = intent;
+            hyperparamsDropdown.Enabled = intent;
+            txtPatience.Enabled = intent;
+            txtWorkers.Enabled = intent;
+            txtOptimizer.Enabled = intent;
+            txtDevice.Enabled = intent;
+            txtInstanceCount.Enabled = intent;
+            btnSelectDataset.Enabled = intent;
+            btnSelectFolder.Enabled = intent;
+            btnUploadToS3.Enabled = intent;
+            btnTraining.Enabled = intent;
+            outputListComboBox.Enabled = intent;
+            instancesDropdown.Enabled = intent;
+            btnFetchOutput.Enabled = intent;
+            btnDownloadModel.Enabled = intent;
+            lblZipFile.Enabled = intent;
+            logBox.UseWaitCursor = !intent;
         }
-
-        private void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
+        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
+            InputsEnabler(false);
+            connectionMenu.Enabled = false;
+            logPanel.Enabled = true;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            this.Text = trainingJobName;
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
                 string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
-                Console.WriteLine("Training job executed successfully.");
+                logPanel.Visible = true;
+                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
+                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
+                
+                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
 
-                string prevStatusMessage = "";
-                Timer timer = new Timer();
-                timer.Interval = 5000;
-                timer.Tick += async (sender1, e1) =>
-                {
-                    try
-                    {
-                        DescribeTrainingJobResponse tracker = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                        {
-                            TrainingJobName = trainingJobName
-                        });
-
-                        if (tracker.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-                        {
-                            Console.WriteLine($"Status: {tracker.SecondaryStatusTransitions.Last().Status}");
-                            Console.WriteLine($"Description: {tracker.SecondaryStatusTransitions.Last().StatusMessage}");
-                            Console.WriteLine();
-                            prevStatusMessage = tracker.SecondaryStatusTransitions.Last().StatusMessage;
-                        }
-
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Completed)
-                        {
-                            Console.WriteLine("Printing status history...");
-                            foreach (SecondaryStatusTransition history in tracker.SecondaryStatusTransitions)
-                            {
-                                Console.WriteLine("Status: " + history.Status);
-                                TimeSpan elapsed = history.EndTime - history.StartTime;
-                                string formattedElapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                                              (int)elapsed.TotalHours,
-                                              elapsed.Minutes,
-                                              elapsed.Seconds,
-                                              (int)(elapsed.Milliseconds / 100));
-                                Console.WriteLine($"Elapsed Time: {formattedElapsedTime}");
-                                Console.WriteLine("Description: " + history.StatusMessage);
-                                Console.WriteLine();
-                            }
-                            outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                            enableDownloadModelButton(true);
-                            timer.Stop();
-                        }
-                        if (tracker.TrainingJobStatus == TrainingJobStatus.Failed)
-                        {
-                            Console.WriteLine(tracker.FailureReason);
-                            timer.Stop();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error in training model: {ex.Message}");
-                    }
-                };
-                timer.Start();
+                return;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creating training job: {ex.Message}");
+                MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnTraining.Enabled = true;
+                return;
             }
+            finally
+            {
+                InputsEnabler(true);
+                connectionMenu.Enabled = true;
+                logPanel.Enabled = true;
+                Cursor = Cursors.Default;
+            }
+        }
+        private void newTrainingJobMenu_Click(object sender, EventArgs e)
+        {
+            var t = new Thread(() => Application.Run(new MainForm(development)));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+        }
+
+        private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
+            string weightFile = utility.GetWeightFile(selectedSize);
+
+            if (weightFile != null)
+            {
+                txtWeights.Text = weightFile;
+            }
+            else
+            {
+                // Default value in the case where the size is not found
+                txtWeights.Text = "640";
+            }
+        }
+
+        private void hyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
+            {
+                this.Enabled = false;
+
+                customHyperParamsForm = new CustomHyperParamsForm();
+
+                customHyperParamsForm.FormClosed += OtherForm_FormClosed;
+                customHyperParamsForm.Show();
+            }
+            else
+            {
+                hyperparamsDropdown.Text = hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem);
+            }
+        }
+
+        private void helpMenu_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+
+            var helpForm = new HelpForm();
+
+            helpForm.FormClosed += OtherForm_FormClosed;
+            helpForm.Show();
+        }
+
+        private void OtherForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Enabled = true;
+        }
+
+        private void testConnnectionMenu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = amazonSageMakerClient.ListModelsAsync(new ListModelsRequest()).Result;
+                Console.WriteLine("Connection successful.");
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine($"Unexpected error: {error.Message}");
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnFetchOutput_Click(object sender, EventArgs e)
+        {
+            mainPanel.Enabled = false;
+            logPanel.Enabled = false;
+            connectionMenu.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            try
+            {
+                List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
+
+                if (models != null)
+                {
+                    outputListComboBox.Items.Clear(); 
+
+                    foreach (var obj in models)
+                    {
+                        outputListComboBox.Items.Add(obj); 
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                mainPanel.Enabled = true;
+                logPanel.Enabled = true;
+                connectionMenu.Enabled = true;
+                Cursor = Cursors.Default;
+                outputListComboBox.Enabled = true;
+            }
+        }
+
+        private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            {
+                string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
+                outputKey = $"training-jobs/{trainingJobOuputs}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobOuputs}/output/model.tar.gz";
+                btnDownloadModel.Enabled = true;
+            }
+        }
+
+        private void testConnectionMenu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                AWS_Helper.TestSageMakerClient(amazonSageMakerClient);
+                MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine($"Unexpected error: {error.Message}");
+                MessageBox.Show($"Connection failed: {error.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void createConnectionMenu_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+
+            var createConnectionForm = new CreateConnectionForm(this);
+            createConnectionForm.FormClosed += OtherForm_FormClosed;
+            createConnectionForm.Show();
+        }
+
+        private void closeConnectionMenu_Click(object sender, EventArgs e)
+        {
+            UserConnectionInfo.Instance.Reset();
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            if (File.Exists(config.FilePath))
+            {
+                File.Delete(config.FilePath);
+            }
+
+            var t = new Thread(() => Application.Run(new CreateConnectionForm()));
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            this.Close();
+        }
+
+        private async void instancesDropdown_SetValues() {
+            instancesDropdown.Items.Clear();
+
+            List<(string instance, double value)> instances = await AWS_Helper.GetAllSpotTrainingQuotas(serviceQuotasClient);
+
+            foreach(var instance in instances)
+            {
+                instancesDropdown.Items.Add(instance);
+            }
+
+        }
+        private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (instancesDropdown.SelectedItem != null)
+            {
+                var selectedItem = ((string, double))instancesDropdown.SelectedItem;
+                selectedInstance = selectedItem.Item1;
+                btnTraining.Enabled = true;
+            }
+            else
+            {
+                btnTraining.Enabled = false;
+            }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            trainingJobHandler?.Dispose();
         }
     }
 }
