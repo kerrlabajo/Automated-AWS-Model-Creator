@@ -2,12 +2,21 @@ import shutil
 import subprocess
 import argparse
 import json
-import os
 import sys
 import traceback
-import socket
     
-def get_node_rank():
+def get_hosts_and_node_rank():
+    """
+    This function reads the resource configuration file provided by SageMaker 
+    and returns the current host, its rank among all hosts (node rank), and the list of all hosts.
+
+    The resource configuration file is a JSON file that has information about the current 
+    and all hosts. It's located at '/opt/ml/input/config/resourceconfig.json'.
+
+    Returns:
+        current_host (str): The name of the current host.
+        node_rank (int): The rank of the current host in the list of all hosts.
+    """
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
     current_host = data['current_host']
@@ -52,7 +61,7 @@ def parse_arguments():
     # parser.add_argument('--master_port', type=str, required=True)
 
     return parser.parse_args()
-    
+
 def main():
     """
     Main function to run `train.py` and `export.py` scripts with command line arguments.
@@ -68,29 +77,22 @@ def main():
     Returns:
     None
     """
-    os.environ["NCCL_DEBUG"] = "INFO"
-    os.environ["NCCL_DEBUG_SUBSYS"] = "GRAPH"
     args = parse_arguments()
     device_count = len(args.device.split(','))
-    current_host, node_rank = get_node_rank()
+    current_host, node_rank = get_hosts_and_node_rank()
     master_host = 'algo-1'
     master_port = "29500"
-    fetched_master_ip = socket.gethostbyname(master_host)
-    fetched_local_ip = socket.gethostbyname(current_host)
     
-    resource_config_args = [
-        "/code/resource_config_reader.py", '/opt/ml/input/config/resourceconfig.json'
-    ]
     converter_args = [
         "/code/json_to_yaml_converter.py", '/opt/ml/input/config/hyperparameters.json'
     ]
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count)
     ]
-    multi_instance_gpu_ddp_args = [
+    multi_node_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count), 
         "--nnodes", args.nnodes, "--node_rank", str(node_rank), 
-        "--master_addr", fetched_master_ip, "--master_port", master_port
+        "--master_addr", master_host, "--master_port", master_port
     ]
     train_args = [
         "/code/yolov5/train.py", "--img-size", args.img_size, "--batch", args.batch, "--epochs", args.epochs, 
@@ -103,32 +105,21 @@ def main():
     export_args = [
         "/code/yolov5/export.py", "--img-size", args.img_size, 
         "--weights", args.project + args.name + '/weights/best.pt', 
-        "--include", args.include, "--device", args.device
+        "--include", args.include, "--device", args.device, "--opset", '12'
     ]
-    
-    print("Master IP address:", fetched_master_ip)
-    print("Local IP address:", fetched_local_ip)
-    
-    subprocess.run(["netstat", "-tuln"])
-
-    subprocess.run(["netstat", "--inet", "-n"])
-    
-    run_script(resource_config_args)
     
     run_script(converter_args) if args.hyp == "Custom" else None
         
     if int(args.nnodes) > 1:
-        run_script(multi_instance_gpu_ddp_args + train_args, use_module=True)
-          
-    if device_count > 1:
+        run_script(multi_node_gpu_ddp_args + train_args, use_module=True)
+    elif device_count > 1:
         run_script(multi_gpu_ddp_args + train_args, use_module=True)
     else:
         run_script(train_args)
         
-    run_script(export_args)
-
-    # Copy the best.onnx file to the /opt/ml/model/ directory
-    shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
+    if current_host == master_host:
+        run_script(export_args)
+        shutil.copy2('/opt/ml/output/data/results/weights/best.onnx', '/opt/ml/model/')
 
 if __name__ == "__main__":
     try:

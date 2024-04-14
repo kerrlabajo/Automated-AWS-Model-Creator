@@ -109,7 +109,6 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
-            txtInstanceCount.Enabled = false;
 
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
@@ -281,7 +280,7 @@ namespace LSC_Trainer
                     out string instanceCount);
 
             string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
                 img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
@@ -501,13 +500,6 @@ namespace LSC_Trainer
                     {"include", "onnx" }
                 }
                 : customHyperParamsForm.HyperParameters,
-                // VpcConfig = new VpcConfig()
-                // {
-                //     SecurityGroupIds = new List<string>() { "sg-01d8a8d18d5e7b9b0" },
-                //     Subnets = new List<string>() {
-                //         "subnet-02f60707766d68515"
-                //     }
-                // },
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
