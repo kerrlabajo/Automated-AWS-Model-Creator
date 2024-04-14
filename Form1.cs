@@ -767,9 +767,10 @@ namespace LSC_Trainer
         }
         private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (instancesDropdown.GetItemText(instancesDropdown.SelectedItem) != null)
+            if (instancesDropdown.SelectedItem != null)
             {
-                selectedInstance = instancesDropdown.GetItemText(instancesDropdown.SelectedItem);
+                var selectedItem = ((string, double))instancesDropdown.SelectedItem;
+                selectedInstance = selectedItem.Item1;
                 btnTraining.Enabled = true;
             }
             else
