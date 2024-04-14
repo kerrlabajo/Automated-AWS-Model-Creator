@@ -16,14 +16,13 @@ def get_hosts_and_node_rank():
     Returns:
         current_host (str): The name of the current host.
         node_rank (int): The rank of the current host in the list of all hosts.
-        hosts (list): The list of all hosts.
     """
     with open('/opt/ml/input/config/resourceconfig.json') as f:
         data = json.load(f)
     current_host = data['current_host']
     hosts = data['hosts']
     node_rank = hosts.index(current_host)
-    return current_host, node_rank, hosts
+    return current_host, node_rank
 
 def run_script(args, use_module=False):
     """
