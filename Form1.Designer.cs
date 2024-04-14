@@ -259,10 +259,10 @@ namespace LSC_Trainer
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
             "ml.g4dn.xlarge"});
-            this.instancesDropdown.Location = new System.Drawing.Point(479, 257);
+            this.instancesDropdown.Location = new System.Drawing.Point(441, 257);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
-            this.instancesDropdown.Size = new System.Drawing.Size(145, 24);
+            this.instancesDropdown.Size = new System.Drawing.Size(219, 24);
             this.instancesDropdown.TabIndex = 14;
             this.instancesDropdown.SelectedValueChanged += new System.EventHandler(this.instancesDropdown_SelectedValueChanged);
             // 
@@ -501,7 +501,7 @@ namespace LSC_Trainer
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(490, 295);
+            this.btnTraining.Location = new System.Drawing.Point(489, 294);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
