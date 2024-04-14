@@ -16,6 +16,8 @@ using Amazon.Runtime.Internal;
 using Amazon.Runtime.Internal.Util;
 using System.Threading;
 using System.Configuration;
+using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
 
 namespace LSC_Trainer
 {
@@ -26,6 +28,7 @@ namespace LSC_Trainer
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonS3Client s3Client;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
+        private AmazonServiceQuotasClient serviceQuotasClient;
         private Utility utility = new Utility();
 
         private string ACCOUNT_ID;
@@ -62,13 +65,7 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        //TODO: 1. Refactor all variables, methods, and classes to use the same naming convention.
-        //TODO: 2. Refactor repetitive code to use methods.
-        //TODO: 3. Refactor to use async/await for all methods that are not async.
-        //TODO: 4. Refactor to transfer methods in their respective classes/libraries.
-        //TODO: 5. Clean up code.
-        //TODO: 6. The app should still work after refactoring.
-        //TODO: 7. The order of function/method calls should not change after refactoring.
+        private TrainingJobHandler trainingJobHandler;
 
         public MainForm(bool development)
         {
@@ -137,6 +134,7 @@ namespace LSC_Trainer
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
+            serviceQuotasClient = new AmazonServiceQuotasClient(ACCESS_KEY, SECRET_KEY, region);
 
             Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
             Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
@@ -184,6 +182,8 @@ namespace LSC_Trainer
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+
+            instancesDropdown_SetValues();
         }
 
         public (string, string) GetECRUri()
@@ -577,9 +577,9 @@ namespace LSC_Trainer
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 logPanel.Visible = true;
-                var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
-                bool success =  await handler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
+                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
@@ -754,6 +754,17 @@ namespace LSC_Trainer
             this.Close();
         }
 
+        private async void instancesDropdown_SetValues() {
+            instancesDropdown.Items.Clear();
+
+            List<string> instances = await AWS_Helper.GetAllSpotTrainingQuotas(serviceQuotasClient);
+
+            foreach(var instance in instances)
+            {
+                instancesDropdown.Items.Add(instance);
+            }
+
+        }
         private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
             if (instancesDropdown.GetItemText(instancesDropdown.SelectedItem) != null)
@@ -765,6 +776,11 @@ namespace LSC_Trainer
             {
                 btnTraining.Enabled = false;
             }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            trainingJobHandler?.Dispose();
         }
     }
 }
