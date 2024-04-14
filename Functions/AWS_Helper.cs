@@ -454,6 +454,8 @@ namespace LSC_Trainer.Functions
                 nextToken = response.NextToken;
             } while (nextToken != null);
 
+            allInstances = allInstances.OrderBy(instance => instance).ToList();
+
             return allInstances;
         }
 
