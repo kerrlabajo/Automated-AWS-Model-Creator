@@ -426,9 +426,9 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static async Task<List<string>> GetAllSpotTrainingQuotas(AmazonServiceQuotasClient serviceQuotasClient)
+        public static async Task<List<(string QuotaName, double QuotaValue)>> GetAllSpotTrainingQuotas(AmazonServiceQuotasClient serviceQuotasClient)
         {
-            var allInstances = new List<string>();
+            var allInstances = new List<(string QuotaName, double QuotaValue)>();
             string nextToken = null;
 
             do
@@ -444,17 +444,16 @@ namespace LSC_Trainer.Functions
 
                 foreach (var quota in response.Quotas)
                 {
-                    // Check if the quota name contains the keyword "spot instances for training"
                     if (quota.QuotaName.Contains("for spot training job usage") && quota.Value >= 1)
                     {
-                        allInstances.Add(quota.QuotaName.Replace(" for spot training job usage", ""));
+                        allInstances.Add((quota.QuotaName.Replace(" for spot training job usage", ""), quota.Value));
                     }
                 }
 
                 nextToken = response.NextToken;
             } while (nextToken != null);
 
-            allInstances = allInstances.OrderBy(instance => instance).ToList();
+            allInstances = allInstances.OrderBy(instance => instance.QuotaName).ToList();
 
             return allInstances;
         }
