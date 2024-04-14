@@ -757,7 +757,7 @@ namespace LSC_Trainer
         private async void instancesDropdown_SetValues() {
             instancesDropdown.Items.Clear();
 
-            List<string> instances = await AWS_Helper.GetAllSpotTrainingQuotas(serviceQuotasClient);
+            List<(string instance, double value)> instances = await AWS_Helper.GetAllSpotTrainingQuotas(serviceQuotasClient);
 
             foreach(var instance in instances)
             {
