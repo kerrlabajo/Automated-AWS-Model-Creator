@@ -259,10 +259,10 @@ namespace LSC_Trainer
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
             "ml.g4dn.xlarge"});
-            this.instancesDropdown.Location = new System.Drawing.Point(441, 257);
+            this.instancesDropdown.Location = new System.Drawing.Point(455, 257);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
-            this.instancesDropdown.Size = new System.Drawing.Size(219, 24);
+            this.instancesDropdown.Size = new System.Drawing.Size(180, 24);
             this.instancesDropdown.TabIndex = 14;
             this.instancesDropdown.SelectedValueChanged += new System.EventHandler(this.instancesDropdown_SelectedValueChanged);
             // 
