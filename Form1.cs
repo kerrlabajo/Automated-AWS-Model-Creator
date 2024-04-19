@@ -18,6 +18,7 @@ using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
 using Amazon.ServiceQuotas.Model;
+using Amazon.S3.Transfer;
 
 namespace LSC_Trainer
 {
@@ -66,6 +67,7 @@ namespace LSC_Trainer
         private CustomHyperParamsForm customHyperParamsForm;
 
         private TrainingJobHandler trainingJobHandler;
+        private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
 
         public MainForm(bool development)
         {
@@ -109,6 +111,8 @@ namespace LSC_Trainer
             btnTraining.Enabled = false;
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
+
+            fileTransferUtility = new FileTransferUtility();
 
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
@@ -326,9 +330,9 @@ namespace LSC_Trainer
                             connectionMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
-                            string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
                             TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
-                            string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                             TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
                         }
                         catch (Exception)
@@ -353,7 +357,7 @@ namespace LSC_Trainer
         {
             if (isFile)
             {
-                AWS_Helper.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
+                fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
@@ -361,7 +365,7 @@ namespace LSC_Trainer
             }
             else
             {
-                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, "custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
+                fileTransferUtility.UploadFolderToS3(s3Client, datasetPath, "custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
@@ -577,7 +581,7 @@ namespace LSC_Trainer
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 logPanel.Visible = true;
-                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
                 bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
