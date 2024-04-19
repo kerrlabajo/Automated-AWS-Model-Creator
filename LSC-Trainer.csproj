@@ -304,6 +304,8 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Functions\FileTransferUtility.cs" />
+    <Compile Include="Functions\IFileTransferUtility.cs" />
     <Compile Include="Functions\TrainingJobHandler.cs" />
     <Compile Include="Functions\Utility.cs" />
     <Compile Include="HelpForm.cs">
@@ -336,6 +338,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include=".env" />
     <None Include="LSC-Trainer_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
