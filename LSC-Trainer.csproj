@@ -338,7 +338,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include=".env" />
     <None Include="LSC-Trainer_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -363,11 +362,6 @@
     <Analyzer Include="packages\AWSSDK.SageMaker.3.7.305\analyzers\dotnet\cs\SharedAnalysisCode.dll" />
     <Analyzer Include="packages\AWSSDK.SageMakerRuntime.3.7.301.2\analyzers\dotnet\cs\AWSSDK.SageMakerRuntime.CodeAnalysis.dll" />
     <Analyzer Include="packages\AWSSDK.ServiceQuotas.3.7.300.73\analyzers\dotnet\cs\AWSSDK.ServiceQuotas.CodeAnalysis.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update=".env">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Downloads\" />
