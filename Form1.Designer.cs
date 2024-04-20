@@ -169,7 +169,6 @@ namespace LSC_Trainer
             // 
             // lblZipFile
             // 
-            this.lblZipFile.AutoSize = true;
             this.lblZipFile.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.lblZipFile.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.lblZipFile.ImageAlign = System.Drawing.ContentAlignment.BottomRight;

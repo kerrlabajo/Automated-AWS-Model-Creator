@@ -209,7 +209,7 @@ namespace LSC_Trainer
                     datasetPath = openFileDialog.FileName;
 
                     // Display the selected file path (optional)
-                    lblZipFile.Text = datasetPath;
+                    lblZipFile.Text = datasetPath.Split('\\').Last();
 
                     MessageBox.Show($"Selected file: {datasetPath}");
                     isFile = true;
@@ -229,7 +229,7 @@ namespace LSC_Trainer
                 {
                     datasetPath = folderBrowserDialog.SelectedPath;
 
-                    lblZipFile.Text = datasetPath;
+                    lblZipFile.Text = datasetPath.Split('\\').Last();
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     isFile = false;
