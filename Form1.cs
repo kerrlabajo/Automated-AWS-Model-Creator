@@ -775,6 +775,7 @@ namespace LSC_Trainer
             {
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 selectedInstance = selectedItem.Item1;
+                CalculateBatchSize();
                 btnTraining.Enabled = true;
             }
             else
