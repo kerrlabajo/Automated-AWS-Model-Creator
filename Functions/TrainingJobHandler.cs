@@ -162,13 +162,6 @@ namespace LSC_Trainer.Functions
                     if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
                     {
                         completionSource.SetResult(true);
-                        if (hasCustomUploads && !deleting)
-                        {
-                            deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
-                        }
 
                     }
                 }
