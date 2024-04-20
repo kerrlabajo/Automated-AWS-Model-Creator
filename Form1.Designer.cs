@@ -139,14 +139,14 @@ namespace LSC_Trainer
             this.helpMenu.Name = "helpMenu";
             this.helpMenu.Size = new System.Drawing.Size(55, 24);
             this.helpMenu.Text = "Help";
-            this.helpMenu.Click += new System.EventHandler(this.helpMenu_Click);
+            this.helpMenu.Click += new System.EventHandler(this.HelpMenu_Click);
             // 
             // newTrainingJobMenu
             // 
             this.newTrainingJobMenu.Name = "newTrainingJobMenu";
             this.newTrainingJobMenu.Size = new System.Drawing.Size(137, 24);
             this.newTrainingJobMenu.Text = "New Training Job";
-            this.newTrainingJobMenu.Click += new System.EventHandler(this.newTrainingJobMenu_Click);
+            this.newTrainingJobMenu.Click += new System.EventHandler(this.NewTrainingJobMenu_Click);
             // 
             // backgroundWorker
             // 
@@ -243,6 +243,7 @@ namespace LSC_Trainer
             this.txtInstanceCount.Name = "txtInstanceCount";
             this.txtInstanceCount.Size = new System.Drawing.Size(145, 22);
             this.txtInstanceCount.TabIndex = 51;
+            this.txtInstanceCount.TextChanged += new System.EventHandler(this.txtInstanceCount_ValueChanged);
             // 
             // instanceCountLabel
             // 
@@ -621,7 +622,7 @@ namespace LSC_Trainer
             this.imgSizeDropdown.Name = "imgSizeDropdown";
             this.imgSizeDropdown.Size = new System.Drawing.Size(145, 24);
             this.imgSizeDropdown.TabIndex = 1;
-            this.imgSizeDropdown.SelectionChangeCommitted += new System.EventHandler(this.imgSizeDropdown_SelectionChangeCommitted);
+            this.imgSizeDropdown.SelectionChangeCommitted += new System.EventHandler(this.ImgSizeDropdown_SelectionChangeCommitted);
             // 
             // hyperparamsDropdown
             // 
@@ -639,7 +640,7 @@ namespace LSC_Trainer
             this.hyperparamsDropdown.Name = "hyperparamsDropdown";
             this.hyperparamsDropdown.Size = new System.Drawing.Size(145, 24);
             this.hyperparamsDropdown.TabIndex = 6;
-            this.hyperparamsDropdown.SelectedValueChanged += new System.EventHandler(this.hyperparamsDropdown_SelectedValueChanged);
+            this.hyperparamsDropdown.SelectedValueChanged += new System.EventHandler(this.HyperparamsDropdown_SelectedValueChanged);
             // 
             // outputListComboBox
             // 
