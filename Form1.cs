@@ -604,14 +604,14 @@ namespace LSC_Trainer
                 Cursor = Cursors.Default;
             }
         }
-        private void newTrainingJobMenu_Click(object sender, EventArgs e)
+        private void NewTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
 
-        private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
+        private void ImgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
         {
             string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
             string weightFile = utility.GetWeightFile(selectedSize);
@@ -627,7 +627,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void hyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
+        private void HyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
             if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
             {
@@ -644,7 +644,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void helpMenu_Click(object sender, EventArgs e)
+        private void HelpMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
 
@@ -659,7 +659,7 @@ namespace LSC_Trainer
             this.Enabled = true;
         }
 
-        private void testConnnectionMenu_Click(object sender, EventArgs e)
+        private void TestConnnectionMenu_Click(object sender, EventArgs e)
         {
             try
             {
