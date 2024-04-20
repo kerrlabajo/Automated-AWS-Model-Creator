@@ -256,6 +256,8 @@ namespace LSC_Trainer
                     connectionMenu.Enabled = false;
                     Cursor = Cursors.WaitCursor;
                     lscTrainerMenuStrip.Cursor = Cursors.Default;
+                    trainingStatusBox.Text = "Uploading to S3";
+                    descBox.Text = "Your dataset is being uploaded to S3. Please wait...";
                 }
             }
             else
@@ -393,6 +395,8 @@ namespace LSC_Trainer
             logPanel.Enabled = true;
             connectionMenu.Enabled = true;
             Cursor = Cursors.Default;
+            trainingStatusBox.Text = "";
+            descBox.Text = "";
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
