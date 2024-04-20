@@ -783,6 +783,61 @@ namespace LSC_Trainer
             }
         }
 
+        private void txtInstanceCount_ValueChanged(object sender, EventArgs e)
+        {
+            // Check if the instance count is not null or empty.
+            // Check  if value is more than 0. 
+            // Check if value is an integer.
+            if (txtInstanceCount.Text != null || txtInstanceCount.Text != "")
+            {
+                int instanceCount;
+                if (Int32.TryParse(txtInstanceCount.Text, out instanceCount))
+                {
+                    if (instanceCount > 0)
+                    {
+                        CalculateBatchSize();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Instance count must be greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Instance count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void CalculateBatchSize()
+        {
+            
+            if (instancesDropdown.SelectedItem != null)
+            {
+                var selectedItem = ((string, double))instancesDropdown.SelectedItem;
+                string instance = selectedItem.Item1;
+                int instanceCount = Int32.Parse(txtInstanceCount.Text);
+                int batchSize = -1;
+                switch (instance)
+                {
+                    case "ml.p3.2xlarge":
+                    case "ml.g4dn.xlarge":
+                    case "ml.g4dn.2xlarge":
+                    case "ml.g4dn.4xlarge":
+                    case "ml.g4dn.8xlarge":
+                        batchSize = 16 * instanceCount;
+                        break;
+                    case "ml.p3.8xlarge":
+                        batchSize = 64 * instanceCount;
+                        break;
+                    case "ml.p3.16xlarge":
+                        batchSize = 128 * instanceCount;
+                        break;
+                }
+
+                txtBatchSize.Text = batchSize.ToString();
+            }
+        }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             trainingJobHandler?.Dispose();
