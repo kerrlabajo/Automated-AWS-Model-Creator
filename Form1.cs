@@ -787,28 +787,33 @@ namespace LSC_Trainer
         private void txtInstanceCount_ValueChanged(object sender, EventArgs e)
         {
             // Check if the instance count is not null or empty.
-            // Check  if value is more than 0. 
+            // Check if value is more than 0. 
             // Check if value is an integer.
-            if (txtInstanceCount.Text != null || txtInstanceCount.Text != "")
+            if (txtInstanceCount.Text != null)
             {
                 int instanceCount;
-                if (Int32.TryParse(txtInstanceCount.Text, out instanceCount))
+                if (txtInstanceCount.Text == "")
                 {
-                    if (instanceCount > 0)
-                    {
-                        CalculateBatchSize();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Instance count must be greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("Instance count cannot be empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtInstanceCount.Text = "1";
+                }
+                else if (!Int32.TryParse(txtInstanceCount.Text, out instanceCount))
+                {
+                    MessageBox.Show("Instance count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtInstanceCount.Text = "1";
+                }
+                else if (instanceCount <= 0)
+                {
+                    MessageBox.Show("Instance count must be greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtInstanceCount.Text = "1";
                 }
                 else
                 {
-                    MessageBox.Show("Instance count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    CalculateBatchSize();
                 }
             }
         }
+
 
         private void CalculateBatchSize()
         {
@@ -839,6 +844,7 @@ namespace LSC_Trainer
                 txtBatchSize.Text = batchSize.ToString();
             }
         }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             trainingJobHandler?.Dispose();
