@@ -63,6 +63,7 @@ namespace LSC_Trainer
 
         public bool development;
 
+        private string rootCustomUploadsURI;
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
@@ -139,6 +140,7 @@ namespace LSC_Trainer
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
             serviceQuotasClient = new AmazonServiceQuotasClient(ACCESS_KEY, SECRET_KEY, region);
+            rootCustomUploadsURI = CUSTOM_UPLOADS_URI;
 
             Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
             Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
@@ -355,6 +357,8 @@ namespace LSC_Trainer
 
         private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
+            CUSTOM_UPLOADS_URI = rootCustomUploadsURI;
+
             if (isFile)
             {
                 fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
