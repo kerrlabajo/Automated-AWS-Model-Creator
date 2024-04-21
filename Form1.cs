@@ -17,8 +17,7 @@ using Amazon.Runtime.Internal.Util;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
-using Amazon.ServiceQuotas.Model;
-using Amazon.S3.Transfer;
+
 
 namespace LSC_Trainer
 {
@@ -69,6 +68,13 @@ namespace LSC_Trainer
 
         private TrainingJobHandler trainingJobHandler;
         private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
+
+        private List<string> supporterInstances = new List<string>()
+        {
+            "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
+        };
+        private int idealBatchSize = 16;
+        private int gpuCount = 0;
 
         public MainForm(bool development)
         {
@@ -268,46 +274,49 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            logBox.Clear();
-            instanceTypeBox.Text = "";
-            trainingDurationBox.Text = "";
-            trainingStatusBox.Text = "";
-            descBox.Text = "";
-            Cursor = Cursors.WaitCursor;
-            SetTrainingParameters(
-                    out string img_size,
-                    out string batch_size,
-                    out string epochs,
-                    out string weights,
-                    out string data,
-                    out string hyperparameters,
-                    out string patience,
-                    out string workers,
-                    out string optimizer,
-                    out string device,
-                    out string instanceCount);
+            if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
+                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtDevice.Text, txtInstanceCount.Text)) {
+                logBox.Clear();
+                instanceTypeBox.Text = "";
+                trainingDurationBox.Text = "";
+                trainingStatusBox.Text = "";
+                descBox.Text = "";
+                Cursor = Cursors.WaitCursor;
+                SetTrainingParameters(
+                        out string img_size,
+                        out string batch_size,
+                        out string epochs,
+                        out string weights,
+                        out string data,
+                        out string hyperparameters,
+                        out string patience,
+                        out string workers,
+                        out string optimizer,
+                        out string device,
+                        out string instanceCount);
 
-            string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
-            CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
+                string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
+                trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+                CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
+                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
-            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
-            {
-                InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                if (result == DialogResult.OK)
+                if (HasCustomUploads(CUSTOM_UPLOADS_URI))
                 {
                     InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
                 }
                 else
                 {
-                    return;
+                    DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                    if (result == DialogResult.OK)
+                    {
+                        InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
-            }
+            }         
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
@@ -800,6 +809,7 @@ namespace LSC_Trainer
             if (txtInstanceCount.Text != null)
             {
                 int instanceCount;
+                
                 if (txtInstanceCount.Text == "")
                 {
                     MessageBox.Show("Instance count cannot be empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -825,32 +835,140 @@ namespace LSC_Trainer
 
         private void CalculateBatchSize()
         {
-            
             if (instancesDropdown.SelectedItem != null)
             {
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 string instance = selectedItem.Item1;
                 int instanceCount = Int32.Parse(txtInstanceCount.Text);
-                int batchSize = -1;
-                switch (instance)
+                idealBatchSize = 16;
+
+                // Get the number of GPU devices
+                string[] gpuDevices = txtDevice.Text.Split(',');
+                gpuCount = gpuDevices.Length;
+
+                // Check if there is only 1 instance count and only 1 GPU device
+                if (instanceCount == 1 && gpuCount == 1 && gpuDevices[0] == "0" && !supporterInstances.Contains(instance))
                 {
-                    case "ml.p3.2xlarge":
-                    case "ml.g4dn.xlarge":
-                    case "ml.g4dn.2xlarge":
-                    case "ml.g4dn.4xlarge":
-                    case "ml.g4dn.8xlarge":
-                        batchSize = 16 * instanceCount;
-                        break;
-                    case "ml.p3.8xlarge":
-                        batchSize = 64 * instanceCount;
-                        break;
-                    case "ml.p3.16xlarge":
-                        batchSize = 128 * instanceCount;
-                        break;
+                    idealBatchSize = -1;
+                }
+                else
+                {
+                    // Set the batch size based on the supported instance type.
+                    switch (instance)
+                    {
+                        case "ml.p3.2xlarge":
+                        case "ml.g4dn.xlarge":
+                        case "ml.g4dn.2xlarge":
+                        case "ml.g4dn.4xlarge":
+                        case "ml.g4dn.8xlarge":
+                            idealBatchSize = 16 * instanceCount * gpuCount;
+                            break;
+                        case "ml.p3.8xlarge":
+                        case "ml.g4dn.12xlarge":
+                            idealBatchSize = 64 * instanceCount * gpuCount;
+                            break;
+                        case "ml.p3.16xlarge":
+                            idealBatchSize = 128 * instanceCount * gpuCount;
+                            break;
+                        default:
+                            idealBatchSize = 16 * instanceCount * gpuCount;
+                            break;
+                    }
                 }
 
-                txtBatchSize.Text = batchSize.ToString();
+                txtBatchSize.Text = idealBatchSize.ToString();
             }
+        }
+
+        private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
+        {
+            if (string.IsNullOrEmpty(img_size))
+            {
+                MessageBox.Show("Image size cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            // ADD VALIDATOR FOR BATCHSIZE IF IT IS BIGGER OR LESSER THAN THE IDEAL
+            if ((txtBatchSize.Text) == "-1" && (int.Parse(instanceCount) > 1 || gpuCount > 1))
+            {
+                MessageBox.Show("Batch size cannot be -1 for multiple instances or multiple GPU devices.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(batch_size))
+            {
+                MessageBox.Show("Batch size cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (int.Parse(txtBatchSize.Text) < idealBatchSize)
+            {
+                MessageBox.Show($"Batch size cannot be lesser than the ideal batch size {idealBatchSize}.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(epochs))
+            {
+                MessageBox.Show("Epochs cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (int.Parse(epochs) <= 0)
+            {
+                MessageBox.Show("Epochs must be a positive integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(weights))
+            {
+                MessageBox.Show("Weights cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(data))
+            {
+                MessageBox.Show("Data cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(hyperparameters))
+            {
+                MessageBox.Show("Hyperparameters cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(patience))
+            {
+                MessageBox.Show("Patience cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(workers))
+            {
+                MessageBox.Show("Workers cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(optimizer))
+            {
+                MessageBox.Show("Optimizer cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(device))
+            {
+                MessageBox.Show("Device cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(instanceCount))
+            {
+                MessageBox.Show("Instance count cannot be null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            // If all parameters pass validation, return true
+            return true;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
