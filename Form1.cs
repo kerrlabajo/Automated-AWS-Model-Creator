@@ -256,6 +256,7 @@ namespace LSC_Trainer
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            datasetPath = null;
         }
 
         private void btnTraining_Click(object sender, EventArgs e)
