@@ -396,6 +396,7 @@ namespace LSC_Trainer
             this.txtDevice.Size = new System.Drawing.Size(145, 22);
             this.txtDevice.TabIndex = 10;
             this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
+            this.txtDevice.TextChanged += new System.EventHandler(this.txtDevice_ValueChanged);
             // 
             // trainingStatusLabel
             // 
