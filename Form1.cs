@@ -926,23 +926,47 @@ namespace LSC_Trainer
 
         private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
         {
-            if (string.IsNullOrEmpty(img_size))
+            Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
-                MessageBox.Show("Image size cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-          
-            if (string.IsNullOrEmpty(batch_size))
+                {"Image size", img_size},
+                {"Batch size", batch_size},
+                {"Epochs", epochs},
+                {"Weights", weights},
+                {"Data", data},
+                {"Hyperparameters", hyperparameters},
+                {"Patience", patience},
+                {"Workers", workers},
+                {"Optimizer", optimizer},
+                {"Device", device},
+                {"Instance count", instanceCount}
+            };
+            
+            Dictionary<string, string> intFields = new Dictionary<string, string>()
             {
-                MessageBox.Show("Batch size cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
+                {"Epochs", epochs},
+                {"Patience", patience},
+                {"Workers", workers},
+                {"Instance count", instanceCount}
+            };
+
+            foreach (KeyValuePair<string, string> parameter in parameters)
+            {
+                if (string.IsNullOrEmpty(parameter.Value))
+                {
+                    MessageBox.Show($"{parameter.Key} cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
             }
 
-            if ((txtBatchSize.Text) == "-1" && (int.Parse(instanceCount) > 1 || gpuCount > 1))
+            foreach (KeyValuePair<string, string> intField in intFields)
             {
-                MessageBox.Show("Batch size cannot be -1 for multiple instances or multiple GPU devices.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
+                if (!Int32.TryParse(intField.Value, out int number) || number <= 0)
+                {
+                    MessageBox.Show($"{intField.Key} must be a positive integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
             }
+
             if (!Int32.TryParse(txtBatchSize.Text, out int batchSize))
             {
                 MessageBox.Show("Batch size must be an integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -961,99 +985,8 @@ namespace LSC_Trainer
                 return false;
             }
 
-            if (string.IsNullOrEmpty(epochs))
+            if (txtDevice_Validate() == false)
             {
-                MessageBox.Show("Epochs cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (!Int32.TryParse(txtEpochs.Text, out int number))
-            {
-                MessageBox.Show("Epoch must be an integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (int.Parse(epochs) <= 0)
-            {
-                MessageBox.Show("Epochs must be a positive integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            
-
-            if (string.IsNullOrEmpty(weights))
-            {
-                MessageBox.Show("Weights cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(data))
-            {
-                MessageBox.Show("Data cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(hyperparameters))
-            {
-                MessageBox.Show("Hyperparameters cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(patience))
-            {
-                MessageBox.Show("Patience cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (!Int32.TryParse(txtPatience.Text, out int patienceValue))
-            {
-                MessageBox.Show("Patience must be an integer.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            
-            if (patienceValue <= 0)
-            {
-                MessageBox.Show("Patience must be greater than 0.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(workers))
-            {
-                MessageBox.Show("Workers cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (!Int32.TryParse(txtWorkers.Text, out int workersValue))
-            {
-                MessageBox.Show("Workers must be an integer.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            
-            if (workersValue <= 0)
-            {
-                MessageBox.Show("Workers must be greater than 0.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(optimizer))
-            {
-                MessageBox.Show("Optimizer cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(device))
-            {
-                MessageBox.Show("Device cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            
-            if(txtDevice_Validate() == false)
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(instanceCount))
-            {
-                MessageBox.Show("Instance count cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
