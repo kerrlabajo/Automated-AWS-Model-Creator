@@ -832,7 +832,44 @@ namespace LSC_Trainer
             }
         }
 
+        private void txtDevice_ValueChanged(object sender, EventArgs e)
+        {
+            if (txtDevice.Text != null)
+            {
 
+              CalculateBatchSize();
+            }
+        }
+
+        private bool txtDevice_Validate()
+        {
+            if (txtDevice.Text != null)
+            {
+                // If the user wants to use only the CPU
+                if (txtDevice.Text.ToLower() == "cpu")
+                {
+                    CalculateBatchSize();
+                    return true;
+                }
+
+                string[] devices = txtDevice.Text.Split(',');
+
+                foreach (string device in devices)
+                {
+                    int deviceNumber;
+                    bool isNumeric = int.TryParse(device, out deviceNumber);
+
+                    if (!isNumeric || deviceNumber < 0)
+                    {
+                        Console.WriteLine("Each device must be a non-negative integer or 'cpu'.");
+                        MessageBox.Show("Each device must be a non-negative integer or 'cpu'.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
         private void CalculateBatchSize()
         {
             if (instancesDropdown.SelectedItem != null)
@@ -841,13 +878,23 @@ namespace LSC_Trainer
                 string instance = selectedItem.Item1;
                 int instanceCount = Int32.Parse(txtInstanceCount.Text);
                 idealBatchSize = 16;
-
+                gpuCount = 0;
                 // Get the number of GPU devices
                 string[] gpuDevices = txtDevice.Text.Split(',');
-                gpuCount = gpuDevices.Length;
+
+                foreach(string device in gpuDevices)
+                {
+                    int deviceNumber;
+                    bool isNumeric = int.TryParse(device, out deviceNumber);
+
+                    if (isNumeric)
+                    {
+                        gpuCount++;
+                    }
+                }
 
                 // Check if there is only 1 instance count and only 1 GPU device
-                if (instanceCount == 1 && gpuCount == 1 && gpuDevices[0] == "0" && !supporterInstances.Contains(instance))
+                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supporterInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
