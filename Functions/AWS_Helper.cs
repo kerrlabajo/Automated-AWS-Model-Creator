@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 // using Amazon.IdentityManagement.Model;
 using Amazon;
+using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
+using Amazon.Runtime.Internal;
 
 namespace LSC_Trainer.Functions
 {
@@ -389,7 +392,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public static string GetFirstRepositoryUri(string accessKey, string secretKey, RegionEndpoint region)
+        public static (string, string) GetFirstRepositoryUriAndImageTag(string accessKey, string secretKey, RegionEndpoint region)
         {
             using (var ecrClient = new AmazonECRClient(accessKey, secretKey, region))
             {
@@ -397,13 +400,62 @@ namespace LSC_Trainer.Functions
 
                 if (response.Repositories.Count > 0)
                 {
-                    return response.Repositories[0].RepositoryUri;
+                    var firstRepo = response.Repositories[0];
+                    var imageResponse = ecrClient.DescribeImages(new DescribeImagesRequest
+                    {
+                        RepositoryName = firstRepo.RepositoryName
+                    });
+
+                    if (imageResponse.ImageDetails.Count > 0)
+                    {
+                        var latestImage = imageResponse.ImageDetails
+                            .OrderByDescending(img => img.ImagePushedAt)
+                            .First();
+
+                        foreach (var tag in latestImage.ImageTags)
+                        {
+                            if (tag != "latest")
+                            {
+                                return (firstRepo.RepositoryUri, tag);
+                            }
+                        }
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return (null, null);
             }
+        }
+
+        public static async Task<List<(string QuotaName, double QuotaValue)>> GetAllSpotTrainingQuotas(AmazonServiceQuotasClient serviceQuotasClient)
+        {
+            var allInstances = new List<(string QuotaName, double QuotaValue)>();
+            string nextToken = null;
+
+            do
+            {
+                var listQuotasRequest = new ListServiceQuotasRequest()
+                {
+                    ServiceCode = "sagemaker",
+                    MaxResults = 100,
+                    NextToken = nextToken
+                };
+
+                var response = await serviceQuotasClient.ListServiceQuotasAsync(listQuotasRequest);
+
+                foreach (var quota in response.Quotas)
+                {
+                    if (quota.QuotaName.Contains("for spot training job usage") && quota.Value >= 1)
+                    {
+                        allInstances.Add((quota.QuotaName.Replace(" for spot training job usage", ""), quota.Value));
+                    }
+                }
+
+                nextToken = response.NextToken;
+            } while (nextToken != null);
+
+            allInstances = allInstances.OrderBy(instance => instance.QuotaName).ToList();
+
+            return allInstances;
         }
 
     }

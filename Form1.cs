@@ -16,6 +16,8 @@ using Amazon.Runtime.Internal;
 using Amazon.Runtime.Internal.Util;
 using System.Threading;
 using System.Configuration;
+using Amazon.ServiceQuotas;
+using Amazon.ServiceQuotas.Model;
 
 namespace LSC_Trainer
 {
@@ -26,6 +28,7 @@ namespace LSC_Trainer
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonS3Client s3Client;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
+        private AmazonServiceQuotasClient serviceQuotasClient;
         private Utility utility = new Utility();
 
         private string ACCOUNT_ID;
@@ -35,6 +38,7 @@ namespace LSC_Trainer
         private string ROLE_ARN;
 
         private string ECR_URI;
+        private string IMAGE_TAG;
         private string SAGEMAKER_BUCKET;
         private string DEFAULT_DATASET_URI;
         private string CUSTOM_UPLOADS_URI;
@@ -61,13 +65,7 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        //TODO: 1. Refactor all variables, methods, and classes to use the same naming convention.
-        //TODO: 2. Refactor repetitive code to use methods.
-        //TODO: 3. Refactor to use async/await for all methods that are not async.
-        //TODO: 4. Refactor to transfer methods in their respective classes/libraries.
-        //TODO: 5. Clean up code.
-        //TODO: 6. The app should still work after refactoring.
-        //TODO: 7. The order of function/method calls should not change after refactoring.
+        private TrainingJobHandler trainingJobHandler;
 
         public MainForm(bool development)
         {
@@ -124,7 +122,10 @@ namespace LSC_Trainer
             SECRET_KEY = UserConnectionInfo.SecretKey;
             REGION = UserConnectionInfo.Region;
             ROLE_ARN = UserConnectionInfo.RoleArn;
-            ECR_URI = GetECRUri() ?? UserConnectionInfo.EcrUri;
+            var ecrUriAndImageTag = GetECRUri();
+            ECR_URI = ecrUriAndImageTag.Item1 ?? UserConnectionInfo.EcrUri;
+            IMAGE_TAG = ecrUriAndImageTag.Item2 ?? "latest";
+            ECR_URI = $"{ECR_URI}:{IMAGE_TAG}";
             SAGEMAKER_BUCKET = UserConnectionInfo.SagemakerBucket;
             DEFAULT_DATASET_URI = UserConnectionInfo.DefaultDatasetURI;
             CUSTOM_UPLOADS_URI = UserConnectionInfo.CustomUploadsURI;
@@ -133,6 +134,7 @@ namespace LSC_Trainer
             amazonSageMakerClient = new AmazonSageMakerClient(ACCESS_KEY, SECRET_KEY, region);
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
+            serviceQuotasClient = new AmazonServiceQuotasClient(ACCESS_KEY, SECRET_KEY, region);
 
             Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
             Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
@@ -160,6 +162,7 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "0";
+                txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
@@ -175,14 +178,17 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "cpu";
+                txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
             }
+
+            instancesDropdown_SetValues();
         }
 
-        public string GetECRUri()
+        public (string, string) GetECRUri()
         {
-            return AWS_Helper.GetFirstRepositoryUri(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
+            return AWS_Helper.GetFirstRepositoryUriAndImageTag(ACCESS_KEY, SECRET_KEY, RegionEndpoint.GetBySystemName(REGION));
         }
 
         private void btnSelectZip_Click(object sender, EventArgs e)
@@ -270,12 +276,13 @@ namespace LSC_Trainer
                     out string patience,
                     out string workers,
                     out string optimizer,
-                    out string device);
+                    out string device,
+                    out string instanceCount);
 
             string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("LSCI-{0}-TRNG-IMGv6-8-{1}", modifiedInstance, DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+            trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
             CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device);
+                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
             if (HasCustomUploads(CUSTOM_UPLOADS_URI))
             {
@@ -385,7 +392,7 @@ namespace LSC_Trainer
             sender.GetType().GetMethod("SelectAll")?.Invoke(sender, null);
         }
 
-        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device)
+        private void SetTrainingParameters(out string img_size, out string batch_size, out string epochs, out string weights, out string data, out string hyperparameters, out string patience, out string workers, out string optimizer, out string device, out string instanceCount)
         {
             img_size = "";
             batch_size = "";
@@ -397,6 +404,7 @@ namespace LSC_Trainer
             workers = "";
             optimizer = "";
             device = "";
+            instanceCount = "";
 
             if (imgSizeDropdown.Text != "") img_size = imgSizeDropdown.Text;
 
@@ -417,6 +425,8 @@ namespace LSC_Trainer
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
             if (txtDevice.Text != "") device = txtDevice.Text;
+
+            if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
 
         private static bool HasCustomUploads(string customUploadsURI)
@@ -429,7 +439,7 @@ namespace LSC_Trainer
             return true;
         }
 
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device)
+        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
@@ -437,7 +447,7 @@ namespace LSC_Trainer
                 {
                     TrainingInputMode = "File",
                     TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "yolov5/train_and_export.py" },
+                    ContainerEntrypoint = new List<string>() { "python3", "/code/train_and_export.py" },
                     ContainerArguments = new List<string>()
                     {
                         "--img-size", img_size,
@@ -453,6 +463,7 @@ namespace LSC_Trainer
                         "--optimizer", optimizer,
                         "--device", device,
                         "--include", "onnx",
+                        "--nnodes", instanceCount
                     }
                 },
                 RoleArn = ROLE_ARN,
@@ -464,7 +475,7 @@ namespace LSC_Trainer
                 EnableManagedSpotTraining = true,
                 ResourceConfig = new ResourceConfig()
                 {
-                    InstanceCount = 1,
+                    InstanceCount = int.Parse(instanceCount),
                     // Update the instance type everytime you select an instance type
                     InstanceType = TrainingInstanceType.FindValue(selectedInstance),
                     VolumeSizeInGB = 12
@@ -539,6 +550,7 @@ namespace LSC_Trainer
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
             txtDevice.Enabled = intent;
+            txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
@@ -554,7 +566,7 @@ namespace LSC_Trainer
         {
             InputsEnabler(false);
             connectionMenu.Enabled = false;
-            logPanel.Enabled = false;
+            logPanel.Enabled = true;
             Cursor = Cursors.WaitCursor;
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             this.Text = trainingJobName;
@@ -565,9 +577,9 @@ namespace LSC_Trainer
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 logPanel.Visible = true;
-                var handler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
-                bool success =  await handler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
+                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
@@ -742,17 +754,34 @@ namespace LSC_Trainer
             this.Close();
         }
 
+        private async void instancesDropdown_SetValues() {
+            instancesDropdown.Items.Clear();
+
+            List<(string instance, double value)> instances = await AWS_Helper.GetAllSpotTrainingQuotas(serviceQuotasClient);
+
+            foreach(var instance in instances)
+            {
+                instancesDropdown.Items.Add(instance);
+            }
+
+        }
         private void instancesDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (instancesDropdown.GetItemText(instancesDropdown.SelectedItem) != null)
+            if (instancesDropdown.SelectedItem != null)
             {
-                selectedInstance = instancesDropdown.GetItemText(instancesDropdown.SelectedItem);
+                var selectedItem = ((string, double))instancesDropdown.SelectedItem;
+                selectedInstance = selectedItem.Item1;
                 btnTraining.Enabled = true;
             }
             else
             {
                 btnTraining.Enabled = false;
             }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            trainingJobHandler?.Dispose();
         }
     }
 }

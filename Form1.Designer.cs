@@ -40,6 +40,8 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.txtInstanceCount = new System.Windows.Forms.TextBox();
+            this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
             this.hyperparametersLabel = new System.Windows.Forms.Label();
             this.descBox = new System.Windows.Forms.Label();
@@ -114,21 +116,21 @@ namespace LSC_Trainer
             // createConnectionMenu
             // 
             this.createConnectionMenu.Name = "createConnectionMenu";
-            this.createConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.createConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.createConnectionMenu.Text = "Create Connection";
             this.createConnectionMenu.Click += new System.EventHandler(this.createConnectionMenu_Click);
             // 
             // testConnectionMenu
             // 
             this.testConnectionMenu.Name = "testConnectionMenu";
-            this.testConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.testConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.testConnectionMenu.Text = "Test Connection";
             this.testConnectionMenu.Click += new System.EventHandler(this.testConnectionMenu_Click);
             // 
             // closeConnectionMenu
             // 
             this.closeConnectionMenu.Name = "closeConnectionMenu";
-            this.closeConnectionMenu.Size = new System.Drawing.Size(224, 26);
+            this.closeConnectionMenu.Size = new System.Drawing.Size(214, 26);
             this.closeConnectionMenu.Text = "Close Connection";
             this.closeConnectionMenu.Click += new System.EventHandler(this.closeConnectionMenu_Click);
             // 
@@ -184,6 +186,8 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.txtInstanceCount);
+            this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
             this.mainPanel.Controls.Add(this.hyperparametersLabel);
             this.mainPanel.Controls.Add(this.descBox);
@@ -232,24 +236,33 @@ namespace LSC_Trainer
             this.mainPanel.Size = new System.Drawing.Size(1140, 344);
             this.mainPanel.TabIndex = 4;
             // 
+            // txtInstanceCount
+            // 
+            this.txtInstanceCount.Location = new System.Drawing.Point(427, 222);
+            this.txtInstanceCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtInstanceCount.Name = "txtInstanceCount";
+            this.txtInstanceCount.Size = new System.Drawing.Size(145, 22);
+            this.txtInstanceCount.TabIndex = 51;
+            // 
+            // instanceCountLabel
+            // 
+            this.instanceCountLabel.AutoSize = true;
+            this.instanceCountLabel.Location = new System.Drawing.Point(292, 222);
+            this.instanceCountLabel.Name = "instanceCountLabel";
+            this.instanceCountLabel.Size = new System.Drawing.Size(97, 16);
+            this.instanceCountLabel.TabIndex = 52;
+            this.instanceCountLabel.Text = "Instance Count:";
+            // 
             // instancesDropdown
             // 
             this.instancesDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
-            "ml.m5.xlarge",
-            "ml.g4dn.xlarge",
-            "ml.g4dn.2xlarge",
-            "ml.g4dn.4xlarge",
-            "ml.g4dn.8xlarge",
-            "ml.g4dn.12xlarge",
-            "ml.p3.2xlarge",
-            "ml.p3.8xlarge",
-            "ml.p3.16xlarge"});
-            this.instancesDropdown.Location = new System.Drawing.Point(479, 257);
+            "ml.g4dn.xlarge"});
+            this.instancesDropdown.Location = new System.Drawing.Point(455, 257);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
-            this.instancesDropdown.Size = new System.Drawing.Size(145, 24);
+            this.instancesDropdown.Size = new System.Drawing.Size(180, 24);
             this.instancesDropdown.TabIndex = 14;
             this.instancesDropdown.SelectedValueChanged += new System.EventHandler(this.instancesDropdown_SelectedValueChanged);
             // 
@@ -488,7 +501,7 @@ namespace LSC_Trainer
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(490, 295);
+            this.btnTraining.Location = new System.Drawing.Point(489, 294);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
@@ -698,6 +711,7 @@ namespace LSC_Trainer
             this.MinimumSize = new System.Drawing.Size(1182, 400);
             this.Name = "MainForm";
             this.Text = "LSC Trainer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.lscTrainerMenuStrip.ResumeLayout(false);
             this.lscTrainerMenuStrip.PerformLayout();
             this.mainPanel.ResumeLayout(false);
@@ -764,6 +778,8 @@ namespace LSC_Trainer
         private System.Windows.Forms.Panel SpaceBetween;
         private System.Windows.Forms.Label hyperparametersLabel;
         private System.Windows.Forms.ComboBox instancesDropdown;
+        private System.Windows.Forms.TextBox txtInstanceCount;
+        private System.Windows.Forms.Label instanceCountLabel;
     }
 }
 
