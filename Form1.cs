@@ -884,7 +884,7 @@ namespace LSC_Trainer
                     int deviceNumber;
                     bool isNumeric = int.TryParse(device, out deviceNumber);
 
-                    if (isNumeric)
+                    if (isNumeric || txtDevice.Text == "cpu")
                     {
                         gpuCount++;
                     }
