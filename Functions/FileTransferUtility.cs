@@ -42,7 +42,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public string UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
+        public async Task<string> UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace LSC_Trainer.Functions
                     TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
                     ConfigureProgressTracking(uploadRequest, progress, totalSize);
 
-                    transferUtility.Upload(uploadRequest);
+                    await transferUtility.UploadAsync(uploadRequest);
                 }
 
                 LogUploadTime(startTime);
@@ -70,19 +70,20 @@ namespace LSC_Trainer.Functions
                 return null;
             }
         }
-
-        public string UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
+        public async Task<string> UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
             {
+                DateTime startTime = DateTime.Now;
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
                     ConfigureProgressTracking(uploadRequest, progress, totalSize);
 
-                    transferUtility.Upload(uploadRequest);
+                    await transferUtility.UploadAsync(uploadRequest);
                 }
 
+                LogUploadTime(startTime);
                 return fileName;
             }
             catch (AmazonS3Exception e)
@@ -105,11 +106,13 @@ namespace LSC_Trainer.Functions
                 long totalSize = CalculateTotalSizeFolder(folderPath);
                 var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
 
-                foreach (var file in files)
+                var tasks = files.Select(file =>
                 {
                     var key = GenerateKey(folderPath, file, folderName);
-                    UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize);
-                }
+                    return UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize);
+                });
+
+                await Task.WhenAll(tasks);
 
                 Console.WriteLine("Successfully uploaded all files from the folder to S3.");
                 LogUploadTime(startTime);
@@ -123,6 +126,7 @@ namespace LSC_Trainer.Functions
                 LogError("Error uploading folder to S3: ", e);
             }
         }
+
         public async Task<string> DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
         {
             try
@@ -243,7 +247,7 @@ namespace LSC_Trainer.Functions
                         await DecompressEntryAsync(zipStream, memoryStream);
 
                         string fileName = "custom-uploads/" + entry.Name;
-                        UploadFileToS3(s3Client, memoryStream, fileName, bucketName, progress, totalSize);
+                        await UploadFileToS3(s3Client, memoryStream, fileName, bucketName, progress, totalSize);
                     }
                 }
             }

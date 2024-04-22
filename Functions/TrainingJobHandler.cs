@@ -369,7 +369,7 @@ namespace LSC_Trainer.Functions
                     return null;
                 }
             }
-            catch (Amazon.CloudWatchLogs.Model.ResourceNotFoundException ex)
+            catch (Amazon.CloudWatchLogs.Model.ResourceNotFoundException)
             {
                 // Log or handle the exception accordingly
                 Console.WriteLine($"Log group '{logGroupName}' does not exist.");
