@@ -1,21 +1,12 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
-using Amazon.EC2;
-using Amazon.ECR.Model;
 using Amazon.S3;
-using Amazon.S3.Transfer;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LSC_Trainer.Functions
 {

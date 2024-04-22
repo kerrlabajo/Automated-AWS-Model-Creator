@@ -2,11 +2,9 @@
 using Amazon.S3;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
-using System.Collections.Generic;
 using System.IO.Compression;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using System.Windows.Forms;
