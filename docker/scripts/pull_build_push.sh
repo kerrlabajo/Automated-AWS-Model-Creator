@@ -18,7 +18,7 @@ else
 fi
 
 # Change to the directory containing your repository
-cd /home/ubuntu/LSC-Trainer/training-container/scripts
+cd /home/ubuntu/LSC-Trainer/docker/scripts
 
 # Load environment variables from .env file
 if [ -f .env ]
