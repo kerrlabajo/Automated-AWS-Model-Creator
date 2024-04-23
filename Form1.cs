@@ -316,9 +316,6 @@ namespace LSC_Trainer
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
-            //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
-
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder to save the results and model";
@@ -885,14 +882,12 @@ namespace LSC_Trainer
                     }
                 }
 
-                // Check if there is only 1 instance count and only 1 GPU device
                 if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supporterInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
                 else
                 {
-                    // Set the batch size based on the supported instance type.
                     switch (instance)
                     {
                         case "ml.p3.2xlarge":
@@ -985,7 +980,6 @@ namespace LSC_Trainer
                 return false;
             }
 
-            // If all parameters pass validation, return true
             return true;
         }
 

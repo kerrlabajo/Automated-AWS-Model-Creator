@@ -77,8 +77,6 @@ namespace LSC_Trainer.Functions
             var timer = new System.Timers.Timer(timerInterval);
             timer.Elapsed += async (sender, e) => await CheckTrainingJobStatus(amazonSageMakerClient, trainingJobName, completionSource);
 
-            // The `CheckTrainingJobStatus` method will be called periodically based on the interval
-
             return timer;
         }
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
@@ -127,7 +125,7 @@ namespace LSC_Trainer.Functions
                             trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
                         if (hasCustomUploads && !deleting)
@@ -150,7 +148,7 @@ namespace LSC_Trainer.Functions
                             trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
 
@@ -166,7 +164,7 @@ namespace LSC_Trainer.Functions
                             trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
                         if (hasCustomUploads && !deleting)
@@ -182,22 +180,18 @@ namespace LSC_Trainer.Functions
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that may occur during the processing
                 MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
         {
-            //CloudWatch
             if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
             {
-                // Get log stream
                 string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
 
                 if (!string.IsNullOrEmpty(logStreamName))
                 {
-                    // Print CloudWatch logs
                     GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
                     {
                         LogGroupName = "/aws/sagemaker/TrainingJobs",
@@ -225,7 +219,7 @@ namespace LSC_Trainer.Functions
                     }
                 }
             }
-            // Update training status
+
             if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
             {
                 UpdateTrainingStatus(

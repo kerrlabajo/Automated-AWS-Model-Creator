@@ -243,7 +243,6 @@ namespace LSC_Trainer.Functions
                 {
                     using (var memoryStream = new MemoryStream())
                     {
-                        // Decompress data into the memory stream
                         await DecompressEntryAsync(zipStream, memoryStream);
 
                         string fileName = "custom-uploads/" + entry.Name;
@@ -282,7 +281,7 @@ namespace LSC_Trainer.Functions
 
         private static async Task DecompressEntryAsync(ZipInputStream zipStream, MemoryStream memoryStream)
         {
-            byte[] buffer = new byte[8192]; // Adjust buffer size as needed
+            byte[] buffer = new byte[8192];
             int bytesRead;
             while ((bytesRead = zipStream.Read(buffer, 0, buffer.Length)) > 0)
             {
@@ -319,7 +318,7 @@ namespace LSC_Trainer.Functions
                 case ".rar":
                     return "application/x-rar-compressed";
                 default:
-                    return "application/octet-stream"; // Default MIME type for unknown file types
+                    return "application/octet-stream";
             }
         }
 
@@ -367,16 +366,13 @@ namespace LSC_Trainer.Functions
             ListObjectsV2Response listResponse;
             do
             {
-                // Get the list of objects
                 listResponse = await s3Client.ListObjectsV2Async(listRequest);
 
-                // Delete each object
                 foreach (S3Object obj in listResponse.S3Objects)
                 {
                     await DeleteObject(s3Client, bucketName, obj.Key);
                 }
 
-                // Set the marker property
                 listRequest.ContinuationToken = listResponse.NextContinuationToken;
             } while (listResponse.IsTruncated);
         }
