@@ -265,7 +265,6 @@ namespace LSC_Trainer
             {
                 MessageBox.Show("No file to upload.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            datasetPath = null;
         }
 
         private void btnTraining_Click(object sender, EventArgs e)
@@ -597,7 +596,7 @@ namespace LSC_Trainer
                 
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-
+                datasetPath = null;
                 return;
             }
             catch (Exception ex)
