@@ -1,6 +1,6 @@
 ﻿namespace LSC_Trainer
 {
-    class UserConnectionInfo
+    public class UserConnectionInfo
     {
         private static UserConnectionInfo _instance;
 

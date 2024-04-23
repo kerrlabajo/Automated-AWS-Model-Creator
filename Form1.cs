@@ -7,17 +7,12 @@ using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using Amazon.CloudWatchLogs;
-using Amazon.CloudWatchLogs.Model;
 using System.Linq;
 using LSC_Trainer.Functions;
-using Amazon.Runtime;
-using System.Threading.Tasks;
-using Amazon.Runtime.Internal;
-using Amazon.Runtime.Internal.Util;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
-using Amazon.ServiceQuotas.Model;
+
 
 namespace LSC_Trainer
 {
@@ -62,10 +57,19 @@ namespace LSC_Trainer
 
         public bool development;
 
+        private string rootCustomUploadsURI;
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
         private TrainingJobHandler trainingJobHandler;
+        private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
+
+        private List<string> supporterInstances = new List<string>()
+        {
+            "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
+        };
+        private int idealBatchSize = 16;
+        private int gpuCount = 0;
 
         public MainForm(bool development)
         {
@@ -110,6 +114,8 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
 
+            fileTransferUtility = new FileTransferUtility();
+
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
             InitializeInputs();
@@ -135,6 +141,7 @@ namespace LSC_Trainer
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
             serviceQuotasClient = new AmazonServiceQuotasClient(ACCESS_KEY, SECRET_KEY, region);
+            rootCustomUploadsURI = CUSTOM_UPLOADS_URI;
 
             Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
             Console.WriteLine($"ACCESS_KEY: {ACCESS_KEY}");
@@ -203,7 +210,7 @@ namespace LSC_Trainer
                     datasetPath = openFileDialog.FileName;
 
                     // Display the selected file path (optional)
-                    lblZipFile.Text = datasetPath;
+                    lblZipFile.Text = datasetPath.Split('\\').Last();
 
                     MessageBox.Show($"Selected file: {datasetPath}");
                     isFile = true;
@@ -223,7 +230,7 @@ namespace LSC_Trainer
                 {
                     datasetPath = folderBrowserDialog.SelectedPath;
 
-                    lblZipFile.Text = datasetPath;
+                    lblZipFile.Text = datasetPath.Split('\\').Last();
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     isFile = false;
@@ -250,6 +257,8 @@ namespace LSC_Trainer
                     connectionMenu.Enabled = false;
                     Cursor = Cursors.WaitCursor;
                     lscTrainerMenuStrip.Cursor = Cursors.Default;
+                    trainingStatusBox.Text = "Uploading to S3";
+                    descBox.Text = "Your dataset is being uploaded to S3. Please wait...";
                 }
             }
             else
@@ -261,53 +270,53 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            logBox.Clear();
-            instanceTypeBox.Text = "";
-            trainingDurationBox.Text = "";
-            trainingStatusBox.Text = "";
-            descBox.Text = "";
-            Cursor = Cursors.WaitCursor;
-            SetTrainingParameters(
-                    out string img_size,
-                    out string batch_size,
-                    out string epochs,
-                    out string weights,
-                    out string data,
-                    out string hyperparameters,
-                    out string patience,
-                    out string workers,
-                    out string optimizer,
-                    out string device,
-                    out string instanceCount);
+            if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
+                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtDevice.Text, txtInstanceCount.Text)) {
+                logBox.Clear();
+                instanceTypeBox.Text = "";
+                trainingDurationBox.Text = "";
+                trainingStatusBox.Text = "";
+                descBox.Text = "";
+                Cursor = Cursors.WaitCursor;
+                SetTrainingParameters(
+                        out string img_size,
+                        out string batch_size,
+                        out string epochs,
+                        out string weights,
+                        out string data,
+                        out string hyperparameters,
+                        out string patience,
+                        out string workers,
+                        out string optimizer,
+                        out string device,
+                        out string instanceCount);
 
-            string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-            trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
-            CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
+                string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
+                trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+                CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
+                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
 
-            if (HasCustomUploads(CUSTOM_UPLOADS_URI))
-            {
-                InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                if (result == DialogResult.OK)
+                if (HasCustomUploads(CUSTOM_UPLOADS_URI))
                 {
                     InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
                 }
                 else
                 {
-                    return;
+                    DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                    if (result == DialogResult.OK)
+                    {
+                        InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
-            }
+            }         
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
         {
-            //string temporaryOutputKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/output.tar.gz";
-            //string temporaryModelKey = "training-jobs/Ubuntu-CUDA-YOLOv5-Training-2024-01-30-06-0039/output/model.tar.gz";
-
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = "Select a folder to save the results and model";
@@ -327,9 +336,9 @@ namespace LSC_Trainer
                             connectionMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
-                            string outputResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
                             TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
-                            string modelResponse = await AWS_Helper.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                             TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
                         }
                         catch (Exception)
@@ -352,9 +361,11 @@ namespace LSC_Trainer
 
         private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
+            CUSTOM_UPLOADS_URI = rootCustomUploadsURI;
+
             if (isFile)
             {
-                AWS_Helper.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
+                fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
@@ -362,7 +373,7 @@ namespace LSC_Trainer
             }
             else
             {
-                AWS_Helper.UploadFolderToS3(s3Client, datasetPath, "custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
+                fileTransferUtility.UploadFolderToS3(s3Client, datasetPath, "custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
@@ -386,6 +397,8 @@ namespace LSC_Trainer
             logPanel.Enabled = true;
             connectionMenu.Enabled = true;
             Cursor = Cursors.Default;
+            trainingStatusBox.Text = "";
+            descBox.Text = "";
         }
 
         private void SelectAllTextOnClick(object sender, EventArgs e)
@@ -578,7 +591,7 @@ namespace LSC_Trainer
                 string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
                 logPanel.Visible = true;
-                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox);
+                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
                 bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
                 bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
@@ -601,14 +614,14 @@ namespace LSC_Trainer
                 Cursor = Cursors.Default;
             }
         }
-        private void newTrainingJobMenu_Click(object sender, EventArgs e)
+        private void NewTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm(development)));
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }
 
-        private void imgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
+        private void ImgSizeDropdown_SelectionChangeCommitted(object sender, EventArgs e)
         {
             string selectedSize = imgSizeDropdown.GetItemText(imgSizeDropdown.SelectedItem);
             string weightFile = utility.GetWeightFile(selectedSize);
@@ -624,7 +637,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void hyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
+        private void HyperparamsDropdown_SelectedValueChanged(object sender, EventArgs e)
         {
             if(hyperparamsDropdown.GetItemText(hyperparamsDropdown.SelectedItem).ToLower() == "custom")
             {
@@ -641,7 +654,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void helpMenu_Click(object sender, EventArgs e)
+        private void HelpMenu_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
 
@@ -656,7 +669,7 @@ namespace LSC_Trainer
             this.Enabled = true;
         }
 
-        private void testConnnectionMenu_Click(object sender, EventArgs e)
+        private void TestConnnectionMenu_Click(object sender, EventArgs e)
         {
             try
             {
@@ -772,12 +785,203 @@ namespace LSC_Trainer
             {
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 selectedInstance = selectedItem.Item1;
+                CalculateBatchSize();
                 btnTraining.Enabled = true;
             }
             else
             {
                 btnTraining.Enabled = false;
             }
+        }
+
+        private void txtInstanceCount_ValueChanged(object sender, EventArgs e)
+        {
+            if (txtInstanceCount.Text != null)
+            {
+                int instanceCount;
+                
+                if (txtInstanceCount.Text == "")
+                {
+                    MessageBox.Show("Instance count cannot be empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtInstanceCount.Text = "1";
+                }
+                else if (!Int32.TryParse(txtInstanceCount.Text, out instanceCount))
+                {
+                    MessageBox.Show("Instance count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtInstanceCount.Text = "1";
+                }
+                else if (instanceCount <= 0)
+                {
+                    MessageBox.Show("Instance count must be greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtInstanceCount.Text = "1";
+                }
+                else
+                {
+                    CalculateBatchSize();
+                }
+            }
+        }
+
+        private void txtDevice_ValueChanged(object sender, EventArgs e)
+        {
+            if (txtDevice.Text != null)
+            {
+
+              CalculateBatchSize();
+            }
+        }
+
+        private bool txtDevice_Validate()
+        {
+            if (txtDevice.Text != null)
+            {
+                // If the user wants to use only the CPU
+                if (txtDevice.Text.ToLower() == "cpu")
+                {
+                    CalculateBatchSize();
+                    return true;
+                }
+
+                string[] devices = txtDevice.Text.Split(',');
+
+                foreach (string device in devices)
+                {
+                    int deviceNumber;
+                    bool isNumeric = int.TryParse(device, out deviceNumber);
+
+                    if (!isNumeric || deviceNumber < 0)
+                    {
+                        Console.WriteLine("Each device must be a non-negative integer or 'cpu'.");
+                        MessageBox.Show("Each device must be a non-negative integer or 'cpu'.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+        private void CalculateBatchSize()
+        {
+            if (instancesDropdown.SelectedItem != null)
+            {
+                var selectedItem = ((string, double))instancesDropdown.SelectedItem;
+                string instance = selectedItem.Item1;
+                int instanceCount = Int32.Parse(txtInstanceCount.Text);
+                idealBatchSize = 16;
+                gpuCount = 0;
+                // Get the number of GPU devices
+                string[] gpuDevices = txtDevice.Text.Split(',');
+
+                foreach(string device in gpuDevices)
+                {
+                    int deviceNumber;
+                    bool isNumeric = int.TryParse(device, out deviceNumber);
+
+                    if (isNumeric || txtDevice.Text == "cpu")
+                    {
+                        gpuCount++;
+                    }
+                }
+
+                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supporterInstances.Contains(instance))
+                {
+                    idealBatchSize = -1;
+                }
+                else
+                {
+                    switch (instance)
+                    {
+                        case "ml.p3.2xlarge":
+                        case "ml.g4dn.xlarge":
+                        case "ml.g4dn.2xlarge":
+                        case "ml.g4dn.4xlarge":
+                        case "ml.g4dn.8xlarge":
+                            idealBatchSize = 16 * instanceCount * gpuCount;
+                            break;
+                        case "ml.p3.8xlarge":
+                        case "ml.g4dn.12xlarge":
+                            idealBatchSize = 64 * instanceCount * gpuCount;
+                            break;
+                        case "ml.p3.16xlarge":
+                            idealBatchSize = 128 * instanceCount * gpuCount;
+                            break;
+                        default:
+                            idealBatchSize = 16 * instanceCount * gpuCount;
+                            break;
+                    }
+                }
+
+                txtBatchSize.Text = idealBatchSize.ToString();
+            }
+        }
+
+        private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>()
+            {
+                {"Image size", img_size},
+                {"Batch size", batch_size},
+                {"Epochs", epochs},
+                {"Weights", weights},
+                {"Data", data},
+                {"Hyperparameters", hyperparameters},
+                {"Patience", patience},
+                {"Workers", workers},
+                {"Optimizer", optimizer},
+                {"Device", device},
+                {"Instance count", instanceCount}
+            };
+            
+            Dictionary<string, string> intFields = new Dictionary<string, string>()
+            {
+                {"Epochs", epochs},
+                {"Patience", patience},
+                {"Workers", workers},
+                {"Instance count", instanceCount}
+            };
+
+            foreach (KeyValuePair<string, string> parameter in parameters)
+            {
+                if (string.IsNullOrEmpty(parameter.Value))
+                {
+                    MessageBox.Show($"{parameter.Key} cannot be null or empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
+            foreach (KeyValuePair<string, string> intField in intFields)
+            {
+                if (!Int32.TryParse(intField.Value, out int number) || number <= 0)
+                {
+                    MessageBox.Show($"{intField.Key} must be a positive integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
+            if (!Int32.TryParse(txtBatchSize.Text, out int batchSize))
+            {
+                MessageBox.Show("Batch size must be an integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (int.Parse(txtBatchSize.Text) < idealBatchSize)
+            {
+                MessageBox.Show($"Batch size cannot be lesser than the ideal batch size {idealBatchSize}.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (batchSize == 0)
+            {
+                MessageBox.Show("Batch size cannot be 0.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (txtDevice_Validate() == false)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
