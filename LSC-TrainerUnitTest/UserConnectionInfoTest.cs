@@ -24,22 +24,29 @@ namespace LSC_Trainer.Tests
             Assert.NotNull(UserConnectionInfo.Instance);
         }
 
-        // hard to test because of static properties
-        //[Fact]
-        //public void TestSetBucketAndURIs()
-        //{
-        //    string expectedEcrUri = "TestEcrUri";
-        //    string expectedSagemakerBucket = "sagemaker-TestRegion-TestAccountId";
-        //    string expectedDefaultDatasetURI = $"s3://{expectedSagemakerBucket}/default-datasets/MMX059XA_COVERED5B/";
-        //    string expectedCustomUploadsURI = $"s3://{expectedSagemakerBucket}/custom-uploads/";
-        //    string expectedDestinationURI = $"s3://{expectedSagemakerBucket}/training-jobs/";
+        [Fact]
+        public void TestCredentialsSaved()
+        {
+            // Arrange
+            var expectedAccountId = "testAccountId";
+            var expectedAccessKey = "testAccessKey";
+            var expectedSecretKey = "testSecretKey";
+            var expectedRegion = "testRegion";
+            var expectedRoleArn = "testRoleArn";
 
-        //    Assert.Equal(expectedEcrUri, UserConnectionInfo.EcrUri);
-        //    Assert.Equal(expectedSagemakerBucket, UserConnectionInfo.SagemakerBucket);
-        //    Assert.Equal(expectedDefaultDatasetURI, UserConnectionInfo.DefaultDatasetURI);
-        //    Assert.Equal(expectedCustomUploadsURI, UserConnectionInfo.CustomUploadsURI);
-        //    Assert.Equal(expectedDestinationURI, UserConnectionInfo.DestinationURI);
-        //}
+            // Act
+            UserConnectionInfo.AccountId = expectedAccountId;
+            UserConnectionInfo.AccessKey = expectedAccessKey;
+            UserConnectionInfo.SecretKey = expectedSecretKey;
+            UserConnectionInfo.Region = expectedRegion;
+            UserConnectionInfo.RoleArn = expectedRoleArn;
+            // Assert
+            Assert.Equal(expectedAccountId, UserConnectionInfo.AccountId);
+            Assert.Equal(expectedAccessKey, UserConnectionInfo.AccessKey);
+            Assert.Equal(expectedSecretKey, UserConnectionInfo.SecretKey);
+            Assert.Equal(expectedRegion, UserConnectionInfo.Region);
+            Assert.Equal(expectedRoleArn, UserConnectionInfo.RoleArn);
+        }
 
         [Fact]
         public void TestReset()
