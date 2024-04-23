@@ -1,20 +1,12 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
-using Amazon.EC2;
-using Amazon.ECR.Model;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LSC_Trainer.Functions
 {
@@ -33,13 +25,14 @@ namespace LSC_Trainer.Functions
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private AmazonS3Client s3Client;
 
+        private LSC_Trainer.Functions.IFileTransferUtility transferUtility;
         private Label instanceTypeBox;
         private Label trainingDurationBox;
         private Label trainingStatusBox;
         private Label descBox;
         private RichTextBox logBox;
 
-        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox)
+        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
             this.cloudWatchLogsClient = cloudWatchLogsClient;
@@ -49,6 +42,7 @@ namespace LSC_Trainer.Functions
             this.trainingStatusBox = trainingStatusBox;
             this.descBox = descBox;
             this.logBox = logBox;
+            this.transferUtility = fileTransferUtility;
         }
 
         public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
@@ -82,8 +76,6 @@ namespace LSC_Trainer.Functions
             var timerInterval = 1000;
             var timer = new System.Timers.Timer(timerInterval);
             timer.Elapsed += async (sender, e) => await CheckTrainingJobStatus(amazonSageMakerClient, trainingJobName, completionSource);
-
-            // The `CheckTrainingJobStatus` method will be called periodically based on the interval
 
             return timer;
         }
@@ -133,14 +125,14 @@ namespace LSC_Trainer.Functions
                             trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
                         if (hasCustomUploads && !deleting)
                         {
                             deleting = true;
                             DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
                             DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
                         
@@ -156,16 +148,9 @@ namespace LSC_Trainer.Functions
                             trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-                        if (hasCustomUploads && !deleting)
-                        {
-                            deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
-                        }
 
                     }
                 }
@@ -179,14 +164,14 @@ namespace LSC_Trainer.Functions
                             trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted) // Check if the TaskCompletionSource is already completed
+                    if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
                         if (hasCustomUploads && !deleting)
                         {
                             deleting = true;
                             DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await AWS_Helper.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
                             DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
 
@@ -195,22 +180,18 @@ namespace LSC_Trainer.Functions
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that may occur during the processing
                 MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
         {
-            //CloudWatch
             if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
             {
-                // Get log stream
                 string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
 
                 if (!string.IsNullOrEmpty(logStreamName))
                 {
-                    // Print CloudWatch logs
                     GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
                     {
                         LogGroupName = "/aws/sagemaker/TrainingJobs",
@@ -238,7 +219,7 @@ namespace LSC_Trainer.Functions
                     }
                 }
             }
-            // Update training status
+
             if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
             {
                 UpdateTrainingStatus(
@@ -382,7 +363,7 @@ namespace LSC_Trainer.Functions
                     return null;
                 }
             }
-            catch (Amazon.CloudWatchLogs.Model.ResourceNotFoundException ex)
+            catch (Amazon.CloudWatchLogs.Model.ResourceNotFoundException)
             {
                 // Log or handle the exception accordingly
                 Console.WriteLine($"Log group '{logGroupName}' does not exist.");

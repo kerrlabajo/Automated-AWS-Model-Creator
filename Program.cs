@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LSC_Trainer
@@ -15,7 +12,6 @@ namespace LSC_Trainer
         static void Main()
         {
             bool development = false;
-            DotNetEnv.Env.Load();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             if (development)

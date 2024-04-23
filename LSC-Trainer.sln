@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LSC-Trainer", "LSC-Trainer.csproj", "{F279F86F-4DC5-4490-9369-15F8CE038860}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LSC-TrainerUnitTest", "LSC-TrainerUnitTest\LSC-TrainerUnitTest.csproj", "{DEB982C0-EDC0-446E-8D16-06E9C0B68A22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LSC-TrainerUnitTest", "LSC-TrainerUnitTest\LSC-TrainerUnitTest.csproj", "{DEB982C0-EDC0-446E-8D16-06E9C0B68A22}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LSC-Trainer-Installer", "..\LSC-Trainer-Installer\LSC-Trainer-Installer.vdproj", "{C644DC79-BAC5-463B-999D-9203983ADD2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,9 @@ Global
 		{DEB982C0-EDC0-446E-8D16-06E9C0B68A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEB982C0-EDC0-446E-8D16-06E9C0B68A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEB982C0-EDC0-446E-8D16-06E9C0B68A22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C644DC79-BAC5-463B-999D-9203983ADD2F}.Debug|Any CPU.ActiveCfg = Debug
+		{C644DC79-BAC5-463B-999D-9203983ADD2F}.Release|Any CPU.ActiveCfg = Release
+		{C644DC79-BAC5-463B-999D-9203983ADD2F}.Release|Any CPU.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
