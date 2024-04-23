@@ -12,7 +12,6 @@ namespace LSC_Trainer
         static void Main()
         {
             bool development = false;
-            DotNetEnv.Env.Load();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             if (development)
