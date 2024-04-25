@@ -32,6 +32,8 @@ namespace LSC_Trainer.Functions
         private Label descBox;
         private RichTextBox logBox;
 
+        private System.Timers.Timer timer;
+
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
@@ -53,7 +55,7 @@ namespace LSC_Trainer.Functions
                 this.s3Bucket = s3Bucket;
                 this.hasCustomUploads = hasCustomUploads;
                 var completionSource = new TaskCompletionSource<bool>();
-                var timer = InitializeTimer(trainingJobName, completionSource);
+                timer = InitializeTimer(trainingJobName, completionSource);
                 timer.Start();
 
                 if(await completionSource.Task)
@@ -381,9 +383,16 @@ namespace LSC_Trainer.Functions
         public void Dispose()
         {
             // Dispose the resources
+            DisposeTimer(timer);
             amazonSageMakerClient.Dispose();
             cloudWatchLogsClient.Dispose();
             s3Client.Dispose();
         } 
+
+        public void DisposeTimer(System.Timers.Timer timer)
+        {
+            timer.Stop();
+            timer.Dispose();
+        }
     }
 }
