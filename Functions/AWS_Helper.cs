@@ -122,6 +122,33 @@ namespace LSC_Trainer.Functions
             return allInstances;
         }
 
+        public static async Task<List<string>> GetAvailableDatasetsList(AmazonS3Client s3Client, string bucketName)
+        {
+            try
+            {
+                var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                {
+                    BucketName = bucketName,
+                    Prefix = "custom-uploads"
+                });
+
+                return response.S3Objects
+                    .Select(o => o.Key.Split('/')[1])
+                    .Distinct()
+                    .ToList();
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error retrieving list from S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return null;
+            }
+        }
+
     }
 
 
