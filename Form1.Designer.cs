@@ -247,6 +247,7 @@ namespace LSC_Trainer
             this.datasetListComboBox.Name = "datasetListComboBox";
             this.datasetListComboBox.Size = new System.Drawing.Size(279, 24);
             this.datasetListComboBox.TabIndex = 54;
+            this.datasetListComboBox.SelectedValueChanged += new System.EventHandler(this.datasetListComboBox_SelectedValueChanged);
             // 
             // btnFetchDatasets_Click
             // 

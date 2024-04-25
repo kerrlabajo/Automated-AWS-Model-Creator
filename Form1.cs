@@ -1024,5 +1024,10 @@ namespace LSC_Trainer
                 datasetListComboBox.Enabled = true;
             }
         }
+
+        private void datasetListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            CUSTOM_UPLOADS_URI += datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+        }
     }
 }
