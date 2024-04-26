@@ -18,7 +18,7 @@ namespace LSC_Trainer.Functions
         private bool hasCustomUploads = false;
         private string datasetKey = "";
         private string s3Bucket = "";
-        private bool deleting = false;
+        private bool showDialogBox = false;
         private int delay = 0;
 
         private AmazonSageMakerClient amazonSageMakerClient;
@@ -61,6 +61,7 @@ namespace LSC_Trainer.Functions
                 if(await completionSource.Task)
                 {
                     timer.Stop();
+                    await HandleCustomUploads();
                 };
 
                 return true;
@@ -83,14 +84,10 @@ namespace LSC_Trainer.Functions
         }
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
-            try {
+            try
+            {
                 var trainingJobName = (string)state;
-
-                // Retrieve the current status of the training job
-                DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                {
-                    TrainingJobName = trainingJobName
-                });
+                DescribeTrainingJobResponse trainingDetails = await GetTrainingJobDetails(amazonSageMakerClient, trainingJobName);
                 var trainingStatus = trainingDetails.TrainingJobStatus;
 
                 TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
@@ -98,91 +95,102 @@ namespace LSC_Trainer.Functions
 
                 if (trainingStatus == TrainingJobStatus.InProgress)
                 {
-                    // Update training duration
-                    if (trainingDetails.TrainingTimeInSeconds == 0)
-                    {
-                        UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                        );
-                    }
-                    else
-                    {
-                        UpdateTrainingStatus(formattedTime);
-                    }
-
-                    if (trainingDetails.SecondaryStatusTransitions.Any())
-                    {
-                        await CheckSecondaryStatus(trainingDetails, trainingJobName);
-                    }
+                    await HandleInProgressStatus(trainingDetails, trainingJobName);
                 }
-                else if (trainingStatus == TrainingJobStatus.Completed)
+                else if(trainingStatus == TrainingJobStatus.Completed)
                 {
-                    UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
-
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-                        if (hasCustomUploads && !deleting)
-                        {
-                            deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
-                        }
                         
                     }
                 }
-                else if (trainingStatus == TrainingJobStatus.Failed)
+                else if(trainingStatus == TrainingJobStatus.Failed)
                 {
                     DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
-                    UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
-
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-
                     }
                 }
                 else
                 {
                     DisplayLogMessage($"Training job stopped or in an unknown state.");
-                    UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
-
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-                        if (hasCustomUploads && !deleting)
-                        {
-                            deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
-                        }
-
                     }
                 }
+
+                if (completionSource.Task.IsCompleted){
+                    UpdateTrainingStatus(
+                        trainingDetails.ResourceConfig.InstanceType.ToString(),
+                        formattedTime,
+                        trainingDetails.SecondaryStatusTransitions.Last().Status,
+                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    );
+                }
+                
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task<DescribeTrainingJobResponse> GetTrainingJobDetails(AmazonSageMakerClient amazonSageMakerClient, string trainingJobName)
+        {
+            return await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+            {
+                TrainingJobName = trainingJobName
+            });
+        }
+
+        private async Task HandleInProgressStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
+        {
+            UpdateTrainingStatusBasedOnTime(trainingDetails);
+            if (trainingDetails.SecondaryStatusTransitions.Any())
+            {
+                await CheckSecondaryStatus(trainingDetails, trainingJobName);
+            }
+        }
+
+        private void UpdateTrainingStatusBasedOnTime(DescribeTrainingJobResponse trainingDetails)
+        {
+            TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
+            string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+
+            if (trainingDetails.TrainingTimeInSeconds == 0)
+            {
+                UpdateTrainingStatus(
+                    trainingDetails.ResourceConfig.InstanceType.ToString(),
+                    formattedTime,
+                    trainingDetails.SecondaryStatusTransitions.Last().Status,
+                    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                );
+            }
+            else
+            {
+                UpdateTrainingStatus(formattedTime);
+            }
+        }
+
+        private async Task HandleCustomUploads()
+        {
+            if (hasCustomUploads && !showDialogBox)
+            {
+                showDialogBox = true;
+
+                if(MessageBox.Show("Do you want to delete the dataset from the S3 bucket?", "Delete Dataset", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
+                    await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                    DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
+                }
+                else
+                {
+                    DisplayLogMessage($"{Environment.NewLine}Skipping dataset deletion.");
+                }
             }
         }
 
