@@ -339,6 +339,9 @@ namespace LSC_Trainer
                             TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
                             string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                             TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
+                        }catch(AmazonS3Exception s3Exception)
+                        {
+                            MessageBox.Show($"Error in downloading model: {s3Exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         catch (Exception)
                         {
