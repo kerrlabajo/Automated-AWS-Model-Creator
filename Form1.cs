@@ -568,6 +568,7 @@ namespace LSC_Trainer
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
             txtDevice.Enabled = intent;
+            txtDeviceCount.Enabled = intent;
             txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
