@@ -64,7 +64,7 @@ namespace LSC_Trainer
         private TrainingJobHandler trainingJobHandler;
         private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
 
-        private List<string> supporterInstances = new List<string>()
+        private List<string> supportedInstances = new List<string>()
         {
             "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
         };
@@ -169,6 +169,7 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "0";
+                txtDeviceCount.Text = "1";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -185,6 +186,7 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "cpu";
+                txtDeviceCount.Text = "0";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -833,6 +835,33 @@ namespace LSC_Trainer
             }
         }
 
+        private void txtDeviceCount_ValueChanged(object sender, EventArgs e)
+        {
+            if (txtDevice.Text != null && txtDeviceCount.Text != null)
+            {
+                if (!Int32.TryParse(txtDeviceCount.Text, out _))
+                {
+                    MessageBox.Show("Device count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtDeviceCount.Text = "1";
+                }else if(int.Parse(txtDeviceCount.Text) < 0)
+                {
+                    MessageBox.Show("Device count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtDeviceCount.Text = "1";
+                }
+                else if(int.Parse(txtDeviceCount.Text) == 0)
+                {
+                    MessageBox.Show("Machine will use cpu.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtDevice.Text = "cpu";
+                }
+                else
+                {
+                    int deviceCount = int.Parse(txtDeviceCount.Text);
+                    txtDevice.Text = string.Join(",", Enumerable.Range(0, deviceCount));
+                }
+                
+            }
+        }
+
         private bool txtDevice_Validate()
         {
             if (txtDevice.Text != null)
@@ -885,7 +914,7 @@ namespace LSC_Trainer
                     }
                 }
 
-                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supporterInstances.Contains(instance))
+                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supportedInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
