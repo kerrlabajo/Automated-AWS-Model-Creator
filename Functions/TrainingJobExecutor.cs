@@ -1,4 +1,6 @@
 ﻿using Amazon.CloudWatchLogs;
+using Amazon.S3;
+using Amazon.S3.Transfer;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System;
@@ -9,11 +11,17 @@ using System.Threading.Tasks;
 
 namespace LSC_Trainer.Functions
 {
-    internal class TrainingJobExecutor : ITrainingJobExecutor
+    public class TrainingJobExecutor : ITrainingJobExecutor
     {
         private Utility utility = new Utility();
         private CustomHyperParamsForm customHyperParamsForm;
+        private IUIUpdater uiUpdater;
 
+
+        public TrainingJobExecutor(IUIUpdater uiUpdater)
+        {
+            this.uiUpdater = uiUpdater;
+        }
         public CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount, string selectedInstance,string CUSTOM_UPLOADS_URI, string DEFAULT_DATASET_URI, string trainingFolder, string validationFolder, string ECR_URI, string SAGEMAKER_INPUT_DATA_PATH, string SAGEMAKER_OUTPUT_DATA_PATH, string ROLE_ARN, string DESTINATION_URI, string trainingJobName)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
@@ -113,9 +121,21 @@ namespace LSC_Trainer.Functions
             return trainingRequest;
         }
 
-        public Task InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
+        public async Task InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonSageMakerClient amazonSageMakerClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility transferUtility, string datasetKey, string bucket, bool HasCustomUploads)
         {
-            throw new NotImplementedException();
+            CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+            string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+            
+
+            uiUpdater.SetLogPanelVisibility(true);
+            var trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client, transferUtility, uiUpdater);
+            //bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
+            bool success = await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, bucket, HasCustomUploads);
+        }
+
+        public async Task<CreateTrainingJobResponse> CreateTrainingJobResponse(CreateTrainingJobRequest trainingRequest, AmazonSageMakerClient amazonSageMakerClient)
+        {
+            return await amazonSageMakerClient.CreateTrainingJobAsync(trainingRequest);
         }
     }
 }
