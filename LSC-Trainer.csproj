@@ -307,6 +307,7 @@
     <Compile Include="Functions\FileTransferUtility.cs" />
     <Compile Include="Functions\IFileTransferUtility.cs" />
     <Compile Include="Functions\ITrainingJobExecutor.cs" />
+    <Compile Include="Functions\IUIUpdater.cs" />
     <Compile Include="Functions\TrainingJobExecutor.cs" />
     <Compile Include="Functions\TrainingJobHandler.cs" />
     <Compile Include="Functions\Utility.cs" />
