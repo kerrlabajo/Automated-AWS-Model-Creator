@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 
 
@@ -32,6 +33,16 @@ namespace LSC_Trainer.Functions
         public string GetValueFromTextBox(TextBox textBox)
         {
             return !string.IsNullOrWhiteSpace(textBox.Text) ? textBox.Text : "";
+        }
+
+        public bool HasCustomUploads(string customUploadsURI)
+        {
+            string customUploadsDirectory = Path.GetFileName(Path.GetDirectoryName(customUploadsURI));
+            if (customUploadsDirectory == "custom-uploads")
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

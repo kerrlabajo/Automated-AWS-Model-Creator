@@ -18,13 +18,13 @@ namespace LSC_Trainer
 {
     public partial class MainForm : Form
     {
-
         private delegate void SetProgressCallback(int percentDone);
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonS3Client s3Client;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private AmazonServiceQuotasClient serviceQuotasClient;
         private Utility utility = new Utility();
+        private TrainingJobExecutor executor = new TrainingJobExecutor();
 
         private string ACCOUNT_ID;
         private string ACCESS_KEY;
@@ -292,10 +292,10 @@ namespace LSC_Trainer
 
                 string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
                 trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
-                CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
+                CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
+                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName);
 
-                if (HasCustomUploads(CUSTOM_UPLOADS_URI))
+                if (utility.HasCustomUploads(CUSTOM_UPLOADS_URI))
                 {
                     InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
                 }
@@ -442,115 +442,6 @@ namespace LSC_Trainer
             if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
 
-        private static bool HasCustomUploads(string customUploadsURI)
-        {
-            string customUploadsDirectory = Path.GetFileName(Path.GetDirectoryName(customUploadsURI));
-            if (customUploadsDirectory == "custom-uploads")
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
-        {
-            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
-            {
-                AlgorithmSpecification = new AlgorithmSpecification()
-                {
-                    TrainingInputMode = "File",
-                    TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "/code/train_and_export.py" },
-                    ContainerArguments = new List<string>()
-                    {
-                        "--img-size", img_size,
-                        "--batch", batch_size,
-                        "--epochs", epochs,
-                        "--weights", weights,
-                        "--data", SAGEMAKER_INPUT_DATA_PATH + "train/" + data,
-                        "--hyp", hyperparameters,
-                        "--project", SAGEMAKER_OUTPUT_DATA_PATH,
-                        "--name", "results",
-                        "--patience", patience,
-                        "--workers", workers,
-                        "--optimizer", optimizer,
-                        "--device", device,
-                        "--include", "onnx",
-                        "--nnodes", instanceCount
-                    }
-                },
-                RoleArn = ROLE_ARN,
-                OutputDataConfig = new OutputDataConfig()
-                {
-                    S3OutputPath = DESTINATION_URI
-                },
-                // Keep this true so that devs will be using spot instances from now on
-                EnableManagedSpotTraining = true,
-                ResourceConfig = new ResourceConfig()
-                {
-                    InstanceCount = int.Parse(instanceCount),
-                    // Update the instance type everytime you select an instance type
-                    InstanceType = TrainingInstanceType.FindValue(selectedInstance),
-                    VolumeSizeInGB = 12
-                },
-                TrainingJobName = trainingJobName,
-                StoppingCondition = new StoppingCondition()
-                {
-                    MaxRuntimeInSeconds = 14400,
-                    MaxWaitTimeInSeconds = 15000,
-                },
-                HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
-                {
-                    {"img-size", img_size},
-                    {"batch-size", batch_size},
-                    {"epochs", epochs},
-                    {"weights", weights},
-                    {"hyp", hyperparameters},
-                    {"patience", patience},
-                    {"workers", workers},
-                    {"optimizer", optimizer},
-                    {"device", device},
-                    {"include", "onnx" }
-                }
-                : customHyperParamsForm.HyperParameters,
-                InputDataConfig = new List<Channel>(){
-                    new Channel()
-                    {
-                        ChannelName = "train",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + trainingFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    },
-                    new Channel()
-                    {
-                        ChannelName = "val",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + validationFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
-                }
-            };
-            return trainingRequest;
-        }
-
         private void InputsEnabler(bool intent)
         {
             imgSizeDropdown.Enabled = intent;
@@ -591,7 +482,7 @@ namespace LSC_Trainer
 
                 logPanel.Visible = true;
                 trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
-                bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
+                bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
                 bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
                 
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
