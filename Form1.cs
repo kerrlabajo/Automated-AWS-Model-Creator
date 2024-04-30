@@ -65,7 +65,7 @@ namespace LSC_Trainer
         private TrainingJobHandler trainingJobHandler;
         private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
 
-        private List<string> supporterInstances = new List<string>()
+        private List<string> supportedInstances = new List<string>()
         {
             "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
         };
@@ -170,6 +170,7 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "0";
+                txtDeviceCount.Text = "1";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -186,6 +187,7 @@ namespace LSC_Trainer
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtDevice.Text = "cpu";
+                txtDeviceCount.Text = "0";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -353,6 +355,9 @@ namespace LSC_Trainer
                             DisplayLogMessage(outputResponse);
                             string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
                             DisplayLogMessage(modelResponse);
+                        }catch(AmazonS3Exception s3Exception)
+                        {
+                            MessageBox.Show($"Error in downloading model: {s3Exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         catch (Exception)
                         {
@@ -468,6 +473,7 @@ namespace LSC_Trainer
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
             txtDevice.Enabled = intent;
+            txtDeviceCount.Enabled = intent;
             txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
@@ -480,28 +486,7 @@ namespace LSC_Trainer
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
         }
-        //private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
-        //{
-        //    try
-        //    {
-        //        CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-        //        string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-        //        string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
 
-        //        logPanel.Visible = true;
-        //        trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
-        //        bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
-        //        bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
-
-        //        return;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //        btnTraining.Enabled = true;
-        //        return;
-        //    }
-        //}
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
         {
             try
@@ -741,6 +726,33 @@ namespace LSC_Trainer
             }
         }
 
+        private void txtDeviceCount_ValueChanged(object sender, EventArgs e)
+        {
+            if (txtDevice.Text != null && txtDeviceCount.Text != null)
+            {
+                if (!Int32.TryParse(txtDeviceCount.Text, out _))
+                {
+                    MessageBox.Show("Device count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtDeviceCount.Text = "1";
+                }else if(int.Parse(txtDeviceCount.Text) < 0)
+                {
+                    MessageBox.Show("Device count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtDeviceCount.Text = "1";
+                }
+                else if(int.Parse(txtDeviceCount.Text) == 0)
+                {
+                    MessageBox.Show("Machine will use cpu.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtDevice.Text = "cpu";
+                }
+                else
+                {
+                    int deviceCount = int.Parse(txtDeviceCount.Text);
+                    txtDevice.Text = string.Join(",", Enumerable.Range(0, deviceCount));
+                }
+                
+            }
+        }
+
         private bool txtDevice_Validate()
         {
             if (txtDevice.Text != null)
@@ -793,32 +805,33 @@ namespace LSC_Trainer
                     }
                 }
 
-                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supporterInstances.Contains(instance))
+                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supportedInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
                 else
                 {
-                    switch (instance)
-                    {
-                        case "ml.p3.2xlarge":
-                        case "ml.g4dn.xlarge":
-                        case "ml.g4dn.2xlarge":
-                        case "ml.g4dn.4xlarge":
-                        case "ml.g4dn.8xlarge":
-                            idealBatchSize = 16 * instanceCount * gpuCount;
-                            break;
-                        case "ml.p3.8xlarge":
-                        case "ml.g4dn.12xlarge":
-                            idealBatchSize = 64 * instanceCount * gpuCount;
-                            break;
-                        case "ml.p3.16xlarge":
-                            idealBatchSize = 128 * instanceCount * gpuCount;
-                            break;
-                        default:
-                            idealBatchSize = 16 * instanceCount * gpuCount;
-                            break;
-                    }
+                    //switch (instance)
+                    //{
+                    //    case "ml.p3.2xlarge":
+                    //    case "ml.g4dn.xlarge":
+                    //    case "ml.g4dn.2xlarge":
+                    //    case "ml.g4dn.4xlarge":
+                    //    case "ml.g4dn.8xlarge":
+                    //        idealBatchSize = 16 * instanceCount * gpuCount;
+                    //        break;
+                    //    case "ml.p3.8xlarge":
+                    //    case "ml.g4dn.12xlarge":
+                    //        idealBatchSize = 64 * instanceCount * gpuCount;
+                    //        break;
+                    //    case "ml.p3.16xlarge":
+                    //        idealBatchSize = 128 * instanceCount * gpuCount;
+                    //        break;
+                    //    default:
+                    //        
+                    //        break;
+                    //}
+                    idealBatchSize = 16 * instanceCount * gpuCount;
                 }
 
                 txtBatchSize.Text = idealBatchSize.ToString();
@@ -886,7 +899,7 @@ namespace LSC_Trainer
                 return false;
             }
 
-            if (txtDevice_Validate() == false)
+            if (!txtDevice_Validate())
             {
                 return false;
             }
