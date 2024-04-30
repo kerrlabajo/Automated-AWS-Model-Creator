@@ -15,6 +15,7 @@ namespace LSC_Trainer.Functions
     {
         private Utility utility = new Utility();
         private IUIUpdater uiUpdater;
+        private TrainingJobHandler trainingJobHandler;
 
 
         public TrainingJobExecutor(IUIUpdater uiUpdater)
@@ -127,11 +128,15 @@ namespace LSC_Trainer.Functions
             
 
             uiUpdater.SetLogPanelVisibility(true);
-            var trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client, transferUtility, uiUpdater);
-            //bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
+            trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client, transferUtility, uiUpdater);
+
             bool success = await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, bucket, HasCustomUploads);
         }
 
+        public void Dispose()
+        {
+            trainingJobHandler?.Dispose();
+        }
         public async Task<CreateTrainingJobResponse> CreateTrainingJobResponse(CreateTrainingJobRequest trainingRequest, AmazonSageMakerClient amazonSageMakerClient)
         {
             return await amazonSageMakerClient.CreateTrainingJobAsync(trainingRequest);

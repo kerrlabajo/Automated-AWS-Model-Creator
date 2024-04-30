@@ -308,14 +308,13 @@ namespace LSC_Trainer
                     if (hasCustomUploads)
                     {
                         InitiateTrainingJob(trainingRequest);
-                        //executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetKey, SAGEMAKER_BUCKET, hasCustomUploads);
                     }
                     else
                     {
                         DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
                         if (result == DialogResult.OK)
                         {
-                           //InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                           InitiateTrainingJob(trainingRequest);
                         }
                         else
                         {
@@ -909,7 +908,7 @@ namespace LSC_Trainer
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            trainingJobHandler?.Dispose();
+            executor?.Dispose();
         }
 
         public void SetUIState(bool isTraining)
