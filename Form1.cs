@@ -12,6 +12,7 @@ using LSC_Trainer.Functions;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
+using Amazon.EC2;
 
 
 namespace LSC_Trainer
@@ -298,13 +299,14 @@ namespace LSC_Trainer
                     CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
                         img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName);
 
-                    SetUIState(true);
+                    
                     this.Text = trainingJobName;
                     bool hasCustomUploads = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
                     string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
                     if (hasCustomUploads)
                     {
-                        //InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                        InitiateTrainingJob(trainingRequest);
+                        //executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetKey, SAGEMAKER_BUCKET, hasCustomUploads);
                     }
                     else
                     {
@@ -323,15 +325,7 @@ namespace LSC_Trainer
             catch(Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
-            }
-            finally
-            {
-                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                datasetPath = null;
-                SetUIState(false);
-            }
-                   
+            }         
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
@@ -356,9 +350,9 @@ namespace LSC_Trainer
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                            TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
+                            DisplayLogMessage(outputResponse);
                             string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
-                            TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
+                            DisplayLogMessage(modelResponse);
                         }
                         catch (Exception)
                         {
@@ -486,19 +480,34 @@ namespace LSC_Trainer
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
         }
-        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
+        //private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
+        //{
+        //    try
+        //    {
+        //        CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+        //        string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+        //        string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+
+        //        logPanel.Visible = true;
+        //        trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
+        //        bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
+        //        bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
+
+        //        return;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        btnTraining.Enabled = true;
+        //        return;
+        //    }
+        //}
+        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
         {
             try
             {
-                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
-
-                logPanel.Visible = true;
-                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
-                bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
-                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
-
+                SetUIState(true);
+                await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
                 return;
             }
             catch (Exception ex)
@@ -506,6 +515,12 @@ namespace LSC_Trainer
                 MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnTraining.Enabled = true;
                 return;
+            }finally
+            {
+                SetUIState(false);
+                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                datasetPath = null;
             }
         }
 
@@ -895,6 +910,12 @@ namespace LSC_Trainer
 
         public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateTrainingStatus(instanceType, trainingDuration, status, description)));
+                return;
+            }
+
             instanceTypeBox.Text = instanceType;
             trainingDurationBox.Text = trainingDuration;
             trainingStatusBox.Text = status;
@@ -903,11 +924,21 @@ namespace LSC_Trainer
 
         public void UpdateTrainingStatus(string trainingDuration)
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateTrainingStatus(trainingDuration)));
+                return;
+            }
             trainingDurationBox.Text = trainingDuration;
         }
 
         public void UpdateTrainingStatus(string status, string description)
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateTrainingStatus(status, description)));
+                return;
+            }
             trainingStatusBox.Text = status;
             descBox.Text = description;
         }

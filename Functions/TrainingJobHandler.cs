@@ -26,12 +26,21 @@ namespace LSC_Trainer.Functions
         private AmazonS3Client s3Client;
 
         private LSC_Trainer.Functions.IFileTransferUtility transferUtility;
+        private IUIUpdater uIUpdater;
         private Label instanceTypeBox;
         private Label trainingDurationBox;
         private Label trainingStatusBox;
         private Label descBox;
         private RichTextBox logBox;
 
+        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
+        {
+            this.amazonSageMakerClient = amazonSageMakerClient;
+            this.cloudWatchLogsClient = cloudWatchLogsClient;
+            this.s3Client = s3Client;
+            this.transferUtility = fileTransferUtility;
+            this.uIUpdater = uIUpdater;
+        }
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
@@ -99,16 +108,18 @@ namespace LSC_Trainer.Functions
                     // Update training duration
                     if (trainingDetails.TrainingTimeInSeconds == 0)
                     {
-                        UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                        );
+                        //UpdateTrainingStatus(
+                        //    trainingDetails.ResourceConfig.InstanceType.ToString(),
+                        //    formattedTime,
+                        //    trainingDetails.SecondaryStatusTransitions.Last().Status,
+                        //    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                        //);
+                        uIUpdater.UpdateTrainingStatus(trainingDetails.ResourceConfig.InstanceType.ToString(), formattedTime, 
+                            trainingDetails.SecondaryStatusTransitions.Last().Status, trainingDetails.SecondaryStatusTransitions.Last().StatusMessage);
                     }
                     else
                     {
-                        UpdateTrainingStatus(formattedTime);
+                        uIUpdater.UpdateTrainingStatus(formattedTime);
                     }
 
                     if (trainingDetails.SecondaryStatusTransitions.Any())
@@ -118,7 +129,7 @@ namespace LSC_Trainer.Functions
                 }
                 else if (trainingStatus == TrainingJobStatus.Completed)
                 {
-                    UpdateTrainingStatus(
+                    uIUpdater.UpdateTrainingStatus(
                             trainingDetails.ResourceConfig.InstanceType.ToString(),
                             formattedTime,
                             trainingDetails.SecondaryStatusTransitions.Last().Status,
@@ -131,17 +142,17 @@ namespace LSC_Trainer.Functions
                         if (hasCustomUploads && !deleting)
                         {
                             deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
+                            uIUpdater.DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
                             await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
+                            uIUpdater.DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
                         
                     }
                 }
                 else if (trainingStatus == TrainingJobStatus.Failed)
                 {
-                    DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
-                    UpdateTrainingStatus(
+                    uIUpdater.DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+                    uIUpdater.UpdateTrainingStatus(
                             trainingDetails.ResourceConfig.InstanceType.ToString(),
                             formattedTime,
                             trainingDetails.SecondaryStatusTransitions.Last().Status,
@@ -156,8 +167,8 @@ namespace LSC_Trainer.Functions
                 }
                 else
                 {
-                    DisplayLogMessage($"Training job stopped or in an unknown state.");
-                    UpdateTrainingStatus(
+                    uIUpdater.DisplayLogMessage($"Training job stopped or in an unknown state.");
+                    uIUpdater.UpdateTrainingStatus(
                             trainingDetails.ResourceConfig.InstanceType.ToString(),
                             formattedTime,
                             trainingDetails.SecondaryStatusTransitions.Last().Status,
@@ -170,9 +181,9 @@ namespace LSC_Trainer.Functions
                         if (hasCustomUploads && !deleting)
                         {
                             deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
+                            uIUpdater.DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
                             await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
+                            uIUpdater.DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                         }
 
                     }
@@ -203,7 +214,7 @@ namespace LSC_Trainer.Functions
                     {
                         for (int i = nextLogIndex; i < logs.Events.Count; i++)
                         {
-                            DisplayLogMessage(logs.Events[i].Message);
+                            uIUpdater.DisplayLogMessage(logs.Events[i].Message);
                         }
                         prevLogMessage = logs.Events.Last().Message;
                         nextLogIndex = logs.Events.IndexOf(logs.Events.Last()) + 1;
@@ -214,7 +225,7 @@ namespace LSC_Trainer.Functions
                     delay++;
                     if (delay == 10 || delay == 0)
                     {
-                        DisplayLogMessage($"{Environment.NewLine}Creating log stream for the training job.");
+                        uIUpdater.DisplayLogMessage($"{Environment.NewLine}Creating log stream for the training job.");
                         delay = 1;
                     }
                 }
@@ -222,7 +233,7 @@ namespace LSC_Trainer.Functions
 
             if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
             {
-                UpdateTrainingStatus(
+                uIUpdater.UpdateTrainingStatus(
                     trainingDetails.SecondaryStatusTransitions.Last().Status,
                     trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                 );
@@ -367,13 +378,13 @@ namespace LSC_Trainer.Functions
             {
                 // Log or handle the exception accordingly
                 Console.WriteLine($"Log group '{logGroupName}' does not exist.");
-                DisplayLogMessage($"{Environment.NewLine} The log group '{logGroupName}' is still being created or does not exist anymore.");
+                uIUpdater.DisplayLogMessage($"{Environment.NewLine} The log group '{logGroupName}' is still being created or does not exist anymore.");
                 return null;
             }catch(Exception ex)
             {
                 // Log or handle the exception accordingly
                 Console.WriteLine($"Error in getting log stream: {ex.Message}");
-                DisplayLogMessage($"Error in getting log stream: {ex.Message}");
+                uIUpdater.DisplayLogMessage($"Error in getting log stream: {ex.Message}");
                 return null;
             }
         }
