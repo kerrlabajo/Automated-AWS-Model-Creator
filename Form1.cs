@@ -16,7 +16,7 @@ using Amazon.ServiceQuotas;
 
 namespace LSC_Trainer
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IUIUpdater
     {
         private delegate void SetProgressCallback(int percentDone);
         private AmazonSageMakerClient amazonSageMakerClient;
@@ -24,7 +24,7 @@ namespace LSC_Trainer
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private AmazonServiceQuotasClient serviceQuotasClient;
         private Utility utility = new Utility();
-        private TrainingJobExecutor executor = new TrainingJobExecutor();
+        private TrainingJobExecutor executor;
 
         private string ACCOUNT_ID;
         private string ACCESS_KEY;
@@ -114,8 +114,8 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
 
+            executor = new TrainingJobExecutor(this);
             fileTransferUtility = new FileTransferUtility();
-
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
             InitializeInputs();
@@ -269,49 +269,69 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
-                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtDevice.Text, txtInstanceCount.Text)) {
-                logBox.Clear();
-                instanceTypeBox.Text = "";
-                trainingDurationBox.Text = "";
-                trainingStatusBox.Text = "";
-                descBox.Text = "";
-                Cursor = Cursors.WaitCursor;
-                SetTrainingParameters(
-                        out string img_size,
-                        out string batch_size,
-                        out string epochs,
-                        out string weights,
-                        out string data,
-                        out string hyperparameters,
-                        out string patience,
-                        out string workers,
-                        out string optimizer,
-                        out string device,
-                        out string instanceCount);
-
-                string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
-                trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
-                CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
-                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName);
-
-                if (utility.HasCustomUploads(CUSTOM_UPLOADS_URI))
+            try
+            {
+                if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
+                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtDevice.Text, txtInstanceCount.Text))
                 {
-                    InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-                }
-                else
-                {
-                    DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                    if (result == DialogResult.OK)
+                    logBox.Clear();
+                    instanceTypeBox.Text = "";
+                    trainingDurationBox.Text = "";
+                    trainingStatusBox.Text = "";
+                    descBox.Text = "";
+                    Cursor = Cursors.WaitCursor;
+                    SetTrainingParameters(
+                            out string img_size,
+                            out string batch_size,
+                            out string epochs,
+                            out string weights,
+                            out string data,
+                            out string hyperparameters,
+                            out string patience,
+                            out string workers,
+                            out string optimizer,
+                            out string device,
+                            out string instanceCount);
+
+                    string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
+                    trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
+                    CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
+                        img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName);
+
+                    SetUIState(true);
+                    this.Text = trainingJobName;
+                    bool hasCustomUploads = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
+                    string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+                    if (hasCustomUploads)
                     {
-                        InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                        //InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
                     }
                     else
                     {
-                        return;
+                        DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                        if (result == DialogResult.OK)
+                        {
+                           //InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
                 }
-            }         
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                datasetPath = null;
+                SetUIState(false);
+            }
+                   
         }
 
         private async void btnDownloadModel_Click(object sender, EventArgs e)
@@ -468,12 +488,6 @@ namespace LSC_Trainer
         }
         private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
         {
-            InputsEnabler(false);
-            connectionMenu.Enabled = false;
-            logPanel.Enabled = true;
-            Cursor = Cursors.WaitCursor;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
-            this.Text = trainingJobName;
             try
             {
                 CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
@@ -484,10 +498,7 @@ namespace LSC_Trainer
                 trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
                 bool custom = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
                 bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
-                
-                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                datasetPath = null;
+
                 return;
             }
             catch (Exception ex)
@@ -496,14 +507,8 @@ namespace LSC_Trainer
                 btnTraining.Enabled = true;
                 return;
             }
-            finally
-            {
-                InputsEnabler(true);
-                connectionMenu.Enabled = true;
-                logPanel.Enabled = true;
-                Cursor = Cursors.Default;
-            }
         }
+
         private void NewTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm(development)));
@@ -877,6 +882,78 @@ namespace LSC_Trainer
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             trainingJobHandler?.Dispose();
+        }
+
+        public void SetUIState(bool isTraining)
+        {
+            InputsEnabler(!isTraining);
+            connectionMenu.Enabled = !isTraining;
+            logPanel.Enabled = isTraining;
+            Cursor = isTraining ? Cursors.WaitCursor : Cursors.Default;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
+        }
+
+        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
+        {
+            instanceTypeBox.Text = instanceType;
+            trainingDurationBox.Text = trainingDuration;
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
+        }
+
+        public void UpdateTrainingStatus(string trainingDuration)
+        {
+            trainingDurationBox.Text = trainingDuration;
+        }
+
+        public void UpdateTrainingStatus(string status, string description)
+        {
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
+        }
+
+        public void DisplayLogMessage(string logMessage)
+        {
+            string rtfMessage = ConvertAnsiToRtf(logMessage);
+
+            // Remove the start and end of the RTF document from the message
+            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
+            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
+
+            // Append the RTF message at the end of the existing RTF text
+            Action log = () =>
+            {
+                logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+
+                // Scroll to the end to show the latest log messages
+                logBox.SelectionStart = logBox.Text.Length;
+                logBox.ScrollToCaret();
+            };
+            if (logBox.InvokeRequired)
+            {
+                // Invoke on the UI thread
+                logBox.Invoke(log);
+            }
+            else
+            {
+                // No invoke required, execute directly
+                log();
+            }
+        }
+
+        public string ConvertAnsiToRtf(string ansiText)
+        {
+            ansiText = ansiText.Replace("#033[1m", @"\b ");
+            ansiText = ansiText.Replace("#033[0m", @"\b0 ");
+            ansiText = ansiText.Replace("#033[34m", @"\cf1 ");
+            ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
+            ansiText = ansiText.Replace("#015", @"\line ");
+            return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
+        }
+
+        public void SetLogPanelVisibility(bool visibility)
+        {
+            logPanel.Visible = visibility;
         }
     }
 }
