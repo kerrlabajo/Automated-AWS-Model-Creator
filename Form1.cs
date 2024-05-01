@@ -987,5 +987,47 @@ namespace LSC_Trainer
         {
             trainingJobHandler?.Dispose();
         }
+
+        private async void btnFetchAvailableDatasets_Click(object sender, EventArgs e)
+        {
+            mainPanel.Enabled = false;
+            logPanel.Enabled = false;
+            connectionMenu.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            try
+            {
+                List<string> models = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
+
+                if (models != null)
+                {
+                    datasetListComboBox.Items.Clear();
+
+                    Console.WriteLine("Datasets: ");
+                    foreach (var obj in models)
+                    {
+                        Console.WriteLine(obj);
+                        datasetListComboBox.Items.Add(obj);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                mainPanel.Enabled = true;
+                logPanel.Enabled = true;
+                connectionMenu.Enabled = true;
+                Cursor = Cursors.Default;
+                datasetListComboBox.Enabled = true;
+            }
+        }
+
+        private void datasetListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            CUSTOM_UPLOADS_URI += datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+        }
     }
 }

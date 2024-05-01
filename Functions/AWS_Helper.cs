@@ -16,6 +16,8 @@ using System.Windows.Forms;
 using Amazon;
 using Amazon.ServiceQuotas;
 using Amazon.ServiceQuotas.Model;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace LSC_Trainer.Functions
 {
@@ -40,9 +42,13 @@ namespace LSC_Trainer.Functions
                 });
 
                 return response.S3Objects
-                    .Select(o => o.Key.Split('/')[1])
+                    .Select(o => new { Key = o.Key.Split('/')[1], Date = ExtractDateFromKey(o.Key) })
+                    .OrderByDescending(o => o.Date) 
+                    .Select(o => o.Key)
                     .Distinct()
                     .ToList();
+
+               // return sortedKeys;
             }
             catch (AmazonS3Exception e)
             {
@@ -55,6 +61,18 @@ namespace LSC_Trainer.Functions
                 return null;
             }
         }
+
+        private static DateTime? ExtractDateFromKey(string key)
+        {
+            var regex = new Regex(@"\b\d{4}-\d{2}-\d{2}\b");
+            var match = regex.Match(key);
+            if (match.Success && DateTime.TryParseExact(match.Value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            {
+                return date;
+            }
+            return null;
+        }
+
 
         public static (string, string) GetFirstRepositoryUriAndImageTag(string accessKey, string secretKey, RegionEndpoint region)
         {
@@ -120,6 +138,33 @@ namespace LSC_Trainer.Functions
             allInstances = allInstances.OrderBy(instance => instance.QuotaName).ToList();
 
             return allInstances;
+        }
+
+        public static async Task<List<string>> GetAvailableDatasetsList(AmazonS3Client s3Client, string bucketName)
+        {
+            try
+            {
+                var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                {
+                    BucketName = bucketName,
+                    Prefix = "custom-uploads"
+                });
+
+                return response.S3Objects
+                    .Select(o => o.Key.Split('/')[1])
+                    .Distinct()
+                    .ToList();
+            }
+            catch (AmazonS3Exception e)
+            {
+                Console.WriteLine("Error retrieving list from S3: " + e.Message);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return null;
+            }
         }
 
     }

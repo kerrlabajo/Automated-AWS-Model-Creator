@@ -40,6 +40,8 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.datasetListComboBox = new System.Windows.Forms.ComboBox();
+            this.btnFetchDatasets_Click = new System.Windows.Forms.Button();
             this.txtInstanceCount = new System.Windows.Forms.TextBox();
             this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
@@ -158,7 +160,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectDataset.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectDataset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectDataset.Location = new System.Drawing.Point(33, 260);
+            this.btnSelectDataset.Location = new System.Drawing.Point(30, 307);
             this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectDataset.Name = "btnSelectDataset";
             this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
@@ -185,6 +187,8 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.datasetListComboBox);
+            this.mainPanel.Controls.Add(this.btnFetchDatasets_Click);
             this.mainPanel.Controls.Add(this.txtInstanceCount);
             this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
@@ -232,8 +236,28 @@ namespace LSC_Trainer
             this.mainPanel.Location = new System.Drawing.Point(12, 42);
             this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.mainPanel.Name = "mainPanel";
-            this.mainPanel.Size = new System.Drawing.Size(1140, 344);
+            this.mainPanel.Size = new System.Drawing.Size(1140, 397);
             this.mainPanel.TabIndex = 4;
+            // 
+            // datasetListComboBox
+            // 
+            this.datasetListComboBox.Enabled = false;
+            this.datasetListComboBox.FormattingEnabled = true;
+            this.datasetListComboBox.Location = new System.Drawing.Point(353, 266);
+            this.datasetListComboBox.Name = "datasetListComboBox";
+            this.datasetListComboBox.Size = new System.Drawing.Size(279, 24);
+            this.datasetListComboBox.TabIndex = 54;
+            this.datasetListComboBox.SelectedValueChanged += new System.EventHandler(this.datasetListComboBox_SelectedValueChanged);
+            // 
+            // btnFetchDatasets_Click
+            // 
+            this.btnFetchDatasets_Click.Location = new System.Drawing.Point(229, 264);
+            this.btnFetchDatasets_Click.Name = "btnFetchDatasets_Click";
+            this.btnFetchDatasets_Click.Size = new System.Drawing.Size(118, 30);
+            this.btnFetchDatasets_Click.TabIndex = 53;
+            this.btnFetchDatasets_Click.Text = "Fetch Dataset";
+            this.btnFetchDatasets_Click.UseVisualStyleBackColor = true;
+            this.btnFetchDatasets_Click.Click += new System.EventHandler(this.btnFetchAvailableDatasets_Click);
             // 
             // txtInstanceCount
             // 
@@ -249,7 +273,7 @@ namespace LSC_Trainer
             this.instanceCountLabel.AutoSize = true;
             this.instanceCountLabel.Location = new System.Drawing.Point(292, 222);
             this.instanceCountLabel.Name = "instanceCountLabel";
-            this.instanceCountLabel.Size = new System.Drawing.Size(97, 16);
+            this.instanceCountLabel.Size = new System.Drawing.Size(106, 17);
             this.instanceCountLabel.TabIndex = 52;
             this.instanceCountLabel.Text = "Instance Count:";
             // 
@@ -259,7 +283,7 @@ namespace LSC_Trainer
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
             "ml.g4dn.xlarge"});
-            this.instancesDropdown.Location = new System.Drawing.Point(455, 257);
+            this.instancesDropdown.Location = new System.Drawing.Point(452, 304);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
             this.instancesDropdown.Size = new System.Drawing.Size(180, 24);
@@ -271,7 +295,7 @@ namespace LSC_Trainer
             this.hyperparametersLabel.AutoSize = true;
             this.hyperparametersLabel.Location = new System.Drawing.Point(292, 72);
             this.hyperparametersLabel.Name = "hyperparametersLabel";
-            this.hyperparametersLabel.Size = new System.Drawing.Size(116, 16);
+            this.hyperparametersLabel.Size = new System.Drawing.Size(122, 17);
             this.hyperparametersLabel.TabIndex = 50;
             this.hyperparametersLabel.Text = "Hyperparameters:";
             // 
@@ -335,7 +359,7 @@ namespace LSC_Trainer
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(232, 260);
+            this.progressBar.Location = new System.Drawing.Point(229, 307);
             this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(171, 23);
@@ -345,7 +369,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectFolder.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectFolder.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectFolder.Location = new System.Drawing.Point(33, 294);
+            this.btnSelectFolder.Location = new System.Drawing.Point(30, 341);
             this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
@@ -357,7 +381,7 @@ namespace LSC_Trainer
             // btnDownloadModel
             // 
             this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
-            this.btnDownloadModel.Location = new System.Drawing.Point(833, 295);
+            this.btnDownloadModel.Location = new System.Drawing.Point(830, 342);
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
@@ -369,7 +393,7 @@ namespace LSC_Trainer
             // btnUploadToS3
             // 
             this.btnUploadToS3.BackColor = System.Drawing.Color.Yellow;
-            this.btnUploadToS3.Location = new System.Drawing.Point(232, 295);
+            this.btnUploadToS3.Location = new System.Drawing.Point(229, 342);
             this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
@@ -384,7 +408,7 @@ namespace LSC_Trainer
             this.descriptionLabel.BackColor = System.Drawing.SystemColors.Control;
             this.descriptionLabel.Location = new System.Drawing.Point(688, 156);
             this.descriptionLabel.Name = "descriptionLabel";
-            this.descriptionLabel.Size = new System.Drawing.Size(78, 16);
+            this.descriptionLabel.Size = new System.Drawing.Size(83, 17);
             this.descriptionLabel.TabIndex = 28;
             this.descriptionLabel.Text = "Description:";
             // 
@@ -404,7 +428,7 @@ namespace LSC_Trainer
             this.trainingStatusLabel.BackColor = System.Drawing.SystemColors.Control;
             this.trainingStatusLabel.Location = new System.Drawing.Point(688, 128);
             this.trainingStatusLabel.Name = "trainingStatusLabel";
-            this.trainingStatusLabel.Size = new System.Drawing.Size(99, 16);
+            this.trainingStatusLabel.Size = new System.Drawing.Size(108, 17);
             this.trainingStatusLabel.TabIndex = 27;
             this.trainingStatusLabel.Text = "Training Status:";
             // 
@@ -413,7 +437,7 @@ namespace LSC_Trainer
             this.deviceLabel.AutoSize = true;
             this.deviceLabel.Location = new System.Drawing.Point(292, 184);
             this.deviceLabel.Name = "deviceLabel";
-            this.deviceLabel.Size = new System.Drawing.Size(53, 16);
+            this.deviceLabel.Size = new System.Drawing.Size(55, 17);
             this.deviceLabel.TabIndex = 38;
             this.deviceLabel.Text = "Device:";
             // 
@@ -422,7 +446,7 @@ namespace LSC_Trainer
             this.instanceTypelbl.AutoSize = true;
             this.instanceTypelbl.Location = new System.Drawing.Point(792, 73);
             this.instanceTypelbl.Name = "instanceTypelbl";
-            this.instanceTypelbl.Size = new System.Drawing.Size(0, 16);
+            this.instanceTypelbl.Size = new System.Drawing.Size(0, 17);
             this.instanceTypelbl.TabIndex = 25;
             // 
             // txtOptimizer
@@ -440,7 +464,7 @@ namespace LSC_Trainer
             this.trainingDurationLabel.BackColor = System.Drawing.SystemColors.Control;
             this.trainingDurationLabel.Location = new System.Drawing.Point(688, 99);
             this.trainingDurationLabel.Name = "trainingDurationLabel";
-            this.trainingDurationLabel.Size = new System.Drawing.Size(112, 16);
+            this.trainingDurationLabel.Size = new System.Drawing.Size(122, 17);
             this.trainingDurationLabel.TabIndex = 24;
             this.trainingDurationLabel.Text = "Training Duration:";
             // 
@@ -449,7 +473,7 @@ namespace LSC_Trainer
             this.optimizerLabel.AutoSize = true;
             this.optimizerLabel.Location = new System.Drawing.Point(292, 156);
             this.optimizerLabel.Name = "optimizerLabel";
-            this.optimizerLabel.Size = new System.Drawing.Size(66, 16);
+            this.optimizerLabel.Size = new System.Drawing.Size(72, 17);
             this.optimizerLabel.TabIndex = 36;
             this.optimizerLabel.Text = "Optimizer:";
             // 
@@ -459,7 +483,7 @@ namespace LSC_Trainer
             this.virtualMachineLabel.BackColor = System.Drawing.SystemColors.Control;
             this.virtualMachineLabel.Location = new System.Drawing.Point(688, 72);
             this.virtualMachineLabel.Name = "virtualMachineLabel";
-            this.virtualMachineLabel.Size = new System.Drawing.Size(101, 16);
+            this.virtualMachineLabel.Size = new System.Drawing.Size(109, 17);
             this.virtualMachineLabel.TabIndex = 23;
             this.virtualMachineLabel.Text = "Virtual Machine:";
             // 
@@ -477,7 +501,7 @@ namespace LSC_Trainer
             this.workersLabel.AutoSize = true;
             this.workersLabel.Location = new System.Drawing.Point(292, 128);
             this.workersLabel.Name = "workersLabel";
-            this.workersLabel.Size = new System.Drawing.Size(61, 16);
+            this.workersLabel.Size = new System.Drawing.Size(65, 17);
             this.workersLabel.TabIndex = 34;
             this.workersLabel.Text = "Workers:";
             // 
@@ -495,14 +519,14 @@ namespace LSC_Trainer
             this.patienceLabel.AutoSize = true;
             this.patienceLabel.Location = new System.Drawing.Point(292, 100);
             this.patienceLabel.Name = "patienceLabel";
-            this.patienceLabel.Size = new System.Drawing.Size(63, 16);
+            this.patienceLabel.Size = new System.Drawing.Size(67, 17);
             this.patienceLabel.TabIndex = 32;
             this.patienceLabel.Text = "Patience:";
             // 
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(489, 294);
+            this.btnTraining.Location = new System.Drawing.Point(486, 341);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
@@ -562,7 +586,7 @@ namespace LSC_Trainer
             this.dataLabel.AutoSize = true;
             this.dataLabel.Location = new System.Drawing.Point(30, 180);
             this.dataLabel.Name = "dataLabel";
-            this.dataLabel.Size = new System.Drawing.Size(39, 16);
+            this.dataLabel.Size = new System.Drawing.Size(42, 17);
             this.dataLabel.TabIndex = 11;
             this.dataLabel.Text = "Data:";
             // 
@@ -571,7 +595,7 @@ namespace LSC_Trainer
             this.weightsLabel.AutoSize = true;
             this.weightsLabel.Location = new System.Drawing.Point(30, 153);
             this.weightsLabel.Name = "weightsLabel";
-            this.weightsLabel.Size = new System.Drawing.Size(59, 16);
+            this.weightsLabel.Size = new System.Drawing.Size(63, 17);
             this.weightsLabel.TabIndex = 10;
             this.weightsLabel.Text = "Weights:";
             // 
@@ -580,7 +604,7 @@ namespace LSC_Trainer
             this.epochsLabel.AutoSize = true;
             this.epochsLabel.Location = new System.Drawing.Point(30, 126);
             this.epochsLabel.Name = "epochsLabel";
-            this.epochsLabel.Size = new System.Drawing.Size(56, 16);
+            this.epochsLabel.Size = new System.Drawing.Size(59, 17);
             this.epochsLabel.TabIndex = 9;
             this.epochsLabel.Text = "Epochs:";
             // 
@@ -589,7 +613,7 @@ namespace LSC_Trainer
             this.batchSizeLabel.AutoSize = true;
             this.batchSizeLabel.Location = new System.Drawing.Point(30, 99);
             this.batchSizeLabel.Name = "batchSizeLabel";
-            this.batchSizeLabel.Size = new System.Drawing.Size(73, 16);
+            this.batchSizeLabel.Size = new System.Drawing.Size(79, 17);
             this.batchSizeLabel.TabIndex = 8;
             this.batchSizeLabel.Text = "Batch Size:";
             // 
@@ -598,7 +622,7 @@ namespace LSC_Trainer
             this.imageSizeLabel.AutoSize = true;
             this.imageSizeLabel.Location = new System.Drawing.Point(30, 72);
             this.imageSizeLabel.Name = "imageSizeLabel";
-            this.imageSizeLabel.Size = new System.Drawing.Size(77, 16);
+            this.imageSizeLabel.Size = new System.Drawing.Size(81, 17);
             this.imageSizeLabel.TabIndex = 7;
             this.imageSizeLabel.Text = "Image Size:";
             // 
@@ -607,7 +631,7 @@ namespace LSC_Trainer
             this.selectedFileLabel.AutoSize = true;
             this.selectedFileLabel.Location = new System.Drawing.Point(30, 222);
             this.selectedFileLabel.Name = "selectedFileLabel";
-            this.selectedFileLabel.Size = new System.Drawing.Size(89, 16);
+            this.selectedFileLabel.Size = new System.Drawing.Size(93, 17);
             this.selectedFileLabel.TabIndex = 4;
             this.selectedFileLabel.Text = "Selected File:";
             // 
@@ -646,7 +670,7 @@ namespace LSC_Trainer
             // 
             this.outputListComboBox.Enabled = false;
             this.outputListComboBox.FormattingEnabled = true;
-            this.outputListComboBox.Location = new System.Drawing.Point(691, 257);
+            this.outputListComboBox.Location = new System.Drawing.Point(688, 304);
             this.outputListComboBox.Name = "outputListComboBox";
             this.outputListComboBox.Size = new System.Drawing.Size(410, 24);
             this.outputListComboBox.TabIndex = 16;
@@ -654,7 +678,7 @@ namespace LSC_Trainer
             // 
             // btnFetchOutput
             // 
-            this.btnFetchOutput.Location = new System.Drawing.Point(691, 295);
+            this.btnFetchOutput.Location = new System.Drawing.Point(688, 342);
             this.btnFetchOutput.Name = "btnFetchOutput";
             this.btnFetchOutput.Size = new System.Drawing.Size(120, 30);
             this.btnFetchOutput.TabIndex = 17;
@@ -681,7 +705,7 @@ namespace LSC_Trainer
             this.logPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.logPanel.Controls.Add(this.logBox);
             this.logPanel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.logPanel.Location = new System.Drawing.Point(12, 407);
+            this.logPanel.Location = new System.Drawing.Point(12, 460);
             this.logPanel.Name = "logPanel";
             this.logPanel.Size = new System.Drawing.Size(1140, 340);
             this.logPanel.TabIndex = 33;
@@ -689,7 +713,7 @@ namespace LSC_Trainer
             // 
             // SpaceBetween
             // 
-            this.SpaceBetween.Location = new System.Drawing.Point(12, 391);
+            this.SpaceBetween.Location = new System.Drawing.Point(12, 444);
             this.SpaceBetween.Name = "SpaceBetween";
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
@@ -702,7 +726,7 @@ namespace LSC_Trainer
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.ClientSize = new System.Drawing.Size(1164, 770);
+            this.ClientSize = new System.Drawing.Size(1164, 835);
             this.Controls.Add(this.SpaceBetween);
             this.Controls.Add(this.lscTrainerMenuStrip);
             this.Controls.Add(this.mainPanel);
@@ -781,6 +805,8 @@ namespace LSC_Trainer
         private System.Windows.Forms.ComboBox instancesDropdown;
         private System.Windows.Forms.TextBox txtInstanceCount;
         private System.Windows.Forms.Label instanceCountLabel;
+        private System.Windows.Forms.ComboBox datasetListComboBox;
+        private System.Windows.Forms.Button btnFetchDatasets_Click;
     }
 }
 
