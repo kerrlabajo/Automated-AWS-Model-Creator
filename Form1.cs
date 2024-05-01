@@ -596,6 +596,7 @@ namespace LSC_Trainer
                 
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                outputListComboBox.Text = trainingJobName;
                 datasetPath = null;
                 return;
             }
@@ -694,9 +695,12 @@ namespace LSC_Trainer
             {
                 List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
 
-                if (models != null)
+                if (models != null && models.Count > 0)
                 {
-                    outputListComboBox.Items.Clear(); 
+                    outputListComboBox.Items.Clear();
+                    outputListComboBox.Text = models[0];
+                    outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
+                    btnDownloadModel.Enabled = true;
 
                     foreach (var obj in models)
                     {
@@ -706,7 +710,7 @@ namespace LSC_Trainer
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message);    
             }
             finally
             {
