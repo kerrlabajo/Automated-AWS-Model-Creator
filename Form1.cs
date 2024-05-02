@@ -908,14 +908,14 @@ namespace LSC_Trainer
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            executor?.DisposeAsync();
+            executor?.Dispose();
         }
 
         public void SetUIState(bool isTraining)
         {
             InputsEnabler(!isTraining);
             connectionMenu.Enabled = !isTraining;
-            logPanel.Enabled = isTraining;
+            logPanel.Enabled = !isTraining;
             Cursor = isTraining ? Cursors.WaitCursor : Cursors.Default;
             lscTrainerMenuStrip.Cursor = Cursors.Default;
         }

@@ -37,7 +37,6 @@ namespace LSC_Trainer.Functions
         private System.Timers.Timer timer;
 
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private bool isDisposed = false;
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
@@ -98,7 +97,12 @@ namespace LSC_Trainer.Functions
 
                 if (trainingStatus == TrainingJobStatus.InProgress)
                 {
-                    await HandleInProgressStatus(trainingDetails, trainingJobName);
+                    uIUpdater.UpdateTrainingStatus(
+                        trainingDetails.ResourceConfig.InstanceType.ToString(),
+                        formattedTime,
+                        trainingDetails.SecondaryStatusTransitions.Last().Status,
+                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    );
 
                     await startLiveTailLock.WaitAsync();
                     try
@@ -127,7 +131,6 @@ namespace LSC_Trainer.Functions
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-                        
                     }
                 }
                 else if(trainingStatus == TrainingJobStatus.Failed)
@@ -196,6 +199,7 @@ namespace LSC_Trainer.Functions
                         if (cancellationTokenSource.Token.IsCancellationRequested)
                         {
                             eventStream.Dispose();
+                            uIUpdater.DisplayLogMessage("Live Tail session has ended.");
                             break;
                         }
                         lock (lockObject)
@@ -215,20 +219,14 @@ namespace LSC_Trainer.Functions
                             if (item is CloudWatchLogsEventStreamException)
                             {
                                 uIUpdater.DisplayLogMessage($"ERROR: {item}");
-                                                    }
+                            }
                         }
                         
                     }
-                    // Close the stream to stop the session after a timeout
-                    //if (!Task.Delay(TimeSpan.FromSeconds(30)).Wait(TimeSpan.FromSeconds(30)))
-                    //{
-                    //    eventStream.Dispose();
-                    //    //uIUpdater.DisplayLogMessage("End of line");
-                    //}
                 }, cancellationTokenSource.Token);
             }catch (OperationCanceledException)
             {
-                uIUpdater.DisplayLogMessage("Live Tail session timed out after 30 seconds.");
+                uIUpdater.DisplayLogMessage("Live Tail session has been cancelled.");
             }
             catch (CloudWatchLogsEventStreamException ex)
             {
@@ -243,24 +241,8 @@ namespace LSC_Trainer.Functions
             {
                 // Handle SocketException here
                 Console.WriteLine($"ERROR: {ex.Message}");
-                //if (!isDisposed)
-                //{
-                //    timer.Stop();
-                //    eventStream.Dispose();
-                //    await DisposeAsync();
-                //    isDisposed = true;
-                //}
 
             }
-            //finally
-            //{
-                //if (cancellationTokenSource.IsCancellationRequested && !isDisposed)
-                //{
-                //    eventStream.Dispose();
-                //    await DisposeAsync();
-                //    isDisposed = true;
-                //}
-            //}
         }
 
         private async Task<DescribeTrainingJobResponse> GetTrainingJobDetails(AmazonSageMakerClient amazonSageMakerClient, string trainingJobName)
@@ -269,41 +251,6 @@ namespace LSC_Trainer.Functions
             {
                 TrainingJobName = trainingJobName
             });
-        }
-
-        private async Task HandleInProgressStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
-        {
-            UpdateTrainingStatusBasedOnTime(trainingDetails);
-            //if (trainingDetails.SecondaryStatusTransitions.Any())
-            //{
-            //    await CheckSecondaryStatus(trainingDetails, trainingJobName);
-            //} //temp
-        }
-
-        private void UpdateTrainingStatusBasedOnTime(DescribeTrainingJobResponse trainingDetails)
-        {
-            TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
-            string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
-
-            if (trainingDetails.TrainingTimeInSeconds == 0)
-            {
-                uIUpdater.UpdateTrainingStatus(
-                    trainingDetails.ResourceConfig.InstanceType.ToString(),
-                    formattedTime,
-                    trainingDetails.SecondaryStatusTransitions.Last().Status,
-                    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                );
-            }
-            else
-            {
-                //temp
-                uIUpdater.UpdateTrainingStatus(
-                    trainingDetails.ResourceConfig.InstanceType.ToString(),
-                    formattedTime,
-                    trainingDetails.SecondaryStatusTransitions.Last().Status,
-                    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                );
-            }
         }
 
         private async Task HandleCustomUploads()
@@ -362,19 +309,16 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public async Task DisposeAsync()
+        public void Dispose()
         {
             // Cancel the token to stop the task in TrackLiveTail
             cancellationTokenSource.Cancel();
 
             // Now that the task has completed, it's safe to dispose of the resources
             DisposeTimer(timer);
-            //startLiveTailResponse?.ResponseStream.Dispose();
             amazonSageMakerClient.Dispose();
             cloudWatchLogsClient.Dispose();
             s3Client.Dispose();
-
-            isDisposed = true;
         }
 
         public void DisposeTimer(System.Timers.Timer timer)
