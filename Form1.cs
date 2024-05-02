@@ -908,7 +908,7 @@ namespace LSC_Trainer
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            executor?.Dispose();
+            executor?.DisposeAsync();
         }
 
         public void SetUIState(bool isTraining)

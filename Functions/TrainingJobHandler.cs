@@ -1,11 +1,14 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
+using Amazon.Runtime.EventStreams.Internal;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -32,6 +35,9 @@ namespace LSC_Trainer.Functions
         private IUIUpdater uIUpdater;
 
         private System.Timers.Timer timer;
+
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private bool isDisposed = false;
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
@@ -76,6 +82,9 @@ namespace LSC_Trainer.Functions
 
             return timer;
         }
+
+        private readonly SemaphoreSlim startLiveTailLock = new SemaphoreSlim(1, 1);
+
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
             try
@@ -90,16 +99,28 @@ namespace LSC_Trainer.Functions
                 if (trainingStatus == TrainingJobStatus.InProgress)
                 {
                     await HandleInProgressStatus(trainingDetails, trainingJobName);
-                    if(startLiveTailResponse == null)
+
+                    await startLiveTailLock.WaitAsync();
+                    try
                     {
-                        if(trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
+                        if (startLiveTailResponse == null)
                         {
-                            string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
-                            if(!string.IsNullOrEmpty(logStreamName))
-                                await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
+                            {
+                                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+                                if (!string.IsNullOrEmpty(logStreamName))
+                                {
+                                    await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                                }
+                                    
+                            }
                         }
-                        
                     }
+                    finally
+                    {
+                        startLiveTailLock.Release();
+                    }
+
                 }
                 else if(trainingStatus == TrainingJobStatus.Completed)
                 {
@@ -127,6 +148,7 @@ namespace LSC_Trainer.Functions
                 }
 
                 if (completionSource.Task.IsCompleted){
+                    cancellationTokenSource.Cancel();
                     uIUpdater.UpdateTrainingStatus(
                         trainingDetails.ResourceConfig.InstanceType.ToString(),
                         formattedTime,
@@ -148,7 +170,8 @@ namespace LSC_Trainer.Functions
             {
                 LogGroupIdentifiers = new List<string>() { logGroupName },
                 LogStreamNames = new List<string>() { logStreamName },
-            });
+            }, cancellationTokenSource.Token);
+
             if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
             {
                 uIUpdater.DisplayLogMessage("Failed to start live tail session");
@@ -158,57 +181,86 @@ namespace LSC_Trainer.Functions
             TrackLiveTail(startLiveTailResponse);
         }
 
+        private readonly object lockObject = new object();
         private async void TrackLiveTail(StartLiveTailResponse response)
         {
             var eventStream = response.ResponseStream;
-            var cancellationTokenSource = new CancellationTokenSource();
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30), cancellationTokenSource.Token);
 
-            try { 
+            try
+            {
                 await Task.Run(() =>
                 {
                     foreach (var item in eventStream)
                     {
-                        if (item is LiveTailSessionUpdate liveTailSessionUpdate)
+                        if (cancellationTokenSource.Token.IsCancellationRequested)
                         {
-                            foreach (var sessionResult in liveTailSessionUpdate.SessionResults)
+                            eventStream.Dispose();
+                            break;
+                        }
+                        lock (lockObject)
+                        {
+                            if (item is LiveTailSessionUpdate liveTailSessionUpdate)
                             {
-                                uIUpdater.DisplayLogMessage(sessionResult.Message);
+                                foreach (var sessionResult in liveTailSessionUpdate.SessionResults)
+                                {
+                                    uIUpdater.DisplayLogMessage(sessionResult.Message);
+                                }
                             }
+                            if (item is LiveTailSessionStart)
+                            {
+                                uIUpdater.DisplayLogMessage("Live Tail session started");
+                            }
+                            // On-stream exceptions are processed here
+                            if (item is CloudWatchLogsEventStreamException)
+                            {
+                                uIUpdater.DisplayLogMessage($"ERROR: {item}");
+                                                    }
                         }
-                        if (item is LiveTailSessionStart)
-                        {
-                            uIUpdater.DisplayLogMessage("Live Tail session started");
-                        }
-                        // On-stream exceptions are processed here
-                        if (item is CloudWatchLogsEventStreamException)
-                        {
-                            uIUpdater.DisplayLogMessage($"ERROR: {item}");
-                        }
+                        
                     }
                     // Close the stream to stop the session after a timeout
-                    if (!Task.Delay(TimeSpan.FromSeconds(30)).Wait(TimeSpan.FromSeconds(30)))
-                    {
-                        eventStream.Dispose();
-                        uIUpdater.DisplayLogMessage("End of line");
-                    }
-                });
+                    //if (!Task.Delay(TimeSpan.FromSeconds(30)).Wait(TimeSpan.FromSeconds(30)))
+                    //{
+                    //    eventStream.Dispose();
+                    //    //uIUpdater.DisplayLogMessage("End of line");
+                    //}
+                }, cancellationTokenSource.Token);
             }catch (OperationCanceledException)
             {
                 uIUpdater.DisplayLogMessage("Live Tail session timed out after 30 seconds.");
             }
             catch (CloudWatchLogsEventStreamException ex)
             {
-                //uIUpdater.DisplayLogMessage($"ERROR: {ex}");
-                timer.Stop();
-                eventStream.Dispose();
-                Dispose();
+                Console.WriteLine($"ERROR: {ex}");
             }
-            finally
+            catch (IOException ex)
             {
-                eventStream.Dispose();
-                cancellationTokenSource.Cancel();
+                // Handle IOException here
+                Console.WriteLine($"ERROR: {ex.Message}");
             }
+            catch (SocketException ex)
+            {
+                // Handle SocketException here
+                Console.WriteLine($"ERROR: {ex.Message}");
+                //if (!isDisposed)
+                //{
+                //    timer.Stop();
+                //    eventStream.Dispose();
+                //    await DisposeAsync();
+                //    isDisposed = true;
+                //}
+
+            }
+            //finally
+            //{
+                //if (cancellationTokenSource.IsCancellationRequested && !isDisposed)
+                //{
+                //    eventStream.Dispose();
+                //    await DisposeAsync();
+                //    isDisposed = true;
+                //}
+            //}
         }
 
         private async Task<DescribeTrainingJobResponse> GetTrainingJobDetails(AmazonSageMakerClient amazonSageMakerClient, string trainingJobName)
@@ -273,52 +325,6 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
-        {
-            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
-            {
-                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
-
-                if (!string.IsNullOrEmpty(logStreamName))
-                {
-                    GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
-                    {
-                        LogGroupName = "/aws/sagemaker/TrainingJobs",
-                        LogStreamName = logStreamName
-                    });
-
-
-                    if (logs.Events.Any() && prevLogMessage != logs.Events.Last().Message)
-                    {
-                        for (int i = nextLogIndex; i < logs.Events.Count; i++)
-                        {
-                            uIUpdater.DisplayLogMessage(logs.Events[i].Message);
-                        }
-                        prevLogMessage = logs.Events.Last().Message;
-                        nextLogIndex = logs.Events.IndexOf(logs.Events.Last()) + 1;
-                    }
-                }
-                else
-                {
-                    delay++;
-                    if (delay == 10 || delay == 0)
-                    {
-                        uIUpdater.DisplayLogMessage($"{Environment.NewLine}Creating log stream for the training job.");
-                        delay = 1;
-                    }
-                }
-            }
-
-            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-            {
-                uIUpdater.UpdateTrainingStatus(
-                    trainingDetails.SecondaryStatusTransitions.Last().Status,
-                    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                );
-                prevStatusMessage = trainingDetails.SecondaryStatusTransitions.Last().StatusMessage;
-            }
-        }
-
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
         {
             try {
@@ -356,15 +362,20 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        public void Dispose()
+        public async Task DisposeAsync()
         {
-            // Dispose the resources
+            // Cancel the token to stop the task in TrackLiveTail
+            cancellationTokenSource.Cancel();
+
+            // Now that the task has completed, it's safe to dispose of the resources
             DisposeTimer(timer);
-            startLiveTailResponse.ResponseStream.Dispose();
+            //startLiveTailResponse?.ResponseStream.Dispose();
             amazonSageMakerClient.Dispose();
             cloudWatchLogsClient.Dispose();
             s3Client.Dispose();
-        } 
+
+            isDisposed = true;
+        }
 
         public void DisposeTimer(System.Timers.Timer timer)
         {

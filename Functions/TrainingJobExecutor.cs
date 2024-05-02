@@ -133,9 +133,10 @@ namespace LSC_Trainer.Functions
             bool success = await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, bucket, HasCustomUploads);
         }
 
-        public void Dispose()
+        public Task DisposeAsync()
         {
-            trainingJobHandler?.Dispose();
+            return trainingJobHandler?.DisposeAsync();
+ 
         }
         public async Task<CreateTrainingJobResponse> CreateTrainingJobResponse(CreateTrainingJobRequest trainingRequest, AmazonSageMakerClient amazonSageMakerClient)
         {
