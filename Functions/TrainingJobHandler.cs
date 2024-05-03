@@ -4,6 +4,7 @@ using Amazon.Runtime.EventStreams.Internal;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,14 +18,11 @@ namespace LSC_Trainer.Functions
 {
     internal class TrainingJobHandler
     {
-        private string prevStatusMessage = "";
-        private string prevLogMessage = "";
-        private int nextLogIndex = 0;
+        private string currentTrainingJobName;
         private bool hasCustomUploads = false;
         private string datasetKey = "";
         private string s3Bucket = "";
         private bool showDialogBox = false;
-        private int delay = 0;
 
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
@@ -35,6 +33,7 @@ namespace LSC_Trainer.Functions
         private IUIUpdater uIUpdater;
 
         private System.Timers.Timer timer;
+       
 
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
@@ -44,12 +43,14 @@ namespace LSC_Trainer.Functions
             this.s3Client = s3Client;
             this.transferUtility = fileTransferUtility;
             this.uIUpdater = uIUpdater;
+            SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
         }
 
         public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
         {
             try
             {
+                currentTrainingJobName = trainingJobName;
                 this.datasetKey = datasetKey;
                 this.s3Bucket = s3Bucket;
                 this.hasCustomUploads = hasCustomUploads;
@@ -199,7 +200,10 @@ namespace LSC_Trainer.Functions
                         if (cancellationTokenSource.Token.IsCancellationRequested)
                         {
                             eventStream.Dispose();
-                            uIUpdater.DisplayLogMessage("Live Tail session has ended.");
+                            if(uIUpdater != null)
+                            {
+                                uIUpdater.DisplayLogMessage("Live Tail session has ended.");
+                            }
                             break;
                         }
                         lock (lockObject)
@@ -309,8 +313,32 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        private async void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Suspend:
+                    // The system is going to sleep
+                    // Pause or save your work here
+                    cancellationTokenSource.Cancel();
+                    break;
+                case PowerModes.Resume:
+                    // The system is waking up
+                    // Resume your work here
+                    cancellationTokenSource = new CancellationTokenSource();
+                    string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", currentTrainingJobName);
+                    if (!string.IsNullOrEmpty(logStreamName))
+                    {
+                        await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                    }
+                    break;
+            }
+        }
         public void Dispose()
         {
+            // Unsubscribe from system events
+            SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
+
             // Cancel the token to stop the task in TrackLiveTail
             cancellationTokenSource.Cancel();
 
@@ -319,6 +347,7 @@ namespace LSC_Trainer.Functions
             amazonSageMakerClient.Dispose();
             cloudWatchLogsClient.Dispose();
             s3Client.Dispose();
+            uIUpdater = null;
         }
 
         public void DisposeTimer(System.Timers.Timer timer)
