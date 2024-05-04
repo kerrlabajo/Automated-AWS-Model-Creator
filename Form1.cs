@@ -712,14 +712,11 @@ namespace LSC_Trainer
             }
         }
 
-        private void txtDevice_ValueChanged(object sender, EventArgs e)
+        private void txtGpuCount_ValueChanged(object sender, EventArgs e)
         {
-            if (txtDevice.Text != null)
-            {
-
+            gpuCount = int.Parse(txtGpuCount.Text);
               CalculateBatchSize();
             }
-        }
 
         private void txtDeviceCount_ValueChanged(object sender, EventArgs e)
         {
