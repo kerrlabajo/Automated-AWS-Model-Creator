@@ -488,6 +488,19 @@ namespace LSC_Trainer
             {
                 SetUIState(true);
                 await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
+                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
+                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
+                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+
+                logPanel.Visible = true;
+                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
+                bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
+                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
+                
+                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                outputListComboBox.Text = trainingJobName;
+                datasetPath = null;
                 return;
             }
             catch (Exception ex)
@@ -585,9 +598,12 @@ namespace LSC_Trainer
             {
                 List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
 
-                if (models != null)
+                if (models != null && models.Count > 0)
                 {
-                    outputListComboBox.Items.Clear(); 
+                    outputListComboBox.Items.Clear();
+                    outputListComboBox.Text = models[0];
+                    outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
+                    btnDownloadModel.Enabled = true;
 
                     foreach (var obj in models)
                     {
@@ -597,7 +613,7 @@ namespace LSC_Trainer
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message);    
             }
             finally
             {
@@ -929,6 +945,48 @@ namespace LSC_Trainer
         public void SetLogPanelVisibility(bool visibility)
         {
             logPanel.Visible = visibility;
+        }
+
+        private async void btnFetchAvailableDatasets_Click(object sender, EventArgs e)
+        {
+            mainPanel.Enabled = false;
+            logPanel.Enabled = false;
+            connectionMenu.Enabled = false;
+            Cursor = Cursors.WaitCursor;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            try
+            {
+                List<string> models = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
+
+                if (models != null)
+                {
+                    datasetListComboBox.Items.Clear();
+
+                    Console.WriteLine("Datasets: ");
+                    foreach (var obj in models)
+                    {
+                        Console.WriteLine(obj);
+                        datasetListComboBox.Items.Add(obj);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                mainPanel.Enabled = true;
+                logPanel.Enabled = true;
+                connectionMenu.Enabled = true;
+                Cursor = Cursors.Default;
+                datasetListComboBox.Enabled = true;
+            }
+        }
+
+        private void datasetListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            CUSTOM_UPLOADS_URI += datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
         }
     }
 }
