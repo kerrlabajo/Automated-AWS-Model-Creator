@@ -168,8 +168,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "0";
-                txtDeviceCount.Text = "1";
+                txtGpuCount.Text = "0";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -185,8 +184,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
-                txtDeviceCount.Text = "0";
+                txtGpuCount.Text = "cpu";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
