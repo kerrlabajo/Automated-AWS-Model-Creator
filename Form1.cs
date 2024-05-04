@@ -718,57 +718,30 @@ namespace LSC_Trainer
               CalculateBatchSize();
             }
 
-        private void txtDeviceCount_ValueChanged(object sender, EventArgs e)
+        private bool txtGpuCount_Validate()
         {
-            if (txtDevice.Text != null && txtDeviceCount.Text != null)
-            {
-                if (!Int32.TryParse(txtDeviceCount.Text, out _))
-                {
-                    MessageBox.Show("Device count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    txtDeviceCount.Text = "1";
-                }else if(int.Parse(txtDeviceCount.Text) < 0)
-                {
-                    MessageBox.Show("Device count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    txtDeviceCount.Text = "1";
-                }
-                else if(int.Parse(txtDeviceCount.Text) == 0)
-                {
-                    MessageBox.Show("Machine will use cpu.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    txtDevice.Text = "cpu";
-                }
-                else
-                {
-                    int deviceCount = int.Parse(txtDeviceCount.Text);
-                    txtDevice.Text = string.Join(",", Enumerable.Range(0, deviceCount));
-                }
-                
-            }
-        }
-
-        private bool txtDevice_Validate()
-        {
-            if (txtDevice.Text != null)
+            if (txtGpuCount.Text != null)
             {
                 // If the user wants to use only the CPU
-                if (txtDevice.Text.ToLower() == "cpu")
+                if (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0)
                 {
                     CalculateBatchSize();
                     return true;
                 }
-
-                string[] devices = txtDevice.Text.Split(',');
-
-                foreach (string device in devices)
+                else if (!Int32.TryParse(txtGpuCount.Text, out _))
                 {
-                    int deviceNumber;
-                    bool isNumeric = int.TryParse(device, out deviceNumber);
-
-                    if (!isNumeric || deviceNumber < 0)
+                    MessageBox.Show("GPU count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                else if (int.Parse(txtGpuCount.Text) < 0)
                     {
-                        Console.WriteLine("Each device must be a non-negative integer or 'cpu'.");
-                        MessageBox.Show("Each device must be a non-negative integer or 'cpu'.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
+                else if (int.Parse(txtGpuCount.Text) == 0 || txtGpuCount.Text.Equals("cpu"))
+                {
+                    MessageBox.Show("Machine will be using cpu.");
+                    txtGpuCount.Text = "cpu";
                 }
                 return true;
             }
