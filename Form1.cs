@@ -715,8 +715,8 @@ namespace LSC_Trainer
         private void txtGpuCount_ValueChanged(object sender, EventArgs e)
         {
             gpuCount = int.Parse(txtGpuCount.Text);
-              CalculateBatchSize();
-            }
+            CalculateBatchSize();
+        }
 
         private bool txtGpuCount_Validate()
         {
@@ -734,10 +734,10 @@ namespace LSC_Trainer
                     return false;
                 }
                 else if (int.Parse(txtGpuCount.Text) < 0)
-                    {
+                {
                     MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
+                    return false;
+                }
                 else if (int.Parse(txtGpuCount.Text) == 0 || txtGpuCount.Text.Equals("cpu"))
                 {
                     MessageBox.Show("Machine will be using cpu.");
@@ -755,22 +755,8 @@ namespace LSC_Trainer
                 string instance = selectedItem.Item1;
                 int instanceCount = Int32.Parse(txtInstanceCount.Text);
                 idealBatchSize = 16;
-                gpuCount = 0;
-                // Get the number of GPU devices
-                string[] gpuDevices = txtDevice.Text.Split(',');
 
-                foreach(string device in gpuDevices)
-                {
-                    int deviceNumber;
-                    bool isNumeric = int.TryParse(device, out deviceNumber);
-
-                    if (isNumeric || txtDevice.Text == "cpu")
-                    {
-                        gpuCount++;
-                    }
-                }
-
-                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supportedInstances.Contains(instance))
+                if (instanceCount == 1 && gpuCount == 1 && (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
