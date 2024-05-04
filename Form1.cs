@@ -272,7 +272,7 @@ namespace LSC_Trainer
             try
             {
                 if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
-                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtDevice.Text, txtInstanceCount.Text))
+                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtGpuCount.Text, txtInstanceCount.Text))
                 {
                     logBox.Clear();
                     instanceTypeBox.Text = "";
