@@ -714,7 +714,6 @@ namespace LSC_Trainer
 
         private void txtGpuCount_ValueChanged(object sender, EventArgs e)
         {
-            gpuCount = int.Parse(txtGpuCount.Text);
             CalculateBatchSize();
         }
 
@@ -754,6 +753,7 @@ namespace LSC_Trainer
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 string instance = selectedItem.Item1;
                 int instanceCount = Int32.Parse(txtInstanceCount.Text);
+                int.TryParse(txtGpuCount.Text, out gpuCount);
                 idealBatchSize = 16;
 
                 if (instanceCount == 1 && gpuCount == 1 && (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
