@@ -452,7 +452,7 @@ namespace LSC_Trainer
 
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
-            if (txtDevice.Text != "") device = txtDevice.Text;
+            if (txtGpuCount.Text != "") device = txtGpuCount.Text;
 
             if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
@@ -468,8 +468,7 @@ namespace LSC_Trainer
             txtPatience.Enabled = intent;
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
-            txtDevice.Enabled = intent;
-            txtDeviceCount.Enabled = intent;
+            txtGpuCount.Enabled = intent;
             txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
@@ -895,7 +894,7 @@ namespace LSC_Trainer
                 return false;
             }
 
-            if (!txtDevice_Validate())
+            if (!txtGpuCount_Validate())
             {
                 return false;
             }
