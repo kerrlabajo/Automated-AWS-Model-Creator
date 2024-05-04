@@ -488,19 +488,6 @@ namespace LSC_Trainer
             {
                 SetUIState(true);
                 await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
-                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
-
-                logPanel.Visible = true;
-                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
-                bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
-                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
-                
-                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                outputListComboBox.Text = trainingJobName;
-                datasetPath = null;
                 return;
             }
             catch (Exception ex)
