@@ -762,26 +762,6 @@ namespace LSC_Trainer
                 }
                 else
                 {
-                    //switch (instance)
-                    //{
-                    //    case "ml.p3.2xlarge":
-                    //    case "ml.g4dn.xlarge":
-                    //    case "ml.g4dn.2xlarge":
-                    //    case "ml.g4dn.4xlarge":
-                    //    case "ml.g4dn.8xlarge":
-                    //        idealBatchSize = 16 * instanceCount * gpuCount;
-                    //        break;
-                    //    case "ml.p3.8xlarge":
-                    //    case "ml.g4dn.12xlarge":
-                    //        idealBatchSize = 64 * instanceCount * gpuCount;
-                    //        break;
-                    //    case "ml.p3.16xlarge":
-                    //        idealBatchSize = 128 * instanceCount * gpuCount;
-                    //        break;
-                    //    default:
-                    //        
-                    //        break;
-                    //}
                     idealBatchSize = 16 * instanceCount * gpuCount;
                 }
 
