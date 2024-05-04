@@ -40,6 +40,7 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.txtGpuCount = new System.Windows.Forms.TextBox();
             this.txtInstanceCount = new System.Windows.Forms.TextBox();
             this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
@@ -54,9 +55,8 @@ namespace LSC_Trainer
             this.btnDownloadModel = new System.Windows.Forms.Button();
             this.btnUploadToS3 = new System.Windows.Forms.Button();
             this.descriptionLabel = new System.Windows.Forms.Label();
-            this.txtDevice = new System.Windows.Forms.TextBox();
             this.trainingStatusLabel = new System.Windows.Forms.Label();
-            this.deviceLabel = new System.Windows.Forms.Label();
+            this.gpuCountLabel = new System.Windows.Forms.Label();
             this.instanceTypelbl = new System.Windows.Forms.Label();
             this.txtOptimizer = new System.Windows.Forms.TextBox();
             this.trainingDurationLabel = new System.Windows.Forms.Label();
@@ -85,7 +85,6 @@ namespace LSC_Trainer
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
-            this.txtDeviceCount = new System.Windows.Forms.TextBox();
             this.lscTrainerMenuStrip.SuspendLayout();
             this.mainPanel.SuspendLayout();
             this.logPanel.SuspendLayout();
@@ -186,7 +185,7 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mainPanel.Controls.Add(this.txtDeviceCount);
+            this.mainPanel.Controls.Add(this.txtGpuCount);
             this.mainPanel.Controls.Add(this.txtInstanceCount);
             this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
@@ -202,9 +201,8 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.btnDownloadModel);
             this.mainPanel.Controls.Add(this.btnUploadToS3);
             this.mainPanel.Controls.Add(this.descriptionLabel);
-            this.mainPanel.Controls.Add(this.txtDevice);
             this.mainPanel.Controls.Add(this.trainingStatusLabel);
-            this.mainPanel.Controls.Add(this.deviceLabel);
+            this.mainPanel.Controls.Add(this.gpuCountLabel);
             this.mainPanel.Controls.Add(this.instanceTypelbl);
             this.mainPanel.Controls.Add(this.txtOptimizer);
             this.mainPanel.Controls.Add(this.trainingDurationLabel);
@@ -236,6 +234,15 @@ namespace LSC_Trainer
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(1140, 344);
             this.mainPanel.TabIndex = 4;
+            // 
+            // txtGpuCount
+            // 
+            this.txtGpuCount.Location = new System.Drawing.Point(427, 184);
+            this.txtGpuCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtGpuCount.Name = "txtGpuCount";
+            this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
+            this.txtGpuCount.TabIndex = 53;
+            this.txtGpuCount.TextChanged += new System.EventHandler(this.txtDeviceCount_ValueChanged);
             // 
             // txtInstanceCount
             // 
@@ -390,17 +397,6 @@ namespace LSC_Trainer
             this.descriptionLabel.TabIndex = 28;
             this.descriptionLabel.Text = "Description:";
             // 
-            // txtDevice
-            // 
-            this.txtDevice.Location = new System.Drawing.Point(427, 184);
-            this.txtDevice.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtDevice.Name = "txtDevice";
-            this.txtDevice.Size = new System.Drawing.Size(145, 22);
-            this.txtDevice.TabIndex = 10;
-            this.txtDevice.Visible = false;
-            this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            this.txtDevice.TextChanged += new System.EventHandler(this.txtDevice_ValueChanged);
-            // 
             // trainingStatusLabel
             // 
             this.trainingStatusLabel.AutoSize = true;
@@ -411,14 +407,14 @@ namespace LSC_Trainer
             this.trainingStatusLabel.TabIndex = 27;
             this.trainingStatusLabel.Text = "Training Status:";
             // 
-            // deviceLabel
+            // gpuCountLabel
             // 
-            this.deviceLabel.AutoSize = true;
-            this.deviceLabel.Location = new System.Drawing.Point(292, 184);
-            this.deviceLabel.Name = "deviceLabel";
-            this.deviceLabel.Size = new System.Drawing.Size(76, 16);
-            this.deviceLabel.TabIndex = 38;
-            this.deviceLabel.Text = "GPU Count:";
+            this.gpuCountLabel.AutoSize = true;
+            this.gpuCountLabel.Location = new System.Drawing.Point(292, 184);
+            this.gpuCountLabel.Name = "gpuCountLabel";
+            this.gpuCountLabel.Size = new System.Drawing.Size(76, 16);
+            this.gpuCountLabel.TabIndex = 38;
+            this.gpuCountLabel.Text = "GPU Count:";
             // 
             // instanceTypelbl
             // 
@@ -697,15 +693,6 @@ namespace LSC_Trainer
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
             // 
-            // txtDeviceCount
-            // 
-            this.txtDeviceCount.Location = new System.Drawing.Point(427, 184);
-            this.txtDeviceCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtDeviceCount.Name = "txtDeviceCount";
-            this.txtDeviceCount.Size = new System.Drawing.Size(145, 22);
-            this.txtDeviceCount.TabIndex = 53;
-            this.txtDeviceCount.TextChanged += new System.EventHandler(this.txtDeviceCount_ValueChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -765,8 +752,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.TextBox txtWorkers;
         private System.Windows.Forms.Label optimizerLabel;
         private System.Windows.Forms.TextBox txtOptimizer;
-        private System.Windows.Forms.Label deviceLabel;
-        private System.Windows.Forms.TextBox txtDevice;
+        private System.Windows.Forms.Label gpuCountLabel;
         private System.Windows.Forms.Button btnUploadToS3;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
@@ -793,7 +779,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.ComboBox instancesDropdown;
         private System.Windows.Forms.TextBox txtInstanceCount;
         private System.Windows.Forms.Label instanceCountLabel;
-        private System.Windows.Forms.TextBox txtDeviceCount;
+        private System.Windows.Forms.TextBox txtGpuCount;
     }
 }
 
