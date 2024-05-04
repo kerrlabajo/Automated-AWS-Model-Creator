@@ -242,7 +242,7 @@ namespace LSC_Trainer
             this.txtGpuCount.Name = "txtGpuCount";
             this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
             this.txtGpuCount.TabIndex = 53;
-            this.txtGpuCount.TextChanged += new System.EventHandler(this.txtDeviceCount_ValueChanged);
+            this.txtGpuCount.TextChanged += new System.EventHandler(this.txtGpuCount_ValueChanged);
             // 
             // txtInstanceCount
             // 
