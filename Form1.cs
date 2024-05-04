@@ -42,7 +42,6 @@ namespace LSC_Trainer
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
         private readonly string SAGEMAKER_OUTPUT_DATA_PATH = "/opt/ml/output/data/";
-        private readonly string SAGEMAKER_MODEL_PATH = "/opt/ml/model/";
 
         private string datasetPath;
         private bool isFile;
