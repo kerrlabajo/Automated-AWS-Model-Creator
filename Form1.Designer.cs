@@ -70,11 +70,9 @@ namespace LSC_Trainer
             this.patienceLabel = new System.Windows.Forms.Label();
             this.btnTraining = new System.Windows.Forms.Button();
             this.trainingParametersLabel = new System.Windows.Forms.Label();
-            this.txtData = new System.Windows.Forms.TextBox();
             this.txtWeights = new System.Windows.Forms.TextBox();
             this.txtEpochs = new System.Windows.Forms.TextBox();
             this.txtBatchSize = new System.Windows.Forms.TextBox();
-            this.dataLabel = new System.Windows.Forms.Label();
             this.weightsLabel = new System.Windows.Forms.Label();
             this.epochsLabel = new System.Windows.Forms.Label();
             this.batchSizeLabel = new System.Windows.Forms.Label();
@@ -247,6 +245,7 @@ namespace LSC_Trainer
             this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
             this.txtGpuCount.TabIndex = 53;
             this.txtGpuCount.TextChanged += new System.EventHandler(this.txtGpuCount_ValueChanged);
+            // 
             // datasetListComboBox
             // 
             this.datasetListComboBox.Enabled = false;
@@ -543,15 +542,6 @@ namespace LSC_Trainer
             this.trainingParametersLabel.TabIndex = 17;
             this.trainingParametersLabel.Text = "TRAINING PARAMETERS";
             // 
-            // txtData
-            // 
-            this.txtData.Location = new System.Drawing.Point(132, 184);
-            this.txtData.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtData.Name = "txtData";
-            this.txtData.Size = new System.Drawing.Size(145, 22);
-            this.txtData.TabIndex = 5;
-            this.txtData.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
             // txtWeights
             // 
             this.txtWeights.Location = new System.Drawing.Point(132, 156);
@@ -578,15 +568,6 @@ namespace LSC_Trainer
             this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
             this.txtBatchSize.TabIndex = 2;
             this.txtBatchSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // dataLabel
-            // 
-            this.dataLabel.AutoSize = true;
-            this.dataLabel.Location = new System.Drawing.Point(30, 180);
-            this.dataLabel.Name = "dataLabel";
-            this.dataLabel.Size = new System.Drawing.Size(42, 17);
-            this.dataLabel.TabIndex = 11;
-            this.dataLabel.Text = "Data:";
             // 
             // weightsLabel
             // 
