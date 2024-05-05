@@ -1,16 +1,19 @@
 import yaml
 import argparse
+import os
 
 # Define the argument parser
 parser = argparse.ArgumentParser(description='Configure dataset')
-parser.add_argument('dataset_name', type=str, help='The name of the dataset')
+parser.add_argument('dataset_config_path', type=str, help='The full path to the dataset yaml file')
 
 # Parse the arguments
 args = parser.parse_args()
 
-# Define the dataset name and file path
-DATASET_NAME = args.dataset_name
-FILE_PATH = f"/opt/ml/input/data/{DATASET_NAME}/{DATASET_NAME}.yaml"
+# Extract the dataset name from the file path
+DATASET_NAME = os.path.basename(args.dataset_config_path).replace('.yaml', '')
+
+# Define the file path
+FILE_PATH = args.dataset_config_path
 
 # Define the new paths
 NEW_PATH = f"/opt/ml/input/data/{DATASET_NAME}"
