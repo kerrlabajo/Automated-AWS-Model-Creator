@@ -70,18 +70,34 @@ def parse_arguments():
 
 def main():
     """
-    Main function to run `train.py` and `export.py` scripts with command line arguments.
-
-    The first 24 arguments are passed to `train.py` and the remaining arguments are passed to export.py.
+    A main entrypoint located in `/code` directory to run the `train.py` and `export.py` located in `/code/yolov5`. 
+    This entrypoint can only be accessed by the `AWS SDK for .NET` using the `CreateTrainingJob API` operation. 
+    By providing the `ContainerEntrypoint` and `ContainerArguments`, this script will be executed.
+    
+    Parameters:
+    `--img-size` (str): Image size for training.
+    `--batch` (str): Batch size for training.
+    `--epochs` (str): Number of epochs for training.
+    `--weights` (str): Pre-trained weights for training.
+    `--data` (str): Path to the data configuration file.
+    `--hyp` (str): Path to the hyperparameters configuration file.
+    `--project` (str): Path to the resulting directory.
+    `--name` (str): Name of the results.
+    `--patience` (str): Early stopping patience.
+    `--workers` (str): Number of workers for DataLoader.
+    `--optimizer` (str): Optimizer for training.
+    `--device` (str): Device for training (cpu/gpus).
+    `--include` (str): File format for exporting from PyTorch file.
+    `--nnodes` (str): Number of nodes (instances/machine) for distributed training.
 
     Example:
-    >>> python3 /code/train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt
+    >>> train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt
     >>> --data /opt/ml/input/data/train/data.yaml --hyp hyp.scratch-low.yaml
     >>> --project "/opt/ml/output/data/" --name "results"
     >>> --patience 100 --workers 8 --optimizer SGD --device 0 --include onnx --nnodes 1
 
     Returns:
-    None
+    `None`: If exit code returns 0, the script runs successfully, 1 if an exception occurs.
     """
     args = parse_arguments()
     device_count = len(args.device.split(","))
