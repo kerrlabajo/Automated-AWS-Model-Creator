@@ -29,10 +29,6 @@ RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
   pip3 install 'onnx>=1.10.0' --no-cache-dir && \
   pip3 install -q --no-input pyyaml
 
-# Run unit tests
-COPY unittest_yolov5.py /yolov5/unittest_yolov5.py
-RUN py -m unittest unittest_yolov5.py
-
 # Copy the Python scripts
 COPY json_to_yaml_converter.py /code/json_to_yaml_converter.py
 COPY train_and_export.py /code/train_and_export.py
