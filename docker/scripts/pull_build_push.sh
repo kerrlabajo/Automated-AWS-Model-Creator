@@ -30,7 +30,7 @@ else
 fi
 
 # Get the latest commit hash
-LATEST_COMMIT=$(git rev-parse origin/features)
+LATEST_COMMIT=$(git rev-parse origin/feat/docker-enhancement)
 
 # Check if the commit file exists and contains the latest commit hash
 if [ -e "${COMMITFILE}" ] && grep -Fxq "${LATEST_COMMIT}" "${COMMITFILE}"; then
