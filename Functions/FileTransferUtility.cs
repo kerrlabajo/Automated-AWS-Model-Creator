@@ -14,6 +14,11 @@ namespace LSC_Trainer.Functions
     internal class FileTransferUtility : IFileTransferUtility
     {
         private static long totalUploaded = 0;
+        private IUIUpdater UIUpdater { get; set; }
+        public FileTransferUtility(IUIUpdater uIUpdater)
+        {
+            UIUpdater = uIUpdater;
+        }
         public async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string localZipFilePath, IProgress<int> progress)
         {
             try
@@ -51,7 +56,7 @@ namespace LSC_Trainer.Functions
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
-                    ConfigureProgressTracking(uploadRequest, progress, totalSize);
+                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
 
                     await transferUtility.UploadAsync(uploadRequest);
                 }
@@ -78,7 +83,7 @@ namespace LSC_Trainer.Functions
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
-                    ConfigureProgressTracking(uploadRequest, progress, totalSize);
+                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
 
                     await transferUtility.UploadAsync(uploadRequest);
                 }
@@ -196,7 +201,7 @@ namespace LSC_Trainer.Functions
             };
         }
 
-        private static void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize)
+        private static void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize, IUIUpdater UIUpdater)
         {
             long currentFileUploaded = 0;
 
@@ -208,6 +213,7 @@ namespace LSC_Trainer.Functions
                     totalUploaded += currentFileUploaded;
                     int overallPercentage = (int)(totalUploaded * 100 / totalSize);
                     progress.Report(overallPercentage);
+                    UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                 }
             });
         }

@@ -128,7 +128,7 @@ namespace LSC_Trainer
             btnDownloadModel.Enabled = false;
 
             executor = new TrainingJobExecutor(this);
-            fileTransferUtility = new FileTransferUtility();
+            fileTransferUtility = new FileTransferUtility(this);
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
             InitializeInputs();
