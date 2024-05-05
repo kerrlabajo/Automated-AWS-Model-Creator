@@ -71,6 +71,8 @@ namespace LSC_Trainer
         private int idealBatchSize = 16;
         private int gpuCount = 0;
 
+        private string dataConfig;
+
         public MainForm(bool development)
         {
             InitializeComponent();
@@ -164,7 +166,7 @@ namespace LSC_Trainer
                 txtBatchSize.Text = "16";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
-                txtData.Text = "MMX059XA_COVERED5B.yaml";
+                dataConfig = "MMX059XA_COVERED5B.yaml";
                 hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
@@ -180,7 +182,7 @@ namespace LSC_Trainer
                 txtBatchSize.Text = "1";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5s.pt";
-                txtData.Text = "data.yaml";
+                dataConfig = "data.yaml";
                 hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
