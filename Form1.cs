@@ -978,7 +978,7 @@ namespace LSC_Trainer
 
         private void datasetListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            CUSTOM_UPLOADS_URI += datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+            CUSTOM_UPLOADS_URI = rootCustomUploadsURI + datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem) + "/";
             lblZipFile.Text = datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
             btnUploadToS3.Enabled = false;
         }
