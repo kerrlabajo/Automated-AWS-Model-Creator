@@ -445,7 +445,9 @@ namespace LSC_Trainer
 
             if (txtWeights.Text != "") weights = txtWeights.Text;
 
-            if (txtData.Text != "") data = txtData.Text;
+            if (lblZipFile.Text != "") dataConfig = lblZipFile.Text;
+
+            data = dataConfig;
 
             if (hyperparamsDropdown.Text != "") hyperparameters = hyperparamsDropdown.Text;
 
