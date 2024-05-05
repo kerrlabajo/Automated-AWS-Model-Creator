@@ -165,7 +165,7 @@ namespace LSC_Trainer.Functions
                 }
                 while (continuationToken != null);
 
-                return customUploads;
+                return customUploads.Distinct().ToList();
             }
             catch (AmazonS3Exception e)
             {
