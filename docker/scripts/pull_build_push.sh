@@ -39,6 +39,24 @@ if [ -e "${COMMITFILE}" ] && grep -Fxq "${LATEST_COMMIT}" "${COMMITFILE}"; then
   exit 1
 fi
 
+# Check if the specific files have changes
+git pull
+CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+DIRECTORY="docker/yolov5-training/"
+FILE_CHANGED=0
+
+while IFS= read -r FILE; do
+  if [[ "${FILE}" == "${DIRECTORY}"* ]]; then
+    echo "A file/s has been changed/added."
+    FILE_CHANGED=1
+  fi
+done <<< "${CHANGED_FILES}"
+
+if [ "${FILE_CHANGED}" -eq 0 ]; then
+  echo "No files in ${DIRECTORY} have changed. Exiting."
+  exit 1
+fi
+
 # Get the latest tag of the image
 PREV_TAG=$(sudo docker images | grep "${DOCKER_IMAGE}" | awk '{print $2}' | sort -r | head -n 1)
 
