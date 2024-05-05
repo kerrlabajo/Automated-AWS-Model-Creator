@@ -160,7 +160,18 @@ namespace LSC_Trainer.Functions
                     TransferUtilityDownloadRequest downloadRequest = CreateDownloadRequest(bucketName, objectKey, filePath);
                     await transferUtility.DownloadAsync(downloadRequest);
                 }
-                ExtractTarGz(Path.Combine(localFilePath, objectKey.Split('/').Last()), localFilePath);
+                string tarGzPath = Path.Combine(localFilePath, objectKey.Split('/').Last());
+                ExtractTarGz(tarGzPath, localFilePath);
+
+                // Delete the TAR.GZ file after extraction
+                File.Delete(tarGzPath);
+
+                // Delete PaxHeaders.X directories
+                var paxHeaderDirectories = Directory.EnumerateDirectories(localFilePath, "PaxHeaders.*", SearchOption.AllDirectories);
+                foreach (var directory in paxHeaderDirectories)
+                {
+                    Directory.Delete(directory, true);
+                }
 
                 return GenerateResponseMessage(startTime, filePath);
             }
