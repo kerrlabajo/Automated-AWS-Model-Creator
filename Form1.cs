@@ -587,7 +587,6 @@ namespace LSC_Trainer
                 if (models != null && models.Count > 0)
                 {
                     outputListComboBox.Items.Clear();
-                    outputListComboBox.Text = models[0];
                     outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
                     btnDownloadModel.Enabled = true;
 
