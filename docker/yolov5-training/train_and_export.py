@@ -5,7 +5,6 @@ import json
 import sys
 import traceback
 
-
 def get_hosts_and_node_rank():
     """
     This function reads the resource configuration file provided by SageMaker
@@ -25,7 +24,6 @@ def get_hosts_and_node_rank():
     node_rank = hosts.index(current_host)
     return current_host, node_rank
 
-
 def run_script(args, use_module=False):
     """
     Run a Python script with arguments.
@@ -41,7 +39,6 @@ def run_script(args, use_module=False):
         subprocess.run(["python3", "-m"] + args, check=True)
     else:
         subprocess.run(["python3"] + args, check=True)
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -66,7 +63,6 @@ def parse_arguments():
     # parser.add_argument('--master_port', type=str, required=True)
 
     return parser.parse_args()
-
 
 def main():
     """
@@ -147,7 +143,6 @@ def main():
     if current_host == master_host:
         run_script(export_args)
         shutil.copy2("/opt/ml/output/data/results/weights/best.onnx", "/opt/ml/model/")
-
 
 if __name__ == "__main__":
     try:
