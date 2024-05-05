@@ -68,6 +68,18 @@ namespace LSC_Trainer
         {
             "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
         };
+
+        private Dictionary<string, int> instanceToGpuCount = new Dictionary<string, int>
+        {
+            { "ml.p3.2xlarge", 1 },
+            { "ml.g4dn.xlarge", 1 },
+            { "ml.g4dn.2xlarge", 1 },
+            { "ml.g4dn.4xlarge", 1 },
+            { "ml.g4dn.8xlarge", 1 },
+            { "ml.g4dn.12xlarge", 4 },
+            { "ml.p3.8xlarge", 4 },
+            { "ml.p3.16xlarge", 8 }
+        };
         private int idealBatchSize = 16;
         private int gpuCount = 0;
 
@@ -679,6 +691,15 @@ namespace LSC_Trainer
             {
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 selectedInstance = selectedItem.Item1;
+
+                if (instanceToGpuCount.TryGetValue(selectedInstance, out int gpuCount))
+                {
+                    txtGpuCount.Text = gpuCount.ToString();
+                }
+                else
+                {
+                    txtGpuCount.Text = "0";
+                }
                 CalculateBatchSize();
                 btnTraining.Enabled = true;
             }
@@ -760,7 +781,7 @@ namespace LSC_Trainer
                 int.TryParse(txtGpuCount.Text, out gpuCount);
                 idealBatchSize = 16;
 
-                if (instanceCount == 1 && gpuCount == 1 && (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
+                if (instanceCount == 1 && (gpuCount == 0 || (txtGpuCount.Text.ToLower() == "cpu") || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
