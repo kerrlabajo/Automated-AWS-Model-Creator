@@ -46,9 +46,6 @@ namespace LSC_Trainer
         private string datasetPath;
         private bool isFile;
         private string folderOrFileName;
-
-        private string trainingFolder;
-        private string validationFolder;
         
         private string trainingJobName;
 
@@ -173,8 +170,6 @@ namespace LSC_Trainer
                 txtOptimizer.Text = "SGD";
                 txtGpuCount.Text = "0";
                 txtInstanceCount.Text = "1";
-                trainingFolder = "train";
-                validationFolder = "val";
             }
             else
             {
@@ -189,8 +184,6 @@ namespace LSC_Trainer
                 txtOptimizer.Text = "SGD";
                 txtGpuCount.Text = "cpu";
                 txtInstanceCount.Text = "1";
-                trainingFolder = "train";
-                validationFolder = "val";
             }
 
             instancesDropdown_SetValues();
@@ -254,9 +247,6 @@ namespace LSC_Trainer
                 if (result == DialogResult.Yes)
                 {
                     backgroundWorker.RunWorkerAsync();
-                    // For testing purposes. Pre-define values.
-                    trainingFolder = "train";
-                    validationFolder = "val";
                     mainPanel.Enabled = false;
                     logPanel.Enabled = false;
                     connectionMenu.Enabled = false;
@@ -301,7 +291,7 @@ namespace LSC_Trainer
                 string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
                 trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
                 CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
-                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
+                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
 
                     
                     this.Text = trainingJobName;
