@@ -42,7 +42,7 @@ namespace LSC_Trainer
             this.mainPanel = new System.Windows.Forms.Panel();
             this.txtGpuCount = new System.Windows.Forms.TextBox();
             this.datasetListComboBox = new System.Windows.Forms.ComboBox();
-            this.btnFetchDatasets_Click = new System.Windows.Forms.Button();
+            this.btnFetchDatasets = new System.Windows.Forms.Button();
             this.txtInstanceCount = new System.Windows.Forms.TextBox();
             this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
@@ -186,7 +186,7 @@ namespace LSC_Trainer
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.mainPanel.Controls.Add(this.txtGpuCount);
             this.mainPanel.Controls.Add(this.datasetListComboBox);
-            this.mainPanel.Controls.Add(this.btnFetchDatasets_Click);
+            this.mainPanel.Controls.Add(this.btnFetchDatasets);
             this.mainPanel.Controls.Add(this.txtInstanceCount);
             this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
@@ -253,15 +253,15 @@ namespace LSC_Trainer
             this.datasetListComboBox.TabIndex = 54;
             this.datasetListComboBox.SelectedValueChanged += new System.EventHandler(this.datasetListComboBox_SelectedValueChanged);
             // 
-            // btnFetchDatasets_Click
+            // btnFetchDatasets
             // 
-            this.btnFetchDatasets_Click.Location = new System.Drawing.Point(229, 264);
-            this.btnFetchDatasets_Click.Name = "btnFetchDatasets_Click";
-            this.btnFetchDatasets_Click.Size = new System.Drawing.Size(118, 30);
-            this.btnFetchDatasets_Click.TabIndex = 53;
-            this.btnFetchDatasets_Click.Text = "Fetch Dataset";
-            this.btnFetchDatasets_Click.UseVisualStyleBackColor = true;
-            this.btnFetchDatasets_Click.Click += new System.EventHandler(this.btnFetchAvailableDatasets_Click);
+            this.btnFetchDatasets.Location = new System.Drawing.Point(229, 264);
+            this.btnFetchDatasets.Name = "btnFetchDatasets";
+            this.btnFetchDatasets.Size = new System.Drawing.Size(118, 30);
+            this.btnFetchDatasets.TabIndex = 53;
+            this.btnFetchDatasets.Text = "Fetch Dataset";
+            this.btnFetchDatasets.UseVisualStyleBackColor = true;
+            this.btnFetchDatasets.Click += new System.EventHandler(this.btnFetchAvailableDatasets_Click);
             // 
             // txtInstanceCount
             // 
@@ -780,7 +780,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label instanceCountLabel;
         private System.Windows.Forms.TextBox txtGpuCount;
         private System.Windows.Forms.ComboBox datasetListComboBox;
-        private System.Windows.Forms.Button btnFetchDatasets_Click;
+        private System.Windows.Forms.Button btnFetchDatasets;
     }
 }
 
