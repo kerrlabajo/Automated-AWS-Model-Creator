@@ -144,16 +144,28 @@ namespace LSC_Trainer.Functions
         {
             try
             {
-                var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
-                {
-                    BucketName = bucketName,
-                    Prefix = "custom-uploads"
-                });
+                List<string> customUploads = new List<string>();
+                string continuationToken = null;
 
-                return response.S3Objects
-                    .Select(o => o.Key.Split('/')[1])
-                    .Distinct()
-                    .ToList();
+                do
+                {
+                    ListObjectsV2Response response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                    {
+                        BucketName = bucketName,
+                        Prefix = "custom-uploads",
+                        StartAfter = "custom-uploads",
+                        ContinuationToken = continuationToken
+                    });
+
+                    customUploads.AddRange(response.S3Objects
+                        .Select(o => o.Key.Split('/')[1])
+                        .Distinct());
+
+                    continuationToken = response.NextContinuationToken;
+                }
+                while (continuationToken != null);
+
+                return customUploads;
             }
             catch (AmazonS3Exception e)
             {
