@@ -274,7 +274,7 @@ namespace LSC_Trainer
         {
             try
             {
-                if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
+                if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, hyperparamsDropdown.Text
                 , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtGpuCount.Text, txtInstanceCount.Text))
                 {
                     logBox.Clear();
@@ -466,7 +466,6 @@ namespace LSC_Trainer
             txtBatchSize.Enabled = intent;
             txtEpochs.Enabled = intent;
             txtWeights.Enabled = intent;
-            txtData.Enabled = intent;
             hyperparamsDropdown.Enabled = intent;
             txtPatience.Enabled = intent;
             txtWorkers.Enabled = intent;
@@ -775,7 +774,7 @@ namespace LSC_Trainer
             }
         }
 
-        private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
+        private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
@@ -783,7 +782,6 @@ namespace LSC_Trainer
                 {"Batch size", batch_size},
                 {"Epochs", epochs},
                 {"Weights", weights},
-                {"Data", data},
                 {"Hyperparameters", hyperparameters},
                 {"Patience", patience},
                 {"Workers", workers},
