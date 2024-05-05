@@ -22,7 +22,7 @@ RUN apt-get update --fix-missing && \
 
 # Clone the repository and set the PATH
 RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
-ENV PATH="${PATH}:/code"
+ENV PATH="${PATH}:/code:/code/yolov5"
 
 # Install Python dependencies
 RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
