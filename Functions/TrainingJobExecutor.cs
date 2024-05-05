@@ -95,7 +95,7 @@ namespace LSC_Trainer.Functions
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (utility.HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + trainingFolder,
+                                S3Uri = (utility.HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI),
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
