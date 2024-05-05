@@ -216,11 +216,9 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.patienceLabel);
             this.mainPanel.Controls.Add(this.btnTraining);
             this.mainPanel.Controls.Add(this.trainingParametersLabel);
-            this.mainPanel.Controls.Add(this.txtData);
             this.mainPanel.Controls.Add(this.txtWeights);
             this.mainPanel.Controls.Add(this.txtEpochs);
             this.mainPanel.Controls.Add(this.txtBatchSize);
-            this.mainPanel.Controls.Add(this.dataLabel);
             this.mainPanel.Controls.Add(this.weightsLabel);
             this.mainPanel.Controls.Add(this.epochsLabel);
             this.mainPanel.Controls.Add(this.batchSizeLabel);
@@ -739,11 +737,9 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label batchSizeLabel;
         private System.Windows.Forms.Label epochsLabel;
         private System.Windows.Forms.Label weightsLabel;
-        private System.Windows.Forms.Label dataLabel;
         private System.Windows.Forms.TextBox txtBatchSize;
         private System.Windows.Forms.TextBox txtEpochs;
         private System.Windows.Forms.TextBox txtWeights;
-        private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.Label trainingParametersLabel;
         private System.Windows.Forms.Label descriptionLabel;
         private System.Windows.Forms.Label trainingStatusLabel;
