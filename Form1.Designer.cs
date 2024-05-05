@@ -178,7 +178,6 @@ namespace LSC_Trainer
             this.lblZipFile.Name = "lblZipFile";
             this.lblZipFile.Size = new System.Drawing.Size(145, 22);
             this.lblZipFile.TabIndex = 3;
-            this.lblZipFile.Text = "No file selected";
             // 
             // mainPanel
             // 
