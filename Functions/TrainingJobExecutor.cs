@@ -86,7 +86,7 @@ namespace LSC_Trainer.Functions
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
-                        ChannelName = "train",
+                        ChannelName = data,
                         InputMode = TrainingInputMode.File,
                         CompressionType = Amazon.SageMaker.CompressionType.None,
                         RecordWrapperType = RecordWrapper.None,
