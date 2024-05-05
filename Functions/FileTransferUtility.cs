@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using System.Windows.Forms;
+using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace LSC_Trainer.Functions
 {
@@ -126,6 +128,25 @@ namespace LSC_Trainer.Functions
                 LogError("Error uploading folder to S3: ", e);
             }
         }
+        public static void ExtractTarGz(string tarFilePath, string localFilePath)
+        {
+            using (Stream stream = File.OpenRead(tarFilePath))
+            {
+                var reader = ReaderFactory.Open(stream);
+                while (reader.MoveToNextEntry())
+                {
+                    if (!reader.Entry.IsDirectory)
+                    {
+                        ExtractionOptions opt = new ExtractionOptions
+                        {
+                            ExtractFullPath = true,
+                            Overwrite = true
+                        };
+                        reader.WriteEntryToDirectory(localFilePath, opt);
+                    }
+                }
+            }
+        }
 
         public async Task<string> DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath)
         {
@@ -139,6 +160,7 @@ namespace LSC_Trainer.Functions
                     TransferUtilityDownloadRequest downloadRequest = CreateDownloadRequest(bucketName, objectKey, filePath);
                     await transferUtility.DownloadAsync(downloadRequest);
                 }
+                ExtractTarGz(Path.Combine(localFilePath, objectKey.Split('/').Last()), localFilePath);
 
                 return GenerateResponseMessage(startTime, filePath);
             }
