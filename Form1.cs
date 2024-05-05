@@ -331,7 +331,7 @@ namespace LSC_Trainer
                 {
                     string selectedLocalPath = folderBrowserDialog.SelectedPath;
 
-                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath + $"\\{trainingJobName ?? outputListComboBox.Text}"} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (result == DialogResult.Yes)
                     {
@@ -342,9 +342,9 @@ namespace LSC_Trainer
                             connectionMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
-                            string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
                             DisplayLogMessage(outputResponse);
-                            string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
                             DisplayLogMessage(modelResponse);
                         }catch(AmazonS3Exception s3Exception)
                         {
