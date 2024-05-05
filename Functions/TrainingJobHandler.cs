@@ -1,10 +1,16 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
+using Amazon.Runtime.EventStreams.Internal;
 using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
+using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,53 +18,50 @@ namespace LSC_Trainer.Functions
 {
     internal class TrainingJobHandler
     {
-        private string prevStatusMessage = "";
-        private string prevLogMessage = "";
-        private int nextLogIndex = 0;
+        private string currentTrainingJobName;
         private bool hasCustomUploads = false;
         private string datasetKey = "";
         private string s3Bucket = "";
-        private bool deleting = false;
-        private int delay = 0;
+        private bool showDialogBox = false;
 
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private AmazonS3Client s3Client;
+        private StartLiveTailResponse startLiveTailResponse;
 
         private LSC_Trainer.Functions.IFileTransferUtility transferUtility;
-        private Label instanceTypeBox;
-        private Label trainingDurationBox;
-        private Label trainingStatusBox;
-        private Label descBox;
-        private RichTextBox logBox;
+        private IUIUpdater uIUpdater;
 
-        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, Label instanceTypeBox, Label trainingDurationBox, Label trainingStatusBox, Label descBox, RichTextBox logBox, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility)
+        private System.Timers.Timer timer;
+       
+
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
             this.cloudWatchLogsClient = cloudWatchLogsClient;
             this.s3Client = s3Client;
-            this.instanceTypeBox = instanceTypeBox;
-            this.trainingDurationBox = trainingDurationBox;
-            this.trainingStatusBox = trainingStatusBox;
-            this.descBox = descBox;
-            this.logBox = logBox;
             this.transferUtility = fileTransferUtility;
+            this.uIUpdater = uIUpdater;
+            SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
         }
 
         public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
         {
             try
             {
+                currentTrainingJobName = trainingJobName;
                 this.datasetKey = datasetKey;
                 this.s3Bucket = s3Bucket;
                 this.hasCustomUploads = hasCustomUploads;
                 var completionSource = new TaskCompletionSource<bool>();
-                var timer = InitializeTimer(trainingJobName, completionSource);
+                timer = InitializeTimer(trainingJobName, completionSource);
                 timer.Start();
 
                 if(await completionSource.Task)
                 {
                     timer.Stop();
+                    await HandleCustomUploads();
                 };
 
                 return true;
@@ -79,16 +82,15 @@ namespace LSC_Trainer.Functions
 
             return timer;
         }
+
+        private readonly SemaphoreSlim startLiveTailLock = new SemaphoreSlim(1, 1);
+
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
-            try {
+            try
+            {
                 var trainingJobName = (string)state;
-
-                // Retrieve the current status of the training job
-                DescribeTrainingJobResponse trainingDetails = await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
-                {
-                    TrainingJobName = trainingJobName
-                });
+                DescribeTrainingJobResponse trainingDetails = await GetTrainingJobDetails(amazonSageMakerClient, trainingJobName);
                 var trainingStatus = trainingDetails.TrainingJobStatus;
 
                 TimeSpan timeSpan = TimeSpan.FromSeconds(trainingDetails.TrainingTimeInSeconds);
@@ -96,87 +98,69 @@ namespace LSC_Trainer.Functions
 
                 if (trainingStatus == TrainingJobStatus.InProgress)
                 {
-                    // Update training duration
-                    if (trainingDetails.TrainingTimeInSeconds == 0)
-                    {
-                        UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                        );
-                    }
-                    else
-                    {
-                        UpdateTrainingStatus(formattedTime);
-                    }
-
-                    if (trainingDetails.SecondaryStatusTransitions.Any())
-                    {
-                        await CheckSecondaryStatus(trainingDetails, trainingJobName);
-                    }
-                }
-                else if (trainingStatus == TrainingJobStatus.Completed)
-                {
-                    UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    uIUpdater.UpdateTrainingStatus(
+                        trainingDetails.ResourceConfig.InstanceType.ToString(),
+                        formattedTime,
+                        trainingDetails.SecondaryStatusTransitions.Last().Status,
+                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
                     );
 
-                    if (!completionSource.Task.IsCompleted)
+                    await startLiveTailLock.WaitAsync();
+                    try
                     {
-                        completionSource.SetResult(true);
-                        if (hasCustomUploads && !deleting)
+                        if (startLiveTailResponse == null)
                         {
-                            deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
+                            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
+                            {
+                                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+                                if (!string.IsNullOrEmpty(logStreamName))
+                                {
+                                    await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                                }
+                                    
+                            }
                         }
-                        
                     }
-                }
-                else if (trainingStatus == TrainingJobStatus.Failed)
-                {
-                    DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
-                    UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
+                    finally
+                    {
+                        startLiveTailLock.Release();
+                    }
 
+                }
+                else if(trainingStatus == TrainingJobStatus.Completed)
+                {
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-
+                    }
+                }
+                else if(trainingStatus == TrainingJobStatus.Failed)
+                {
+                    uIUpdater.DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+                    if (!completionSource.Task.IsCompleted)
+                    {
+                        completionSource.SetResult(true);
                     }
                 }
                 else
                 {
-                    DisplayLogMessage($"Training job stopped or in an unknown state.");
-                    UpdateTrainingStatus(
-                            trainingDetails.ResourceConfig.InstanceType.ToString(),
-                            formattedTime,
-                            trainingDetails.SecondaryStatusTransitions.Last().Status,
-                            trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                    );
-
+                    uIUpdater.DisplayLogMessage($"Training job stopped or in an unknown state.");
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
-                        if (hasCustomUploads && !deleting)
-                        {
-                            deleting = true;
-                            DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
-                            await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
-                            DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
-                        }
-
                     }
                 }
+
+                if (completionSource.Task.IsCompleted){
+                    cancellationTokenSource.Cancel();
+                    uIUpdater.UpdateTrainingStatus(
+                        trainingDetails.ResourceConfig.InstanceType.ToString(),
+                        formattedTime,
+                        trainingDetails.SecondaryStatusTransitions.Last().Status,
+                        trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
+                    );
+                }
+                
             }
             catch (Exception ex)
             {
@@ -184,161 +168,112 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        private async Task CheckSecondaryStatus(DescribeTrainingJobResponse trainingDetails, string trainingJobName)
+        private async Task StartLiveTail(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string logStreamName)
         {
-            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
+            var response = await amazonCloudWatchLogsClient.StartLiveTailAsync(new StartLiveTailRequest
             {
-                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+                LogGroupIdentifiers = new List<string>() { logGroupName },
+                LogStreamNames = new List<string>() { logStreamName },
+            }, cancellationTokenSource.Token);
 
-                if (!string.IsNullOrEmpty(logStreamName))
+            if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
+            {
+                uIUpdater.DisplayLogMessage("Failed to start live tail session");
+                return ;
+            }
+            startLiveTailResponse = response;
+            TrackLiveTail(startLiveTailResponse);
+        }
+
+        private readonly object lockObject = new object();
+        private async void TrackLiveTail(StartLiveTailResponse response)
+        {
+            var eventStream = response.ResponseStream;
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30), cancellationTokenSource.Token);
+
+            try
+            {
+                await Task.Run(() =>
                 {
-                    GetLogEventsResponse logs = await cloudWatchLogsClient.GetLogEventsAsync(new GetLogEventsRequest
+                    foreach (var item in eventStream)
                     {
-                        LogGroupName = "/aws/sagemaker/TrainingJobs",
-                        LogStreamName = logStreamName
-                    });
-
-
-                    if (logs.Events.Any() && prevLogMessage != logs.Events.Last().Message)
-                    {
-                        for (int i = nextLogIndex; i < logs.Events.Count; i++)
+                        if (cancellationTokenSource.Token.IsCancellationRequested)
                         {
-                            DisplayLogMessage(logs.Events[i].Message);
+                            eventStream.Dispose();
+                            if(uIUpdater != null)
+                            {
+                                uIUpdater.DisplayLogMessage("Live Tail session has ended.");
+                            }
+                            break;
                         }
-                        prevLogMessage = logs.Events.Last().Message;
-                        nextLogIndex = logs.Events.IndexOf(logs.Events.Last()) + 1;
+                        lock (lockObject)
+                        {
+                            if (item is LiveTailSessionUpdate liveTailSessionUpdate)
+                            {
+                                foreach (var sessionResult in liveTailSessionUpdate.SessionResults)
+                                {
+                                    uIUpdater.DisplayLogMessage(sessionResult.Message);
+                                }
+                            }
+                            if (item is LiveTailSessionStart)
+                            {
+                                uIUpdater.DisplayLogMessage("Live Tail session started");
+                            }
+                            // On-stream exceptions are processed here
+                            if (item is CloudWatchLogsEventStreamException)
+                            {
+                                uIUpdater.DisplayLogMessage($"ERROR: {item}");
+                            }
+                        }
+                        
                     }
+                }, cancellationTokenSource.Token);
+            }catch (OperationCanceledException)
+            {
+                uIUpdater.DisplayLogMessage("Live Tail session has been cancelled.");
+            }
+            catch (CloudWatchLogsEventStreamException ex)
+            {
+                Console.WriteLine($"ERROR: {ex}");
+            }
+            catch (IOException ex)
+            {
+                // Handle IOException here
+                Console.WriteLine($"ERROR: {ex.Message}");
+            }
+            catch (SocketException ex)
+            {
+                // Handle SocketException here
+                Console.WriteLine($"ERROR: {ex.Message}");
+
+            }
+        }
+
+        private async Task<DescribeTrainingJobResponse> GetTrainingJobDetails(AmazonSageMakerClient amazonSageMakerClient, string trainingJobName)
+        {
+            return await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
+            {
+                TrainingJobName = trainingJobName
+            });
+        }
+
+        private async Task HandleCustomUploads()
+        {
+            if (hasCustomUploads && !showDialogBox)
+            {
+                showDialogBox = true;
+
+                if(MessageBox.Show("Do you want to delete the dataset from the S3 bucket?", "Delete Dataset", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    uIUpdater.DisplayLogMessage($"{Environment.NewLine}Deleting dataset {datasetKey} from BUCKET ${s3Bucket}");
+                    await transferUtility.DeleteDataSet(s3Client, s3Bucket, datasetKey);
+                    uIUpdater.DisplayLogMessage($"{Environment.NewLine}Dataset deletion complete.");
                 }
                 else
                 {
-                    delay++;
-                    if (delay == 10 || delay == 0)
-                    {
-                        DisplayLogMessage($"{Environment.NewLine}Creating log stream for the training job.");
-                        delay = 1;
-                    }
+                    uIUpdater.DisplayLogMessage($"{Environment.NewLine}Skipping dataset deletion.");
                 }
             }
-
-            if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().StatusMessage != prevStatusMessage)
-            {
-                UpdateTrainingStatus(
-                    trainingDetails.SecondaryStatusTransitions.Last().Status,
-                    trainingDetails.SecondaryStatusTransitions.Last().StatusMessage
-                );
-                prevStatusMessage = trainingDetails.SecondaryStatusTransitions.Last().StatusMessage;
-            }
-        }
-
-        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
-        {
-            Action updateUI = () =>
-            {
-                instanceTypeBox.Text = instanceType;
-                trainingDurationBox.Text = trainingDuration;
-                trainingStatusBox.Text = status;
-                descBox.Text = description;
-            };
-
-            // Check if invoking is required
-            if (instanceTypeBox.InvokeRequired || trainingDurationBox.InvokeRequired ||
-                trainingStatusBox.InvokeRequired || descBox.InvokeRequired)
-            {
-                // Invoke on the UI thread
-                instanceTypeBox.Invoke(updateUI);
-                trainingDurationBox.Invoke(updateUI);
-                trainingStatusBox.Invoke(updateUI);
-                descBox.Invoke(updateUI);
-            }
-            else
-            {
-                // No invoke required, execute directly
-                updateUI();
-            }
-        }
-
-        public void UpdateTrainingStatus(string trainingDuration)
-        {
-            Action updateUI = () =>
-            {
-                trainingDurationBox.Text = trainingDuration;
-            };
-
-            // Check if invoking is required
-            if (trainingDurationBox.InvokeRequired)
-            {
-                // Invoke on the UI thread
-                trainingDurationBox.Invoke(updateUI);
-            }
-            else
-            {
-                // No invoke required, execute directly
-                updateUI();
-            }
-
-        }
-
-        public void UpdateTrainingStatus(string status, string description)
-        {
-            Action updateUI = () =>
-            {
-                trainingStatusBox.Text = status;
-                descBox.Text = description;
-            };
-            if (trainingStatusBox.InvokeRequired || descBox.InvokeRequired)
-            {
-                // Invoke on the UI thread
-                trainingStatusBox.Invoke(updateUI);
-                descBox.Invoke(updateUI);
-            }
-            else
-            {
-                // No invoke required, execute directly
-                updateUI();
-            }
-        }
-
-        public static void DisplayLogMessage(string logMessage, RichTextBox logBox)
-        {
-            // Convert the ANSI log message to RTF
-            string rtfMessage = ConvertAnsiToRtf(logMessage);
-
-            // Remove the start and end of the RTF document from the message
-            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
-            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
-
-            // Append the RTF message at the end of the existing RTF text
-            Action log = () =>
-            {
-                logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
-
-                // Scroll to the end to show the latest log messages
-                logBox.SelectionStart = logBox.Text.Length;
-                logBox.ScrollToCaret();
-            };
-            if (logBox.InvokeRequired)
-            {
-                // Invoke on the UI thread
-                logBox.Invoke(log);
-            }
-            else
-            {
-                // No invoke required, execute directly
-                log();
-            }
-        }
-        public void DisplayLogMessage(string logMessage)
-        {
-            DisplayLogMessage(logMessage, logBox);
-        }
-        public static string ConvertAnsiToRtf(string ansiText)
-        {
-            ansiText = ansiText.Replace("#033[1m", @"\b ");
-            ansiText = ansiText.Replace("#033[0m", @"\b0 ");
-            ansiText = ansiText.Replace("#033[34m", @"\cf1 ");
-            ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
-            ansiText = ansiText.Replace("#015", @"\line ");
-            return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
         }
 
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
@@ -367,23 +302,58 @@ namespace LSC_Trainer.Functions
             {
                 // Log or handle the exception accordingly
                 Console.WriteLine($"Log group '{logGroupName}' does not exist.");
-                DisplayLogMessage($"{Environment.NewLine} The log group '{logGroupName}' is still being created or does not exist anymore.");
+                uIUpdater.DisplayLogMessage($"{Environment.NewLine} The log group '{logGroupName}' is still being created or does not exist anymore.");
                 return null;
             }catch(Exception ex)
             {
                 // Log or handle the exception accordingly
                 Console.WriteLine($"Error in getting log stream: {ex.Message}");
-                DisplayLogMessage($"Error in getting log stream: {ex.Message}");
+                uIUpdater.DisplayLogMessage($"Error in getting log stream: {ex.Message}");
                 return null;
             }
         }
 
+        private async void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Suspend:
+                    // The system is going to sleep
+                    // Pause or save your work here
+                    cancellationTokenSource.Cancel();
+                    break;
+                case PowerModes.Resume:
+                    // The system is waking up
+                    // Resume your work here
+                    cancellationTokenSource = new CancellationTokenSource();
+                    string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", currentTrainingJobName);
+                    if (!string.IsNullOrEmpty(logStreamName))
+                    {
+                        await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                    }
+                    break;
+            }
+        }
         public void Dispose()
         {
-            // Dispose the resources
+            // Unsubscribe from system events
+            SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
+
+            // Cancel the token to stop the task in TrackLiveTail
+            cancellationTokenSource.Cancel();
+
+            // Now that the task has completed, it's safe to dispose of the resources
+            DisposeTimer(timer);
             amazonSageMakerClient.Dispose();
             cloudWatchLogsClient.Dispose();
             s3Client.Dispose();
-        } 
+            uIUpdater = null;
+        }
+
+        public void DisposeTimer(System.Timers.Timer timer)
+        {
+            timer.Stop();
+            timer.Dispose();
+        }
     }
 }

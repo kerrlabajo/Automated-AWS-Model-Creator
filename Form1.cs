@@ -12,19 +12,20 @@ using LSC_Trainer.Functions;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
+using Amazon.EC2;
 
 
 namespace LSC_Trainer
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IUIUpdater
     {
-
         private delegate void SetProgressCallback(int percentDone);
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonS3Client s3Client;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
         private AmazonServiceQuotasClient serviceQuotasClient;
         private Utility utility = new Utility();
+        private TrainingJobExecutor executor;
 
         private string ACCOUNT_ID;
         private string ACCESS_KEY;
@@ -41,7 +42,6 @@ namespace LSC_Trainer
 
         private readonly string SAGEMAKER_INPUT_DATA_PATH = "/opt/ml/input/data/";
         private readonly string SAGEMAKER_OUTPUT_DATA_PATH = "/opt/ml/output/data/";
-        private readonly string SAGEMAKER_MODEL_PATH = "/opt/ml/model/";
 
         private string datasetPath;
         private bool isFile;
@@ -64,7 +64,7 @@ namespace LSC_Trainer
         private TrainingJobHandler trainingJobHandler;
         private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
 
-        private List<string> supporterInstances = new List<string>()
+        private List<string> supportedInstances = new List<string>()
         {
             "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
         };
@@ -114,8 +114,8 @@ namespace LSC_Trainer
             btnUploadToS3.Enabled = false;
             btnDownloadModel.Enabled = false;
 
+            executor = new TrainingJobExecutor(this);
             fileTransferUtility = new FileTransferUtility();
-
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
             InitializeInputs();
@@ -168,7 +168,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "0";
+                txtGpuCount.Text = "0";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -184,7 +184,7 @@ namespace LSC_Trainer
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtDevice.Text = "cpu";
+                txtGpuCount.Text = "cpu";
                 txtInstanceCount.Text = "1";
                 trainingFolder = "train";
                 validationFolder = "val";
@@ -269,48 +269,60 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
-                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtDevice.Text, txtInstanceCount.Text)) {
-                logBox.Clear();
-                instanceTypeBox.Text = "";
-                trainingDurationBox.Text = "";
-                trainingStatusBox.Text = "";
-                descBox.Text = "";
-                Cursor = Cursors.WaitCursor;
-                SetTrainingParameters(
-                        out string img_size,
-                        out string batch_size,
-                        out string epochs,
-                        out string weights,
-                        out string data,
-                        out string hyperparameters,
-                        out string patience,
-                        out string workers,
-                        out string optimizer,
-                        out string device,
-                        out string instanceCount);
+            try
+            {
+                if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
+                , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtGpuCount.Text, txtInstanceCount.Text))
+                {
+                    logBox.Clear();
+                    instanceTypeBox.Text = "";
+                    trainingDurationBox.Text = "";
+                    trainingStatusBox.Text = "";
+                    descBox.Text = "";
+                    Cursor = Cursors.WaitCursor;
+                    SetTrainingParameters(
+                            out string img_size,
+                            out string batch_size,
+                            out string epochs,
+                            out string weights,
+                            out string data,
+                            out string hyperparameters,
+                            out string patience,
+                            out string workers,
+                            out string optimizer,
+                            out string device,
+                            out string instanceCount);
 
                 string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
                 trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
-                CreateTrainingJobRequest trainingRequest = CreateTrainingRequest(
-                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount);
+                CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
+                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
 
-                if (HasCustomUploads(CUSTOM_UPLOADS_URI))
-                {
-                    InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
-                }
-                else
-                {
-                    DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                    if (result == DialogResult.OK)
+                    
+                    this.Text = trainingJobName;
+                    bool hasCustomUploads = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
+                    string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+                    if (hasCustomUploads)
                     {
-                        InitiateTrainingJob(trainingRequest, cloudWatchLogsClient);
+                        InitiateTrainingJob(trainingRequest);
                     }
                     else
                     {
-                        return;
+                        DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                        if (result == DialogResult.OK)
+                        {
+                           InitiateTrainingJob(trainingRequest);
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
             }         
         }
 
@@ -336,9 +348,12 @@ namespace LSC_Trainer
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
-                            TrainingJobHandler.DisplayLogMessage(outputResponse, logBox);
+                            DisplayLogMessage(outputResponse);
                             string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
-                            TrainingJobHandler.DisplayLogMessage(modelResponse, logBox);
+                            DisplayLogMessage(modelResponse);
+                        }catch(AmazonS3Exception s3Exception)
+                        {
+                            MessageBox.Show($"Error in downloading model: {s3Exception.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         catch (Exception)
                         {
@@ -437,118 +452,9 @@ namespace LSC_Trainer
 
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
-            if (txtDevice.Text != "") device = txtDevice.Text;
+            if (txtGpuCount.Text != "") device = string.Join(",", Enumerable.Range(0, gpuCount));
 
             if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
-        }
-
-        private static bool HasCustomUploads(string customUploadsURI)
-        {
-            string customUploadsDirectory = Path.GetFileName(Path.GetDirectoryName(customUploadsURI));
-            if (customUploadsDirectory == "custom-uploads")
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
-        {
-            CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
-            {
-                AlgorithmSpecification = new AlgorithmSpecification()
-                {
-                    TrainingInputMode = "File",
-                    TrainingImage = ECR_URI,
-                    ContainerEntrypoint = new List<string>() { "python3", "/code/train_and_export.py" },
-                    ContainerArguments = new List<string>()
-                    {
-                        "--img-size", img_size,
-                        "--batch", batch_size,
-                        "--epochs", epochs,
-                        "--weights", weights,
-                        "--data", SAGEMAKER_INPUT_DATA_PATH + "train/" + data,
-                        "--hyp", hyperparameters,
-                        "--project", SAGEMAKER_OUTPUT_DATA_PATH,
-                        "--name", "results",
-                        "--patience", patience,
-                        "--workers", workers,
-                        "--optimizer", optimizer,
-                        "--device", device,
-                        "--include", "onnx",
-                        "--nnodes", instanceCount
-                    }
-                },
-                RoleArn = ROLE_ARN,
-                OutputDataConfig = new OutputDataConfig()
-                {
-                    S3OutputPath = DESTINATION_URI
-                },
-                // Keep this true so that devs will be using spot instances from now on
-                EnableManagedSpotTraining = true,
-                ResourceConfig = new ResourceConfig()
-                {
-                    InstanceCount = int.Parse(instanceCount),
-                    // Update the instance type everytime you select an instance type
-                    InstanceType = TrainingInstanceType.FindValue(selectedInstance),
-                    VolumeSizeInGB = 12
-                },
-                TrainingJobName = trainingJobName,
-                StoppingCondition = new StoppingCondition()
-                {
-                    MaxRuntimeInSeconds = 14400,
-                    MaxWaitTimeInSeconds = 15000,
-                },
-                HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
-                {
-                    {"img-size", img_size},
-                    {"batch-size", batch_size},
-                    {"epochs", epochs},
-                    {"weights", weights},
-                    {"hyp", hyperparameters},
-                    {"patience", patience},
-                    {"workers", workers},
-                    {"optimizer", optimizer},
-                    {"device", device},
-                    {"include", "onnx" }
-                }
-                : customHyperParamsForm.HyperParameters,
-                InputDataConfig = new List<Channel>(){
-                    new Channel()
-                    {
-                        ChannelName = "train",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + trainingFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    },
-                    new Channel()
-                    {
-                        ChannelName = "val",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + validationFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
-                }
-            };
-            return trainingRequest;
         }
 
         private void InputsEnabler(bool intent)
@@ -562,7 +468,7 @@ namespace LSC_Trainer
             txtPatience.Enabled = intent;
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
-            txtDevice.Enabled = intent;
+            txtGpuCount.Enabled = intent;
             txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
@@ -575,29 +481,13 @@ namespace LSC_Trainer
             lblZipFile.Enabled = intent;
             logBox.UseWaitCursor = !intent;
         }
-        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient)
+
+        private async void InitiateTrainingJob(CreateTrainingJobRequest trainingRequest)
         {
-            InputsEnabler(false);
-            connectionMenu.Enabled = false;
-            logPanel.Enabled = true;
-            Cursor = Cursors.WaitCursor;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
-            this.Text = trainingJobName;
             try
             {
-                CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
-                string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();
-                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
-
-                logPanel.Visible = true;
-                trainingJobHandler = new TrainingJobHandler(amazonSageMakerClient, cloudWatchLogsClient, s3Client,instanceTypeBox, trainingDurationBox, trainingStatusBox, descBox, logBox, fileTransferUtility);
-                bool custom = HasCustomUploads(CUSTOM_UPLOADS_URI);
-                bool success =  await trainingJobHandler.StartTrackingTrainingJob(trainingJobName, datasetKey, SAGEMAKER_BUCKET, custom);
-                
-                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
-                outputListComboBox.Text = trainingJobName;
-                datasetPath = null;
+                SetUIState(true);
+                await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
                 return;
             }
             catch (Exception ex)
@@ -605,15 +495,15 @@ namespace LSC_Trainer
                 MessageBox.Show($"Error creating training job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnTraining.Enabled = true;
                 return;
-            }
-            finally
+            }finally
             {
-                InputsEnabler(true);
-                connectionMenu.Enabled = true;
-                logPanel.Enabled = true;
-                Cursor = Cursors.Default;
+                SetUIState(false);
+                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                datasetPath = null;
             }
         }
+
         private void NewTrainingJobMenu_Click(object sender, EventArgs e)
         {
             var t = new Thread(() => Application.Run(new MainForm(development)));
@@ -825,39 +715,35 @@ namespace LSC_Trainer
             }
         }
 
-        private void txtDevice_ValueChanged(object sender, EventArgs e)
+        private void txtGpuCount_ValueChanged(object sender, EventArgs e)
         {
-            if (txtDevice.Text != null)
-            {
-
-              CalculateBatchSize();
-            }
+            CalculateBatchSize();
         }
 
-        private bool txtDevice_Validate()
+        private bool txtGpuCount_Validate()
         {
-            if (txtDevice.Text != null)
+            if (txtGpuCount.Text != null)
             {
                 // If the user wants to use only the CPU
-                if (txtDevice.Text.ToLower() == "cpu")
+                if (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0)
                 {
                     CalculateBatchSize();
                     return true;
                 }
-
-                string[] devices = txtDevice.Text.Split(',');
-
-                foreach (string device in devices)
+                else if (!Int32.TryParse(txtGpuCount.Text, out _))
                 {
-                    int deviceNumber;
-                    bool isNumeric = int.TryParse(device, out deviceNumber);
-
-                    if (!isNumeric || deviceNumber < 0)
-                    {
-                        Console.WriteLine("Each device must be a non-negative integer or 'cpu'.");
-                        MessageBox.Show("Each device must be a non-negative integer or 'cpu'.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
+                    MessageBox.Show("GPU count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                else if (int.Parse(txtGpuCount.Text) < 0)
+                {
+                    MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                else if (int.Parse(txtGpuCount.Text) == 0 || txtGpuCount.Text.Equals("cpu"))
+                {
+                    MessageBox.Show("Machine will be using cpu.");
+                    txtGpuCount.Text = "cpu";
                 }
                 return true;
             }
@@ -870,48 +756,16 @@ namespace LSC_Trainer
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 string instance = selectedItem.Item1;
                 int instanceCount = Int32.Parse(txtInstanceCount.Text);
+                int.TryParse(txtGpuCount.Text, out gpuCount);
                 idealBatchSize = 16;
-                gpuCount = 0;
-                // Get the number of GPU devices
-                string[] gpuDevices = txtDevice.Text.Split(',');
 
-                foreach(string device in gpuDevices)
-                {
-                    int deviceNumber;
-                    bool isNumeric = int.TryParse(device, out deviceNumber);
-
-                    if (isNumeric || txtDevice.Text == "cpu")
-                    {
-                        gpuCount++;
-                    }
-                }
-
-                if (instanceCount == 1 && gpuCount == 1 && (gpuDevices[0] == "0" || gpuDevices[0] == "cpu") && !supporterInstances.Contains(instance))
+                if (instanceCount == 1 && gpuCount == 1 && (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
                 else
                 {
-                    switch (instance)
-                    {
-                        case "ml.p3.2xlarge":
-                        case "ml.g4dn.xlarge":
-                        case "ml.g4dn.2xlarge":
-                        case "ml.g4dn.4xlarge":
-                        case "ml.g4dn.8xlarge":
-                            idealBatchSize = 16 * instanceCount * gpuCount;
-                            break;
-                        case "ml.p3.8xlarge":
-                        case "ml.g4dn.12xlarge":
-                            idealBatchSize = 64 * instanceCount * gpuCount;
-                            break;
-                        case "ml.p3.16xlarge":
-                            idealBatchSize = 128 * instanceCount * gpuCount;
-                            break;
-                        default:
-                            idealBatchSize = 16 * instanceCount * gpuCount;
-                            break;
-                    }
+                    idealBatchSize = 16 * instanceCount * gpuCount;
                 }
 
                 txtBatchSize.Text = idealBatchSize.ToString();
@@ -979,7 +833,7 @@ namespace LSC_Trainer
                 return false;
             }
 
-            if (txtDevice_Validate() == false)
+            if (!txtGpuCount_Validate())
             {
                 return false;
             }
@@ -989,7 +843,95 @@ namespace LSC_Trainer
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            trainingJobHandler?.Dispose();
+            executor?.Dispose();
+        }
+
+        public void SetUIState(bool isTraining)
+        {
+            InputsEnabler(!isTraining);
+            connectionMenu.Enabled = !isTraining;
+            logPanel.Enabled = !isTraining;
+            Cursor = isTraining ? Cursors.WaitCursor : Cursors.Default;
+            lscTrainerMenuStrip.Cursor = Cursors.Default;
+        }
+
+        public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateTrainingStatus(instanceType, trainingDuration, status, description)));
+                return;
+            }
+
+            instanceTypeBox.Text = instanceType;
+            trainingDurationBox.Text = trainingDuration;
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
+        }
+
+        public void UpdateTrainingStatus(string trainingDuration)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateTrainingStatus(trainingDuration)));
+                return;
+            }
+            trainingDurationBox.Text = trainingDuration;
+        }
+
+        public void UpdateTrainingStatus(string status, string description)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateTrainingStatus(status, description)));
+                return;
+            }
+            trainingStatusBox.Text = status;
+            descBox.Text = description;
+        }
+
+        public void DisplayLogMessage(string logMessage)
+        {
+            string rtfMessage = ConvertAnsiToRtf(logMessage);
+
+            // Remove the start and end of the RTF document from the message
+            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
+            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
+
+            // Append the RTF message at the end of the existing RTF text
+            Action log = () =>
+            {
+                logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+
+                // Scroll to the end to show the latest log messages
+                logBox.SelectionStart = logBox.Text.Length;
+                logBox.ScrollToCaret();
+            };
+            if (logBox.InvokeRequired)
+            {
+                // Invoke on the UI thread
+                logBox.Invoke(log);
+            }
+            else
+            {
+                // No invoke required, execute directly
+                log();
+            }
+        }
+
+        public string ConvertAnsiToRtf(string ansiText)
+        {
+            ansiText = ansiText.Replace("#033[1m", @"\b ");
+            ansiText = ansiText.Replace("#033[0m", @"\b0 ");
+            ansiText = ansiText.Replace("#033[34m", @"\cf1 ");
+            ansiText = ansiText.Replace("#033[0m", @"\cf0 ");
+            ansiText = ansiText.Replace("#015", @"\line ");
+            return @"{\rtf1\ansi\deff0{\colortbl;\red0\green0\blue0;\red0\green0\blue255;}" + ansiText + "}";
+        }
+
+        public void SetLogPanelVisibility(bool visibility)
+        {
+            logPanel.Visible = visibility;
         }
 
         private async void btnFetchAvailableDatasets_Click(object sender, EventArgs e)

@@ -40,6 +40,7 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.txtGpuCount = new System.Windows.Forms.TextBox();
             this.datasetListComboBox = new System.Windows.Forms.ComboBox();
             this.btnFetchDatasets_Click = new System.Windows.Forms.Button();
             this.txtInstanceCount = new System.Windows.Forms.TextBox();
@@ -56,9 +57,8 @@ namespace LSC_Trainer
             this.btnDownloadModel = new System.Windows.Forms.Button();
             this.btnUploadToS3 = new System.Windows.Forms.Button();
             this.descriptionLabel = new System.Windows.Forms.Label();
-            this.txtDevice = new System.Windows.Forms.TextBox();
             this.trainingStatusLabel = new System.Windows.Forms.Label();
-            this.deviceLabel = new System.Windows.Forms.Label();
+            this.gpuCountLabel = new System.Windows.Forms.Label();
             this.instanceTypelbl = new System.Windows.Forms.Label();
             this.txtOptimizer = new System.Windows.Forms.TextBox();
             this.trainingDurationLabel = new System.Windows.Forms.Label();
@@ -187,6 +187,7 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.txtGpuCount);
             this.mainPanel.Controls.Add(this.datasetListComboBox);
             this.mainPanel.Controls.Add(this.btnFetchDatasets_Click);
             this.mainPanel.Controls.Add(this.txtInstanceCount);
@@ -204,9 +205,8 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.btnDownloadModel);
             this.mainPanel.Controls.Add(this.btnUploadToS3);
             this.mainPanel.Controls.Add(this.descriptionLabel);
-            this.mainPanel.Controls.Add(this.txtDevice);
             this.mainPanel.Controls.Add(this.trainingStatusLabel);
-            this.mainPanel.Controls.Add(this.deviceLabel);
+            this.mainPanel.Controls.Add(this.gpuCountLabel);
             this.mainPanel.Controls.Add(this.instanceTypelbl);
             this.mainPanel.Controls.Add(this.txtOptimizer);
             this.mainPanel.Controls.Add(this.trainingDurationLabel);
@@ -239,6 +239,14 @@ namespace LSC_Trainer
             this.mainPanel.Size = new System.Drawing.Size(1140, 397);
             this.mainPanel.TabIndex = 4;
             // 
+            // txtGpuCount
+            // 
+            this.txtGpuCount.Location = new System.Drawing.Point(427, 184);
+            this.txtGpuCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtGpuCount.Name = "txtGpuCount";
+            this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
+            this.txtGpuCount.TabIndex = 53;
+            this.txtGpuCount.TextChanged += new System.EventHandler(this.txtGpuCount_ValueChanged);
             // datasetListComboBox
             // 
             this.datasetListComboBox.Enabled = false;
@@ -412,16 +420,6 @@ namespace LSC_Trainer
             this.descriptionLabel.TabIndex = 28;
             this.descriptionLabel.Text = "Description:";
             // 
-            // txtDevice
-            // 
-            this.txtDevice.Location = new System.Drawing.Point(427, 184);
-            this.txtDevice.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtDevice.Name = "txtDevice";
-            this.txtDevice.Size = new System.Drawing.Size(145, 22);
-            this.txtDevice.TabIndex = 10;
-            this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            this.txtDevice.TextChanged += new System.EventHandler(this.txtDevice_ValueChanged);
-            // 
             // trainingStatusLabel
             // 
             this.trainingStatusLabel.AutoSize = true;
@@ -432,14 +430,14 @@ namespace LSC_Trainer
             this.trainingStatusLabel.TabIndex = 27;
             this.trainingStatusLabel.Text = "Training Status:";
             // 
-            // deviceLabel
+            // gpuCountLabel
             // 
-            this.deviceLabel.AutoSize = true;
-            this.deviceLabel.Location = new System.Drawing.Point(292, 184);
-            this.deviceLabel.Name = "deviceLabel";
-            this.deviceLabel.Size = new System.Drawing.Size(55, 17);
-            this.deviceLabel.TabIndex = 38;
-            this.deviceLabel.Text = "Device:";
+            this.gpuCountLabel.AutoSize = true;
+            this.gpuCountLabel.Location = new System.Drawing.Point(292, 184);
+            this.gpuCountLabel.Name = "gpuCountLabel";
+            this.gpuCountLabel.Size = new System.Drawing.Size(76, 16);
+            this.gpuCountLabel.TabIndex = 38;
+            this.gpuCountLabel.Text = "GPU Count:";
             // 
             // instanceTypelbl
             // 
@@ -777,8 +775,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.TextBox txtWorkers;
         private System.Windows.Forms.Label optimizerLabel;
         private System.Windows.Forms.TextBox txtOptimizer;
-        private System.Windows.Forms.Label deviceLabel;
-        private System.Windows.Forms.TextBox txtDevice;
+        private System.Windows.Forms.Label gpuCountLabel;
         private System.Windows.Forms.Button btnUploadToS3;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
@@ -805,6 +802,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.ComboBox instancesDropdown;
         private System.Windows.Forms.TextBox txtInstanceCount;
         private System.Windows.Forms.Label instanceCountLabel;
+        private System.Windows.Forms.TextBox txtGpuCount;
         private System.Windows.Forms.ComboBox datasetListComboBox;
         private System.Windows.Forms.Button btnFetchDatasets_Click;
     }
