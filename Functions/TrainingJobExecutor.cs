@@ -37,7 +37,7 @@ namespace LSC_Trainer.Functions
                         "--batch", batch_size,
                         "--epochs", epochs,
                         "--weights", weights,
-                        "--data", SAGEMAKER_INPUT_DATA_PATH + data,
+                        "--data", SAGEMAKER_INPUT_DATA_PATH + data + $"/{data}.yaml",
                         "--hyp", hyperparameters,
                         "--project", SAGEMAKER_OUTPUT_DATA_PATH,
                         "--name", "results",
