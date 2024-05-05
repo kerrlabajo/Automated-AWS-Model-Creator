@@ -483,6 +483,7 @@ namespace LSC_Trainer
             try
             {
                 SetUIState(true);
+                outputListComboBox.Text = "";
                 await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
                 return;
             }
@@ -494,6 +495,8 @@ namespace LSC_Trainer
             }finally
             {
                 SetUIState(false);
+                btnUploadToS3.Enabled = false;
+                outputListComboBox.Text = this.Text;
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                 datasetPath = null;
