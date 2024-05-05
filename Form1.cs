@@ -214,6 +214,7 @@ namespace LSC_Trainer
 
                     // Display the selected file path (optional)
                     lblZipFile.Text = datasetPath.Split('\\').Last();
+                    datasetListComboBox.Text = "";
 
                     MessageBox.Show($"Selected file: {datasetPath}");
                     isFile = true;
@@ -234,6 +235,7 @@ namespace LSC_Trainer
                     datasetPath = folderBrowserDialog.SelectedPath;
 
                     lblZipFile.Text = datasetPath.Split('\\').Last();
+                    datasetListComboBox.Text = "";
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     isFile = false;
@@ -977,6 +979,8 @@ namespace LSC_Trainer
         private void datasetListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
             CUSTOM_UPLOADS_URI += datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+            lblZipFile.Text = datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+            btnUploadToS3.Enabled = false;
         }
     }
 }
