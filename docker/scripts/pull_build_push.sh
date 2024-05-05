@@ -73,8 +73,6 @@ VERSION=$(printf "%.1f" $VERSION)
 # Create the new tag
 NEW_TAG="${VERSION}${TAG_BASE}"
 
-git pull
-
 # Authenticate Docker to ECR
 aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin ${ECR_URL}
 
