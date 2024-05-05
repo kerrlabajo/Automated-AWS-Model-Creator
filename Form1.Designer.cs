@@ -261,7 +261,7 @@ namespace LSC_Trainer
             this.btnFetchDatasets.TabIndex = 53;
             this.btnFetchDatasets.Text = "Fetch Dataset";
             this.btnFetchDatasets.UseVisualStyleBackColor = true;
-            this.btnFetchDatasets.Click += new System.EventHandler(this.btnFetchAvailableDatasets_Click);
+            this.btnFetchDatasets.Click += new System.EventHandler(this.btnFetchDatasets_Click);
             // 
             // txtInstanceCount
             // 

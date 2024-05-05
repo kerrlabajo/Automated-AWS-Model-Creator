@@ -472,6 +472,7 @@ namespace LSC_Trainer
             btnTraining.Enabled = intent;
             outputListComboBox.Enabled = intent;
             instancesDropdown.Enabled = intent;
+            btnFetchDatasets.Enabled = intent;
             btnFetchOutput.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
@@ -931,7 +932,7 @@ namespace LSC_Trainer
             logPanel.Visible = visibility;
         }
 
-        private async void btnFetchAvailableDatasets_Click(object sender, EventArgs e)
+        private async void btnFetchDatasets_Click(object sender, EventArgs e)
         {
             mainPanel.Enabled = false;
             logPanel.Enabled = false;
