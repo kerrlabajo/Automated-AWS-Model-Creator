@@ -27,7 +27,7 @@ ENV PATH="${PATH}:/code"
 # Install Python dependencies
 RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
   pip3 install 'onnx>=1.10.0' --no-cache-dir && \
-  pip3 install -q --no-input pyyaml
+  pip3 install -q --no-input pyyaml --no-cache-dir
 
 # Copy the Python scripts
 COPY json_to_yaml_converter.py /code/json_to_yaml_converter.py
