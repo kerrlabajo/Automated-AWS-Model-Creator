@@ -84,7 +84,8 @@ namespace LSC_Trainer
 
             if (development)
             {
-                string ENV_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, " .env").Replace("\\", "/");
+                string projectDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
+                string ENV_PATH = Path.Combine(projectDirectory, ".env").Replace("\\", "/");
                 DotNetEnv.Env.Load(ENV_PATH);
 
                 UserConnectionInfo.AccountId = Environment.GetEnvironmentVariable("ACCOUNT_ID");
