@@ -944,16 +944,15 @@ namespace LSC_Trainer
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             try
             {
-                List<string> models = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
+                List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
 
-                if (models != null)
+                if (datasets != null)
                 {
                     datasetListComboBox.Items.Clear();
+                    datasetListComboBox.Text = datasets[0];
 
-                    Console.WriteLine("Datasets: ");
-                    foreach (var obj in models)
+                    foreach (var obj in datasets)
                     {
-                        Console.WriteLine(obj);
                         datasetListComboBox.Items.Add(obj);
                     }
                 }
