@@ -92,7 +92,7 @@ def main():
 
     Example:
     >>> train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt
-    >>> --data /opt/ml/input/data/train/data.yaml --hyp hyp.scratch-low.yaml
+    >>> --data /opt/ml/input/data/<dataset_name>/<dataset_name>.yaml --hyp hyp.scratch-low.yaml
     >>> --project "/opt/ml/output/data/" --name "results"
     >>> --patience 100 --workers 8 --optimizer SGD --device 0 --include onnx --nnodes 1
 
@@ -107,6 +107,9 @@ def main():
 
     converter_args = [
         "/code/json_to_yaml_converter.py", "/opt/ml/input/config/hyperparameters.json",
+    ]
+    configure_dataset_args = [
+        "/code/configure_dataset.py", args.data,
     ]
     multi_gpu_ddp_args = [
         "torch.distributed.run", "--nproc_per_node", str(device_count),
@@ -132,6 +135,7 @@ def main():
     ]
 
     run_script(converter_args) if args.hyp == "Custom" else None
+    run_script(configure_dataset_args)
 
     if int(args.nnodes) > 1:
         run_script(multi_node_gpu_ddp_args + train_args, use_module=True)
