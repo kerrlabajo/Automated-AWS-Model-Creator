@@ -42,7 +42,7 @@ namespace LSC_Trainer
             this.mainPanel = new System.Windows.Forms.Panel();
             this.txtGpuCount = new System.Windows.Forms.TextBox();
             this.datasetListComboBox = new System.Windows.Forms.ComboBox();
-            this.btnFetchDatasets_Click = new System.Windows.Forms.Button();
+            this.btnFetchDatasets = new System.Windows.Forms.Button();
             this.txtInstanceCount = new System.Windows.Forms.TextBox();
             this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
@@ -70,11 +70,9 @@ namespace LSC_Trainer
             this.patienceLabel = new System.Windows.Forms.Label();
             this.btnTraining = new System.Windows.Forms.Button();
             this.trainingParametersLabel = new System.Windows.Forms.Label();
-            this.txtData = new System.Windows.Forms.TextBox();
             this.txtWeights = new System.Windows.Forms.TextBox();
             this.txtEpochs = new System.Windows.Forms.TextBox();
             this.txtBatchSize = new System.Windows.Forms.TextBox();
-            this.dataLabel = new System.Windows.Forms.Label();
             this.weightsLabel = new System.Windows.Forms.Label();
             this.epochsLabel = new System.Windows.Forms.Label();
             this.batchSizeLabel = new System.Windows.Forms.Label();
@@ -180,7 +178,6 @@ namespace LSC_Trainer
             this.lblZipFile.Name = "lblZipFile";
             this.lblZipFile.Size = new System.Drawing.Size(145, 22);
             this.lblZipFile.TabIndex = 3;
-            this.lblZipFile.Text = "No file selected";
             // 
             // mainPanel
             // 
@@ -189,7 +186,7 @@ namespace LSC_Trainer
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.mainPanel.Controls.Add(this.txtGpuCount);
             this.mainPanel.Controls.Add(this.datasetListComboBox);
-            this.mainPanel.Controls.Add(this.btnFetchDatasets_Click);
+            this.mainPanel.Controls.Add(this.btnFetchDatasets);
             this.mainPanel.Controls.Add(this.txtInstanceCount);
             this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
@@ -218,11 +215,9 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.patienceLabel);
             this.mainPanel.Controls.Add(this.btnTraining);
             this.mainPanel.Controls.Add(this.trainingParametersLabel);
-            this.mainPanel.Controls.Add(this.txtData);
             this.mainPanel.Controls.Add(this.txtWeights);
             this.mainPanel.Controls.Add(this.txtEpochs);
             this.mainPanel.Controls.Add(this.txtBatchSize);
-            this.mainPanel.Controls.Add(this.dataLabel);
             this.mainPanel.Controls.Add(this.weightsLabel);
             this.mainPanel.Controls.Add(this.epochsLabel);
             this.mainPanel.Controls.Add(this.batchSizeLabel);
@@ -247,6 +242,7 @@ namespace LSC_Trainer
             this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
             this.txtGpuCount.TabIndex = 53;
             this.txtGpuCount.TextChanged += new System.EventHandler(this.txtGpuCount_ValueChanged);
+            // 
             // datasetListComboBox
             // 
             this.datasetListComboBox.Enabled = false;
@@ -257,15 +253,15 @@ namespace LSC_Trainer
             this.datasetListComboBox.TabIndex = 54;
             this.datasetListComboBox.SelectedValueChanged += new System.EventHandler(this.datasetListComboBox_SelectedValueChanged);
             // 
-            // btnFetchDatasets_Click
+            // btnFetchDatasets
             // 
-            this.btnFetchDatasets_Click.Location = new System.Drawing.Point(229, 264);
-            this.btnFetchDatasets_Click.Name = "btnFetchDatasets_Click";
-            this.btnFetchDatasets_Click.Size = new System.Drawing.Size(118, 30);
-            this.btnFetchDatasets_Click.TabIndex = 53;
-            this.btnFetchDatasets_Click.Text = "Fetch Dataset";
-            this.btnFetchDatasets_Click.UseVisualStyleBackColor = true;
-            this.btnFetchDatasets_Click.Click += new System.EventHandler(this.btnFetchAvailableDatasets_Click);
+            this.btnFetchDatasets.Location = new System.Drawing.Point(229, 264);
+            this.btnFetchDatasets.Name = "btnFetchDatasets";
+            this.btnFetchDatasets.Size = new System.Drawing.Size(118, 30);
+            this.btnFetchDatasets.TabIndex = 53;
+            this.btnFetchDatasets.Text = "Fetch Dataset";
+            this.btnFetchDatasets.UseVisualStyleBackColor = true;
+            this.btnFetchDatasets.Click += new System.EventHandler(this.btnFetchDatasets_Click);
             // 
             // txtInstanceCount
             // 
@@ -543,15 +539,6 @@ namespace LSC_Trainer
             this.trainingParametersLabel.TabIndex = 17;
             this.trainingParametersLabel.Text = "TRAINING PARAMETERS";
             // 
-            // txtData
-            // 
-            this.txtData.Location = new System.Drawing.Point(132, 184);
-            this.txtData.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtData.Name = "txtData";
-            this.txtData.Size = new System.Drawing.Size(145, 22);
-            this.txtData.TabIndex = 5;
-            this.txtData.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
             // txtWeights
             // 
             this.txtWeights.Location = new System.Drawing.Point(132, 156);
@@ -578,15 +565,6 @@ namespace LSC_Trainer
             this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
             this.txtBatchSize.TabIndex = 2;
             this.txtBatchSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // dataLabel
-            // 
-            this.dataLabel.AutoSize = true;
-            this.dataLabel.Location = new System.Drawing.Point(30, 180);
-            this.dataLabel.Name = "dataLabel";
-            this.dataLabel.Size = new System.Drawing.Size(42, 17);
-            this.dataLabel.TabIndex = 11;
-            this.dataLabel.Text = "Data:";
             // 
             // weightsLabel
             // 
@@ -758,11 +736,9 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label batchSizeLabel;
         private System.Windows.Forms.Label epochsLabel;
         private System.Windows.Forms.Label weightsLabel;
-        private System.Windows.Forms.Label dataLabel;
         private System.Windows.Forms.TextBox txtBatchSize;
         private System.Windows.Forms.TextBox txtEpochs;
         private System.Windows.Forms.TextBox txtWeights;
-        private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.Label trainingParametersLabel;
         private System.Windows.Forms.Label descriptionLabel;
         private System.Windows.Forms.Label trainingStatusLabel;
@@ -804,7 +780,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label instanceCountLabel;
         private System.Windows.Forms.TextBox txtGpuCount;
         private System.Windows.Forms.ComboBox datasetListComboBox;
-        private System.Windows.Forms.Button btnFetchDatasets_Click;
+        private System.Windows.Forms.Button btnFetchDatasets;
     }
 }
 
