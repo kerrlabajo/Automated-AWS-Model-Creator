@@ -22,7 +22,7 @@ namespace LSC_Trainer.Functions
         {
             this.uiUpdater = uiUpdater;
         }
-        public CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount, string selectedInstance,string CUSTOM_UPLOADS_URI, string DEFAULT_DATASET_URI, string trainingFolder, string validationFolder, string ECR_URI, string SAGEMAKER_INPUT_DATA_PATH, string SAGEMAKER_OUTPUT_DATA_PATH, string ROLE_ARN, string DESTINATION_URI, string trainingJobName, CustomHyperParamsForm customHyperParamsForm)
+        public CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount, string selectedInstance,string CUSTOM_UPLOADS_URI, string DEFAULT_DATASET_URI, string ECR_URI, string SAGEMAKER_INPUT_DATA_PATH, string SAGEMAKER_OUTPUT_DATA_PATH, string ROLE_ARN, string DESTINATION_URI, string trainingJobName, CustomHyperParamsForm customHyperParamsForm)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
             {
@@ -37,7 +37,7 @@ namespace LSC_Trainer.Functions
                         "--batch", batch_size,
                         "--epochs", epochs,
                         "--weights", weights,
-                        "--data", SAGEMAKER_INPUT_DATA_PATH + "train/" + data,
+                        "--data", SAGEMAKER_INPUT_DATA_PATH + data + $"/{data}.yaml",
                         "--hyp", hyperparameters,
                         "--project", SAGEMAKER_OUTPUT_DATA_PATH,
                         "--name", "results",
@@ -86,7 +86,7 @@ namespace LSC_Trainer.Functions
                 InputDataConfig = new List<Channel>(){
                     new Channel()
                     {
-                        ChannelName = "train",
+                        ChannelName = data,
                         InputMode = TrainingInputMode.File,
                         CompressionType = Amazon.SageMaker.CompressionType.None,
                         RecordWrapperType = RecordWrapper.None,
@@ -95,27 +95,11 @@ namespace LSC_Trainer.Functions
                             S3DataSource = new S3DataSource()
                             {
                                 S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (utility.HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + trainingFolder,
+                                S3Uri = (utility.HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI),
                                 S3DataDistributionType = S3DataDistribution.FullyReplicated
                             }
                         }
                     },
-                    new Channel()
-                    {
-                        ChannelName = "val",
-                        InputMode = TrainingInputMode.File,
-                        CompressionType = Amazon.SageMaker.CompressionType.None,
-                        RecordWrapperType = RecordWrapper.None,
-                        DataSource = new DataSource()
-                        {
-                            S3DataSource = new S3DataSource()
-                            {
-                                S3DataType = S3DataType.S3Prefix,
-                                S3Uri = (utility.HasCustomUploads(CUSTOM_UPLOADS_URI) ? CUSTOM_UPLOADS_URI : DEFAULT_DATASET_URI) + validationFolder,
-                                S3DataDistributionType = S3DataDistribution.FullyReplicated
-                            }
-                        }
-                    }
                 }
             };
             return trainingRequest;
