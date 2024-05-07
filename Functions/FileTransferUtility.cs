@@ -155,6 +155,9 @@ namespace LSC_Trainer.Functions
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     TransferUtilityDownloadRequest downloadRequest = CreateDownloadRequest(bucketName, objectKey, filePath);
+
+                    ConfigureProgressTracking(downloadRequest, UIUpdater);
+
                     await transferUtility.DownloadAsync(downloadRequest);
                 }
 
@@ -193,6 +196,7 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error deleting objects from S3: " + e.Message);
             }
         }
+
         private static TransferUtilityUploadRequest CreateUploadRequest(string filePath, string fileName, string bucketName)
         {
             return new TransferUtilityUploadRequest
@@ -229,6 +233,16 @@ namespace LSC_Trainer.Functions
                     UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                 }
             });
+        }
+
+        private static void ConfigureProgressTracking(TransferUtilityDownloadRequest downloadRequest, IUIUpdater UIUpdater)
+        {
+
+            downloadRequest.WriteObjectProgressEvent += (sender, args) =>
+            {
+                int percentage = (int)(args.TransferredBytes * 100 / args.TotalBytes);
+                UIUpdater.UpdateTrainingStatus($"Downloading Files from S3", $"Downloading {args.TransferredBytes}/{args.TotalBytes} - {percentage}%");
+            };
         }
 
         private static void LogUploadTime(DateTime startTime)
