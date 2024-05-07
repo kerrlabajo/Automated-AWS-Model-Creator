@@ -601,7 +601,6 @@ namespace LSC_Trainer
                 {
                     outputListComboBox.Items.Clear();
                     outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
-                    btnDownloadModel.Enabled = true;
 
                     foreach (var obj in models)
                     {
@@ -625,12 +624,16 @@ namespace LSC_Trainer
 
         private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null && outputListComboBox.Text != "")
             {
                 string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
                 outputKey = $"training-jobs/{trainingJobOuputs}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
+            }
+            else
+            {
+                btnDownloadModel.Enabled = false;
             }
         }
 
@@ -863,6 +866,7 @@ namespace LSC_Trainer
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             executor?.Dispose();
+            fileTransferUtility?.Dispose();
         }
 
         public void SetUIState(bool isTraining)
