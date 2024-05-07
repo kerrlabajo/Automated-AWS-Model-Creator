@@ -66,7 +66,7 @@ namespace LSC_Trainer.Functions
                     using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
                         TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
-                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
+                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater,cancellationTokenSource.Token);
 
                         await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
                     }
@@ -104,7 +104,7 @@ namespace LSC_Trainer.Functions
                     using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
                         TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
-                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
+                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater, cancellationTokenSource.Token);
 
                         await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
                     }
@@ -191,7 +191,7 @@ namespace LSC_Trainer.Functions
                 {
                     TransferUtilityDownloadRequest downloadRequest = CreateDownloadRequest(bucketName, objectKey, filePath);
 
-                    ConfigureProgressTracking(downloadRequest, UIUpdater);
+                    ConfigureProgressTracking(downloadRequest, UIUpdater, cancellationTokenSource.Token);
 
                     await transferUtility.DownloadAsync(downloadRequest, cancellationTokenSource.Token);
                 }
@@ -265,7 +265,7 @@ namespace LSC_Trainer.Functions
             };
         }
 
-        private static void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize, IUIUpdater UIUpdater)
+        private static void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize, IUIUpdater UIUpdater, CancellationToken cancellationToken)
         {
             long currentFileUploaded = 0;
 
@@ -273,7 +273,7 @@ namespace LSC_Trainer.Functions
             {
                 currentFileUploaded = args.TransferredBytes;
 
-                if(UIUpdater != null)
+                if(!cancellationToken.IsCancellationRequested)
                 {
                     UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {currentFileUploaded}/{totalSize} - {currentFileUploaded * 100 / totalSize}%");
                 }
@@ -288,13 +288,13 @@ namespace LSC_Trainer.Functions
             });
         }
 
-        private static void ConfigureProgressTracking(TransferUtilityDownloadRequest downloadRequest, IUIUpdater UIUpdater)
+        private static void ConfigureProgressTracking(TransferUtilityDownloadRequest downloadRequest, IUIUpdater UIUpdater, CancellationToken cancellationToken)
         {
 
             downloadRequest.WriteObjectProgressEvent += (sender, args) =>
             {
                 int percentage = (int)(args.TransferredBytes * 100 / args.TotalBytes);
-                if (UIUpdater != null)
+                if (!cancellationToken.IsCancellationRequested)
                 {
                     UIUpdater.UpdateTrainingStatus($"Downloading Files from S3", $"Downloading {args.TransferredBytes}/{args.TotalBytes} - {percentage}%");
                 }
