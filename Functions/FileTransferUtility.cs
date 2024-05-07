@@ -273,18 +273,13 @@ namespace LSC_Trainer.Functions
             {
                 currentFileUploaded = args.TransferredBytes;
 
-                if(!cancellationToken.IsCancellationRequested)
+                totalUploaded += currentFileUploaded;
+                int overallPercentage = (int)(totalUploaded * 100 / totalSize);
+                progress.Report(overallPercentage);
+                if (!cancellationToken.IsCancellationRequested)
                 {
-                    UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {currentFileUploaded}/{totalSize} - {currentFileUploaded * 100 / totalSize}%");
-                }
-
-                if (args.PercentDone == 100)
-                {
-                    totalUploaded += currentFileUploaded;
-                    int overallPercentage = (int)(totalUploaded * 100 / totalSize);
-                    progress.Report(overallPercentage);
-                    
-                }
+                    UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
+                }     
             });
         }
 
