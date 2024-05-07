@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace LSC_Trainer.Functions
 {
@@ -75,18 +76,30 @@ namespace LSC_Trainer.Functions
                 return null;
             }
         }
+
+        private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 10);
         public async Task<string> UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
             {
+                await trackUploadLock.WaitAsync();
                 DateTime startTime = DateTime.Now;
-                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                try
                 {
-                    TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
-                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
+                    
+                    using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                    {
+                        TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
+                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
 
-                    await transferUtility.UploadAsync(uploadRequest);
+                        await transferUtility.UploadAsync(uploadRequest);
+                    }
                 }
+                finally
+                {
+                    trackUploadLock.Release();
+                }
+                
 
                 LogUploadTime(startTime);
                 return fileName;
