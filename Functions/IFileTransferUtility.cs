@@ -13,5 +13,6 @@ namespace LSC_Trainer.Functions
         Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string localZipFilePath, IProgress<int> progress);
         Task<string> DownloadObjects(AmazonS3Client s3Client, string bucketName, string objectKey, string localFilePath);
         Task DeleteDataSet(AmazonS3Client s3Client, string bucketName, string key);
+        void Dispose();
     }
 }

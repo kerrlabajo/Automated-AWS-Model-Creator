@@ -18,6 +18,8 @@ namespace LSC_Trainer.Functions
     {
         private static long totalUploaded = 0;
         private IUIUpdater UIUpdater { get; set; }
+
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public FileTransferUtility(IUIUpdater uIUpdater)
         {
             UIUpdater = uIUpdater;
@@ -26,6 +28,7 @@ namespace LSC_Trainer.Functions
         {
             try
             {
+                cancellationTokenSource = new CancellationTokenSource();
                 DateTime startTime = DateTime.Now;
                 long totalSize = CalculateTotalSize(localZipFilePath);
 
@@ -50,19 +53,29 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 10);
+
         public async Task<string> UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
             {
                 DateTime startTime = DateTime.Now;
-
-                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                await trackUploadLock.WaitAsync();
+                try
                 {
-                    TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
-                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
+                    using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                    {
+                        TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
+                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
 
-                    await transferUtility.UploadAsync(uploadRequest);
+                        await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
+                    }
                 }
+                finally
+                {
+                    trackUploadLock.Release();
+                }
+                
 
                 LogUploadTime(startTime);
                 return fileName;
@@ -78,8 +91,7 @@ namespace LSC_Trainer.Functions
                 return null;
             }
         }
-
-        private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 10);
+        
         public async Task<string> UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
         {
             try
@@ -94,7 +106,7 @@ namespace LSC_Trainer.Functions
                         TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
                         ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater);
 
-                        await transferUtility.UploadAsync(uploadRequest);
+                        await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
                     }
                 }
                 finally
@@ -122,6 +134,7 @@ namespace LSC_Trainer.Functions
         {
             try
             {
+                cancellationTokenSource = new CancellationTokenSource();
                 DateTime startTime = DateTime.Now;
                 long totalSize = CalculateTotalSizeFolder(folderPath);
                 var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
@@ -170,6 +183,7 @@ namespace LSC_Trainer.Functions
         {
             try
             {
+                cancellationTokenSource = new CancellationTokenSource();
                 DateTime startTime = DateTime.Now;
                 string filePath = PrepareLocalFile(localFilePath, objectKey);
 
@@ -179,7 +193,7 @@ namespace LSC_Trainer.Functions
 
                     ConfigureProgressTracking(downloadRequest, UIUpdater);
 
-                    await transferUtility.DownloadAsync(downloadRequest);
+                    await transferUtility.DownloadAsync(downloadRequest, cancellationTokenSource.Token);
                 }
                 string tarGzPath = Path.Combine(localFilePath, objectKey.Split('/').Last());
                 ExtractTarGz(tarGzPath, localFilePath);
@@ -258,12 +272,18 @@ namespace LSC_Trainer.Functions
             uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
             {
                 currentFileUploaded = args.TransferredBytes;
+
+                if(UIUpdater != null)
+                {
+                    UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {currentFileUploaded}/{totalSize} - {currentFileUploaded * 100 / totalSize}%");
+                }
+
                 if (args.PercentDone == 100)
                 {
                     totalUploaded += currentFileUploaded;
                     int overallPercentage = (int)(totalUploaded * 100 / totalSize);
                     progress.Report(overallPercentage);
-                    UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
+                    
                 }
             });
         }
@@ -274,7 +294,11 @@ namespace LSC_Trainer.Functions
             downloadRequest.WriteObjectProgressEvent += (sender, args) =>
             {
                 int percentage = (int)(args.TransferredBytes * 100 / args.TotalBytes);
-                UIUpdater.UpdateTrainingStatus($"Downloading Files from S3", $"Downloading {args.TransferredBytes}/{args.TotalBytes} - {percentage}%");
+                if (UIUpdater != null)
+                {
+                    UIUpdater.UpdateTrainingStatus($"Downloading Files from S3", $"Downloading {args.TransferredBytes}/{args.TotalBytes} - {percentage}%");
+                }
+                
             };
         }
 
@@ -452,6 +476,12 @@ namespace LSC_Trainer.Functions
             };
 
             await s3Client.DeleteObjectAsync(deleteRequest);
+        }
+
+        public void Dispose()
+        {
+            cancellationTokenSource.Cancel();
+            UIUpdater = null;
         }
     }
 }
