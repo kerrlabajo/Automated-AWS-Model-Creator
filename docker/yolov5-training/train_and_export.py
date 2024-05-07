@@ -5,7 +5,6 @@ import json
 import sys
 import traceback
 
-
 def get_hosts_and_node_rank():
     """
     This function reads the resource configuration file provided by SageMaker
@@ -25,7 +24,6 @@ def get_hosts_and_node_rank():
     node_rank = hosts.index(current_host)
     return current_host, node_rank
 
-
 def run_script(args, use_module=False):
     """
     Run a Python script with arguments.
@@ -41,7 +39,6 @@ def run_script(args, use_module=False):
         subprocess.run(["python3", "-m"] + args, check=True)
     else:
         subprocess.run(["python3"] + args, check=True)
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -67,21 +64,36 @@ def parse_arguments():
 
     return parser.parse_args()
 
-
 def main():
     """
-    Main function to run `train.py` and `export.py` scripts with command line arguments.
-
-    The first 24 arguments are passed to `train.py` and the remaining arguments are passed to export.py.
+    A main entrypoint located in `/code` directory to run the `train.py` and `export.py` located in `/code/yolov5`. 
+    This entrypoint can only be accessed by the `AWS SDK for .NET` using the `CreateTrainingJob API` operation. 
+    By providing the `ContainerEntrypoint` and `ContainerArguments`, this script will be executed.
+    
+    Parameters:
+    `--img-size` (str): Image size for training.
+    `--batch` (str): Batch size for training.
+    `--epochs` (str): Number of epochs for training.
+    `--weights` (str): Pre-trained weights for training.
+    `--data` (str): Path to the data configuration file.
+    `--hyp` (str): Path to the hyperparameters configuration file.
+    `--project` (str): Path to the resulting directory.
+    `--name` (str): Name of the results.
+    `--patience` (str): Early stopping patience.
+    `--workers` (str): Number of workers for DataLoader.
+    `--optimizer` (str): Optimizer for training.
+    `--device` (str): Device for training (cpu/gpus).
+    `--include` (str): File format for exporting from PyTorch file.
+    `--nnodes` (str): Number of nodes (instances/machine) for distributed training.
 
     Example:
-    >>> python3 /code/train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt
-    >>> --data /opt/ml/input/data/train/data.yaml --hyp hyp.scratch-low.yaml
+    >>> train_and_export.py --img-size 640 --batch 1 --epochs 1 --weights yolov5s.pt
+    >>> --data /opt/ml/input/data/<dataset_name>/<dataset_name>.yaml --hyp hyp.scratch-low.yaml
     >>> --project "/opt/ml/output/data/" --name "results"
     >>> --patience 100 --workers 8 --optimizer SGD --device 0 --include onnx --nnodes 1
 
     Returns:
-    None
+    `None`: If exit code returns 0, the script runs successfully, 1 if an exception occurs.
     """
     args = parse_arguments()
     device_count = len(args.device.split(","))
@@ -90,71 +102,36 @@ def main():
     master_port = "29500"
 
     converter_args = [
-        "/code/json_to_yaml_converter.py",
-        "/opt/ml/input/config/hyperparameters.json",
+        "/code/json_to_yaml_converter.py", "/opt/ml/input/config/hyperparameters.json",
+    ]
+    configure_dataset_args = [
+        "/code/configure_dataset.py", args.data,
     ]
     multi_gpu_ddp_args = [
-        "torch.distributed.run",
-        "--nproc_per_node",
-        str(device_count),
+        "torch.distributed.run", "--nproc_per_node", str(device_count),
     ]
     multi_node_gpu_ddp_args = [
-        "torch.distributed.run",
-        "--nproc_per_node",
-        str(device_count),
-        "--nnodes",
-        args.nnodes,
-        "--node_rank",
-        str(node_rank),
-        "--master_addr",
-        master_host,
-        "--master_port",
-        master_port,
+        "torch.distributed.run", "--nproc_per_node", str(device_count),
+        "--nnodes", args.nnodes, "--node_rank", str(node_rank),
+        "--master_addr", master_host, "--master_port", master_port,
     ]
     train_args = [
-        "/code/yolov5/train.py",
-        "--img-size",
-        args.img_size,
-        "--batch",
-        args.batch,
-        "--epochs",
-        args.epochs,
-        "--weights",
-        args.weights,
-        "--data",
-        args.data,
-        "--hyp",
-        "/opt/ml/input/config/custom-hyps.yaml" if args.hyp == "Custom" else args.hyp,
-        "--project",
-        args.project,
-        "--name",
-        args.name,
-        "--patience",
-        args.patience,
-        "--workers",
-        args.workers,
-        "--optimizer",
-        args.optimizer,
-        "--device",
-        args.device,
-        "--cache",
-        "--exist-ok",
+        "/code/yolov5/train.py", "--img-size", args.img_size, 
+        "--batch", args.batch,  "--epochs", args.epochs, "--weights", args.weights, 
+        "--data", args.data, "--hyp", "/opt/ml/input/config/custom-hyps.yaml" if args.hyp == "Custom" else args.hyp,
+        "--project", args.project, "--name", args.name,
+        "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer,
+        "--device", args.device, "--cache", "--exist-ok",
     ]
     export_args = [
-        "/code/yolov5/export.py",
-        "--img-size",
-        args.img_size,
-        "--weights",
-        args.project + args.name + "/weights/best.pt",
-        "--include",
-        args.include,
-        "--device",
-        args.device,
-        "--opset",
-        "12",
+        "/code/yolov5/export.py", "--img-size", args.img_size,
+        "--weights", args.project + args.name + "/weights/best.pt",
+        "--include", args.include, "--device", args.device,
+        "--opset", "12",
     ]
 
     run_script(converter_args) if args.hyp == "Custom" else None
+    run_script(configure_dataset_args)
 
     if int(args.nnodes) > 1:
         run_script(multi_node_gpu_ddp_args + train_args, use_module=True)
@@ -166,7 +143,6 @@ def main():
     if current_host == master_host:
         run_script(export_args)
         shutil.copy2("/opt/ml/output/data/results/weights/best.onnx", "/opt/ml/model/")
-
 
 if __name__ == "__main__":
     try:

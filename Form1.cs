@@ -46,9 +46,6 @@ namespace LSC_Trainer
         private string datasetPath;
         private bool isFile;
         private string folderOrFileName;
-
-        private string trainingFolder;
-        private string validationFolder;
         
         private string trainingJobName;
 
@@ -82,6 +79,8 @@ namespace LSC_Trainer
         };
         private int idealBatchSize = 16;
         private int gpuCount = 0;
+
+        private string dataConfig;
 
         public MainForm(bool development)
         {
@@ -176,15 +175,13 @@ namespace LSC_Trainer
                 txtBatchSize.Text = "16";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
-                txtData.Text = "MMX059XA_COVERED5B.yaml";
+                dataConfig = "MMX059XA_COVERED5B.yaml";
                 hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtGpuCount.Text = "0";
                 txtInstanceCount.Text = "1";
-                trainingFolder = "train";
-                validationFolder = "val";
             }
             else
             {
@@ -192,15 +189,13 @@ namespace LSC_Trainer
                 txtBatchSize.Text = "1";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5s.pt";
-                txtData.Text = "data.yaml";
+                dataConfig = "data.yaml";
                 hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
                 txtGpuCount.Text = "cpu";
                 txtInstanceCount.Text = "1";
-                trainingFolder = "train";
-                validationFolder = "val";
             }
 
             instancesDropdown_SetValues();
@@ -224,6 +219,7 @@ namespace LSC_Trainer
 
                     // Display the selected file path (optional)
                     lblZipFile.Text = datasetPath.Split('\\').Last();
+                    datasetListComboBox.Text = "";
 
                     MessageBox.Show($"Selected file: {datasetPath}");
                     isFile = true;
@@ -244,6 +240,7 @@ namespace LSC_Trainer
                     datasetPath = folderBrowserDialog.SelectedPath;
 
                     lblZipFile.Text = datasetPath.Split('\\').Last();
+                    datasetListComboBox.Text = "";
 
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     isFile = false;
@@ -262,9 +259,6 @@ namespace LSC_Trainer
                 if (result == DialogResult.Yes)
                 {
                     backgroundWorker.RunWorkerAsync();
-                    // For testing purposes. Pre-define values.
-                    trainingFolder = "train";
-                    validationFolder = "val";
                     mainPanel.Enabled = false;
                     logPanel.Enabled = false;
                     connectionMenu.Enabled = false;
@@ -284,7 +278,7 @@ namespace LSC_Trainer
         {
             try
             {
-                if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, txtData.Text, hyperparamsDropdown.Text
+                if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, hyperparamsDropdown.Text
                 , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtGpuCount.Text, txtInstanceCount.Text))
                 {
                     logBox.Clear();
@@ -309,7 +303,7 @@ namespace LSC_Trainer
                 string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
                 trainingJobName = string.Format("{0}-YOLOv5-{1}-{2}", modifiedInstance, IMAGE_TAG.Replace(".", "-"), DateTime.Now.ToString("yyyy-MM-dd-HH-mmss"));
                 CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
-                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, trainingFolder, validationFolder, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
+                    img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
 
                     
                     this.Text = trainingJobName;
@@ -349,7 +343,7 @@ namespace LSC_Trainer
                 {
                     string selectedLocalPath = folderBrowserDialog.SelectedPath;
 
-                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult result = MessageBox.Show($"Do you want to save the results and model to {selectedLocalPath + $"\\{trainingJobName ?? outputListComboBox.Text}"} ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (result == DialogResult.Yes)
                     {
@@ -360,9 +354,9 @@ namespace LSC_Trainer
                             connectionMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
                             lscTrainerMenuStrip.Cursor = Cursors.Default;
-                            string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath);
+                            string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
                             DisplayLogMessage(outputResponse);
-                            string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath);
+                            string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
                             DisplayLogMessage(modelResponse);
                         }catch(AmazonS3Exception s3Exception)
                         {
@@ -455,7 +449,9 @@ namespace LSC_Trainer
 
             if (txtWeights.Text != "") weights = txtWeights.Text;
 
-            if (txtData.Text != "") data = txtData.Text;
+            if (lblZipFile.Text != "") dataConfig = lblZipFile.Text;
+
+            data = dataConfig;
 
             if (hyperparamsDropdown.Text != "") hyperparameters = hyperparamsDropdown.Text;
 
@@ -476,7 +472,6 @@ namespace LSC_Trainer
             txtBatchSize.Enabled = intent;
             txtEpochs.Enabled = intent;
             txtWeights.Enabled = intent;
-            txtData.Enabled = intent;
             hyperparamsDropdown.Enabled = intent;
             txtPatience.Enabled = intent;
             txtWorkers.Enabled = intent;
@@ -489,6 +484,7 @@ namespace LSC_Trainer
             btnTraining.Enabled = intent;
             outputListComboBox.Enabled = intent;
             instancesDropdown.Enabled = intent;
+            btnFetchDatasets.Enabled = intent;
             btnFetchOutput.Enabled = intent;
             btnDownloadModel.Enabled = intent;
             lblZipFile.Enabled = intent;
@@ -500,6 +496,7 @@ namespace LSC_Trainer
             try
             {
                 SetUIState(true);
+                outputListComboBox.Text = "";
                 await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
                 return;
             }
@@ -511,6 +508,8 @@ namespace LSC_Trainer
             }finally
             {
                 SetUIState(false);
+                btnUploadToS3.Enabled = false;
+                outputListComboBox.Text = this.Text;
                 outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
                 modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
                 datasetPath = null;
@@ -601,7 +600,6 @@ namespace LSC_Trainer
                 if (models != null && models.Count > 0)
                 {
                     outputListComboBox.Items.Clear();
-                    outputListComboBox.Text = models[0];
                     outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
                     btnDownloadModel.Enabled = true;
 
@@ -794,7 +792,7 @@ namespace LSC_Trainer
             }
         }
 
-        private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
+        private bool ValidateTrainingParameters(string img_size, string batch_size, string epochs, string weights, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
@@ -802,7 +800,6 @@ namespace LSC_Trainer
                 {"Batch size", batch_size},
                 {"Epochs", epochs},
                 {"Weights", weights},
-                {"Data", data},
                 {"Hyperparameters", hyperparameters},
                 {"Patience", patience},
                 {"Workers", workers},
@@ -956,7 +953,7 @@ namespace LSC_Trainer
             logPanel.Visible = visibility;
         }
 
-        private async void btnFetchAvailableDatasets_Click(object sender, EventArgs e)
+        private async void btnFetchDatasets_Click(object sender, EventArgs e)
         {
             mainPanel.Enabled = false;
             logPanel.Enabled = false;
@@ -965,16 +962,15 @@ namespace LSC_Trainer
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             try
             {
-                List<string> models = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
+                List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
 
-                if (models != null)
+                if (datasets != null)
                 {
                     datasetListComboBox.Items.Clear();
+                    datasetListComboBox.Text = datasets[0];
 
-                    Console.WriteLine("Datasets: ");
-                    foreach (var obj in models)
+                    foreach (var obj in datasets)
                     {
-                        Console.WriteLine(obj);
                         datasetListComboBox.Items.Add(obj);
                     }
                 }
@@ -995,7 +991,9 @@ namespace LSC_Trainer
 
         private void datasetListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            CUSTOM_UPLOADS_URI += datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+            CUSTOM_UPLOADS_URI = rootCustomUploadsURI + datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem) + "/";
+            lblZipFile.Text = datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
+            btnUploadToS3.Enabled = false;
         }
     }
 }
