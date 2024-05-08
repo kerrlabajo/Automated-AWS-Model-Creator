@@ -17,6 +17,8 @@ namespace LSC_Trainer.Functions
     internal class FileTransferUtility : IFileTransferUtility
     {
         private static long totalUploaded = 0;
+
+        private static int  overallPercentage = 0;
         private IUIUpdater UIUpdater { get; set; }
 
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -28,6 +30,8 @@ namespace LSC_Trainer.Functions
         {
             try
             {
+                totalUploaded = 0;
+                overallPercentage = 0;
                 cancellationTokenSource = new CancellationTokenSource();
                 DateTime startTime = DateTime.Now;
                 long totalSize = CalculateTotalSize(localZipFilePath);
@@ -45,30 +49,39 @@ namespace LSC_Trainer.Functions
             }
             catch (AmazonS3Exception e)
             {
-                LogError("Error uploading file to S3 here: ", e);
+                LogError("Error uploading zipfile to S3 here: ", e);
             }
             catch (Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                LogError("Error uploading zipfile to S3: ", e);
             }
         }
 
-        private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 10);
+        private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 1);
 
-        public async Task<string> UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize)
+        public async Task<string> UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize, CancellationToken cancellationToken)
         {
             try
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 DateTime startTime = DateTime.Now;
                 await trackUploadLock.WaitAsync();
                 try
                 {
                     using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
-                        TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
+                        var uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
                         ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater,cancellationTokenSource.Token);
 
                         await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
+
+                        if (!cancellationToken.IsCancellationRequested && UIUpdater != null)
+                        {
+                            UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
+                        }
                     }
                 }
                 finally
@@ -85,6 +98,12 @@ namespace LSC_Trainer.Functions
                 LogError("Error uploading file to S3: ", e);
                 return null;
             }
+            catch (OperationCanceledException e)
+            {
+                // Handle cancellation...
+                LogError("File Upload has been cancelled: ", e);
+                return null;
+            }
             catch (Exception e)
             {
                 LogError("Error uploading file to S3: ", e);
@@ -92,10 +111,14 @@ namespace LSC_Trainer.Functions
             }
         }
         
-        public async Task<string> UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize)
+        public async Task<string> UploadFileToS3(AmazonS3Client s3Client, MemoryStream fileStream, string fileName, string bucketName, IProgress<int> progress, long totalSize, CancellationToken cancellationToken)
         {
             try
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 await trackUploadLock.WaitAsync();
                 DateTime startTime = DateTime.Now;
                 try
@@ -103,10 +126,15 @@ namespace LSC_Trainer.Functions
                     
                     using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
-                        TransferUtilityUploadRequest uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
+                        var uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
                         ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater, cancellationTokenSource.Token);
 
                         await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
+
+                        if (!cancellationToken.IsCancellationRequested && UIUpdater!=null)
+                        {
+                            UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
+                        }
                     }
                 }
                 finally
@@ -134,6 +162,8 @@ namespace LSC_Trainer.Functions
         {
             try
             {
+                overallPercentage = 0;
+                totalUploaded = 0;
                 cancellationTokenSource = new CancellationTokenSource();
                 DateTime startTime = DateTime.Now;
                 long totalSize = CalculateTotalSizeFolder(folderPath);
@@ -142,7 +172,7 @@ namespace LSC_Trainer.Functions
                 var tasks = files.Select(file =>
                 {
                     var key = GenerateKey(folderPath, file, folderName);
-                    return UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize);
+                    return UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize, cancellationTokenSource.Token);
                 });
 
                 await Task.WhenAll(tasks);
@@ -265,21 +295,22 @@ namespace LSC_Trainer.Functions
             };
         }
 
-        private static void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize, IUIUpdater UIUpdater, CancellationToken cancellationToken)
+        private void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize, IUIUpdater UIUpdater, CancellationToken cancellationToken)
         {
-            long currentFileUploaded = 0;
+            long previousFileSize = 0;
 
             uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
             {
-                currentFileUploaded = args.TransferredBytes;
-
-                totalUploaded += currentFileUploaded;
-                int overallPercentage = (int)(totalUploaded * 100 / totalSize);
-                progress.Report(overallPercentage);
-                if (!cancellationToken.IsCancellationRequested)
+                long currentFileSize = args.TransferredBytes;
+                //long incrementTransferred = currentFileSize - previousFileSize;
+                //previousFileSize = currentFileSize;
+                
+                if(args.PercentDone == 100)
                 {
-                    UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
-                }     
+                    totalUploaded += currentFileSize;
+                    overallPercentage = (int)(totalUploaded * 100 / totalSize);
+                    progress.Report(overallPercentage);
+                }
             });
         }
 
@@ -331,7 +362,12 @@ namespace LSC_Trainer.Functions
                         await DecompressEntryAsync(zipStream, memoryStream);
 
                         string fileName = "custom-uploads/" + entry.Name;
-                        await UploadFileToS3(s3Client, memoryStream, fileName, bucketName, progress, totalSize);
+
+                        if (cancellationTokenSource.IsCancellationRequested)
+                        {
+                            return;
+                        }
+                        await UploadFileToS3(s3Client, memoryStream, fileName, bucketName, progress, totalSize, cancellationTokenSource.Token);
                     }
                 }
             }
