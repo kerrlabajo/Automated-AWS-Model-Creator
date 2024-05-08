@@ -275,7 +275,7 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            try
+             try
             {
                 if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, hyperparamsDropdown.Text
                 , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtGpuCount.Text, txtInstanceCount.Text))
@@ -879,65 +879,109 @@ namespace LSC_Trainer
 
         public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateTrainingStatus(instanceType, trainingDuration, status, description)));
-                return;
-            }
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateTrainingStatus(instanceType, trainingDuration, status, description)));
+                    return;
+                }
 
-            instanceTypeBox.Text = instanceType;
-            trainingDurationBox.Text = trainingDuration;
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
+                instanceTypeBox.Text = instanceType;
+                trainingDurationBox.Text = trainingDuration;
+                trainingStatusBox.Text = status;
+                descBox.Text = description;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
         public void UpdateTrainingStatus(string trainingDuration)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateTrainingStatus(trainingDuration)));
-                return;
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateTrainingStatus(trainingDuration)));
+                    return;
+                }
+                trainingDurationBox.Text = trainingDuration;
             }
-            trainingDurationBox.Text = trainingDuration;
+            catch(ObjectDisposedException ex)
+            {
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
         public void UpdateTrainingStatus(string status, string description)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateTrainingStatus(status, description)));
-                return;
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateTrainingStatus(status, description)));
+                    return;
+                }
+                trainingStatusBox.Text = status;
+                descBox.Text = description;
             }
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
+            catch (ObjectDisposedException ex)
+            {
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
         public void DisplayLogMessage(string logMessage)
         {
-            string rtfMessage = ConvertAnsiToRtf(logMessage);
-
-            // Remove the start and end of the RTF document from the message
-            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
-            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
-
-            // Append the RTF message at the end of the existing RTF text
-            Action log = () =>
+            try
             {
-                logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+                string rtfMessage = ConvertAnsiToRtf(logMessage);
 
-                // Scroll to the end to show the latest log messages
-                logBox.SelectionStart = logBox.Text.Length;
-                logBox.ScrollToCaret();
-            };
-            if (logBox.InvokeRequired)
-            {
-                // Invoke on the UI thread
-                logBox.Invoke(log);
+                // Remove the start and end of the RTF document from the message
+                rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
+                rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
+
+                // Append the RTF message at the end of the existing RTF text
+                Action log = () =>
+                {
+                    logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+
+                    // Scroll to the end to show the latest log messages
+                    logBox.SelectionStart = logBox.Text.Length;
+                    logBox.ScrollToCaret();
+                };
+                if (logBox.InvokeRequired)
+                {
+                    // Invoke on the UI thread
+                    logBox.Invoke(log);
+                }
+                else
+                {
+                    // No invoke required, execute directly
+                    log();
+                }
             }
-            else
+            catch (ObjectDisposedException ex)
             {
-                // No invoke required, execute directly
-                log();
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
 
