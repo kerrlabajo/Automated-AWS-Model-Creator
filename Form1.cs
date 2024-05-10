@@ -627,7 +627,7 @@ namespace LSC_Trainer
         {
             try
             {
-                AWS_Helper.TestSageMakerClient(amazonSageMakerClient);
+                AWS_Helper.CheckCredentials(identityManagementServiceClient);
                 MessageBox.Show("Connection successful.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception error)

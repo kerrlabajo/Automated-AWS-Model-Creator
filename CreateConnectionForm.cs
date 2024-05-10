@@ -151,8 +151,8 @@ namespace LSC_Trainer
         {
             try
             {
-                AWS_Helper.TestSageMakerClient(
-                    new AmazonSageMakerClient(
+                AWS_Helper.CheckCredentials(
+                    new AmazonIdentityManagementServiceClient(
                         accessKeyID.Text, 
                         secretKeyID.Text, 
                         RegionEndpoint.GetBySystemName(GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem)))

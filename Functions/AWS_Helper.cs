@@ -28,9 +28,14 @@ namespace LSC_Trainer.Functions
 
         private static long totalUploaded = 0;
 
-        public static void TestSageMakerClient (AmazonSageMakerClient client)
+        public static void CheckCredentials (AmazonIdentityManagementServiceClient iamClient)
         {
-            client.ListTrainingJobs(new Amazon.SageMaker.Model.ListTrainingJobsRequest());
+            var accessKeyLastUsedRequest = new GetAccessKeyLastUsedRequest
+            {
+                AccessKeyId = UserConnectionInfo.AccessKey
+            };
+            var response = iamClient.GetAccessKeyLastUsed(accessKeyLastUsedRequest);
+            UserConnectionInfo.UserName = response.UserName;
         }
 
         public static async Task<List<string>> GetTrainingJobOutputList(AmazonS3Client s3Client, string bucketName)
