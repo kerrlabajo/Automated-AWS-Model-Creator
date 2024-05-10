@@ -163,17 +163,17 @@ namespace LSC_Trainer
 
         public void InitializeInputs()
         {
-                imgSizeDropdown.Text = "1280";
-                txtBatchSize.Text = "16";
-                txtEpochs.Text = "1";
-                txtWeights.Text = "yolov5n6.pt";
+            imgSizeDropdown.Text = "1280";
+            txtBatchSize.Text = "16";
+            txtEpochs.Text = "1";
+            txtWeights.Text = "yolov5n6.pt";
             dataConfig = "sample.yaml";
-                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
+            hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
+            txtPatience.Text = "100";
+            txtWorkers.Text = "8";
+            txtOptimizer.Text = "SGD";
             txtGpuCount.Text = "1";
-                txtInstanceCount.Text = "1";
+            txtInstanceCount.Text = "1";
 
             instancesDropdown_SetValues();
         }
@@ -277,14 +277,14 @@ namespace LSC_Trainer
                             out string device,
                             out string instanceCount);
 
-                string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
+                    string modifiedInstance = selectedInstance.ToUpper().Replace(".", "").Replace("ML", "").Replace("XLARGE", "XL");
                     string imageTagFirstThree = IMAGE_TAG.Length >= 3 ? IMAGE_TAG.Substring(0, 3) : IMAGE_TAG;
                     string cleanData = Regex.Replace(data, @"[^0-9a-zA-Z\-]", string.Empty);
                     string cleanUserName = Regex.Replace(USERNAME, @"[^0-9a-zA-Z\-]", string.Empty);
                     string dateTime = DateTime.Now.ToString("yyMMddHHmm");
                     trainingJobName = string.Format("{0}-{1}-{2}-{3}-{4}", cleanUserName, cleanData, modifiedInstance, imageTagFirstThree.Replace(".", "-"), dateTime);
 
-                CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
+                    CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
                     img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
 
                     
@@ -376,7 +376,7 @@ namespace LSC_Trainer
             }
             else
             {
-                fileTransferUtility.UploadFolderToS3(s3Client, datasetPath, "custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
+                fileTransferUtility.UploadFolderToS3(s3Client, datasetPath, $"users/{USERNAME}/custom-uploads/" + folderOrFileName, SAGEMAKER_BUCKET, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
@@ -492,8 +492,8 @@ namespace LSC_Trainer
                 SetUIState(false);
                 btnUploadToS3.Enabled = false;
                 outputListComboBox.Text = this.Text;
-                outputKey = $"training-jobs/{trainingJobName}/output/output.tar.gz";
-                modelKey = $"training-jobs/{trainingJobName}/output/model.tar.gz";
+                outputKey = $"users/{USERNAME}/training-jobs/{trainingJobName}/output/output.tar.gz";
+                modelKey = $"users/{USERNAME}/training-jobs/{trainingJobName}/output/model.tar.gz";
                 datasetPath = null;
             }
         }
@@ -582,7 +582,7 @@ namespace LSC_Trainer
                 if (jobName != null && jobName.Count > 0)
                 {
                     outputListComboBox.Items.Clear();
-                    outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
+                    outputKey = $"users/{USERNAME}/training-jobs/{jobName[0]}/output/output.tar.gz";
                     btnDownloadModel.Enabled = true;
 
                     foreach (var obj in jobName)
@@ -610,8 +610,8 @@ namespace LSC_Trainer
             if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
             {
                 string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
-                outputKey = $"training-jobs/{trainingJobOuputs}/output/output.tar.gz";
-                modelKey = $"training-jobs/{trainingJobOuputs}/output/model.tar.gz";
+                outputKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/output.tar.gz";
+                modelKey = $"users/ {USERNAME} /training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
             }
         }
