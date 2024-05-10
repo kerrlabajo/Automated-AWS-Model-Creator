@@ -4,6 +4,8 @@ using Amazon.S3.Transfer;
 using Amazon.SageMaker;
 using Amazon.ECR;
 using Amazon.ECR.Model;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
@@ -26,9 +28,14 @@ namespace LSC_Trainer.Functions
 
         private static long totalUploaded = 0;
 
-        public static void TestSageMakerClient (AmazonSageMakerClient client)
+        public static void CheckCredentials (AmazonIdentityManagementServiceClient iamClient)
         {
-            client.ListTrainingJobs(new Amazon.SageMaker.Model.ListTrainingJobsRequest());
+            var accessKeyLastUsedRequest = new GetAccessKeyLastUsedRequest
+            {
+                AccessKeyId = UserConnectionInfo.AccessKey
+            };
+            var response = iamClient.GetAccessKeyLastUsed(accessKeyLastUsedRequest);
+            UserConnectionInfo.UserName = response.UserName;
         }
 
         public static async Task<List<string>> GetTrainingJobOutputList(AmazonS3Client s3Client, string bucketName)
@@ -152,13 +159,13 @@ namespace LSC_Trainer.Functions
                     ListObjectsV2Response response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                     {
                         BucketName = bucketName,
-                        Prefix = "custom-uploads",
-                        StartAfter = "custom-uploads",
+                        Prefix = $"users/{UserConnectionInfo.UserName}/custom-uploads",
+                        StartAfter = $"users/{UserConnectionInfo.UserName}/custom-uploads",
                         ContinuationToken = continuationToken
                     });
 
                     customUploads.AddRange(response.S3Objects
-                        .Select(o => o.Key.Split('/')[1])
+                        .Select(o => o.Key.Split('/')[3])
                         .Distinct());
 
                     continuationToken = response.NextContinuationToken;
