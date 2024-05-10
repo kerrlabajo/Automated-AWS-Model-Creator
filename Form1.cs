@@ -892,7 +892,7 @@ namespace LSC_Trainer
                 trainingStatusBox.Text = status;
                 descBox.Text = description;
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 Console.WriteLine("Main form is closed. Cannot update training status.");
             }
@@ -913,7 +913,7 @@ namespace LSC_Trainer
                 }
                 trainingDurationBox.Text = trainingDuration;
             }
-            catch(ObjectDisposedException ex)
+            catch(ObjectDisposedException)
             {
                 Console.WriteLine("Main form is closed. Cannot update training status.");
             }
@@ -935,7 +935,7 @@ namespace LSC_Trainer
                 trainingStatusBox.Text = status;
                 descBox.Text = description;
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 Console.WriteLine("Main form is closed. Cannot update training status.");
             }
@@ -975,7 +975,7 @@ namespace LSC_Trainer
                     log();
                 }
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 Console.WriteLine("Main form is closed. Cannot update training status.");
             }
