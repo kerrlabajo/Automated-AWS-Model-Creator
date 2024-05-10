@@ -4,6 +4,8 @@ using Amazon.S3.Transfer;
 using Amazon.SageMaker;
 using Amazon.ECR;
 using Amazon.ECR.Model;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;

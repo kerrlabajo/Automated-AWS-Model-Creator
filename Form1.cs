@@ -7,6 +7,7 @@ using Amazon.S3;
 using Amazon.SageMaker;
 using Amazon.SageMaker.Model;
 using Amazon.CloudWatchLogs;
+using Amazon.IdentityManagement;
 using System.Linq;
 using LSC_Trainer.Functions;
 using System.Threading;
