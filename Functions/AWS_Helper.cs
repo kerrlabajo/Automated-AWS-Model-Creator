@@ -159,13 +159,13 @@ namespace LSC_Trainer.Functions
                     ListObjectsV2Response response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                     {
                         BucketName = bucketName,
-                        Prefix = "custom-uploads",
-                        StartAfter = "custom-uploads",
+                        Prefix = $"users/{UserConnectionInfo.UserName}/custom-uploads",
+                        StartAfter = $"users/{UserConnectionInfo.UserName}/custom-uploads",
                         ContinuationToken = continuationToken
                     });
 
                     customUploads.AddRange(response.S3Objects
-                        .Select(o => o.Key.Split('/')[1])
+                        .Select(o => o.Key.Split('/')[3])
                         .Distinct());
 
                     continuationToken = response.NextContinuationToken;
