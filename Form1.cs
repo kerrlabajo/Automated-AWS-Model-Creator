@@ -452,6 +452,7 @@ namespace LSC_Trainer
             btnSelectFolder.Enabled = intent;
             btnUploadToS3.Enabled = intent;
             btnTraining.Enabled = intent;
+            datasetListComboBox.Enabled = intent;
             outputListComboBox.Enabled = intent;
             instancesDropdown.Enabled = intent;
             btnFetchDatasets.Enabled = intent;
