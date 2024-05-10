@@ -940,7 +940,6 @@ namespace LSC_Trainer
                 if (datasets != null)
                 {
                     datasetListComboBox.Items.Clear();
-                    datasetListComboBox.Text = datasets[0];
 
                     foreach (var obj in datasets)
                     {
