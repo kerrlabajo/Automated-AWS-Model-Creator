@@ -295,18 +295,6 @@ namespace LSC_Trainer
                     {
                         InitiateTrainingJob(trainingRequest);
                     }
-                    else
-                    {
-                        DialogResult result = MessageBox.Show("No custom dataset uploaded. The default dataset will be used for training instead. Do you want to proceed?", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                        if (result == DialogResult.OK)
-                        {
-                           InitiateTrainingJob(trainingRequest);
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
                 }
             }
             catch(Exception ex)
