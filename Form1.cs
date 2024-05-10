@@ -577,15 +577,15 @@ namespace LSC_Trainer
             lscTrainerMenuStrip.Cursor = Cursors.Default;
             try
             {
-                List<string> models = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
+                List<string> jobName = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
 
-                if (models != null && models.Count > 0)
+                if (jobName != null && jobName.Count > 0)
                 {
                     outputListComboBox.Items.Clear();
                     outputKey = $"training-jobs/{models[0]}/output/output.tar.gz";
                     btnDownloadModel.Enabled = true;
 
-                    foreach (var obj in models)
+                    foreach (var obj in jobName)
                     {
                         outputListComboBox.Items.Add(obj); 
                     }
