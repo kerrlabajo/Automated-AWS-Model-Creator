@@ -151,6 +151,7 @@ namespace LSC_Trainer
         {
             try
             {
+                UserConnectionInfo.AccessKey = accessKeyID.Text;
                 AWS_Helper.CheckCredentials(
                     new AmazonIdentityManagementServiceClient(
                         accessKeyID.Text, 
