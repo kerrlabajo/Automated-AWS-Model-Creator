@@ -27,7 +27,9 @@ namespace LSC_Trainer
         private AmazonServiceQuotasClient serviceQuotasClient;
         private Utility utility = new Utility();
         private TrainingJobExecutor executor;
+        private AmazonIdentityManagementServiceClient identityManagementServiceClient;
 
+        private string USERNAME;
         private string ACCOUNT_ID;
         private string ACCESS_KEY;
         private string SECRET_KEY;
@@ -142,6 +144,9 @@ namespace LSC_Trainer
             s3Client = new AmazonS3Client(ACCESS_KEY, SECRET_KEY, region);
             cloudWatchLogsClient = new AmazonCloudWatchLogsClient(ACCESS_KEY, SECRET_KEY, region);
             serviceQuotasClient = new AmazonServiceQuotasClient(ACCESS_KEY, SECRET_KEY, region);
+            identityManagementServiceClient = new AmazonIdentityManagementServiceClient(ACCESS_KEY, SECRET_KEY, region);
+            AWS_Helper.CheckCredentials(identityManagementServiceClient);
+            USERNAME = UserConnectionInfo.UserName;
             rootCustomUploadsURI = CUSTOM_UPLOADS_URI;
 
             Console.WriteLine($"ACCOUNT_ID: {ACCOUNT_ID}");
