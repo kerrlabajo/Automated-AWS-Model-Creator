@@ -57,7 +57,7 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 1);
+        //private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 1);
 
         public async Task<string> UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize, CancellationToken cancellationToken)
         {
@@ -68,9 +68,9 @@ namespace LSC_Trainer.Functions
                     return null;
                 }
                 DateTime startTime = DateTime.Now;
-                await trackUploadLock.WaitAsync();
-                try
-                {
+                //await trackUploadLock.WaitAsync();
+                //try
+                //{
                     using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
                         var uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
@@ -83,11 +83,11 @@ namespace LSC_Trainer.Functions
                             UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                         }
                     }
-                }
-                finally
-                {
-                    trackUploadLock.Release();
-                }
+                //}
+                //finally
+                //{
+                //    trackUploadLock.Release();
+                //}
                 
 
                 LogUploadTime(startTime);
@@ -119,10 +119,10 @@ namespace LSC_Trainer.Functions
                 {
                     return null;
                 }
-                await trackUploadLock.WaitAsync();
                 DateTime startTime = DateTime.Now;
-                try
-                {
+                //await trackUploadLock.WaitAsync();     
+                //try
+                //{
                     
                     using (TransferUtility transferUtility = new TransferUtility(s3Client))
                     {
@@ -136,11 +136,11 @@ namespace LSC_Trainer.Functions
                             UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                         }
                     }
-                }
-                finally
-                {
-                    trackUploadLock.Release();
-                }
+                //}
+                //finally
+                //{
+                //    trackUploadLock.Release();
+                //}
                 
 
                 LogUploadTime(startTime);
@@ -169,10 +169,22 @@ namespace LSC_Trainer.Functions
                 long totalSize = CalculateTotalSizeFolder(folderPath);
                 var files = Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories);
 
-                var tasks = files.Select(file =>
+                // Limit the number of concurrent uploads
+                var semaphore = new SemaphoreSlim(10); // Change this number to the maximum number of concurrent uploads you want
+
+                var tasks = files.Select(async file =>
                 {
-                    var key = GenerateKey(folderPath, file, folderName);
-                    return UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize, cancellationTokenSource.Token);
+                    await semaphore.WaitAsync();
+
+                    try
+                    {
+                        var key = GenerateKey(folderPath, file, folderName);
+                        await UploadFileToS3(s3Client, file, key, bucketName, progress, totalSize, cancellationTokenSource.Token);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
                 });
 
                 await Task.WhenAll(tasks);
@@ -189,6 +201,7 @@ namespace LSC_Trainer.Functions
                 LogError("Error uploading folder to S3: ", e);
             }
         }
+
         public static void ExtractTarGz(string tarFilePath, string localFilePath)
         {
             using (Stream stream = File.OpenRead(tarFilePath))
@@ -297,7 +310,6 @@ namespace LSC_Trainer.Functions
 
         private void ConfigureProgressTracking(TransferUtilityUploadRequest uploadRequest, IProgress<int> progress, long totalSize, IUIUpdater UIUpdater, CancellationToken cancellationToken)
         {
-            long previousFileSize = 0;
 
             uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
             {
