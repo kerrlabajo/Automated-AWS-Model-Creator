@@ -604,7 +604,7 @@ namespace LSC_Trainer
             }
         }
 
-        private void modelListComboBox_SelectedValueChanged(object sender, EventArgs e)
+        private void outputListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
             if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
             {
