@@ -3,7 +3,7 @@
     public class UserConnectionInfo
     {
         private static UserConnectionInfo _instance;
-
+        public static string UserName { get; set; }
         public static string AccountId { get; set; }
         public static string AccessKey { get; set; }
         public static string SecretKey { get; set; }
