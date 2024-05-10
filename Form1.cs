@@ -162,35 +162,17 @@ namespace LSC_Trainer
 
         public void InitializeInputs()
         {
-            string datasetName = DEFAULT_DATASET_URI.Split('/').Reverse().Skip(1).First();
-            if (datasetName == "MMX059XA_COVERED5B")
-            {
                 imgSizeDropdown.Text = "1280";
                 txtBatchSize.Text = "16";
                 txtEpochs.Text = "1";
                 txtWeights.Text = "yolov5n6.pt";
-                dataConfig = "MMX059XA_COVERED5B.yaml";
+            dataConfig = "sample.yaml";
                 hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
                 txtPatience.Text = "100";
                 txtWorkers.Text = "8";
                 txtOptimizer.Text = "SGD";
-                txtGpuCount.Text = "0";
+            txtGpuCount.Text = "1";
                 txtInstanceCount.Text = "1";
-            }
-            else
-            {
-                imgSizeDropdown.Text = "640";
-                txtBatchSize.Text = "1";
-                txtEpochs.Text = "1";
-                txtWeights.Text = "yolov5s.pt";
-                dataConfig = "data.yaml";
-                hyperparamsDropdown.Text = "hyp.no-augmentation.yaml";
-                txtPatience.Text = "100";
-                txtWorkers.Text = "8";
-                txtOptimizer.Text = "SGD";
-                txtGpuCount.Text = "cpu";
-                txtInstanceCount.Text = "1";
-            }
 
             instancesDropdown_SetValues();
         }
