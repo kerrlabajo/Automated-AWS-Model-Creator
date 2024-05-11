@@ -310,7 +310,7 @@ namespace LSC_Trainer
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }         
         }
 
@@ -444,8 +444,16 @@ namespace LSC_Trainer
 
             if (txtGpuCount.Text != "")
             {
-                int gpuCount = int.Parse(txtGpuCount.Text);
-                device = gpuCount > 0 ? string.Join(",", Enumerable.Range(0, gpuCount)) : "cpu";
+                if(txtGpuCount.Text == "cpu")
+                {
+                    device = "cpu";
+                }
+                else
+                {
+                    int gpuCount = int.Parse(txtGpuCount.Text);
+                    device = gpuCount > 0 ? string.Join(",", Enumerable.Range(0, gpuCount)) : "cpu";
+                }
+                
             }
 
             if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
@@ -734,30 +742,35 @@ namespace LSC_Trainer
             if (txtGpuCount.Text != null)
             {
                 // If the user wants to use only the CPU
-                if (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0)
+                if (txtGpuCount.Text.ToLower() == "cpu")
                 {
                     CalculateBatchSize();
+                    txtGpuCount.Text = "cpu";
                     return true;
                 }
-                else if (!Int32.TryParse(txtGpuCount.Text, out _))
+                else if (Int32.TryParse(txtGpuCount.Text, out int x))
+                {
+                    if (x < 0)
+                    {
+                        MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                    else if (x == 0)
+                    {
+                        CalculateBatchSize();
+                        txtGpuCount.Text = "cpu";
+                    }
+                    return true;
+                }
+                else
                 {
                     MessageBox.Show("GPU count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                else if (int.Parse(txtGpuCount.Text) < 0)
-                {
-                    MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-                else if (int.Parse(txtGpuCount.Text) == 0 || txtGpuCount.Text.Equals("cpu"))
-                {
-                    MessageBox.Show("Machine will be using cpu.");
-                    txtGpuCount.Text = "cpu";
-                }
-                return true;
             }
             return false;
         }
+
         private void CalculateBatchSize()
         {
             if (instancesDropdown.SelectedItem != null)
