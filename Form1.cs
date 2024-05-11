@@ -442,7 +442,11 @@ namespace LSC_Trainer
 
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
-            if (txtGpuCount.Text != "") device = string.Join(",", Enumerable.Range(0, gpuCount));
+            if (txtGpuCount.Text != "")
+            {
+                int gpuCount = int.Parse(txtGpuCount.Text);
+                device = gpuCount > 0 ? string.Join(",", Enumerable.Range(0, gpuCount)) : "cpu";
+            }
 
             if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
