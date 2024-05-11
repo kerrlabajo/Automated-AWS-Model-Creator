@@ -26,7 +26,7 @@ namespace LSC_Trainer.Functions
         {
             UIUpdater = uIUpdater;
         }
-        public async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string localZipFilePath, IProgress<int> progress)
+        public async Task UnzipAndUploadToS3(AmazonS3Client s3Client, string bucketName, string folder, string localZipFilePath, IProgress<int> progress)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace LSC_Trainer.Functions
                 {
                     using (var zipStream = new ZipInputStream(fileStream))
                     {
-                        await ProcessZipEntries(s3Client, zipStream, bucketName, progress, totalSize);
+                        await ProcessZipEntries(s3Client, zipStream, bucketName, folder, progress, totalSize);
                     }
                 }
 
@@ -342,7 +342,7 @@ namespace LSC_Trainer.Functions
             return folderName + "/" + key;
         }
 
-        private async Task ProcessZipEntries(AmazonS3Client s3Client, ZipInputStream zipStream, string bucketName, IProgress<int> progress, long totalSize)
+        private async Task ProcessZipEntries(AmazonS3Client s3Client, ZipInputStream zipStream, string bucketName, string folder, IProgress<int> progress, long totalSize)
         {
             ZipEntry entry;
             while ((entry = zipStream.GetNextEntry()) != null)
@@ -353,7 +353,7 @@ namespace LSC_Trainer.Functions
                     {
                         await DecompressEntryAsync(zipStream, memoryStream);
 
-                        string fileName = "custom-uploads/" + entry.Name;
+                        string fileName = folder + entry.Name;
 
                         if (cancellationTokenSource.IsCancellationRequested)
                         {

@@ -206,7 +206,7 @@ namespace LSC_Trainer
                     datasetPath = openFileDialog.FileName;
 
                     // Display the selected file path (optional)
-                    lblZipFile.Text = datasetPath.Split('\\').Last();
+                    lblZipFile.Text = Path.GetFileNameWithoutExtension(datasetPath);
                     datasetListComboBox.Text = "";
 
                     MessageBox.Show($"Selected file: {datasetPath}");
@@ -367,7 +367,7 @@ namespace LSC_Trainer
 
             if (isFile)
             {
-                fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
+                fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, $"users/{USERNAME}/custom-uploads/", datasetPath, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
