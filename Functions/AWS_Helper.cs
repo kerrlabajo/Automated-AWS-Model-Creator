@@ -45,11 +45,11 @@ namespace LSC_Trainer.Functions
                 var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                 {
                     BucketName = bucketName,
-                    Prefix = "training-jobs"
+                    Prefix = $"users/{UserConnectionInfo.UserName}/training-jobs",
                 });
 
                 return response.S3Objects
-                    .Select(o => new { Key = o.Key.Split('/')[1], Date = ExtractDateFromKey(o.Key) })
+                    .Select(o => new { Key = o.Key.Split('/')[3], Date = ExtractDateFromKey(o.Key) })
                     .OrderByDescending(o => o.Date) 
                     .Select(o => o.Key)
                     .Distinct()
