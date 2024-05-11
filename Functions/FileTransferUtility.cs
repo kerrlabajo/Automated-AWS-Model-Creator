@@ -16,9 +16,9 @@ namespace LSC_Trainer.Functions
 {
     internal class FileTransferUtility : IFileTransferUtility
     {
-        private static long totalUploaded = 0;
+        private long totalUploaded = 0;
 
-        private static int  overallPercentage = 0;
+        private int  overallPercentage = 0;
         private IUIUpdater UIUpdater { get; set; }
 
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -57,8 +57,6 @@ namespace LSC_Trainer.Functions
             }
         }
 
-        //private readonly SemaphoreSlim trackUploadLock = new SemaphoreSlim(1, 1);
-
         public async Task<string> UploadFileToS3(AmazonS3Client s3Client, string filePath, string fileName, string bucketName, IProgress<int> progress, long totalSize, CancellationToken cancellationToken)
         {
             try
@@ -68,26 +66,19 @@ namespace LSC_Trainer.Functions
                     return null;
                 }
                 DateTime startTime = DateTime.Now;
-                //await trackUploadLock.WaitAsync();
-                //try
-                //{
-                    using (TransferUtility transferUtility = new TransferUtility(s3Client))
+
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    var uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
+                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater,cancellationTokenSource.Token);
+
+                    await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
+
+                    if (!cancellationToken.IsCancellationRequested && UIUpdater != null)
                     {
-                        var uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
-                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater,cancellationTokenSource.Token);
-
-                        await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
-
-                        if (!cancellationToken.IsCancellationRequested && UIUpdater != null)
-                        {
-                            UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
-                        }
+                        UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                     }
-                //}
-                //finally
-                //{
-                //    trackUploadLock.Release();
-                //}
+                }
                 
 
                 LogUploadTime(startTime);
@@ -100,7 +91,6 @@ namespace LSC_Trainer.Functions
             }
             catch (OperationCanceledException e)
             {
-                // Handle cancellation...
                 LogError("File Upload has been cancelled: ", e);
                 return null;
             }
@@ -120,27 +110,19 @@ namespace LSC_Trainer.Functions
                     return null;
                 }
                 DateTime startTime = DateTime.Now;
-                //await trackUploadLock.WaitAsync();     
-                //try
-                //{
                     
-                    using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                using (TransferUtility transferUtility = new TransferUtility(s3Client))
+                {
+                    var uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
+                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater, cancellationTokenSource.Token);
+
+                    await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
+
+                    if (!cancellationToken.IsCancellationRequested && UIUpdater!=null)
                     {
-                        var uploadRequest = CreateUploadRequest(fileStream, fileName, bucketName);
-                        ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater, cancellationTokenSource.Token);
-
-                        await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
-
-                        if (!cancellationToken.IsCancellationRequested && UIUpdater!=null)
-                        {
-                            UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
-                        }
+                        UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                     }
-                //}
-                //finally
-                //{
-                //    trackUploadLock.Release();
-                //}
+                }
                 
 
                 LogUploadTime(startTime);
@@ -314,8 +296,6 @@ namespace LSC_Trainer.Functions
             uploadRequest.UploadProgressEvent += new EventHandler<UploadProgressArgs>((sender, args) =>
             {
                 long currentFileSize = args.TransferredBytes;
-                //long incrementTransferred = currentFileSize - previousFileSize;
-                //previousFileSize = currentFileSize;
                 
                 if(args.PercentDone == 100)
                 {
