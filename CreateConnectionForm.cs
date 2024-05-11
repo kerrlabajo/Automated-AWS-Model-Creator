@@ -1,5 +1,6 @@
 ﻿using Amazon;
 using Amazon.SageMaker;
+using Amazon.IdentityManagement;
 using LSC_Trainer.Functions;
 using System;
 using System.Configuration;
@@ -150,8 +151,9 @@ namespace LSC_Trainer
         {
             try
             {
-                AWS_Helper.TestSageMakerClient(
-                    new AmazonSageMakerClient(
+                UserConnectionInfo.AccessKey = accessKeyID.Text;
+                AWS_Helper.CheckCredentials(
+                    new AmazonIdentityManagementServiceClient(
                         accessKeyID.Text, 
                         secretKeyID.Text, 
                         RegionEndpoint.GetBySystemName(GetRegionCode(regionDropdown.GetItemText(regionDropdown.SelectedItem)))

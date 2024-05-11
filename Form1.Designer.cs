@@ -650,7 +650,7 @@ namespace LSC_Trainer
             this.outputListComboBox.Name = "outputListComboBox";
             this.outputListComboBox.Size = new System.Drawing.Size(410, 24);
             this.outputListComboBox.TabIndex = 16;
-            this.outputListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
+            this.outputListComboBox.SelectedValueChanged += new System.EventHandler(this.outputListComboBox_SelectedValueChanged);
             // 
             // btnFetchOutput
             // 
