@@ -342,7 +342,6 @@ namespace LSC_Trainer
                     
                     this.Text = trainingJobName;
                     bool hasCustomUploads = utility.HasCustomUploads(CUSTOM_UPLOADS_URI);
-                    string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
                     if (hasCustomUploads)
                     {
                         InitiateTrainingJob(trainingRequest);
@@ -585,7 +584,8 @@ namespace LSC_Trainer
             {
                 SetUIState(true);
                 outputListComboBox.Text = "";
-                await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetPath, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
+                string datasetKey = CUSTOM_UPLOADS_URI.Replace($"s3://{SAGEMAKER_BUCKET}/", "");
+                await executor.InitiateTrainingJob(trainingRequest, cloudWatchLogsClient, amazonSageMakerClient, s3Client, fileTransferUtility, datasetKey, SAGEMAKER_BUCKET, utility.HasCustomUploads(CUSTOM_UPLOADS_URI));
                 return;
             }
             catch (Exception ex)
