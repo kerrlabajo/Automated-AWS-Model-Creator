@@ -334,7 +334,7 @@ namespace LSC_Trainer
                     string cleanData = Regex.Replace(data, @"[^0-9a-zA-Z\-]", string.Empty);
                     string cleanUserName = Regex.Replace(USERNAME, @"[^0-9a-zA-Z\-]", string.Empty);
                     string dateTime = DateTime.Now.ToString("yyMMddHHmm");
-                    trainingJobName = string.Format("{0}-{1}-{2}-{3}-{4}", cleanUserName, cleanData, modifiedInstance, imageTagFirstThree.Replace(".", "-"), dateTime);
+                    trainingJobName = string.Format("{0}-{1}-{2}-{3}", cleanUserName, cleanData, modifiedInstance, dateTime);
 
                     CreateTrainingJobRequest trainingRequest = executor.CreateTrainingRequest(
                     img_size, batch_size, epochs, weights, data, hyperparameters, patience, workers, optimizer, device, instanceCount, selectedInstance, CUSTOM_UPLOADS_URI, DEFAULT_DATASET_URI, ECR_URI, SAGEMAKER_INPUT_DATA_PATH, SAGEMAKER_OUTPUT_DATA_PATH, ROLE_ARN, DESTINATION_URI, trainingJobName, customHyperParamsForm);
