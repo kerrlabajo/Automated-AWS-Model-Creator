@@ -311,10 +311,12 @@ namespace LSC_Trainer.Functions
 
             downloadRequest.WriteObjectProgressEvent += (sender, args) =>
             {
-                int percentage = (int)(args.TransferredBytes * 100 / args.TotalBytes);
+                int percentage = args.PercentDone;
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     UIUpdater.UpdateTrainingStatus($"Downloading Files from S3", $"Downloading {args.TransferredBytes}/{args.TotalBytes} - {percentage}%");
+
+                    UIUpdater.UpdateDownloadStatus(percentage);
                 }
                 
             };

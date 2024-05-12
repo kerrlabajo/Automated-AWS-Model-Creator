@@ -595,11 +595,16 @@ namespace LSC_Trainer
                 {
                     outputListComboBox.Items.Clear();
                     outputKey = $"users/{USERNAME}/training-jobs/{jobName[0]}/output/output.tar.gz";
-
+                    outputListComboBox.SelectedText = jobName[1];
                     foreach (var obj in jobName)
                     {
                         outputListComboBox.Items.Add(obj); 
                     }
+                }
+                else
+                {
+                    outputListComboBox.Items.Add("No items"); 
+                    btnDownloadModel.Enabled = false; 
                 }
             }
             catch (Exception ex)
@@ -622,7 +627,7 @@ namespace LSC_Trainer
             {
                 string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
                 outputKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/output.tar.gz";
-                modelKey = $"users/ {USERNAME} /training-jobs/{trainingJobOuputs}/output/model.tar.gz";
+                modelKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
             }
             else
@@ -944,6 +949,33 @@ namespace LSC_Trainer
                 MessageBox.Show($"Error: {ex.Message}");
             }
         }
+        public void UpdateDownloadStatus(int percentage)
+        {
+            try
+            {
+                if (this.InvokeRequired)
+                {
+                    if (percentage >= downloadProgressBar.Minimum && percentage <= downloadProgressBar.Maximum)
+                    {
+                        this.Invoke(new Action(() => UpdateDownloadStatus(percentage)));
+                        return;
+                    }
+                }
+                
+                downloadProgressBar.Value = percentage;
+
+                if(percentage >= 100)
+                    downloadProgressBar.Value = 0;
+            }
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Main form is closed. Cannot update download progress bar.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
 
         public void DisplayLogMessage(string logMessage)
         {
@@ -1011,7 +1043,7 @@ namespace LSC_Trainer
             {
                 List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
 
-                if (datasets != null)
+                if (datasets != null && datasets.Count > 0)
                 {
                     datasetListComboBox.Items.Clear();
 
@@ -1019,6 +1051,10 @@ namespace LSC_Trainer
                     {
                         datasetListComboBox.Items.Add(obj);
                     }
+                }
+                else
+                {
+                    datasetListComboBox.Items.Add("No items");
                 }
             }
             catch (Exception ex)

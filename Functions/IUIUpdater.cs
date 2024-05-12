@@ -15,5 +15,6 @@ namespace LSC_Trainer.Functions
         void UpdateTrainingStatus(string status, string description);
         void DisplayLogMessage(string logMessage);
         string ConvertAnsiToRtf(string ansiText);
+        void UpdateDownloadStatus(int percentage);
     }
 }
