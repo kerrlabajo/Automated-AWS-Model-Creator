@@ -469,6 +469,7 @@ namespace LSC_Trainer
             trainingStatusBox.Text = "";
             descBox.Text = "";
             btnTraining.Enabled = true ? utility.HasCustomUploads(CUSTOM_UPLOADS_URI) && instancesDropdown.SelectedItem != null : false;
+            btnUploadToS3.Enabled = false;
         }
 
         /// <summary>
