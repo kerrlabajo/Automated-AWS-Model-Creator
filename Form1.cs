@@ -235,6 +235,7 @@ namespace LSC_Trainer
                     MessageBox.Show($"Selected file: {datasetPath}");
                     isFile = true;
                     btnUploadToS3.Enabled = true;
+                    btnTraining.Enabled = false;
                 }
             }
         }
@@ -262,6 +263,7 @@ namespace LSC_Trainer
                     MessageBox.Show($"Selected folder: {datasetPath}");
                     isFile = false;
                     btnUploadToS3.Enabled = true;
+                    btnTraining.Enabled = false;
                 }
             }
         }
@@ -466,6 +468,7 @@ namespace LSC_Trainer
             Cursor = Cursors.Default;
             trainingStatusBox.Text = "";
             descBox.Text = "";
+            btnTraining.Enabled = true ? utility.HasCustomUploads(CUSTOM_UPLOADS_URI) && instancesDropdown.SelectedItem != null : false;
         }
 
         /// <summary>
@@ -876,7 +879,7 @@ namespace LSC_Trainer
                     txtGpuCount.Text = "0";
                 }
                 CalculateBatchSize();
-                btnTraining.Enabled = true;
+                btnTraining.Enabled = true ? utility.HasCustomUploads(CUSTOM_UPLOADS_URI) : false;
             }
             else
             {
@@ -1331,6 +1334,7 @@ namespace LSC_Trainer
             CUSTOM_UPLOADS_URI = rootCustomUploadsURI + datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem) + "/";
             lblZipFile.Text = datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
             btnUploadToS3.Enabled = false;
+            btnTraining.Enabled = true ? utility.HasCustomUploads(CUSTOM_UPLOADS_URI) && instancesDropdown.SelectedItem != null : false;
         }
     }
 }
