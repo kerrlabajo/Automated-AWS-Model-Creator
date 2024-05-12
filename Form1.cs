@@ -579,6 +579,11 @@ namespace LSC_Trainer
                         outputListComboBox.Items.Add(obj); 
                     }
                 }
+                else
+                {
+                    outputListComboBox.Items.Add("No items"); 
+                    btnDownloadModel.Enabled = false; 
+                }
             }
             catch (Exception ex)
             {
@@ -600,7 +605,7 @@ namespace LSC_Trainer
             {
                 string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
                 outputKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/output.tar.gz";
-                modelKey = $"users/ {USERNAME} /training-jobs/{trainingJobOuputs}/output/model.tar.gz";
+                modelKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
             }
         }
@@ -926,7 +931,7 @@ namespace LSC_Trainer
             {
                 List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
 
-                if (datasets != null)
+                if (datasets != null && datasets.Count > 0)
                 {
                     datasetListComboBox.Items.Clear();
 
@@ -934,6 +939,10 @@ namespace LSC_Trainer
                     {
                         datasetListComboBox.Items.Add(obj);
                     }
+                }
+                else
+                {
+                    datasetListComboBox.Items.Add("No items");
                 }
             }
             catch (Exception ex)
