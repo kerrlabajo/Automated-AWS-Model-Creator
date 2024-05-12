@@ -595,7 +595,7 @@ namespace LSC_Trainer
                 {
                     outputListComboBox.Items.Clear();
                     outputKey = $"users/{USERNAME}/training-jobs/{jobName[0]}/output/output.tar.gz";
-
+                    outputListComboBox.SelectedText = jobName[1];
                     foreach (var obj in jobName)
                     {
                         outputListComboBox.Items.Add(obj); 
@@ -963,6 +963,9 @@ namespace LSC_Trainer
                 }
                 
                 downloadProgressBar.Value = percentage;
+
+                if(percentage >= 100)
+                    downloadProgressBar.Value = 0;
             }
             catch (ObjectDisposedException)
             {
