@@ -22,6 +22,32 @@ namespace LSC_Trainer.Functions
         {
             this.uiUpdater = uiUpdater;
         }
+
+        /// <summary>
+        /// Creates a `CreateTrainingJobRequest` for starting a training job with the specified parameters.
+        /// </summary>
+        /// <param name="img_size">The size of the images.</param>
+        /// <param name="batch_size">The batch size for training.</param>
+        /// <param name="epochs">The number of epochs for training.</param>
+        /// <param name="weights">The weights for initialization.</param>
+        /// <param name="data">The data used for training.</param>
+        /// <param name="hyperparameters">The hyperparameters for training.</param>
+        /// <param name="patience">The patience parameter for training.</param>
+        /// <param name="workers">The number of workers used for training.</param>
+        /// <param name="optimizer">The optimizer used for training.</param>
+        /// <param name="device">The device used for training.</param>
+        /// <param name="instanceCount">The number of instances to use for training.</param>
+        /// <param name="selectedInstance">The type of instance selected for training.</param>
+        /// <param name="CUSTOM_UPLOADS_URI">The URI for custom uploads.</param>
+        /// <param name="DEFAULT_DATASET_URI">The default dataset URI.</param>
+        /// <param name="ECR_URI">The ECR URI.</param>
+        /// <param name="SAGEMAKER_INPUT_DATA_PATH">The input data path for SageMaker.</param>
+        /// <param name="SAGEMAKER_OUTPUT_DATA_PATH">The output data path for SageMaker.</param>
+        /// <param name="ROLE_ARN">The ARN of the role used for training.</param>
+        /// <param name="DESTINATION_URI">The URI for the output data.</param>
+        /// <param name="trainingJobName">The name of the training job.</param>
+        /// <param name="customHyperParamsForm">The form containing custom hyperparameters.</param>
+        /// <returns>A `CreateTrainingJobRequest` for starting a training job.</returns>
         public CreateTrainingJobRequest CreateTrainingRequest(string img_size, string batch_size, string epochs, string weights, string data, string hyperparameters, string patience, string workers, string optimizer, string device, string instanceCount, string selectedInstance,string CUSTOM_UPLOADS_URI, string DEFAULT_DATASET_URI, string ECR_URI, string SAGEMAKER_INPUT_DATA_PATH, string SAGEMAKER_OUTPUT_DATA_PATH, string ROLE_ARN, string DESTINATION_URI, string trainingJobName, CustomHyperParamsForm customHyperParamsForm)
         {
             CreateTrainingJobRequest trainingRequest = new CreateTrainingJobRequest()
@@ -105,6 +131,17 @@ namespace LSC_Trainer.Functions
             return trainingRequest;
         }
 
+        /// <summary>
+        /// Initiates a training job using the specified training request and sets up tracking for the job.
+        /// </summary>
+        /// <param name="trainingRequest">The training request containing parameters for the training job.</param>
+        /// <param name="cloudWatchLogsClient">The CloudWatch Logs client.</param>
+        /// <param name="amazonSageMakerClient">The Amazon SageMaker client.</param>
+        /// <param name="s3Client">The Amazon S3 client.</param>
+        /// <param name="transferUtility">The file transfer utility for S3 operations.</param>
+        /// <param name="datasetKey">The key of the dataset in S3.</param>
+        /// <param name="bucket">The bucket name where the dataset is stored.</param>
+        /// <param name="HasCustomUploads">A flag indicating if custom uploads are used.</param>
         public async Task InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonSageMakerClient amazonSageMakerClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility transferUtility, string datasetKey, string bucket, bool HasCustomUploads)
         {
             CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);

@@ -16,6 +16,10 @@ using System.Windows.Forms;
 
 namespace LSC_Trainer.Functions
 {
+    /// <summary>
+    /// Handles training job-related operations such as monitoring status, logging, and interacting with AWS services. Also responsible for
+    /// updating the UI elements with the training job status and logs.
+    /// </summary>
     internal class TrainingJobHandler
     {
         private string currentTrainingJobName;
@@ -34,8 +38,15 @@ namespace LSC_Trainer.Functions
 
         private System.Timers.Timer timer;
        
-
+        /// <summary> A CancellationTokenSource used to cancel the live tail session if needed.</param>
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TrainingJobHandler"/> class with the specified Amazon SageMaker client, Amazon CloudWatch Logs client, Amazon S3 client, and UI elements for displaying training job information.
+        /// </summary>
+        /// <param name="amazonSageMakerClient">The Amazon SageMaker client to interact with SageMaker services.</param>
+        /// <param name="cloudWatchLogsClient">The Amazon CloudWatch Logs client to interact with CloudWatch Logs.</param>
+        /// <param name="s3Client">The Amazon S3 client to interact with S3 services.</param>
         public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
@@ -46,6 +57,17 @@ namespace LSC_Trainer.Functions
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
         }
 
+        /// <summary>
+        /// Initiates tracking of the specified training job, updating UI elements with its progress and status.
+        /// </summary>
+        /// <param name="trainingJobName">The name of the training job to track.</param>
+        /// <param name="datasetKey">The key of the dataset associated with the training job.</param>
+        /// <param name="s3Bucket">The name of the S3 bucket containing the training job data.</param>
+        /// <param name="hasCustomUploads">A boolean indicating whether the training job uses custom uploads.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result indicates whether the tracking of the training job was successful.
+        /// </returns>
+        /// <exception cref="Exception">Thrown when an error occurs during the tracking of the training job.</exception>
         public async Task<bool> StartTrackingTrainingJob(string trainingJobName, string datasetKey, string s3Bucket, bool hasCustomUploads)
         {
             try
@@ -73,6 +95,12 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Initializes a timer to periodically check the status of the specified training job.
+        /// </summary>
+        /// <param name="trainingJobName">The name of the training job to monitor.</param>
+        /// <param name="completionSource">The TaskCompletionSource used to signal completion of the tracking operation.</param>
+        /// <returns>The initialized System.Timers.Timer instance.</returns>
         private System.Timers.Timer InitializeTimer(string trainingJobName, TaskCompletionSource<bool> completionSource)
         {
             // Create a Timer instance with a specified interval (e.g., every 5 secs)
@@ -85,6 +113,14 @@ namespace LSC_Trainer.Functions
 
         private readonly SemaphoreSlim startLiveTailLock = new SemaphoreSlim(1, 1);
 
+        /// <summary>
+        /// Asynchronously checks the status of a training job and updates the UI accordingly.
+        /// </summary>
+        /// <param name="amazonSageMakerClient">The Amazon SageMaker client used to interact with training jobs.</param>
+        /// <param name="state">The state object containing the training job name.</param>
+        /// <param name="completionSource">The TaskCompletionSource used to signal completion of the tracking operation.</param>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs during the tracking of the training job.</exception>
         private async Task CheckTrainingJobStatus(AmazonSageMakerClient amazonSageMakerClient, object state, TaskCompletionSource<bool> completionSource)
         {
             try
@@ -168,6 +204,18 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Asynchronously starts a live tail session for a CloudWatch log stream.
+        /// Initializes a StartLiveTailRequest object and uses the CloudWatchLogs client to start the session.
+        /// If successful, calls TrackLiveTail to begin tracking log events from the stream.
+        /// 
+        /// Assumes UIUpdater is an interface for updating the user interface with messages.
+        /// Assumes TrackLiveTail is an asynchronous method that handles tracking log events from the live tail session.
+        /// </summary>
+        /// <param name="amazonCloudWatchLogsClient">An AmazonCloudWatchLogsClient instance used to interact with CloudWatch Logs.</param>
+        /// <param name="logGroupName">The name of the CloudWatch log group containing the log stream.</param>
+        /// <param name="logStreamName">The name of the log stream to tail for live updates.</param>
+        /// <returns>An awaitable Task representing the asynchronous start live tail operation.</returns>
         private async Task StartLiveTail(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string logStreamName)
         {
             var response = await amazonCloudWatchLogsClient.StartLiveTailAsync(new StartLiveTailRequest
@@ -186,6 +234,17 @@ namespace LSC_Trainer.Functions
         }
 
         private readonly object lockObject = new object();
+
+        /// <summary>
+        /// Asynchronously tracks log events from a CloudWatch live tail session.
+        /// Reads events from the response stream, processing different message types (session updates, messages, and errors).
+        /// Handles cancellation and potential exceptions during the live tail session.
+        /// 
+        /// Assumes UIUpdater is an interface for updating the user interface with messages.
+        /// Assumes lockObject is a synchronization object for thread-safe access to UI updates.
+        /// </summary>
+        /// <param name="response">A StartLiveTailResponse object containing the live tail session information and response stream.</param>
+        /// <returns>An awaitable Task representing the asynchronous tracking operation.</returns>
         private async void TrackLiveTail(StartLiveTailResponse response)
         {
             var eventStream = response.ResponseStream;
@@ -249,6 +308,15 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves details about a SageMaker training job.
+        /// Initializes a DescribeTrainingJobRequest object with the training job name and uses the SageMaker client to get details.
+        /// 
+        /// Assumes the SageMaker client has been configured with proper credentials and region.
+        /// </summary>
+        /// <param name="amazonSageMakerClient">An AmazonSageMakerClient instance used to interact with SageMaker.</param>
+        /// <param name="trainingJobName">The name of the SageMaker training job to get details for.</param>
+        /// <returns>An awaitable Task that resolves to a DescribeTrainingJobResponse object containing the training job details.</returns>
         private async Task<DescribeTrainingJobResponse> GetTrainingJobDetails(AmazonSageMakerClient amazonSageMakerClient, string trainingJobName)
         {
             return await amazonSageMakerClient.DescribeTrainingJobAsync(new DescribeTrainingJobRequest
@@ -257,6 +325,17 @@ namespace LSC_Trainer.Functions
             });
         }
 
+        /// <summary>
+        /// Asynchronously handles the deletion of custom uploaded datasets, prompting the user for confirmation.
+        /// Checks if there are custom uploads and a confirmation dialog hasn't been shown yet.
+        /// If so, displays a confirmation dialog asking the user if they want to delete the dataset from the S3 bucket.
+        /// Based on the user's choice, deletes the dataset or displays a message skipping deletion.
+        /// 
+        /// Assumes UIUpdater is an interface for updating the user interface with messages.
+        /// Assumes transferUtility is an object with a DeleteDataSet method for deleting datasets from S3.
+        /// Assumes hasCustomUploads, showDialogBox, datasetKey, and s3Bucket are variables set elsewhere in the code.
+        /// </summary>
+        /// <returns>An awaitable Task representing the asynchronous deletion operation (if confirmed).</returns>
         private async Task HandleCustomUploads()
         {
             if (hasCustomUploads && !showDialogBox)
@@ -276,6 +355,17 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves the name of the latest log stream for a SageMaker training job.
+        /// Uses the CloudWatchLogs client to describe log streams within the specified log group, searching for streams with a prefix matching the training job name.
+        /// Returns the name of the latest log stream or null if none are found.
+        /// 
+        /// Assumes UIUpdater is an interface for updating the user interface with messages.
+        /// </summary>
+        /// <param name="amazonCloudWatchLogsClient">An AmazonCloudWatchLogsClient instance used to interact with CloudWatch Logs.</param>
+        /// <param name="logGroupName">The name of the CloudWatch log group containing the training job logs.</param>
+        /// <param name="trainingJobName">The name of the SageMaker training job to identify the associated log stream.</param>
+        /// <returns>An awaitable Task that resolves to a string containing the name of the latest log stream or null if none are found.</returns>
         public async Task<string> GetLatestLogStream(AmazonCloudWatchLogsClient amazonCloudWatchLogsClient, string logGroupName, string trainingJobName)
         {
             try {
@@ -313,6 +403,11 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Event handler for the PowerModeChanged event, triggered when the system's power mode changes (e.g., going to sleep or waking up).
+        /// </summary>
+        /// <param name="sender">The object that triggered the event.</param>
+        /// <param name="e">The event arguments containing information about the power mode change.</param>
         private async void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             switch (e.Mode)
@@ -334,6 +429,7 @@ namespace LSC_Trainer.Functions
                     break;
             }
         }
+        
         public void Dispose()
         {
             // Unsubscribe from system events

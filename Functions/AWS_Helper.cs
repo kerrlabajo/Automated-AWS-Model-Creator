@@ -23,11 +23,21 @@ using System.Text.RegularExpressions;
 
 namespace LSC_Trainer.Functions
 {
+    /// <summary>
+    /// Provides helper methods for interacting with Amazon Web Services (AWS).
+    /// </summary>
     public class AWS_Helper
     {
-
+        /// <summary>
+        /// Represents the total size of data uploaded.
+        /// </summary>
         private static long totalUploaded = 0;
 
+        /// <summary>
+        /// Validates the provided access key ID by retrieving the username associated with it using the IAM client.
+        /// Updates the UserConnectionInfo.UserName property with the retrieved username if the key is valid.
+        /// </summary>
+        /// <param name="iamClient">An AmazonIdentityManagementServiceClient instance used to interact with IAM services.</param>
         public static void CheckCredentials (AmazonIdentityManagementServiceClient iamClient)
         {
             var accessKeyLastUsedRequest = new GetAccessKeyLastUsedRequest
@@ -38,6 +48,14 @@ namespace LSC_Trainer.Functions
             UserConnectionInfo.UserName = response.UserName;
         }
 
+        /// <summary>
+        /// Deletes all files in the provided dataset directory from an Amazon S3 bucket asynchronously.
+        /// </summary>
+        /// <param name="s3Client">The Amazon S3 client used to perform the deletion operation.</param>
+        /// <param name="bucketName">The name of the Amazon S3 bucket containing the dataset objects.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="AmazonS3Exception">Thrown when an error occurs during the Amazon S3 operation.</exception>
+        /// <exception cref="Exception">Thrown when an error occurs during the operation.</exception>
         public static async Task<List<string>> GetTrainingJobOutputList(AmazonS3Client s3Client, string bucketName)
         {
             try
@@ -69,6 +87,11 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Attempts to extract a date in the format "yyyy-MM-dd" from the provided key string using regular expressions.
+        /// </summary>
+        /// <param name="key">The string to search for a date format.</param>
+        /// <returns>A DateTime object representing the extracted date if found, null otherwise.</returns>
         private static DateTime? ExtractDateFromKey(string key)
         {
             var regex = new Regex(@"\b\d{4}-\d{2}-\d{2}\b");
@@ -80,7 +103,15 @@ namespace LSC_Trainer.Functions
             return null;
         }
 
-
+        /// <summary>
+        /// Retrieves the URI and image tag of the first repository in Amazon Elastic Container Registry (ECR).
+        /// </summary>
+        /// <param name="accessKey">The access key used for authentication.</param>
+        /// <param name="secretKey">The secret key used for authentication.</param>
+        /// <param name="region">The AWS region to connect to.</param>
+        /// <returns>
+        /// The URI of the first repository in ECR if available; otherwise, returns null.
+        /// </returns>
         public static (string, string) GetFirstRepositoryUriAndImageTag(string accessKey, string secretKey, RegionEndpoint region)
         {
             using (var ecrClient = new AmazonECRClient(accessKey, secretKey, region))
@@ -115,6 +146,13 @@ namespace LSC_Trainer.Functions
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of all Spot Training quotas from Amazon Service Quotas.
+        /// Filters the quotas to include only those related to Spot Training and with a value greater than or equal to 1.
+        /// Orders the filtered quotas by name and returns them as a list of tuples (QuotaName, QuotaValue).
+        /// </summary>
+        /// <param name="serviceQuotasClient">An AmazonServiceQuotasClient instance used to interact with Service Quotas services.</param>
+        /// <returns>A Task that resolves to a list of tuples (QuotaName, QuotaValue) representing the filtered Spot Training quotas, or an empty list if no quotas are found.</returns>
         public static async Task<List<(string QuotaName, double QuotaValue)>> GetAllSpotTrainingQuotas(AmazonServiceQuotasClient serviceQuotasClient)
         {
             var allInstances = new List<(string QuotaName, double QuotaValue)>();
@@ -147,6 +185,14 @@ namespace LSC_Trainer.Functions
             return allInstances;
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of available user-uploaded datasets from a specific Amazon S3 bucket.
+        /// Filters the retrieved objects to include only files within the "users/{username}/custom-uploads" prefix.
+        /// Returns a list of dataset names (filenames without path) if successful, null otherwise.
+        /// </summary>
+        /// <param name="s3Client">An AmazonS3Client instance used to interact with S3 services.</param>
+        /// <param name="bucketName">The name of the S3 bucket to list objects from.</param>
+        /// <returns>A Task that resolves to a list of dataset names (filenames) if successful, null on errors.</returns>
         public static async Task<List<string>> GetAvailableDatasetsList(AmazonS3Client s3Client, string bucketName)
         {
             try
@@ -188,9 +234,17 @@ namespace LSC_Trainer.Functions
 
     }
 
-
+    /// <summary>
+    /// Provides helper methods for working with file paths.
+    /// </summary>
     public static class PathHelper
     {
+        /// <summary>
+        /// Gets the relative path of a target path from a base path.
+        /// </summary>
+        /// <param name="basePath">The base path.</param>
+        /// <param name="targetPath">The target path.</param>
+        /// <returns>The relative path of the target path from the base path.</returns>
         public static string GetRelativePath(string basePath, string targetPath)
         {
             var baseUri = new Uri(basePath.EndsWith(Path.DirectorySeparatorChar.ToString()) ? basePath : basePath + Path.DirectorySeparatorChar);
