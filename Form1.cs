@@ -949,6 +949,30 @@ namespace LSC_Trainer
                 MessageBox.Show($"Error: {ex.Message}");
             }
         }
+        public void UpdateDownloadStatus(int percentage)
+        {
+            try
+            {
+                if (this.InvokeRequired)
+                {
+                    if (percentage >= downloadProgressBar.Minimum && percentage <= downloadProgressBar.Maximum)
+                    {
+                        this.Invoke(new Action(() => UpdateDownloadStatus(percentage)));
+                        return;
+                    }
+                }
+                
+                downloadProgressBar.Value = percentage;
+            }
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Main form is closed. Cannot update download progress bar.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
 
         public void DisplayLogMessage(string logMessage)
         {

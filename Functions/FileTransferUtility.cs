@@ -315,6 +315,8 @@ namespace LSC_Trainer.Functions
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     UIUpdater.UpdateTrainingStatus($"Downloading Files from S3", $"Downloading {args.TransferredBytes}/{args.TotalBytes} - {percentage}%");
+
+                    UIUpdater.UpdateDownloadStatus(percentage);
                 }
                 
             };

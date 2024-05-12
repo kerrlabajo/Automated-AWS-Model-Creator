@@ -85,6 +85,7 @@ namespace LSC_Trainer
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
+            this.downloadProgressBar = new System.Windows.Forms.ProgressBar();
             this.lscTrainerMenuStrip.SuspendLayout();
             this.mainPanel.SuspendLayout();
             this.logPanel.SuspendLayout();
@@ -184,6 +185,7 @@ namespace LSC_Trainer
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.downloadProgressBar);
             this.mainPanel.Controls.Add(this.txtGpuCount);
             this.mainPanel.Controls.Add(this.datasetListComboBox);
             this.mainPanel.Controls.Add(this.btnFetchDatasets);
@@ -277,7 +279,7 @@ namespace LSC_Trainer
             this.instanceCountLabel.AutoSize = true;
             this.instanceCountLabel.Location = new System.Drawing.Point(292, 222);
             this.instanceCountLabel.Name = "instanceCountLabel";
-            this.instanceCountLabel.Size = new System.Drawing.Size(106, 17);
+            this.instanceCountLabel.Size = new System.Drawing.Size(97, 16);
             this.instanceCountLabel.TabIndex = 52;
             this.instanceCountLabel.Text = "Instance Count:";
             // 
@@ -299,7 +301,7 @@ namespace LSC_Trainer
             this.hyperparametersLabel.AutoSize = true;
             this.hyperparametersLabel.Location = new System.Drawing.Point(292, 72);
             this.hyperparametersLabel.Name = "hyperparametersLabel";
-            this.hyperparametersLabel.Size = new System.Drawing.Size(122, 17);
+            this.hyperparametersLabel.Size = new System.Drawing.Size(116, 16);
             this.hyperparametersLabel.TabIndex = 50;
             this.hyperparametersLabel.Text = "Hyperparameters:";
             // 
@@ -385,7 +387,7 @@ namespace LSC_Trainer
             // btnDownloadModel
             // 
             this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
-            this.btnDownloadModel.Location = new System.Drawing.Point(830, 342);
+            this.btnDownloadModel.Location = new System.Drawing.Point(814, 342);
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
@@ -412,7 +414,7 @@ namespace LSC_Trainer
             this.descriptionLabel.BackColor = System.Drawing.SystemColors.Control;
             this.descriptionLabel.Location = new System.Drawing.Point(688, 156);
             this.descriptionLabel.Name = "descriptionLabel";
-            this.descriptionLabel.Size = new System.Drawing.Size(83, 17);
+            this.descriptionLabel.Size = new System.Drawing.Size(78, 16);
             this.descriptionLabel.TabIndex = 28;
             this.descriptionLabel.Text = "Description:";
             // 
@@ -422,7 +424,7 @@ namespace LSC_Trainer
             this.trainingStatusLabel.BackColor = System.Drawing.SystemColors.Control;
             this.trainingStatusLabel.Location = new System.Drawing.Point(688, 128);
             this.trainingStatusLabel.Name = "trainingStatusLabel";
-            this.trainingStatusLabel.Size = new System.Drawing.Size(108, 17);
+            this.trainingStatusLabel.Size = new System.Drawing.Size(99, 16);
             this.trainingStatusLabel.TabIndex = 27;
             this.trainingStatusLabel.Text = "Training Status:";
             // 
@@ -440,7 +442,7 @@ namespace LSC_Trainer
             this.instanceTypelbl.AutoSize = true;
             this.instanceTypelbl.Location = new System.Drawing.Point(792, 73);
             this.instanceTypelbl.Name = "instanceTypelbl";
-            this.instanceTypelbl.Size = new System.Drawing.Size(0, 17);
+            this.instanceTypelbl.Size = new System.Drawing.Size(0, 16);
             this.instanceTypelbl.TabIndex = 25;
             // 
             // txtOptimizer
@@ -458,7 +460,7 @@ namespace LSC_Trainer
             this.trainingDurationLabel.BackColor = System.Drawing.SystemColors.Control;
             this.trainingDurationLabel.Location = new System.Drawing.Point(688, 99);
             this.trainingDurationLabel.Name = "trainingDurationLabel";
-            this.trainingDurationLabel.Size = new System.Drawing.Size(122, 17);
+            this.trainingDurationLabel.Size = new System.Drawing.Size(112, 16);
             this.trainingDurationLabel.TabIndex = 24;
             this.trainingDurationLabel.Text = "Training Duration:";
             // 
@@ -467,7 +469,7 @@ namespace LSC_Trainer
             this.optimizerLabel.AutoSize = true;
             this.optimizerLabel.Location = new System.Drawing.Point(292, 156);
             this.optimizerLabel.Name = "optimizerLabel";
-            this.optimizerLabel.Size = new System.Drawing.Size(72, 17);
+            this.optimizerLabel.Size = new System.Drawing.Size(66, 16);
             this.optimizerLabel.TabIndex = 36;
             this.optimizerLabel.Text = "Optimizer:";
             // 
@@ -477,7 +479,7 @@ namespace LSC_Trainer
             this.virtualMachineLabel.BackColor = System.Drawing.SystemColors.Control;
             this.virtualMachineLabel.Location = new System.Drawing.Point(688, 72);
             this.virtualMachineLabel.Name = "virtualMachineLabel";
-            this.virtualMachineLabel.Size = new System.Drawing.Size(109, 17);
+            this.virtualMachineLabel.Size = new System.Drawing.Size(101, 16);
             this.virtualMachineLabel.TabIndex = 23;
             this.virtualMachineLabel.Text = "Virtual Machine:";
             // 
@@ -495,7 +497,7 @@ namespace LSC_Trainer
             this.workersLabel.AutoSize = true;
             this.workersLabel.Location = new System.Drawing.Point(292, 128);
             this.workersLabel.Name = "workersLabel";
-            this.workersLabel.Size = new System.Drawing.Size(65, 17);
+            this.workersLabel.Size = new System.Drawing.Size(61, 16);
             this.workersLabel.TabIndex = 34;
             this.workersLabel.Text = "Workers:";
             // 
@@ -513,7 +515,7 @@ namespace LSC_Trainer
             this.patienceLabel.AutoSize = true;
             this.patienceLabel.Location = new System.Drawing.Point(292, 100);
             this.patienceLabel.Name = "patienceLabel";
-            this.patienceLabel.Size = new System.Drawing.Size(67, 17);
+            this.patienceLabel.Size = new System.Drawing.Size(63, 16);
             this.patienceLabel.TabIndex = 32;
             this.patienceLabel.Text = "Patience:";
             // 
@@ -571,7 +573,7 @@ namespace LSC_Trainer
             this.weightsLabel.AutoSize = true;
             this.weightsLabel.Location = new System.Drawing.Point(30, 153);
             this.weightsLabel.Name = "weightsLabel";
-            this.weightsLabel.Size = new System.Drawing.Size(63, 17);
+            this.weightsLabel.Size = new System.Drawing.Size(59, 16);
             this.weightsLabel.TabIndex = 10;
             this.weightsLabel.Text = "Weights:";
             // 
@@ -580,7 +582,7 @@ namespace LSC_Trainer
             this.epochsLabel.AutoSize = true;
             this.epochsLabel.Location = new System.Drawing.Point(30, 126);
             this.epochsLabel.Name = "epochsLabel";
-            this.epochsLabel.Size = new System.Drawing.Size(59, 17);
+            this.epochsLabel.Size = new System.Drawing.Size(56, 16);
             this.epochsLabel.TabIndex = 9;
             this.epochsLabel.Text = "Epochs:";
             // 
@@ -589,7 +591,7 @@ namespace LSC_Trainer
             this.batchSizeLabel.AutoSize = true;
             this.batchSizeLabel.Location = new System.Drawing.Point(30, 99);
             this.batchSizeLabel.Name = "batchSizeLabel";
-            this.batchSizeLabel.Size = new System.Drawing.Size(79, 17);
+            this.batchSizeLabel.Size = new System.Drawing.Size(73, 16);
             this.batchSizeLabel.TabIndex = 8;
             this.batchSizeLabel.Text = "Batch Size:";
             // 
@@ -598,7 +600,7 @@ namespace LSC_Trainer
             this.imageSizeLabel.AutoSize = true;
             this.imageSizeLabel.Location = new System.Drawing.Point(30, 72);
             this.imageSizeLabel.Name = "imageSizeLabel";
-            this.imageSizeLabel.Size = new System.Drawing.Size(81, 17);
+            this.imageSizeLabel.Size = new System.Drawing.Size(77, 16);
             this.imageSizeLabel.TabIndex = 7;
             this.imageSizeLabel.Text = "Image Size:";
             // 
@@ -607,7 +609,7 @@ namespace LSC_Trainer
             this.selectedFileLabel.AutoSize = true;
             this.selectedFileLabel.Location = new System.Drawing.Point(30, 222);
             this.selectedFileLabel.Name = "selectedFileLabel";
-            this.selectedFileLabel.Size = new System.Drawing.Size(93, 17);
+            this.selectedFileLabel.Size = new System.Drawing.Size(89, 16);
             this.selectedFileLabel.TabIndex = 4;
             this.selectedFileLabel.Text = "Selected File:";
             // 
@@ -693,6 +695,14 @@ namespace LSC_Trainer
             this.SpaceBetween.Name = "SpaceBetween";
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
+            // 
+            // downloadProgressBar
+            // 
+            this.downloadProgressBar.Location = new System.Drawing.Point(940, 346);
+            this.downloadProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.downloadProgressBar.Name = "downloadProgressBar";
+            this.downloadProgressBar.Size = new System.Drawing.Size(161, 23);
+            this.downloadProgressBar.TabIndex = 55;
             // 
             // MainForm
             // 
@@ -781,6 +791,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.TextBox txtGpuCount;
         private System.Windows.Forms.ComboBox datasetListComboBox;
         private System.Windows.Forms.Button btnFetchDatasets;
+        private System.Windows.Forms.ProgressBar downloadProgressBar;
     }
 }
 
