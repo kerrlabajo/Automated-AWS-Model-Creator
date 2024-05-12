@@ -62,12 +62,23 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        private TrainingJobHandler trainingJobHandler;
         private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
 
         private List<string> supportedInstances = new List<string>()
         {
             "ml.p3.2xlarge","ml.g4dn.xlarge","ml.g4dn.2xlarge","ml.g4dn.4xlarge","ml.g4dn.8xlarge", "ml.g4dn.12xlarge","ml.p3.8xlarge","ml.p3.16xlarge"
+        };
+
+        private Dictionary<string, int> instanceToGpuCount = new Dictionary<string, int>
+        {
+            { "ml.p3.2xlarge", 1 },
+            { "ml.g4dn.xlarge", 1 },
+            { "ml.g4dn.2xlarge", 1 },
+            { "ml.g4dn.4xlarge", 1 },
+            { "ml.g4dn.8xlarge", 1 },
+            { "ml.g4dn.12xlarge", 4 },
+            { "ml.p3.8xlarge", 4 },
+            { "ml.p3.16xlarge", 8 }
         };
         private int idealBatchSize = 16;
         private int gpuCount = 0;
@@ -119,7 +130,7 @@ namespace LSC_Trainer
             btnDownloadModel.Enabled = false;
 
             executor = new TrainingJobExecutor(this);
-            fileTransferUtility = new FileTransferUtility();
+            fileTransferUtility = new FileTransferUtility(this);
             MessageBox.Show("Established Connection with UserConnectionInfo", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeClient();
             InitializeInputs();
@@ -195,7 +206,7 @@ namespace LSC_Trainer
                     datasetPath = openFileDialog.FileName;
 
                     // Display the selected file path (optional)
-                    lblZipFile.Text = datasetPath.Split('\\').Last();
+                    lblZipFile.Text = Path.GetFileNameWithoutExtension(datasetPath);
                     datasetListComboBox.Text = "";
 
                     MessageBox.Show($"Selected file: {datasetPath}");
@@ -253,7 +264,7 @@ namespace LSC_Trainer
 
         private void btnTraining_Click(object sender, EventArgs e)
         {
-            try
+             try
             {
                 if (ValidateTrainingParameters(imgSizeDropdown.Text, txtBatchSize.Text, txtEpochs.Text, txtWeights.Text, hyperparamsDropdown.Text
                 , txtPatience.Text, txtWorkers.Text, txtOptimizer.Text, txtGpuCount.Text, txtInstanceCount.Text))
@@ -299,7 +310,7 @@ namespace LSC_Trainer
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }         
         }
 
@@ -356,7 +367,7 @@ namespace LSC_Trainer
 
             if (isFile)
             {
-                fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, datasetPath, new Progress<int>(percent =>
+                fileTransferUtility.UnzipAndUploadToS3(s3Client, SAGEMAKER_BUCKET, $"users/{USERNAME}/custom-uploads/", datasetPath, new Progress<int>(percent =>
                 {
                     backgroundWorker.ReportProgress(percent);
                 })).Wait();
@@ -431,7 +442,19 @@ namespace LSC_Trainer
 
             if (txtOptimizer.Text != "") optimizer = txtOptimizer.Text;
 
-            if (txtGpuCount.Text != "") device = string.Join(",", Enumerable.Range(0, gpuCount));
+            if (txtGpuCount.Text != "")
+            {
+                if(txtGpuCount.Text == "cpu")
+                {
+                    device = "cpu";
+                }
+                else
+                {
+                    int gpuCount = int.Parse(txtGpuCount.Text);
+                    device = gpuCount > 0 ? string.Join(",", Enumerable.Range(0, gpuCount)) : "cpu";
+                }
+                
+            }
 
             if (txtInstanceCount.Text != "") instanceCount = txtInstanceCount.Text;
         }
@@ -572,7 +595,6 @@ namespace LSC_Trainer
                 {
                     outputListComboBox.Items.Clear();
                     outputKey = $"users/{USERNAME}/training-jobs/{jobName[0]}/output/output.tar.gz";
-                    btnDownloadModel.Enabled = true;
 
                     foreach (var obj in jobName)
                     {
@@ -601,12 +623,16 @@ namespace LSC_Trainer
 
         private void outputListComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null)
+            if (outputListComboBox.GetItemText(hyperparamsDropdown.SelectedItem) != null && outputListComboBox.Text != "")
             {
                 string trainingJobOuputs = outputListComboBox.GetItemText(outputListComboBox.SelectedItem);
                 outputKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/output.tar.gz";
                 modelKey = $"users/{USERNAME}/training-jobs/{trainingJobOuputs}/output/model.tar.gz";
                 btnDownloadModel.Enabled = true;
+            }
+            else
+            {
+                btnDownloadModel.Enabled = false;
             }
         }
 
@@ -665,6 +691,15 @@ namespace LSC_Trainer
             {
                 var selectedItem = ((string, double))instancesDropdown.SelectedItem;
                 selectedInstance = selectedItem.Item1;
+
+                if (instanceToGpuCount.TryGetValue(selectedInstance, out int gpuCount))
+                {
+                    txtGpuCount.Text = gpuCount.ToString();
+                }
+                else
+                {
+                    txtGpuCount.Text = "0";
+                }
                 CalculateBatchSize();
                 btnTraining.Enabled = true;
             }
@@ -712,30 +747,35 @@ namespace LSC_Trainer
             if (txtGpuCount.Text != null)
             {
                 // If the user wants to use only the CPU
-                if (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0)
+                if (txtGpuCount.Text.ToLower() == "cpu")
                 {
                     CalculateBatchSize();
+                    txtGpuCount.Text = "cpu";
                     return true;
                 }
-                else if (!Int32.TryParse(txtGpuCount.Text, out _))
+                else if (Int32.TryParse(txtGpuCount.Text, out int x))
+                {
+                    if (x < 0)
+                    {
+                        MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                    else if (x == 0)
+                    {
+                        CalculateBatchSize();
+                        txtGpuCount.Text = "cpu";
+                    }
+                    return true;
+                }
+                else
                 {
                     MessageBox.Show("GPU count must be an integer.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                else if (int.Parse(txtGpuCount.Text) < 0)
-                {
-                    MessageBox.Show("GPU count must be 0 or greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-                else if (int.Parse(txtGpuCount.Text) == 0 || txtGpuCount.Text.Equals("cpu"))
-                {
-                    MessageBox.Show("Machine will be using cpu.");
-                    txtGpuCount.Text = "cpu";
-                }
-                return true;
             }
             return false;
         }
+
         private void CalculateBatchSize()
         {
             if (instancesDropdown.SelectedItem != null)
@@ -746,7 +786,7 @@ namespace LSC_Trainer
                 int.TryParse(txtGpuCount.Text, out gpuCount);
                 idealBatchSize = 16;
 
-                if (instanceCount == 1 && gpuCount == 1 && (txtGpuCount.Text.ToLower() == "cpu" || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
+                if (instanceCount == 1 && (gpuCount == 0 || (txtGpuCount.Text.ToLower() == "cpu") || int.Parse(txtGpuCount.Text) == 0) && !supportedInstances.Contains(instance))
                 {
                     idealBatchSize = -1;
                 }
@@ -830,6 +870,7 @@ namespace LSC_Trainer
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             executor?.Dispose();
+            fileTransferUtility?.Dispose();
         }
 
         public void SetUIState(bool isTraining)
@@ -843,65 +884,109 @@ namespace LSC_Trainer
 
         public void UpdateTrainingStatus(string instanceType, string trainingDuration, string status, string description)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateTrainingStatus(instanceType, trainingDuration, status, description)));
-                return;
-            }
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateTrainingStatus(instanceType, trainingDuration, status, description)));
+                    return;
+                }
 
-            instanceTypeBox.Text = instanceType;
-            trainingDurationBox.Text = trainingDuration;
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
+                instanceTypeBox.Text = instanceType;
+                trainingDurationBox.Text = trainingDuration;
+                trainingStatusBox.Text = status;
+                descBox.Text = description;
+            }
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
         public void UpdateTrainingStatus(string trainingDuration)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateTrainingStatus(trainingDuration)));
-                return;
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateTrainingStatus(trainingDuration)));
+                    return;
+                }
+                trainingDurationBox.Text = trainingDuration;
             }
-            trainingDurationBox.Text = trainingDuration;
+            catch(ObjectDisposedException)
+            {
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
         public void UpdateTrainingStatus(string status, string description)
         {
-            if (this.InvokeRequired)
+            try
             {
-                this.Invoke(new Action(() => UpdateTrainingStatus(status, description)));
-                return;
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() => UpdateTrainingStatus(status, description)));
+                    return;
+                }
+                trainingStatusBox.Text = status;
+                descBox.Text = description;
             }
-            trainingStatusBox.Text = status;
-            descBox.Text = description;
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
         public void DisplayLogMessage(string logMessage)
         {
-            string rtfMessage = ConvertAnsiToRtf(logMessage);
-
-            // Remove the start and end of the RTF document from the message
-            rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
-            rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
-
-            // Append the RTF message at the end of the existing RTF text
-            Action log = () =>
+            try
             {
-                logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+                string rtfMessage = ConvertAnsiToRtf(logMessage);
 
-                // Scroll to the end to show the latest log messages
-                logBox.SelectionStart = logBox.Text.Length;
-                logBox.ScrollToCaret();
-            };
-            if (logBox.InvokeRequired)
-            {
-                // Invoke on the UI thread
-                logBox.Invoke(log);
+                // Remove the start and end of the RTF document from the message
+                rtfMessage = rtfMessage.Substring(rtfMessage.IndexOf('}') + 1);
+                rtfMessage = rtfMessage.Substring(0, rtfMessage.LastIndexOf('}'));
+
+                // Append the RTF message at the end of the existing RTF text
+                Action log = () =>
+                {
+                    logBox.Rtf = logBox.Rtf.Insert(logBox.Rtf.LastIndexOf('}'), rtfMessage);
+
+                    // Scroll to the end to show the latest log messages
+                    logBox.SelectionStart = logBox.Text.Length;
+                    logBox.ScrollToCaret();
+                };
+                if (logBox.InvokeRequired)
+                {
+                    // Invoke on the UI thread
+                    logBox.Invoke(log);
+                }
+                else
+                {
+                    // No invoke required, execute directly
+                    log();
+                }
             }
-            else
+            catch (ObjectDisposedException)
             {
-                // No invoke required, execute directly
-                log();
+                Console.WriteLine("Main form is closed. Cannot update training status.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
 
