@@ -1295,9 +1295,10 @@ namespace LSC_Trainer
             {
                 List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
 
+                datasetListComboBox.Items.Clear();
+
                 if (datasets != null && datasets.Count > 0)
                 {
-                    datasetListComboBox.Items.Clear();
 
                     foreach (var obj in datasets)
                     {
