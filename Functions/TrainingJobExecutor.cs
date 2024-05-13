@@ -87,13 +87,13 @@ namespace LSC_Trainer.Functions
                     InstanceCount = int.Parse(instanceCount),
                     // Update the instance type everytime you select an instance type
                     InstanceType = TrainingInstanceType.FindValue(selectedInstance),
-                    VolumeSizeInGB = 12
+                    VolumeSizeInGB = 50
                 },
                 TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
-                    MaxRuntimeInSeconds = 14400,
-                    MaxWaitTimeInSeconds = 15000,
+                    MaxRuntimeInSeconds = 86400,
+                    MaxWaitTimeInSeconds = 86400,
                 },
                 HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
                 {
