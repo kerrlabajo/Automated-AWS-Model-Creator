@@ -40,6 +40,7 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.downloadProgressBar = new System.Windows.Forms.ProgressBar();
             this.txtGpuCount = new System.Windows.Forms.TextBox();
             this.datasetListComboBox = new System.Windows.Forms.ComboBox();
             this.btnFetchDatasets = new System.Windows.Forms.Button();
@@ -85,7 +86,6 @@ namespace LSC_Trainer
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
-            this.downloadProgressBar = new System.Windows.Forms.ProgressBar();
             this.lscTrainerMenuStrip.SuspendLayout();
             this.mainPanel.SuspendLayout();
             this.logPanel.SuspendLayout();
@@ -236,11 +236,21 @@ namespace LSC_Trainer
             this.mainPanel.Size = new System.Drawing.Size(1140, 397);
             this.mainPanel.TabIndex = 4;
             // 
+            // downloadProgressBar
+            // 
+            this.downloadProgressBar.Location = new System.Drawing.Point(940, 346);
+            this.downloadProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.downloadProgressBar.Name = "downloadProgressBar";
+            this.downloadProgressBar.Size = new System.Drawing.Size(161, 23);
+            this.downloadProgressBar.TabIndex = 55;
+            // 
             // txtGpuCount
             // 
+            this.txtGpuCount.Enabled = false;
             this.txtGpuCount.Location = new System.Drawing.Point(427, 184);
             this.txtGpuCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtGpuCount.Name = "txtGpuCount";
+            this.txtGpuCount.ReadOnly = true;
             this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
             this.txtGpuCount.TabIndex = 53;
             this.txtGpuCount.TextChanged += new System.EventHandler(this.txtGpuCount_ValueChanged);
@@ -695,14 +705,6 @@ namespace LSC_Trainer
             this.SpaceBetween.Name = "SpaceBetween";
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
-            // 
-            // downloadProgressBar
-            // 
-            this.downloadProgressBar.Location = new System.Drawing.Point(940, 346);
-            this.downloadProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.downloadProgressBar.Name = "downloadProgressBar";
-            this.downloadProgressBar.Size = new System.Drawing.Size(161, 23);
-            this.downloadProgressBar.TabIndex = 55;
             // 
             // MainForm
             // 

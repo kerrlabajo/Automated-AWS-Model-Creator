@@ -132,7 +132,7 @@ namespace LSC_Trainer.Functions
 
         /// <summary>
         /// Asynchronously retrieves a list of all Spot Training quotas from Amazon Service Quotas.
-        /// Filters the quotas to include only those related to Spot Training and with a value greater than or equal to 1.
+        /// Filters the quotas to include only supported instances related to Spot Training and with a value greater than or equal to 1.
         /// Orders the filtered quotas by name and returns them as a list of tuples (QuotaName, QuotaValue).
         /// </summary>
         /// <param name="serviceQuotasClient">An AmazonServiceQuotasClient instance used to interact with Service Quotas services.</param>
@@ -141,6 +141,7 @@ namespace LSC_Trainer.Functions
         {
             var allInstances = new List<(string QuotaName, double QuotaValue)>();
             string nextToken = null;
+            var desiredInstances = new List<string> { "ml.m5.large", "ml.m5.xlarge", "ml.g4dn.xlarge", "ml.g4dn.12xlarge", "ml.p3.16xlarge" };
 
             do
             {
@@ -155,16 +156,17 @@ namespace LSC_Trainer.Functions
 
                 foreach (var quota in response.Quotas)
                 {
-                    if (quota.QuotaName.Contains("for spot training job usage") && quota.Value >= 1)
+                    var instanceType = quota.QuotaName.Replace(" for spot training job usage", "");
+                    if (quota.QuotaName.Contains("for spot training job usage") && quota.Value >= 1 && desiredInstances.Contains(instanceType))
                     {
-                        allInstances.Add((quota.QuotaName.Replace(" for spot training job usage", ""), quota.Value));
+                        allInstances.Add((instanceType, quota.Value));
                     }
                 }
 
                 nextToken = response.NextToken;
             } while (nextToken != null);
 
-            allInstances = allInstances.OrderBy(instance => instance.QuotaName).ToList();
+            allInstances = allInstances.OrderBy(instance => desiredInstances.IndexOf(instance.QuotaName)).ToList();
 
             return allInstances;
         }
