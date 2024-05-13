@@ -1022,6 +1022,7 @@ namespace LSC_Trainer
             
             Dictionary<string, string> intFields = new Dictionary<string, string>()
             {
+                {"Image size", img_size },
                 {"Epochs", epochs},
                 {"Patience", patience},
                 {"Workers", workers},
