@@ -561,7 +561,6 @@ namespace LSC_Trainer
             txtPatience.Enabled = intent;
             txtWorkers.Enabled = intent;
             txtOptimizer.Enabled = intent;
-            txtGpuCount.Enabled = intent;
             txtInstanceCount.Enabled = intent;
             btnSelectDataset.Enabled = intent;
             btnSelectFolder.Enabled = intent;
