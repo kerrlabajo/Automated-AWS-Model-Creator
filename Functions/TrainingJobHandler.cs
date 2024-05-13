@@ -421,10 +421,11 @@ namespace LSC_Trainer.Functions
                     // The system is waking up
                     // Resume your work here
                     cancellationTokenSource = new CancellationTokenSource();
-                    string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", currentTrainingJobName);
+                    string logGroupName = "/aws/sagemaker/TrainingJobs";
+                    string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, logGroupName, currentTrainingJobName);
                     if (!string.IsNullOrEmpty(logStreamName))
                     {
-                        await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                        await StartLiveTail(cloudWatchLogsClient, $"arn:aws:logs:{UserConnectionInfo.Region}:{UserConnectionInfo.AccountId}:log-group:{logGroupName}:", logStreamName);
                     }
                     break;
             }
