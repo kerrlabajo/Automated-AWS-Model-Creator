@@ -60,15 +60,15 @@ namespace LSC_Trainer.Functions
         {
             try
             {
-                var response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                ListObjectsV2Response response = await s3Client.ListObjectsV2Async(new ListObjectsV2Request
                 {
                     BucketName = bucketName,
                     Prefix = $"users/{UserConnectionInfo.UserName}/training-jobs",
                 });
 
                 return response.S3Objects
-                    .Select(o => new { Key = o.Key.Split('/')[3], Date = ExtractDateFromKey(o.Key) })
-                    .OrderByDescending(o => o.Date) 
+                    .OrderByDescending(o => o.LastModified)
+                    .Select(o => new { Key = o.Key.Split('/')[3] })
                     .Select(o => o.Key)
                     .Distinct()
                     .ToList();
@@ -85,22 +85,6 @@ namespace LSC_Trainer.Functions
                 Console.WriteLine("Error: " + e.Message);
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Attempts to extract a date in the format "yyyy-MM-dd" from the provided key string using regular expressions.
-        /// </summary>
-        /// <param name="key">The string to search for a date format.</param>
-        /// <returns>A DateTime object representing the extracted date if found, null otherwise.</returns>
-        private static DateTime? ExtractDateFromKey(string key)
-        {
-            var regex = new Regex(@"\b\d{4}-\d{2}-\d{2}\b");
-            var match = regex.Match(key);
-            if (match.Success && DateTime.TryParseExact(match.Value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
-            {
-                return date;
-            }
-            return null;
         }
 
         /// <summary>
