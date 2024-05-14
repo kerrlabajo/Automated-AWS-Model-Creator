@@ -37,14 +37,22 @@ def run_script(args, use_module=False):
     """
     try:
         if use_module:
-            subprocess.run(["python3", "-m"] + args, check=True)
+            result = subprocess.run(["python3", "-m"] + args, check=True, stderr=subprocess.PIPE)
         else:
-            subprocess.run(["python3"] + args, check=True)
-    except subprocess.CalledProcessError as e:
+            result = subprocess.run(["python3"] + args, check=True, stderr=subprocess.PIPE)
+    except (subprocess.CalledProcessError, AssertionError) as e:
+        error_message = e.stderr.decode('utf-8') if hasattr(e, 'stderr') else str(e)
+        instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
+        error_message += "\n" + instructions
         with open("/opt/ml/output/failure", "w") as f:
-            f.write(f"Error occurred in subprocess: {str(e)}")
-            print(str(e))
-            print(traceback.format_exc())
+            if "FileNotFoundError" in error_message:
+                f.write(f"FileNotFoundError occurred in subprocess: {error_message}")
+            elif "AssertionError" in error_message:
+                f.write(f"AssertionError occurred in subprocess: {error_message}")
+            else:
+                f.write(f"Error occurred in subprocess: {str(e)}")
+        print(error_message)
+        print(traceback.format_exc())
         sys.exit(1)
 
 def parse_arguments():
