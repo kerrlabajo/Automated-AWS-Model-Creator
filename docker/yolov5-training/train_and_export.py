@@ -35,10 +35,17 @@ def run_script(args, use_module=False):
     Returns:
     `None`
     """
-    if use_module:
-        subprocess.run(["python3", "-m"] + args, check=True)
-    else:
-        subprocess.run(["python3"] + args, check=True)
+    try:
+        if use_module:
+            subprocess.run(["python3", "-m"] + args, check=True)
+        else:
+            subprocess.run(["python3"] + args, check=True)
+    except subprocess.CalledProcessError as e:
+        with open("/opt/ml/output/failure", "w") as f:
+            f.write(f"Error occurred in subprocess: {str(e)}")
+            print(str(e))
+            print(traceback.format_exc())
+        sys.exit(1)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
