@@ -175,17 +175,21 @@ namespace LSC_Trainer.Functions
                 }
                 else if(trainingStatus == TrainingJobStatus.Failed)
                 {
-                    uIUpdater.DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+
+                    
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
+                        uIUpdater.DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+                        MessageBox.Show($"Training job failed: {trainingDetails.FailureReason}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 else
                 {
-                    uIUpdater.DisplayLogMessage($"Training job stopped or in an unknown state.");
+                    
                     if (!completionSource.Task.IsCompleted)
                     {
+                        uIUpdater.DisplayLogMessage($"Training job stopped or in an unknown state.");
                         completionSource.SetResult(true);
                     }
                 }
@@ -306,7 +310,7 @@ namespace LSC_Trainer.Functions
                             // On-stream exceptions are processed here
                             if (item is CloudWatchLogsEventStreamException)
                             {
-                                uIUpdater.DisplayLogMessage($"ERROR: {item}");
+                                uIUpdater.DisplayLogMessage($"ERROR: {item}");       
                             }
                         }
                         
