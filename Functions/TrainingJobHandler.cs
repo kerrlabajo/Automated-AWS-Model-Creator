@@ -229,7 +229,16 @@ namespace LSC_Trainer.Functions
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!isMessageBoxShown)
+                {
+                    isMessageBoxShown = true;
+                    MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    isMessageBoxShown = false;
+                }
+                else
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 
