@@ -1,5 +1,6 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
+using Amazon.Runtime;
 using Amazon.Runtime.EventStreams.Internal;
 using Amazon.S3;
 using Amazon.SageMaker;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +29,7 @@ namespace LSC_Trainer.Functions
         private string datasetKey = "";
         private string s3Bucket = "";
         private bool showDialogBox = false;
+        private bool isMessageBoxShown = false;
 
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
@@ -172,17 +175,21 @@ namespace LSC_Trainer.Functions
                 }
                 else if(trainingStatus == TrainingJobStatus.Failed)
                 {
-                    uIUpdater.DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+
+                    
                     if (!completionSource.Task.IsCompleted)
                     {
                         completionSource.SetResult(true);
+                        uIUpdater.DisplayLogMessage($"Training job failed: {trainingDetails.FailureReason}");
+                        MessageBox.Show($"Training job failed: {trainingDetails.FailureReason}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 else
                 {
-                    uIUpdater.DisplayLogMessage($"Training job stopped or in an unknown state.");
+                    
                     if (!completionSource.Task.IsCompleted)
                     {
+                        uIUpdater.DisplayLogMessage($"Training job stopped or in an unknown state.");
                         completionSource.SetResult(true);
                     }
                 }
@@ -198,9 +205,40 @@ namespace LSC_Trainer.Functions
                 }
                 
             }
+            catch (AmazonServiceException ex)
+            {
+                if (ex.InnerException is WebException webEx && webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                {
+                    // Handle the NameResolutionFailure exception
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                    }
+                }
+                else
+                {
+                    // Handle other AmazonServiceExceptions
+                    Console.WriteLine(ex.Message);
+                }
+            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!isMessageBoxShown)
+                {
+                    isMessageBoxShown = true;
+                    MessageBox.Show($"Error in Tracking Training Job: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    isMessageBoxShown = false;
+                }
+                else
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 
@@ -281,7 +319,7 @@ namespace LSC_Trainer.Functions
                             // On-stream exceptions are processed here
                             if (item is CloudWatchLogsEventStreamException)
                             {
-                                uIUpdater.DisplayLogMessage($"ERROR: {item}");
+                                uIUpdater.DisplayLogMessage($"ERROR: {item}");       
                             }
                         }
                         
