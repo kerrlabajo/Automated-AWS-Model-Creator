@@ -147,9 +147,26 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except AssertionError as e:
+        with open("/opt/ml/output/failure", "w") as f:
+            instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
+            f.write(str(e) + "\n" + instructions)
+            print(str(e))
+            print(traceback.format_exc())
+        sys.exit(1)
     except Exception as e:
         with open("/opt/ml/output/failure", "w") as f:
-            print(e)
-            f.write(str(e))
-            f.write(traceback.format_exc())
+            instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
+            if "insufficient CUDA devices for DDP command" in str(e):
+                f.write("Insufficient/No CUDA devices for DDP Training.\n" + instructions)
+                print(str(e))
+                print(traceback.format_exc())
+            elif "CUDA out of memory" in str(e):
+                f.write("CUDA device out of memory.\n" + instructions)
+                print(str(e))
+                print(traceback.format_exc())
+            else:
+                f.write(str(e) + "\n" + instructions)
+                print(str(e))
+                print(traceback.format_exc())
         sys.exit(1)
