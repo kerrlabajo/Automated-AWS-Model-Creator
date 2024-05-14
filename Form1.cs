@@ -1051,7 +1051,7 @@ namespace LSC_Trainer
                 }
             }
 
-            if (!supportedInstances.Contains(selectedInstance))
+            if (!supportedInstances.Contains(selectedInstance) && Int32.TryParse(instanceCount, out int instance) && instance > 1)
             {
                 MessageBox.Show("Multi-instance training does not support instances with no GPU", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
