@@ -981,6 +981,10 @@ namespace LSC_Trainer
                 {
                     idealBatchSize = -1;
                 }
+                else if (!supportedInstances.Contains(instance))
+                {
+                    idealBatchSize = 16 * instanceCount;
+                }
                 else
                 {
                     idealBatchSize = 16 * instanceCount * gpuCount;
@@ -1045,6 +1049,12 @@ namespace LSC_Trainer
                     MessageBox.Show($"{intField.Key} must be a positive integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
+            }
+
+            if (!supportedInstances.Contains(selectedInstance) && Int32.TryParse(instanceCount, out int instance) && instance > 1)
+            {
+                MessageBox.Show("Multi-instance training does not support instances with no GPU", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
 
             if (!Int32.TryParse(txtBatchSize.Text, out int batchSize))
