@@ -92,8 +92,8 @@ namespace LSC_Trainer.Functions
                 TrainingJobName = trainingJobName,
                 StoppingCondition = new StoppingCondition()
                 {
-                    MaxRuntimeInSeconds = 86400,
-                    MaxWaitTimeInSeconds = 86400,
+                    MaxRuntimeInSeconds = 172800,
+                    MaxWaitTimeInSeconds = 172800,
                 },
                 HyperParameters = hyperparameters != "Custom" ? new Dictionary<string, string>()
                 {
