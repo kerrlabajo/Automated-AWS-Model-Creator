@@ -1,5 +1,6 @@
 ﻿using Amazon.CloudWatchLogs;
 using Amazon.CloudWatchLogs.Model;
+using Amazon.Runtime;
 using Amazon.Runtime.EventStreams.Internal;
 using Amazon.S3;
 using Amazon.SageMaker;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +29,7 @@ namespace LSC_Trainer.Functions
         private string datasetKey = "";
         private string s3Bucket = "";
         private bool showDialogBox = false;
+        private bool isMessageBoxShown = false;
 
         private AmazonSageMakerClient amazonSageMakerClient;
         private AmazonCloudWatchLogsClient cloudWatchLogsClient;
@@ -197,6 +200,24 @@ namespace LSC_Trainer.Functions
                     );
                 }
                 
+            }
+            catch (AmazonServiceException ex)
+            {
+                if (ex.InnerException is WebException webEx && webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                {
+                    // Handle the NameResolutionFailure exception
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                }
+                else
+                {
+                    // Handle other AmazonServiceExceptions
+                    Console.WriteLine(ex.Message);
+                }
             }
             catch (Exception ex)
             {
