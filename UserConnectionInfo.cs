@@ -3,7 +3,7 @@
     public class UserConnectionInfo
     {
         private static UserConnectionInfo _instance;
-
+        public static string UserName { get; set; }
         public static string AccountId { get; set; }
         public static string AccessKey { get; set; }
         public static string SecretKey { get; set; }
@@ -44,8 +44,8 @@
             EcrUri = Properties.Settings.Default.CITU_DevTeam_ECR_URI;
             SagemakerBucket = $"sagemaker-{Region}-{AccountId}";
             DefaultDatasetURI = $"s3://{SagemakerBucket}/default-datasets/MMX059XA_COVERED5B/";
-            CustomUploadsURI = $"s3://{SagemakerBucket}/custom-uploads/";
-            DestinationURI = $"s3://{SagemakerBucket}/training-jobs/";
+            CustomUploadsURI = $"s3://{SagemakerBucket}/users/{UserName}/custom-uploads/";
+            DestinationURI = $"s3://{SagemakerBucket}/users/{UserName}/training-jobs/";
         }
     }
 }

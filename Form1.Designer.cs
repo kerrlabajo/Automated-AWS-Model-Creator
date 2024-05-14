@@ -40,6 +40,10 @@ namespace LSC_Trainer
             this.btnSelectDataset = new System.Windows.Forms.Button();
             this.lblZipFile = new System.Windows.Forms.Label();
             this.mainPanel = new System.Windows.Forms.Panel();
+            this.downloadProgressBar = new System.Windows.Forms.ProgressBar();
+            this.txtGpuCount = new System.Windows.Forms.TextBox();
+            this.datasetListComboBox = new System.Windows.Forms.ComboBox();
+            this.btnFetchDatasets = new System.Windows.Forms.Button();
             this.txtInstanceCount = new System.Windows.Forms.TextBox();
             this.instanceCountLabel = new System.Windows.Forms.Label();
             this.instancesDropdown = new System.Windows.Forms.ComboBox();
@@ -54,9 +58,8 @@ namespace LSC_Trainer
             this.btnDownloadModel = new System.Windows.Forms.Button();
             this.btnUploadToS3 = new System.Windows.Forms.Button();
             this.descriptionLabel = new System.Windows.Forms.Label();
-            this.txtDevice = new System.Windows.Forms.TextBox();
             this.trainingStatusLabel = new System.Windows.Forms.Label();
-            this.deviceLabel = new System.Windows.Forms.Label();
+            this.gpuCountLabel = new System.Windows.Forms.Label();
             this.instanceTypelbl = new System.Windows.Forms.Label();
             this.txtOptimizer = new System.Windows.Forms.TextBox();
             this.trainingDurationLabel = new System.Windows.Forms.Label();
@@ -68,11 +71,9 @@ namespace LSC_Trainer
             this.patienceLabel = new System.Windows.Forms.Label();
             this.btnTraining = new System.Windows.Forms.Button();
             this.trainingParametersLabel = new System.Windows.Forms.Label();
-            this.txtData = new System.Windows.Forms.TextBox();
             this.txtWeights = new System.Windows.Forms.TextBox();
             this.txtEpochs = new System.Windows.Forms.TextBox();
             this.txtBatchSize = new System.Windows.Forms.TextBox();
-            this.dataLabel = new System.Windows.Forms.Label();
             this.weightsLabel = new System.Windows.Forms.Label();
             this.epochsLabel = new System.Windows.Forms.Label();
             this.batchSizeLabel = new System.Windows.Forms.Label();
@@ -158,7 +159,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectDataset.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectDataset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectDataset.Location = new System.Drawing.Point(33, 260);
+            this.btnSelectDataset.Location = new System.Drawing.Point(30, 307);
             this.btnSelectDataset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectDataset.Name = "btnSelectDataset";
             this.btnSelectDataset.Size = new System.Drawing.Size(173, 30);
@@ -178,13 +179,16 @@ namespace LSC_Trainer
             this.lblZipFile.Name = "lblZipFile";
             this.lblZipFile.Size = new System.Drawing.Size(145, 22);
             this.lblZipFile.TabIndex = 3;
-            this.lblZipFile.Text = "No file selected";
             // 
             // mainPanel
             // 
             this.mainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.mainPanel.Controls.Add(this.downloadProgressBar);
+            this.mainPanel.Controls.Add(this.txtGpuCount);
+            this.mainPanel.Controls.Add(this.datasetListComboBox);
+            this.mainPanel.Controls.Add(this.btnFetchDatasets);
             this.mainPanel.Controls.Add(this.txtInstanceCount);
             this.mainPanel.Controls.Add(this.instanceCountLabel);
             this.mainPanel.Controls.Add(this.instancesDropdown);
@@ -200,9 +204,8 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.btnDownloadModel);
             this.mainPanel.Controls.Add(this.btnUploadToS3);
             this.mainPanel.Controls.Add(this.descriptionLabel);
-            this.mainPanel.Controls.Add(this.txtDevice);
             this.mainPanel.Controls.Add(this.trainingStatusLabel);
-            this.mainPanel.Controls.Add(this.deviceLabel);
+            this.mainPanel.Controls.Add(this.gpuCountLabel);
             this.mainPanel.Controls.Add(this.instanceTypelbl);
             this.mainPanel.Controls.Add(this.txtOptimizer);
             this.mainPanel.Controls.Add(this.trainingDurationLabel);
@@ -214,11 +217,9 @@ namespace LSC_Trainer
             this.mainPanel.Controls.Add(this.patienceLabel);
             this.mainPanel.Controls.Add(this.btnTraining);
             this.mainPanel.Controls.Add(this.trainingParametersLabel);
-            this.mainPanel.Controls.Add(this.txtData);
             this.mainPanel.Controls.Add(this.txtWeights);
             this.mainPanel.Controls.Add(this.txtEpochs);
             this.mainPanel.Controls.Add(this.txtBatchSize);
-            this.mainPanel.Controls.Add(this.dataLabel);
             this.mainPanel.Controls.Add(this.weightsLabel);
             this.mainPanel.Controls.Add(this.epochsLabel);
             this.mainPanel.Controls.Add(this.batchSizeLabel);
@@ -232,8 +233,47 @@ namespace LSC_Trainer
             this.mainPanel.Location = new System.Drawing.Point(12, 42);
             this.mainPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.mainPanel.Name = "mainPanel";
-            this.mainPanel.Size = new System.Drawing.Size(1140, 344);
+            this.mainPanel.Size = new System.Drawing.Size(1140, 397);
             this.mainPanel.TabIndex = 4;
+            // 
+            // downloadProgressBar
+            // 
+            this.downloadProgressBar.Location = new System.Drawing.Point(940, 346);
+            this.downloadProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.downloadProgressBar.Name = "downloadProgressBar";
+            this.downloadProgressBar.Size = new System.Drawing.Size(161, 23);
+            this.downloadProgressBar.TabIndex = 55;
+            // 
+            // txtGpuCount
+            // 
+            this.txtGpuCount.Enabled = false;
+            this.txtGpuCount.Location = new System.Drawing.Point(427, 184);
+            this.txtGpuCount.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtGpuCount.Name = "txtGpuCount";
+            this.txtGpuCount.ReadOnly = true;
+            this.txtGpuCount.Size = new System.Drawing.Size(145, 22);
+            this.txtGpuCount.TabIndex = 53;
+            this.txtGpuCount.TextChanged += new System.EventHandler(this.txtGpuCount_ValueChanged);
+            // 
+            // datasetListComboBox
+            // 
+            this.datasetListComboBox.Enabled = false;
+            this.datasetListComboBox.FormattingEnabled = true;
+            this.datasetListComboBox.Location = new System.Drawing.Point(353, 266);
+            this.datasetListComboBox.Name = "datasetListComboBox";
+            this.datasetListComboBox.Size = new System.Drawing.Size(279, 24);
+            this.datasetListComboBox.TabIndex = 54;
+            this.datasetListComboBox.SelectedValueChanged += new System.EventHandler(this.datasetListComboBox_SelectedValueChanged);
+            // 
+            // btnFetchDatasets
+            // 
+            this.btnFetchDatasets.Location = new System.Drawing.Point(229, 264);
+            this.btnFetchDatasets.Name = "btnFetchDatasets";
+            this.btnFetchDatasets.Size = new System.Drawing.Size(118, 30);
+            this.btnFetchDatasets.TabIndex = 53;
+            this.btnFetchDatasets.Text = "Fetch Dataset";
+            this.btnFetchDatasets.UseVisualStyleBackColor = true;
+            this.btnFetchDatasets.Click += new System.EventHandler(this.btnFetchDatasets_Click);
             // 
             // txtInstanceCount
             // 
@@ -259,7 +299,7 @@ namespace LSC_Trainer
             this.instancesDropdown.FormattingEnabled = true;
             this.instancesDropdown.Items.AddRange(new object[] {
             "ml.g4dn.xlarge"});
-            this.instancesDropdown.Location = new System.Drawing.Point(455, 257);
+            this.instancesDropdown.Location = new System.Drawing.Point(452, 304);
             this.instancesDropdown.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.instancesDropdown.Name = "instancesDropdown";
             this.instancesDropdown.Size = new System.Drawing.Size(180, 24);
@@ -335,7 +375,7 @@ namespace LSC_Trainer
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(232, 260);
+            this.progressBar.Location = new System.Drawing.Point(229, 307);
             this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(171, 23);
@@ -345,7 +385,7 @@ namespace LSC_Trainer
             // 
             this.btnSelectFolder.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.btnSelectFolder.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectFolder.Location = new System.Drawing.Point(33, 294);
+            this.btnSelectFolder.Location = new System.Drawing.Point(30, 341);
             this.btnSelectFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(176, 30);
@@ -357,7 +397,7 @@ namespace LSC_Trainer
             // btnDownloadModel
             // 
             this.btnDownloadModel.BackColor = System.Drawing.Color.Honeydew;
-            this.btnDownloadModel.Location = new System.Drawing.Point(833, 295);
+            this.btnDownloadModel.Location = new System.Drawing.Point(814, 342);
             this.btnDownloadModel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDownloadModel.Name = "btnDownloadModel";
             this.btnDownloadModel.Size = new System.Drawing.Size(120, 30);
@@ -369,7 +409,7 @@ namespace LSC_Trainer
             // btnUploadToS3
             // 
             this.btnUploadToS3.BackColor = System.Drawing.Color.Yellow;
-            this.btnUploadToS3.Location = new System.Drawing.Point(232, 295);
+            this.btnUploadToS3.Location = new System.Drawing.Point(229, 342);
             this.btnUploadToS3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUploadToS3.Name = "btnUploadToS3";
             this.btnUploadToS3.Size = new System.Drawing.Size(171, 30);
@@ -388,16 +428,6 @@ namespace LSC_Trainer
             this.descriptionLabel.TabIndex = 28;
             this.descriptionLabel.Text = "Description:";
             // 
-            // txtDevice
-            // 
-            this.txtDevice.Location = new System.Drawing.Point(427, 184);
-            this.txtDevice.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtDevice.Name = "txtDevice";
-            this.txtDevice.Size = new System.Drawing.Size(145, 22);
-            this.txtDevice.TabIndex = 10;
-            this.txtDevice.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            this.txtDevice.TextChanged += new System.EventHandler(this.txtDevice_ValueChanged);
-            // 
             // trainingStatusLabel
             // 
             this.trainingStatusLabel.AutoSize = true;
@@ -408,14 +438,14 @@ namespace LSC_Trainer
             this.trainingStatusLabel.TabIndex = 27;
             this.trainingStatusLabel.Text = "Training Status:";
             // 
-            // deviceLabel
+            // gpuCountLabel
             // 
-            this.deviceLabel.AutoSize = true;
-            this.deviceLabel.Location = new System.Drawing.Point(292, 184);
-            this.deviceLabel.Name = "deviceLabel";
-            this.deviceLabel.Size = new System.Drawing.Size(53, 16);
-            this.deviceLabel.TabIndex = 38;
-            this.deviceLabel.Text = "Device:";
+            this.gpuCountLabel.AutoSize = true;
+            this.gpuCountLabel.Location = new System.Drawing.Point(292, 184);
+            this.gpuCountLabel.Name = "gpuCountLabel";
+            this.gpuCountLabel.Size = new System.Drawing.Size(76, 16);
+            this.gpuCountLabel.TabIndex = 38;
+            this.gpuCountLabel.Text = "GPU Count:";
             // 
             // instanceTypelbl
             // 
@@ -502,7 +532,7 @@ namespace LSC_Trainer
             // btnTraining
             // 
             this.btnTraining.BackColor = System.Drawing.Color.Chartreuse;
-            this.btnTraining.Location = new System.Drawing.Point(489, 294);
+            this.btnTraining.Location = new System.Drawing.Point(486, 341);
             this.btnTraining.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnTraining.Name = "btnTraining";
             this.btnTraining.Size = new System.Drawing.Size(120, 30);
@@ -520,15 +550,6 @@ namespace LSC_Trainer
             this.trainingParametersLabel.Size = new System.Drawing.Size(297, 29);
             this.trainingParametersLabel.TabIndex = 17;
             this.trainingParametersLabel.Text = "TRAINING PARAMETERS";
-            // 
-            // txtData
-            // 
-            this.txtData.Location = new System.Drawing.Point(132, 184);
-            this.txtData.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtData.Name = "txtData";
-            this.txtData.Size = new System.Drawing.Size(145, 22);
-            this.txtData.TabIndex = 5;
-            this.txtData.Click += new System.EventHandler(this.SelectAllTextOnClick);
             // 
             // txtWeights
             // 
@@ -556,15 +577,6 @@ namespace LSC_Trainer
             this.txtBatchSize.Size = new System.Drawing.Size(145, 22);
             this.txtBatchSize.TabIndex = 2;
             this.txtBatchSize.Click += new System.EventHandler(this.SelectAllTextOnClick);
-            // 
-            // dataLabel
-            // 
-            this.dataLabel.AutoSize = true;
-            this.dataLabel.Location = new System.Drawing.Point(30, 180);
-            this.dataLabel.Name = "dataLabel";
-            this.dataLabel.Size = new System.Drawing.Size(39, 16);
-            this.dataLabel.TabIndex = 11;
-            this.dataLabel.Text = "Data:";
             // 
             // weightsLabel
             // 
@@ -646,15 +658,15 @@ namespace LSC_Trainer
             // 
             this.outputListComboBox.Enabled = false;
             this.outputListComboBox.FormattingEnabled = true;
-            this.outputListComboBox.Location = new System.Drawing.Point(691, 257);
+            this.outputListComboBox.Location = new System.Drawing.Point(688, 304);
             this.outputListComboBox.Name = "outputListComboBox";
             this.outputListComboBox.Size = new System.Drawing.Size(410, 24);
             this.outputListComboBox.TabIndex = 16;
-            this.outputListComboBox.SelectedValueChanged += new System.EventHandler(this.modelListComboBox_SelectedValueChanged);
+            this.outputListComboBox.SelectedValueChanged += new System.EventHandler(this.outputListComboBox_SelectedValueChanged);
             // 
             // btnFetchOutput
             // 
-            this.btnFetchOutput.Location = new System.Drawing.Point(691, 295);
+            this.btnFetchOutput.Location = new System.Drawing.Point(688, 342);
             this.btnFetchOutput.Name = "btnFetchOutput";
             this.btnFetchOutput.Size = new System.Drawing.Size(120, 30);
             this.btnFetchOutput.TabIndex = 17;
@@ -681,7 +693,7 @@ namespace LSC_Trainer
             this.logPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.logPanel.Controls.Add(this.logBox);
             this.logPanel.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.logPanel.Location = new System.Drawing.Point(12, 407);
+            this.logPanel.Location = new System.Drawing.Point(12, 460);
             this.logPanel.Name = "logPanel";
             this.logPanel.Size = new System.Drawing.Size(1140, 340);
             this.logPanel.TabIndex = 33;
@@ -689,7 +701,7 @@ namespace LSC_Trainer
             // 
             // SpaceBetween
             // 
-            this.SpaceBetween.Location = new System.Drawing.Point(12, 391);
+            this.SpaceBetween.Location = new System.Drawing.Point(12, 444);
             this.SpaceBetween.Name = "SpaceBetween";
             this.SpaceBetween.Size = new System.Drawing.Size(1140, 10);
             this.SpaceBetween.TabIndex = 34;
@@ -702,7 +714,7 @@ namespace LSC_Trainer
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.ClientSize = new System.Drawing.Size(1164, 770);
+            this.ClientSize = new System.Drawing.Size(1164, 835);
             this.Controls.Add(this.SpaceBetween);
             this.Controls.Add(this.lscTrainerMenuStrip);
             this.Controls.Add(this.mainPanel);
@@ -736,11 +748,9 @@ namespace LSC_Trainer
         private System.Windows.Forms.Label batchSizeLabel;
         private System.Windows.Forms.Label epochsLabel;
         private System.Windows.Forms.Label weightsLabel;
-        private System.Windows.Forms.Label dataLabel;
         private System.Windows.Forms.TextBox txtBatchSize;
         private System.Windows.Forms.TextBox txtEpochs;
         private System.Windows.Forms.TextBox txtWeights;
-        private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.Label trainingParametersLabel;
         private System.Windows.Forms.Label descriptionLabel;
         private System.Windows.Forms.Label trainingStatusLabel;
@@ -753,8 +763,7 @@ namespace LSC_Trainer
         private System.Windows.Forms.TextBox txtWorkers;
         private System.Windows.Forms.Label optimizerLabel;
         private System.Windows.Forms.TextBox txtOptimizer;
-        private System.Windows.Forms.Label deviceLabel;
-        private System.Windows.Forms.TextBox txtDevice;
+        private System.Windows.Forms.Label gpuCountLabel;
         private System.Windows.Forms.Button btnUploadToS3;
         private System.Windows.Forms.Button btnDownloadModel;
         private System.Windows.Forms.Button btnSelectFolder;
@@ -781,6 +790,10 @@ namespace LSC_Trainer
         private System.Windows.Forms.ComboBox instancesDropdown;
         private System.Windows.Forms.TextBox txtInstanceCount;
         private System.Windows.Forms.Label instanceCountLabel;
+        private System.Windows.Forms.TextBox txtGpuCount;
+        private System.Windows.Forms.ComboBox datasetListComboBox;
+        private System.Windows.Forms.Button btnFetchDatasets;
+        private System.Windows.Forms.ProgressBar downloadProgressBar;
     }
 }
 

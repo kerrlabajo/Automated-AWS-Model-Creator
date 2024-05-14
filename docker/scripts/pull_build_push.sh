@@ -30,12 +30,30 @@ else
 fi
 
 # Get the latest commit hash
-LATEST_COMMIT=$(git rev-parse origin/feat/multi-instance-gpu-ddp)
+LATEST_COMMIT=$(git rev-parse origin/feat/docker-enhancement)
 
 # Check if the commit file exists and contains the latest commit hash
 if [ -e "${COMMITFILE}" ] && grep -Fxq "${LATEST_COMMIT}" "${COMMITFILE}"; then
   # The commit file exists and contains the latest commit hash, so exit the script
   echo "There are no new commits. Exiting."
+  exit 1
+fi
+
+# Check if the specific files have changes
+git pull
+CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+DIRECTORY="docker/yolov5-training/"
+FILE_CHANGED=0
+
+while IFS= read -r FILE; do
+  if [[ "${FILE}" == "${DIRECTORY}"* ]]; then
+    echo "A file/s has been changed/added."
+    FILE_CHANGED=1
+  fi
+done <<< "${CHANGED_FILES}"
+
+if [ "${FILE_CHANGED}" -eq 0 ]; then
+  echo "No files in ${DIRECTORY} have changed. Exiting."
   exit 1
 fi
 
@@ -54,8 +72,6 @@ VERSION=$(printf "%.1f" $VERSION)
 
 # Create the new tag
 NEW_TAG="${VERSION}${TAG_BASE}"
-
-git pull
 
 # Authenticate Docker to ECR
 aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin ${ECR_URL}

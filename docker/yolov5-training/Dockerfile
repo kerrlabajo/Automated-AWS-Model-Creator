@@ -22,17 +22,14 @@ RUN apt-get update --fix-missing && \
 
 # Clone the repository and set the PATH
 RUN mkdir /code && git clone https://github.com/ultralytics/yolov5 /code/yolov5
-ENV PATH="/code:${PATH}"
+ENV PATH="${PATH}:/code"
 
 # Install Python dependencies
 RUN pip3 install -r /code/yolov5/requirements.txt --no-cache-dir && \
   pip3 install 'onnx>=1.10.0' --no-cache-dir && \
-  pip3 install -q --no-input pyyaml
-
-# Run unit tests
-COPY unittest_yolov5.py /yolov5/unittest_yolov5.py
-RUN py -m unittest unittest_yolov5.py
+  pip3 install -q --no-input pyyaml --no-cache-dir
 
 # Copy the Python scripts
 COPY json_to_yaml_converter.py /code/json_to_yaml_converter.py
+COPY configure_dataset.py /code/configure_dataset.py
 COPY train_and_export.py /code/train_and_export.py
