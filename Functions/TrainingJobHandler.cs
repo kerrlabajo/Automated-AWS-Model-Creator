@@ -212,6 +212,10 @@ namespace LSC_Trainer.Functions
                         MessageBox.Show($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         isMessageBoxShown = false;
                     }
+                    else
+                    {
+                        Console.WriteLine($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                    }
                 }
                 else
                 {
