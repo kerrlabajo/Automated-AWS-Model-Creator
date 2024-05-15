@@ -115,10 +115,11 @@ namespace LSC_Trainer
                 UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
                 UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
                 UserConnectionInfo.EcrUri = Environment.GetEnvironmentVariable("INTELLISYS_ECR_URI");
-                UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-                UserConnectionInfo.DefaultDatasetURI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-                UserConnectionInfo.CustomUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
-                UserConnectionInfo.DestinationURI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+
+                UserConnectionInfo.SagemakerBucket = $"sagemaker-{UserConnectionInfo.Region}-{UserConnectionInfo.AccountId}";
+                UserConnectionInfo.DefaultDatasetURI = $"s3://{UserConnectionInfo.SagemakerBucket}/default-datasets/MMX059XA_COVERED5B/";
+                UserConnectionInfo.CustomUploadsURI = $"s3://{UserConnectionInfo.SagemakerBucket}/users/{UserConnectionInfo.UserName}/custom-uploads/";
+                UserConnectionInfo.DestinationURI = $"s3://{UserConnectionInfo.SagemakerBucket}/users/{UserConnectionInfo.UserName}/training-jobs/";
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else if (!development && UserConnectionInfo.AccountId == null && UserConnectionInfo.AccessKey == null && UserConnectionInfo.SecretKey == null && UserConnectionInfo.Region == null && UserConnectionInfo.RoleArn == null)
