@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 import traceback
+import re
 
 def get_hosts_and_node_rank():
     """
@@ -37,23 +38,25 @@ def run_script(args, use_module=False):
     """
     try:
         if use_module:
-            result = subprocess.run(["python3", "-m"] + args, check=True, stderr=subprocess.PIPE, stdout=sys.stdout)
+            subprocess.run(["python3", "-m"] + args, check=True)
         else:
-            result = subprocess.run(["python3"] + args, check=True, stderr=subprocess.PIPE, stdout=sys.stdout)
-    except (subprocess.CalledProcessError, AssertionError) as e:
-        error_message = e.stderr.decode('utf-8') if hasattr(e, 'stderr') else str(e)
+            subprocess.run(["python3"] + args, check=True)
+    except subprocess.CalledProcessError as e:
         instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
-        error_message += "\n" + instructions
-        with open("/opt/ml/output/failure", "w") as f:
-            if "FileNotFoundError" in error_message:
-                f.write(f"FileNotFoundError occurred in subprocess: {error_message}")
-            elif "AssertionError" in error_message:
-                f.write(f"AssertionError occurred in subprocess: {error_message}")
-            else:
-                f.write(f"Error occurred in subprocess: {error_message}")
-        print(traceback.format_exc())
-        print("Debug: " + error_message)
-        sys.exit(1)
+    with open("/opt/ml/output/failure", "w") as f:
+        error_message = str(e)
+        if "FileNotFoundError" in error_message:
+            error_line = re.search("FileNotFoundError.*", error_message).group()
+            f.write(f"FileNotFoundError occurred in subprocess: {error_line}\n{instructions}")
+        elif "AssertionError" in error_message:
+            error_line = re.search("AssertionError.*", error_message).group()
+            f.write(f"AssertionError occurred in subprocess: {error_line}\n{instructions}")
+        else:
+            f.write(f"Error occurred in subprocess: {error_message}\n{instructions}")
+
+    print(error_message)
+    print(traceback.format_exc())
+    sys.exit(1)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
