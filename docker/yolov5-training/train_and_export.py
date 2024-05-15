@@ -50,9 +50,9 @@ def run_script(args, use_module=False):
             elif "AssertionError" in error_message:
                 f.write(f"AssertionError occurred in subprocess: {error_message}")
             else:
-                f.write(f"Error occurred in subprocess: {str(e)}")
-        print(error_message)
+                f.write(f"Error occurred in subprocess: {error_message}")
         print(traceback.format_exc())
+        print("Debug: " + error_message)
         sys.exit(1)
 
 def parse_arguments():
