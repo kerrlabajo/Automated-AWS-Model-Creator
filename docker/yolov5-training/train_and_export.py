@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 import traceback
+import re
 
 def get_hosts_and_node_rank():
     """
@@ -35,10 +36,17 @@ def run_script(args, use_module=False):
     Returns:
     `None`
     """
-    if use_module:
-        subprocess.run(["python3", "-m"] + args, check=True)
-    else:
-        subprocess.run(["python3"] + args, check=True)
+    try:
+        if use_module:
+            subprocess.run(["python3", "-m"] + args, check=True)
+        else:
+            subprocess.run(["python3"] + args, check=True)
+    except Exception as e:
+        instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
+        with open("/opt/ml/output/failure", "w") as f:
+            f.write(instructions)
+        print(traceback.format_exc())
+        sys.exit(1)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -121,7 +129,7 @@ def main():
         "--data", args.data, "--hyp", "/opt/ml/input/config/custom-hyps.yaml" if args.hyp == "Custom" else args.hyp,
         "--project", args.project, "--name", args.name,
         "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer,
-        "--device", args.device, "--cache", "--exist-ok",
+        "--device", args.device, "--cache", "disk", "--exist-ok",
     ]
     export_args = [
         "/code/yolov5/export.py", "--img-size", args.img_size,
@@ -145,11 +153,4 @@ def main():
         shutil.copy2("/opt/ml/output/data/results/weights/best.onnx", "/opt/ml/model/")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        with open("/opt/ml/output/failure", "w") as f:
-            print(e)
-            f.write(str(e))
-            f.write(traceback.format_exc())
-        sys.exit(1)
+    main()

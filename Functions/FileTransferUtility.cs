@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using System.Threading;
+using System.Net;
+using Amazon.Runtime;
 
 namespace LSC_Trainer.Functions
 {
@@ -22,6 +24,8 @@ namespace LSC_Trainer.Functions
         private IUIUpdater UIUpdater { get; set; }
 
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+        private bool isMessageBoxShown = false;
         public FileTransferUtility(IUIUpdater uIUpdater)
         {
             UIUpdater = uIUpdater;
@@ -92,7 +96,7 @@ namespace LSC_Trainer.Functions
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     var uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
-                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater,cancellationTokenSource.Token);
+                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater, cancellationTokenSource.Token);
 
                     await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
 
@@ -101,14 +105,63 @@ namespace LSC_Trainer.Functions
                         UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                     }
                 }
-                
+
 
                 LogUploadTime(startTime);
                 return fileName;
             }
             catch (AmazonS3Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (e.ErrorCode == "RequestTimeTooSkewed")
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;   
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.");
+                    }
+                }
+                else
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        LogError("Error uploading file to S3: ", e);
+                    }
+                }
+                cancellationTokenSource.Cancel();
+                return null;
+            }
+            catch (AmazonServiceException e)
+            {
+                if (e.InnerException is WebException webEx && webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                {
+                    // Handle the NameResolutionFailure exception
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                    }
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: An error occurred within the AWS SDK.", e);
+                }
+                cancellationTokenSource.Cancel();
                 return null;
             }
             catch (OperationCanceledException e)
@@ -118,7 +171,17 @@ namespace LSC_Trainer.Functions
             }
             catch (Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (!isMessageBoxShown)
+                {
+                    isMessageBoxShown = true;
+                    MessageBox.Show($"Error uploading file to S3: {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    isMessageBoxShown = false;
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: ", e);
+                }
+                cancellationTokenSource.Cancel();
                 return null;
             }
         }
@@ -164,18 +227,82 @@ namespace LSC_Trainer.Functions
             }
             catch (AmazonS3Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (e.ErrorCode == "RequestTimeTooSkewed")
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.");
+                    }
+                }
+                else
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        LogError("Error uploading file to S3: ", e);
+                    }                   
+                }
+                cancellationTokenSource.Cancel();
+                return null;
+            }
+            catch (AmazonServiceException e)
+            {
+                if (e.InnerException is WebException webEx && webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                {
+                    // Handle the NameResolutionFailure exception
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                    }
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: An error occurred within the AWS SDK.", e);
+                }
+                cancellationTokenSource.Cancel();
+                return null;
+            }
+            catch (OperationCanceledException e)
+            {
+                LogError("File Upload has been cancelled: ", e);
                 return null;
             }
             catch (Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (!isMessageBoxShown)
+                {
+                    isMessageBoxShown = true;
+                    MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    isMessageBoxShown = false;
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: ", e);
+                }
+                cancellationTokenSource.Cancel();
                 return null;
             }
         }
 
         /// <summary>
-        /// Extracts the contents of a ZIP file into Memory Stream and uploads them to Amazon S3 asynchronously.
+        /// Gets the contents of a folder and uploads them to Amazon S3 asynchronously.
         /// </summary>
         /// <param name="s3Client">The Amazon S3 client instance.</param>
         /// <param name="bucketName">The name of the S3 bucket where the files will be uploaded.</param>

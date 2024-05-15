@@ -29,11 +29,6 @@ namespace LSC_Trainer.Functions
     public class AWS_Helper
     {
         /// <summary>
-        /// Represents the total size of data uploaded.
-        /// </summary>
-        private static long totalUploaded = 0;
-
-        /// <summary>
         /// Validates the provided access key ID by retrieving the username associated with it using the IAM client.
         /// Updates the UserConnectionInfo.UserName property with the retrieved username if the key is valid.
         /// </summary>

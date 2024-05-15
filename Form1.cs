@@ -115,10 +115,11 @@ namespace LSC_Trainer
                 UserConnectionInfo.Region = Environment.GetEnvironmentVariable("REGION");
                 UserConnectionInfo.RoleArn = Environment.GetEnvironmentVariable("ROLE_ARN");
                 UserConnectionInfo.EcrUri = Environment.GetEnvironmentVariable("INTELLISYS_ECR_URI");
-                UserConnectionInfo.SagemakerBucket = Environment.GetEnvironmentVariable("SAGEMAKER_BUCKET");
-                UserConnectionInfo.DefaultDatasetURI = Environment.GetEnvironmentVariable("DEFAULT_DATASET_URI");
-                UserConnectionInfo.CustomUploadsURI = Environment.GetEnvironmentVariable("CUSTOM_UPLOADS_URI");
-                UserConnectionInfo.DestinationURI = Environment.GetEnvironmentVariable("DESTINATION_URI");
+
+                UserConnectionInfo.SagemakerBucket = $"sagemaker-{UserConnectionInfo.Region}-{UserConnectionInfo.AccountId}";
+                UserConnectionInfo.DefaultDatasetURI = $"s3://{UserConnectionInfo.SagemakerBucket}/default-datasets/MMX059XA_COVERED5B/";
+                UserConnectionInfo.CustomUploadsURI = $"s3://{UserConnectionInfo.SagemakerBucket}/users/{UserConnectionInfo.UserName}/custom-uploads/";
+                UserConnectionInfo.DestinationURI = $"s3://{UserConnectionInfo.SagemakerBucket}/users/{UserConnectionInfo.UserName}/training-jobs/";
                 MessageBox.Show("Established Connection using ENV for Development", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else if (!development && UserConnectionInfo.AccountId == null && UserConnectionInfo.AccessKey == null && UserConnectionInfo.SecretKey == null && UserConnectionInfo.Region == null && UserConnectionInfo.RoleArn == null)
@@ -460,7 +461,8 @@ namespace LSC_Trainer
         /// <param name="e">An instance of RunWorkerCompletedEventArgs containing event data.</param>
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            MessageBox.Show("Upload completed!");
+            if (progressBar.Value >= 100)
+                MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
             mainPanel.Enabled = true;
             logPanel.Enabled = true;
@@ -981,6 +983,10 @@ namespace LSC_Trainer
                 {
                     idealBatchSize = -1;
                 }
+                else if (!supportedInstances.Contains(instance))
+                {
+                    idealBatchSize = 16 * instanceCount;
+                }
                 else
                 {
                     idealBatchSize = 16 * instanceCount * gpuCount;
@@ -1045,6 +1051,12 @@ namespace LSC_Trainer
                     MessageBox.Show($"{intField.Key} must be a positive integer.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
+            }
+
+            if (!supportedInstances.Contains(selectedInstance) && Int32.TryParse(instanceCount, out int instance) && instance > 1)
+            {
+                MessageBox.Show("Multi-instance training does not support instances with no GPU", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
 
             if (!Int32.TryParse(txtBatchSize.Text, out int batchSize))
