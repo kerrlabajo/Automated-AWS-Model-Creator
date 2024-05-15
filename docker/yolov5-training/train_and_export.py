@@ -47,18 +47,20 @@ def run_script(args, use_module=False):
         with open("/opt/ml/output/failure", "w") as f:
             if "FileNotFoundError" in error_message:
                 error_line = re.search("FileNotFoundError.*", error_message).group()
-                f.write(f"FileNotFoundError occurred in subprocess: {error_line}\n{instructions}")
+                f.write(f"{error_line}\n{instructions}")
             elif "AssertionError" in error_message:
                 error_line = re.search("AssertionError.*", error_message).group()
-                f.write(f"AssertionError occurred in subprocess: {error_line}\n{instructions}")
+                f.write(f"{error_line}\n{instructions}")
             else:
-                f.write(f"Error occurred in subprocess: {error_message}\n{instructions}")
+                f.write(f"{error_message}\n{instructions}")
         print(error_message)
         print(traceback.format_exc())
         sys.exit(1)
     else:
         output_message = result.stdout.decode('utf-8')  # decode from bytes to string
+        error_message = result.stderr.decode('utf-8')  # decode from bytes to string
         print(output_message)
+        print(error_message)  # print stderr in case the program writes its output to stderr
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
