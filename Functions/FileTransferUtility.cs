@@ -149,12 +149,12 @@ namespace LSC_Trainer.Functions
                     if (!isMessageBoxShown)
                     {
                         isMessageBoxShown = true;
-                        MessageBox.Show($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         isMessageBoxShown = false;
                     }
                     else
                     {
-                        Console.WriteLine($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                        Console.WriteLine($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.");
                     }
                 }
                 else
