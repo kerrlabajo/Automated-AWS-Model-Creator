@@ -22,6 +22,8 @@ namespace LSC_Trainer.Functions
         private IUIUpdater UIUpdater { get; set; }
 
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+        private bool isMessageBoxShown = false;
         public FileTransferUtility(IUIUpdater uIUpdater)
         {
             UIUpdater = uIUpdater;
@@ -92,7 +94,7 @@ namespace LSC_Trainer.Functions
                 using (TransferUtility transferUtility = new TransferUtility(s3Client))
                 {
                     var uploadRequest = CreateUploadRequest(filePath, fileName, bucketName);
-                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater,cancellationTokenSource.Token);
+                    ConfigureProgressTracking(uploadRequest, progress, totalSize, UIUpdater, cancellationTokenSource.Token);
 
                     await transferUtility.UploadAsync(uploadRequest, cancellationTokenSource.Token);
 
@@ -101,14 +103,40 @@ namespace LSC_Trainer.Functions
                         UIUpdater.UpdateTrainingStatus($"Uploading Files to S3", $"Uploading {totalUploaded}/{totalSize} - {overallPercentage}%");
                     }
                 }
-                
+
 
                 LogUploadTime(startTime);
                 return fileName;
             }
             catch (AmazonS3Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (e.ErrorCode == "RequestTimeTooSkewed")
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;   
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.");
+                    }
+                }
+                else
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        LogError("Error uploading file to S3: ", e);
+                    }
+                }
+                cancellationTokenSource.Cancel();
                 return null;
             }
             catch (OperationCanceledException e)
@@ -118,7 +146,17 @@ namespace LSC_Trainer.Functions
             }
             catch (Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (!isMessageBoxShown)
+                {
+                    isMessageBoxShown = true;
+                    MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    isMessageBoxShown = false;
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: ", e);
+                }
+                cancellationTokenSource.Cancel();
                 return null;
             }
         }
@@ -164,12 +202,53 @@ namespace LSC_Trainer.Functions
             }
             catch (AmazonS3Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (e.ErrorCode == "RequestTimeTooSkewed")
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error uploading file to S3: A file took too long to upload. The difference between the request time and the current time is too large.");
+                    }
+                }
+                else
+                {
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        LogError("Error uploading file to S3: ", e);
+                    }                   
+                }
+                cancellationTokenSource.Cancel();
+                return null;
+            }
+            catch (OperationCanceledException e)
+            {
+                LogError("File Upload has been cancelled: ", e);
                 return null;
             }
             catch (Exception e)
             {
-                LogError("Error uploading file to S3: ", e);
+                if (!isMessageBoxShown)
+                {
+                    isMessageBoxShown = true;
+                    MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    isMessageBoxShown = false;
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: ", e);
+                }
+                cancellationTokenSource.Cancel();
                 return null;
             }
         }
