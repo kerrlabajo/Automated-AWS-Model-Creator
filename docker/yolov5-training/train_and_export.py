@@ -136,7 +136,7 @@ def main():
         "--data", args.data, "--hyp", "/opt/ml/input/config/custom-hyps.yaml" if args.hyp == "Custom" else args.hyp,
         "--project", args.project, "--name", args.name,
         "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer,
-        "--device", args.device, "--cache", "--exist-ok",
+        "--device", args.device, "--cache", "disk", "--exist-ok",
     ]
     export_args = [
         "/code/yolov5/export.py", "--img-size", args.img_size,
