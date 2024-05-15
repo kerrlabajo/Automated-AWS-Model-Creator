@@ -38,29 +38,15 @@ def run_script(args, use_module=False):
     """
     try:
         if use_module:
-            result = subprocess.run(["python3", "-m"] + args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(["python3", "-m"] + args, check=True)
         else:
-            result = subprocess.run(["python3"] + args, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        error_message = e.stderr.decode('utf-8')  # decode from bytes to string
+            subprocess.run(["python3"] + args, check=True)
+    except Exception as e:
         instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
         with open("/opt/ml/output/failure", "w") as f:
-            if "FileNotFoundError" in error_message:
-                error_line = re.search("FileNotFoundError.*", error_message).group()
-                f.write(f"{error_line}\n{instructions}")
-            elif "AssertionError" in error_message:
-                error_line = re.search("AssertionError.*", error_message).group()
-                f.write(f"{error_line}\n{instructions}")
-            else:
-                f.write(f"{error_message}\n{instructions}")
-        print(error_message)
+            f.write(instructions)
         print(traceback.format_exc())
         sys.exit(1)
-    else:
-        output_message = result.stdout.decode('utf-8')  # decode from bytes to string
-        error_message = result.stderr.decode('utf-8')  # decode from bytes to string
-        print(output_message)
-        print(error_message)  # print stderr in case the program writes its output to stderr
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
