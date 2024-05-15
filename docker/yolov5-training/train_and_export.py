@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 import traceback
+import re
 
 def get_hosts_and_node_rank():
     """
@@ -40,11 +41,11 @@ def run_script(args, use_module=False):
             subprocess.run(["python3", "-m"] + args, check=True)
         else:
             subprocess.run(["python3"] + args, check=True)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
+        instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
         with open("/opt/ml/output/failure", "w") as f:
-            f.write(f"Error occurred in subprocess: {str(e)}")
-            print(str(e))
-            print(traceback.format_exc())
+            f.write(instructions)
+        print(traceback.format_exc())
         sys.exit(1)
 
 def parse_arguments():
@@ -128,7 +129,7 @@ def main():
         "--data", args.data, "--hyp", "/opt/ml/input/config/custom-hyps.yaml" if args.hyp == "Custom" else args.hyp,
         "--project", args.project, "--name", args.name,
         "--patience", args.patience, "--workers", args.workers, "--optimizer", args.optimizer,
-        "--device", args.device, "--cache", "--exist-ok",
+        "--device", args.device, "--cache", "disk", "--exist-ok",
     ]
     export_args = [
         "/code/yolov5/export.py", "--img-size", args.img_size,
@@ -152,28 +153,4 @@ def main():
         shutil.copy2("/opt/ml/output/data/results/weights/best.onnx", "/opt/ml/model/")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except AssertionError as e:
-        with open("/opt/ml/output/failure", "w") as f:
-            instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
-            f.write(str(e) + "\n" + instructions)
-            print(str(e))
-            print(traceback.format_exc())
-        sys.exit(1)
-    except Exception as e:
-        with open("/opt/ml/output/failure", "w") as f:
-            instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
-            if "insufficient CUDA devices for DDP command" in str(e):
-                f.write("Insufficient/No CUDA devices for DDP Training.\n" + instructions)
-                print(str(e))
-                print(traceback.format_exc())
-            elif "CUDA out of memory" in str(e):
-                f.write("CUDA device out of memory.\n" + instructions)
-                print(str(e))
-                print(traceback.format_exc())
-            else:
-                f.write(str(e) + "\n" + instructions)
-                print(str(e))
-                print(traceback.format_exc())
-        sys.exit(1)
+    main()
