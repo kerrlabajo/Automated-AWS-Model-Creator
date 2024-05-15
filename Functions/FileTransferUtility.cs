@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using System.Threading;
+using System.Net;
+using Amazon.Runtime;
 
 namespace LSC_Trainer.Functions
 {
@@ -139,6 +141,29 @@ namespace LSC_Trainer.Functions
                 cancellationTokenSource.Cancel();
                 return null;
             }
+            catch (AmazonServiceException e)
+            {
+                if (e.InnerException is WebException webEx && webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                {
+                    // Handle the NameResolutionFailure exception
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error in Tracking Training Job: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                    }
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: An error occurred within the AWS SDK.", e);
+                }
+                cancellationTokenSource.Cancel();
+                return null;
+            }
             catch (OperationCanceledException e)
             {
                 LogError("File Upload has been cancelled: ", e);
@@ -149,7 +174,7 @@ namespace LSC_Trainer.Functions
                 if (!isMessageBoxShown)
                 {
                     isMessageBoxShown = true;
-                    MessageBox.Show($"Error uploading file to S3: {e}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error uploading file to S3: {e.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     isMessageBoxShown = false;
                 }
                 else
@@ -231,6 +256,29 @@ namespace LSC_Trainer.Functions
                 cancellationTokenSource.Cancel();
                 return null;
             }
+            catch (AmazonServiceException e)
+            {
+                if (e.InnerException is WebException webEx && webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                {
+                    // Handle the NameResolutionFailure exception
+                    if (!isMessageBoxShown)
+                    {
+                        isMessageBoxShown = true;
+                        MessageBox.Show($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        isMessageBoxShown = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error in uploading file to S3: Failed to resolve the hostname. Please check your network connection and the hostname.");
+                    }
+                }
+                else
+                {
+                    LogError("Error uploading file to S3: An error occurred within the AWS SDK.", e);
+                }
+                cancellationTokenSource.Cancel();
+                return null;
+            }
             catch (OperationCanceledException e)
             {
                 LogError("File Upload has been cancelled: ", e);
@@ -254,7 +302,7 @@ namespace LSC_Trainer.Functions
         }
 
         /// <summary>
-        /// Extracts the contents of a ZIP file into Memory Stream and uploads them to Amazon S3 asynchronously.
+        /// Gets the contents of a folder and uploads them to Amazon S3 asynchronously.
         /// </summary>
         /// <param name="s3Client">The Amazon S3 client instance.</param>
         /// <param name="bucketName">The name of the S3 bucket where the files will be uploaded.</param>
