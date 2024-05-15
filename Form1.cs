@@ -460,7 +460,8 @@ namespace LSC_Trainer
         /// <param name="e">An instance of RunWorkerCompletedEventArgs containing event data.</param>
         private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            MessageBox.Show("Upload completed!");
+            if (progressBar.Value >= 100)
+                MessageBox.Show("Upload completed!");
             progressBar.Value = 0;
             mainPanel.Enabled = true;
             logPanel.Enabled = true;
