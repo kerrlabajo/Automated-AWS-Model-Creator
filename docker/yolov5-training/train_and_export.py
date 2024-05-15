@@ -37,9 +37,9 @@ def run_script(args, use_module=False):
     """
     try:
         if use_module:
-            result = subprocess.run(["python3", "-m"] + args, check=True, stderr=subprocess.PIPE)
+            result = subprocess.run(["python3", "-m"] + args, check=True, stderr=subprocess.PIPE, stdout=sys.stdout)
         else:
-            result = subprocess.run(["python3"] + args, check=True, stderr=subprocess.PIPE)
+            result = subprocess.run(["python3"] + args, check=True, stderr=subprocess.PIPE, stdout=sys.stdout)
     except (subprocess.CalledProcessError, AssertionError) as e:
         error_message = e.stderr.decode('utf-8') if hasattr(e, 'stderr') else str(e)
         instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
