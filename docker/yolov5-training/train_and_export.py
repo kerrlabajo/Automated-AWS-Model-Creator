@@ -53,10 +53,9 @@ def run_script(args, use_module=False):
             f.write(f"AssertionError occurred in subprocess: {error_line}\n{instructions}")
         else:
             f.write(f"Error occurred in subprocess: {error_message}\n{instructions}")
-
-    print(error_message)
-    print(traceback.format_exc())
-    sys.exit(1)
+        print(error_message)
+        print(traceback.format_exc())
+        sys.exit(1)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
