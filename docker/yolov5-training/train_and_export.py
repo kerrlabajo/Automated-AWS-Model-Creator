@@ -43,19 +43,19 @@ def run_script(args, use_module=False):
             subprocess.run(["python3"] + args, check=True)
     except subprocess.CalledProcessError as e:
         instructions = "Please refer to your AWS Console Management -> SageMaker -> Training Jobs -> <Job Name> -> Monitor Section -> View Logs -> `/aws/sagemaker/TrainingJobs` Log group -> <Log Stream> -> Select host `algo-1` for more information."
-    with open("/opt/ml/output/failure", "w") as f:
-        error_message = str(e)
-        if "FileNotFoundError" in error_message:
-            error_line = re.search("FileNotFoundError.*", error_message).group()
-            f.write(f"FileNotFoundError occurred in subprocess: {error_line}\n{instructions}")
-        elif "AssertionError" in error_message:
-            error_line = re.search("AssertionError.*", error_message).group()
-            f.write(f"AssertionError occurred in subprocess: {error_line}\n{instructions}")
-        else:
-            f.write(f"Error occurred in subprocess: {error_message}\n{instructions}")
-        print(error_message)
-        print(traceback.format_exc())
-        sys.exit(1)
+        with open("/opt/ml/output/failure", "w") as f:
+            error_message = str(e)
+            if "FileNotFoundError" in error_message:
+                error_line = re.search("FileNotFoundError.*", error_message).group()
+                f.write(f"FileNotFoundError occurred in subprocess: {error_line}\n{instructions}")
+            elif "AssertionError" in error_message:
+                error_line = re.search("AssertionError.*", error_message).group()
+                f.write(f"AssertionError occurred in subprocess: {error_line}\n{instructions}")
+            else:
+                f.write(f"Error occurred in subprocess: {error_message}\n{instructions}")
+            print(error_message)
+            print(traceback.format_exc())
+            sys.exit(1)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
