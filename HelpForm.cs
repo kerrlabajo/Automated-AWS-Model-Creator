@@ -26,7 +26,7 @@ namespace AutomatedAWSModelCreator
             {
                 try
                 {
-                    string readmeText = "You may refer to https://github.com/kerrlabajo/Automated-AWS-Model-Creator.\n" + client.GetStringAsync(readmeUrl).Result;
+                    string readmeText = "You may refer to https://github.com/kerrlabajo/Automated-AWS-Model-Creator/blob/main/README.md.\n" + client.GetStringAsync(readmeUrl).Result;
                     helpBox.Text = readmeText;
                 }
                 catch (Exception ex)
