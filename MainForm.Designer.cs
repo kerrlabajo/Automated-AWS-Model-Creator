@@ -1,5 +1,5 @@
 ﻿
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     partial class MainForm
     {
@@ -29,7 +29,7 @@ namespace LSC_Trainer
         /// </summary>
         private void InitializeComponent()
         {
-            this.lscTrainerMenuStrip = new System.Windows.Forms.MenuStrip();
+            this.appMenuStrip = new System.Windows.Forms.MenuStrip();
             this.connectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.createConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.testConnectionMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -86,23 +86,23 @@ namespace LSC_Trainer
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.logPanel = new System.Windows.Forms.Panel();
             this.SpaceBetween = new System.Windows.Forms.Panel();
-            this.lscTrainerMenuStrip.SuspendLayout();
+            this.appMenuStrip.SuspendLayout();
             this.mainPanel.SuspendLayout();
             this.logPanel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // lscTrainerMenuStrip
+            // appMenuStrip
             // 
-            this.lscTrainerMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.lscTrainerMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.appMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.appMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectionMenu,
             this.helpMenu,
             this.newTrainingJobMenu});
-            this.lscTrainerMenuStrip.Location = new System.Drawing.Point(0, 0);
-            this.lscTrainerMenuStrip.Name = "lscTrainerMenuStrip";
-            this.lscTrainerMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.lscTrainerMenuStrip.Size = new System.Drawing.Size(1164, 28);
-            this.lscTrainerMenuStrip.TabIndex = 1;
+            this.appMenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.appMenuStrip.Name = "appMenuStrip";
+            this.appMenuStrip.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
+            this.appMenuStrip.Size = new System.Drawing.Size(1164, 28);
+            this.appMenuStrip.TabIndex = 1;
             // 
             // connectionMenu
             // 
@@ -716,17 +716,17 @@ namespace LSC_Trainer
             this.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.ClientSize = new System.Drawing.Size(1164, 835);
             this.Controls.Add(this.SpaceBetween);
-            this.Controls.Add(this.lscTrainerMenuStrip);
+            this.Controls.Add(this.appMenuStrip);
             this.Controls.Add(this.mainPanel);
             this.Controls.Add(this.logPanel);
-            this.MainMenuStrip = this.lscTrainerMenuStrip;
+            this.MainMenuStrip = this.appMenuStrip;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimumSize = new System.Drawing.Size(1182, 400);
             this.Name = "MainForm";
-            this.Text = "LSC Trainer";
+            this.Text = "Automated AWS Model Creator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.lscTrainerMenuStrip.ResumeLayout(false);
-            this.lscTrainerMenuStrip.PerformLayout();
+            this.appMenuStrip.ResumeLayout(false);
+            this.appMenuStrip.PerformLayout();
             this.mainPanel.ResumeLayout(false);
             this.mainPanel.PerformLayout();
             this.logPanel.ResumeLayout(false);
@@ -737,7 +737,7 @@ namespace LSC_Trainer
 
         #endregion
 
-        private System.Windows.Forms.MenuStrip lscTrainerMenuStrip;
+        private System.Windows.Forms.MenuStrip appMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem connectionMenu;
         private System.Windows.Forms.ToolStripMenuItem helpMenu;
         private System.ComponentModel.BackgroundWorker backgroundWorker;

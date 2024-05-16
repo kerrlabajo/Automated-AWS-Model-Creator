@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using LSC_Trainer.Functions;
+using AutomatedAWSModelCreator.Functions;
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
 
     public partial class CustomHyperParamsForm : Form

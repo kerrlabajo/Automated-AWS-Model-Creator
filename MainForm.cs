@@ -10,14 +10,14 @@ using Amazon.SageMaker.Model;
 using Amazon.CloudWatchLogs;
 using Amazon.IdentityManagement;
 using System.Linq;
-using LSC_Trainer.Functions;
+using AutomatedAWSModelCreator.Functions;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
 using Amazon.EC2;
 
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     /// <summary>
     /// Represents the main form of the application. Also the Training Job form.
@@ -65,7 +65,7 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
+        private AutomatedAWSModelCreator.Functions.IFileTransferUtility fileTransferUtility;
 
         private List<string> supportedInstances = new List<string>()
         {
@@ -289,7 +289,7 @@ namespace LSC_Trainer
                     logPanel.Enabled = false;
                     connectionMenu.Enabled = false;
                     Cursor = Cursors.WaitCursor;
-                    lscTrainerMenuStrip.Cursor = Cursors.Default;
+                    appMenuStrip.Cursor = Cursors.Default;
                     trainingStatusBox.Text = "Uploading to S3";
                     descBox.Text = "Your dataset is being uploaded to S3. Please wait...";
                 }
@@ -384,7 +384,7 @@ namespace LSC_Trainer
                             logPanel.Enabled = false;
                             connectionMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
-                            lscTrainerMenuStrip.Cursor = Cursors.Default;
+                            appMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
                             DisplayLogMessage(outputResponse);
                             string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
@@ -730,7 +730,7 @@ namespace LSC_Trainer
             logPanel.Enabled = false;
             connectionMenu.Enabled = false;
             Cursor = Cursors.WaitCursor;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            appMenuStrip.Cursor = Cursors.Default;
             try
             {
                 List<string> jobName = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
@@ -1107,7 +1107,7 @@ namespace LSC_Trainer
             connectionMenu.Enabled = !isTraining;
             logPanel.Enabled = !isTraining;
             Cursor = isTraining ? Cursors.WaitCursor : Cursors.Default;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            appMenuStrip.Cursor = Cursors.Default;
         }
 
         /// <summary>
@@ -1302,7 +1302,7 @@ namespace LSC_Trainer
             logPanel.Enabled = false;
             connectionMenu.Enabled = false;
             Cursor = Cursors.WaitCursor;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            appMenuStrip.Cursor = Cursors.Default;
             try
             {
                 List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);

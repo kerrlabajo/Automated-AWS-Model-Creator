@@ -14,7 +14,7 @@ using System.Threading;
 using System.Net;
 using Amazon.Runtime;
 
-namespace LSC_Trainer.Functions
+namespace AutomatedAWSModelCreator.Functions
 {
     internal class FileTransferUtility : IFileTransferUtility
     {

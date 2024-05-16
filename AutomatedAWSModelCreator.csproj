@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F279F86F-4DC5-4490-9369-15F8CE038860}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>LSC_Trainer</RootNamespace>
-    <AssemblyName>LSC-Trainer</AssemblyName>
+    <RootNamespace>AutomatedAWSModelCreator</RootNamespace>
+    <AssemblyName>AutomatedAWSModelCreator</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -23,7 +23,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>12</ApplicationRevision>
+    <ApplicationRevision>13</ApplicationRevision>
     <ApplicationVersion>1.1.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -49,7 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>LSC_Trainer.Program</StartupObject>
+    <StartupObject>AutomatedAWSModelCreator.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>9E42F5EF9901C14131F811A4E83CEAC005EEBF39</ManifestCertificateThumbprint>
@@ -301,11 +301,11 @@
     </Compile>
     <Compile Include="Functions\AWS_Helper.cs" />
     <Compile Include="Functions\FileHandler.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions\FileTransferUtility.cs" />
     <Compile Include="Functions\IFileTransferUtility.cs" />
@@ -329,8 +329,8 @@
     <EmbeddedResource Include="CreateConnectionForm.resx">
       <DependentUpon>CreateConnectionForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HelpForm.resx">
       <DependentUpon>HelpForm.cs</DependentUpon>
@@ -343,6 +343,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

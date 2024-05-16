@@ -4,7 +4,7 @@ using System.IO;
 using YamlDotNet.Serialization;
 using System.Windows.Forms;
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     static class FileHandler
     {

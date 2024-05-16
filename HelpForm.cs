@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     public partial class HelpForm : Form
     {

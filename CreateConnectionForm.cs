@@ -1,14 +1,14 @@
 ﻿using Amazon;
 using Amazon.SageMaker;
 using Amazon.IdentityManagement;
-using LSC_Trainer.Functions;
+using AutomatedAWSModelCreator.Functions;
 using System;
 using System.Configuration;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     public partial class CreateConnectionForm : Form
     {

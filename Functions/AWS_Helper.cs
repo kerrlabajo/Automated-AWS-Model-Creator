@@ -21,7 +21,7 @@ using Amazon.ServiceQuotas.Model;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace LSC_Trainer.Functions
+namespace AutomatedAWSModelCreator.Functions
 {
     /// <summary>
     /// Provides helper methods for interacting with Amazon Web Services (AWS).

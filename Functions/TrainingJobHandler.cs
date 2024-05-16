@@ -16,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LSC_Trainer.Functions
+namespace AutomatedAWSModelCreator.Functions
 {
     /// <summary>
     /// Handles training job-related operations such as monitoring status, logging, and interacting with AWS services. Also responsible for
@@ -36,7 +36,7 @@ namespace LSC_Trainer.Functions
         private AmazonS3Client s3Client;
         private StartLiveTailResponse startLiveTailResponse;
 
-        private LSC_Trainer.Functions.IFileTransferUtility transferUtility;
+        private AutomatedAWSModelCreator.Functions.IFileTransferUtility transferUtility;
         private IUIUpdater uIUpdater;
 
         private System.Timers.Timer timer;
@@ -50,7 +50,7 @@ namespace LSC_Trainer.Functions
         /// <param name="amazonSageMakerClient">The Amazon SageMaker client to interact with SageMaker services.</param>
         /// <param name="cloudWatchLogsClient">The Amazon CloudWatch Logs client to interact with CloudWatch Logs.</param>
         /// <param name="s3Client">The Amazon S3 client to interact with S3 services.</param>
-        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
+        public TrainingJobHandler(AmazonSageMakerClient amazonSageMakerClient, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonS3Client s3Client, AutomatedAWSModelCreator.Functions.IFileTransferUtility fileTransferUtility, IUIUpdater uIUpdater)
         {
             this.amazonSageMakerClient = amazonSageMakerClient;
             this.cloudWatchLogsClient = cloudWatchLogsClient;

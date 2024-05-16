@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LSC-Trainer.csproj" />
+    <ProjectReference Include="..\AutomatedAWSModelCreator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

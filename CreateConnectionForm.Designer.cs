@@ -1,5 +1,5 @@
 ﻿
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     partial class CreateConnectionForm
     {
