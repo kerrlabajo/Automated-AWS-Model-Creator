@@ -16,10 +16,13 @@ DATASET_NAME = os.path.basename(args.dataset_config_path).replace('.yaml', '')
 # Define the file path
 FILE_PATH = args.dataset_config_path
 
+# Get the directory from the dataset_config_path
+dir_path = os.path.dirname(args.dataset_config_path)
+
 # Check if DATASET_NAME.yaml exists
 if not os.path.isfile(FILE_PATH):
     # If not, find any .yaml file in the current directory
-    yaml_files = glob.glob('*.yaml')
+    yaml_files = glob.glob(os.path.join(dir_path, '*.yaml'))
     if yaml_files:
         # Rename the first .yaml file to DATASET_NAME.yaml
         os.rename(yaml_files[0], FILE_PATH)
