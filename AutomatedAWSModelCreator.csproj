@@ -49,7 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>LSC_Trainer.Program</StartupObject>
+    <StartupObject>AutomatedAWSModelCreator.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>9E42F5EF9901C14131F811A4E83CEAC005EEBF39</ManifestCertificateThumbprint>
