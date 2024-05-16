@@ -20,7 +20,7 @@ namespace AutomatedAWSModelCreator
             InitializeComponent();
             helpBox.LinkClicked += HelpBox_LinkClicked;
 
-            string readmeUrl = "https://raw.githubusercontent.com/kerrlabajo/Automated-AWS-Model-Creator/features/README.md";
+            string readmeUrl = "https://raw.githubusercontent.com/kerrlabajo/Automated-AWS-Model-Creator/main/README.md";
 
             using (HttpClient client = new HttpClient())
             {
