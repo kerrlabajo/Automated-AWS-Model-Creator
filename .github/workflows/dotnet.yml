@@ -39,9 +39,9 @@
 name: Build and Test
 on:
   push:
-    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests"]
+    branches: [ "main", "features", "development"]
   pull_request:
-    branches: [ "main", "features", "feat/create-winforms-build-tests", "feat/multi-instance-gpu-ddp", "feat/build-container-tests" ]
+    branches: [ "main", "features", "development"]
 jobs:
   build:
     strategy:
@@ -62,7 +62,7 @@ jobs:
     - name: Restore Dependencies
       run: nuget restore 
     - name: Build
-      run: dotnet build LSC-Trainer.sln
+      run: dotnet build AutomatedAWSModelCreator.sln
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
