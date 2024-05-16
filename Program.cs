@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     static class Program
     {

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LSC_Trainer.Functions
+namespace AutomatedAWSModelCreator.Functions
 {
     public class TrainingJobExecutor : ITrainingJobExecutor
     {
@@ -142,7 +142,7 @@ namespace LSC_Trainer.Functions
         /// <param name="datasetKey">The key of the dataset in S3.</param>
         /// <param name="bucket">The bucket name where the dataset is stored.</param>
         /// <param name="HasCustomUploads">A flag indicating if custom uploads are used.</param>
-        public async Task InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonSageMakerClient amazonSageMakerClient, AmazonS3Client s3Client, LSC_Trainer.Functions.IFileTransferUtility transferUtility, string datasetKey, string bucket, bool HasCustomUploads)
+        public async Task InitiateTrainingJob(CreateTrainingJobRequest trainingRequest, AmazonCloudWatchLogsClient cloudWatchLogsClient, AmazonSageMakerClient amazonSageMakerClient, AmazonS3Client s3Client, AutomatedAWSModelCreator.Functions.IFileTransferUtility transferUtility, string datasetKey, string bucket, bool HasCustomUploads)
         {
             CreateTrainingJobResponse response = amazonSageMakerClient.CreateTrainingJob(trainingRequest);
             string trainingJobName = response.TrainingJobArn.Split(':').Last().Split('/').Last();

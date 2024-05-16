@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F279F86F-4DC5-4490-9369-15F8CE038860}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>LSC_Trainer</RootNamespace>
-    <AssemblyName>LSC-Trainer</AssemblyName>
+    <RootNamespace>AutomatedAWSModelCreator</RootNamespace>
+    <AssemblyName>AutomatedAWSModelCreator</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -343,6 +343,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

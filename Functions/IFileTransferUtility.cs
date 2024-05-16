@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LSC_Trainer.Functions
+namespace AutomatedAWSModelCreator.Functions
 {
     public interface IFileTransferUtility
     {

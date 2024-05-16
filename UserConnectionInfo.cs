@@ -1,4 +1,4 @@
-﻿namespace LSC_Trainer
+﻿namespace AutomatedAWSModelCreator
 {
     public class UserConnectionInfo
     {

@@ -10,14 +10,14 @@ using Amazon.SageMaker.Model;
 using Amazon.CloudWatchLogs;
 using Amazon.IdentityManagement;
 using System.Linq;
-using LSC_Trainer.Functions;
+using AutomatedAWSModelCreator.Functions;
 using System.Threading;
 using System.Configuration;
 using Amazon.ServiceQuotas;
 using Amazon.EC2;
 
 
-namespace LSC_Trainer
+namespace AutomatedAWSModelCreator
 {
     /// <summary>
     /// Represents the main form of the application. Also the Training Job form.
@@ -65,7 +65,7 @@ namespace LSC_Trainer
         private string selectedInstance;
         private CustomHyperParamsForm customHyperParamsForm;
 
-        private LSC_Trainer.Functions.IFileTransferUtility fileTransferUtility;
+        private AutomatedAWSModelCreator.Functions.IFileTransferUtility fileTransferUtility;
 
         private List<string> supportedInstances = new List<string>()
         {

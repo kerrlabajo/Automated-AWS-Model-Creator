@@ -1,7 +1,7 @@
 using Xunit;
-using LSC_Trainer;
+using AutomatedAWSModelCreator;
 
-namespace LSC_Trainer.Tests
+namespace AutomatedAWSModelCreator.Tests
 {
     public class UserConnectionInfoTests
     {
