@@ -33,8 +33,8 @@ else:
 
 # Define the new paths
 NEW_PATH = f"/opt/ml/input/data/{DATASET_NAME}"
-NEW_TRAIN = f"{NEW_PATH}{train_subdirs}"
-NEW_VAL = f"{NEW_PATH}{val_subdirs}"
+NEW_TRAIN = f"{NEW_PATH}{train_subdirs}".replace('\\', '/')
+NEW_VAL = f"{NEW_PATH}{val_subdirs}".replace('\\', '/')
 
 # Modify the values
 data['path'] = NEW_PATH
