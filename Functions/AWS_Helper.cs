@@ -121,7 +121,17 @@ namespace AutomatedAWSModelCreator.Functions
                     }
                 }
 
-                return (null, null);
+                // If no suitable repository or tag is found, return the a default URI and tag from the developers' copy.
+                string defaultUriAndTag = Properties.Settings.Default.CITU_DevTeam_ECR_URI;
+                string[] parts = defaultUriAndTag.Split(':');
+                if (parts.Length == 2)
+                {
+                    return (parts[0], parts[1]);
+                }
+                else
+                {
+                    throw new Exception("Default ECR URI is not in the correct format.");
+                }
             }
         }
 

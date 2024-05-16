@@ -96,6 +96,7 @@ namespace AutomatedAWSModelCreator
         {
             InitializeComponent();
             this.development = development;
+            logBox.LinkClicked += LogBox_LinkClicked;
 
             backgroundWorker = new System.ComponentModel.BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
@@ -1349,6 +1350,12 @@ namespace AutomatedAWSModelCreator
             lblZipFile.Text = datasetListComboBox.GetItemText(datasetListComboBox.SelectedItem);
             btnUploadToS3.Enabled = false;
             btnTraining.Enabled = true ? utility.HasCustomUploads(CUSTOM_UPLOADS_URI) && instancesDropdown.SelectedItem != null : false;
+        }
+
+        private void LogBox_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            // Open the link in the default browser
+            System.Diagnostics.Process.Start(e.LinkText);
         }
     }
 }
