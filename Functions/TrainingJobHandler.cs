@@ -151,10 +151,12 @@ namespace AutomatedAWSModelCreator.Functions
                         {
                             if (trainingDetails.SecondaryStatusTransitions.Any() && trainingDetails.SecondaryStatusTransitions.Last().Status == "Training")
                             {
-                                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, "/aws/sagemaker/TrainingJobs", trainingJobName);
+                                string logGroupName = "/aws/sagemaker/TrainingJobs";
+
+                                string logStreamName = await GetLatestLogStream(cloudWatchLogsClient, logGroupName, trainingJobName);
                                 if (!string.IsNullOrEmpty(logStreamName))
                                 {
-                                    await StartLiveTail(cloudWatchLogsClient, "arn:aws:logs:ap-southeast-1:905418164808:log-group:/aws/sagemaker/TrainingJobs:", logStreamName);
+                                    await StartLiveTail(cloudWatchLogsClient, $"arn:aws:logs:{UserConnectionInfo.Region}:{UserConnectionInfo.AccountId}:log-group:{logGroupName}:", logStreamName);
                                 }
                                     
                             }
