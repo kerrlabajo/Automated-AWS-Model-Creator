@@ -15,14 +15,26 @@ DATASET_NAME = os.path.basename(args.dataset_config_path).replace('.yaml', '')
 # Define the file path
 FILE_PATH = args.dataset_config_path
 
-# Define the new paths
-NEW_PATH = f"/opt/ml/input/data/{DATASET_NAME}"
-NEW_TRAIN = f"{NEW_PATH}/images/train"
-NEW_VAL = f"{NEW_PATH}/images/train"
-
 # Open and load the YAML file
 with open(FILE_PATH, 'r') as file:
   data = yaml.safe_load(file)
+
+# Check if DATASET_NAME is in the train and val paths
+if DATASET_NAME in data['train'] and DATASET_NAME in data['val']:
+  # Extract subdirectories after the dataset name in the original paths
+  train_subdirs = data['train'].split(DATASET_NAME, 1)[1]
+  val_subdirs = data['val'].split(DATASET_NAME, 1)[1]
+elif data['train'].startswith('..') and data['val'].startswith('..'):
+  # Remove the '..' from the original paths
+  train_subdirs = data['train'][2:]
+  val_subdirs = data['val'][2:]
+else:
+  raise ValueError("Invalid format for train or val paths")
+
+# Define the new paths
+NEW_PATH = f"/opt/ml/input/data/{DATASET_NAME}"
+NEW_TRAIN = f"{NEW_PATH}{train_subdirs}"
+NEW_VAL = f"{NEW_PATH}{val_subdirs}"
 
 # Modify the values
 data['path'] = NEW_PATH
