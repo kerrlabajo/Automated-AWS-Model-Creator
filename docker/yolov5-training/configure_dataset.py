@@ -1,6 +1,7 @@
 import yaml
 import argparse
 import os
+import glob
 
 # Define the argument parser
 parser = argparse.ArgumentParser(description='Configure dataset')
@@ -14,6 +15,16 @@ DATASET_NAME = os.path.basename(args.dataset_config_path).replace('.yaml', '')
 
 # Define the file path
 FILE_PATH = args.dataset_config_path
+
+# Check if DATASET_NAME.yaml exists
+if not os.path.isfile(FILE_PATH):
+    # If not, find any .yaml file in the current directory
+    yaml_files = glob.glob('*.yaml')
+    if yaml_files:
+        # Rename the first .yaml file to DATASET_NAME.yaml
+        os.rename(yaml_files[0], FILE_PATH)
+    else:
+        raise FileNotFoundError("No .yaml file found to rename")
 
 # Open and load the YAML file
 with open(FILE_PATH, 'r') as file:
