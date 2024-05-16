@@ -25,7 +25,8 @@ namespace AutomatedAWSModelCreator.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("792483489296.dkr.ecr.ap-southeast-1.amazonaws.com/yolov5-training")]
+        [global::System.Configuration.DefaultSettingValueAttribute("792483489296.dkr.ecr.ap-southeast-1.amazonaws.com/yolov5-training:4.3-py310-cu121" +
+            "")]
         public string CITU_DevTeam_ECR_URI {
             get {
                 return ((string)(this["CITU_DevTeam_ECR_URI"]));

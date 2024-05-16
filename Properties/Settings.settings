@@ -1,9 +1,9 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="LSC_Trainer.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AutomatedAWSModelCreator.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="CITU_DevTeam_ECR_URI" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">792483489296.dkr.ecr.ap-southeast-1.amazonaws.com/yolov5-training</Value>
+      <Value Profile="(Default)">792483489296.dkr.ecr.ap-southeast-1.amazonaws.com/yolov5-training:4.3-py310-cu121</Value>
     </Setting>
     <Setting Name="AccountId" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
