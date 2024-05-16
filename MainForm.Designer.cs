@@ -723,7 +723,7 @@ namespace AutomatedAWSModelCreator
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimumSize = new System.Drawing.Size(1182, 400);
             this.Name = "MainForm";
-            this.Text = "LSC Trainer";
+            this.Text = "Automated AWS Model Creator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.lscTrainerMenuStrip.ResumeLayout(false);
             this.lscTrainerMenuStrip.PerformLayout();
