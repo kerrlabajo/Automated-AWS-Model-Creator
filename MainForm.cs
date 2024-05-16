@@ -289,7 +289,7 @@ namespace AutomatedAWSModelCreator
                     logPanel.Enabled = false;
                     connectionMenu.Enabled = false;
                     Cursor = Cursors.WaitCursor;
-                    lscTrainerMenuStrip.Cursor = Cursors.Default;
+                    appMenuStrip.Cursor = Cursors.Default;
                     trainingStatusBox.Text = "Uploading to S3";
                     descBox.Text = "Your dataset is being uploaded to S3. Please wait...";
                 }
@@ -384,7 +384,7 @@ namespace AutomatedAWSModelCreator
                             logPanel.Enabled = false;
                             connectionMenu.Enabled = false;
                             Cursor = Cursors.WaitCursor;
-                            lscTrainerMenuStrip.Cursor = Cursors.Default;
+                            appMenuStrip.Cursor = Cursors.Default;
                             string outputResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, outputKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
                             DisplayLogMessage(outputResponse);
                             string modelResponse = await fileTransferUtility.DownloadObjects(s3Client, SAGEMAKER_BUCKET, modelKey, selectedLocalPath + $"/{trainingJobName ?? outputListComboBox.Text}");
@@ -730,7 +730,7 @@ namespace AutomatedAWSModelCreator
             logPanel.Enabled = false;
             connectionMenu.Enabled = false;
             Cursor = Cursors.WaitCursor;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            appMenuStrip.Cursor = Cursors.Default;
             try
             {
                 List<string> jobName = await AWS_Helper.GetTrainingJobOutputList(s3Client, SAGEMAKER_BUCKET);
@@ -1107,7 +1107,7 @@ namespace AutomatedAWSModelCreator
             connectionMenu.Enabled = !isTraining;
             logPanel.Enabled = !isTraining;
             Cursor = isTraining ? Cursors.WaitCursor : Cursors.Default;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            appMenuStrip.Cursor = Cursors.Default;
         }
 
         /// <summary>
@@ -1302,7 +1302,7 @@ namespace AutomatedAWSModelCreator
             logPanel.Enabled = false;
             connectionMenu.Enabled = false;
             Cursor = Cursors.WaitCursor;
-            lscTrainerMenuStrip.Cursor = Cursors.Default;
+            appMenuStrip.Cursor = Cursors.Default;
             try
             {
                 List<string> datasets = await AWS_Helper.GetAvailableDatasetsList(s3Client, SAGEMAKER_BUCKET);
