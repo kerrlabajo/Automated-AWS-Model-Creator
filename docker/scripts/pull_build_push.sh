@@ -76,6 +76,9 @@ NEW_TAG="${VERSION}${TAG_BASE}"
 # Authenticate Docker to ECR
 aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin ${ECR_URL}
 
+# Check if the repository exists, if not create it
+aws ecr describe-repositories --repository-names ${DOCKER_IMAGE} > /dev/null 2>&1 || aws ecr create-repository --repository-name ${DOCKER_IMAGE} > /dev/null 2>&1
+
 # Build and push the image
 sudo docker build -t ${ECR_URL}/${DOCKER_IMAGE}:${NEW_TAG} -f ../yolov5-training/Dockerfile ../yolov5-training
 sudo docker push ${ECR_URL}/${DOCKER_IMAGE}:${NEW_TAG}
